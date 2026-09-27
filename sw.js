@@ -1,5 +1,5 @@
 // Service worker: funciona offline. Red primero para index.html (para recibir actualizaciones), caché primero para lo demás.
-const CACHE = 'tuki-speak-v1';
+const CACHE = 'tuki-speak-v2';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

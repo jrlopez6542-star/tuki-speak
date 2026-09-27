@@ -482,7 +482,7 @@ const MASCOT = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ar
 
 /* =================== ESTADO / PERSISTENCIA =================== */
 const KEY = 'tukiSpeak.v1';
-const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, geminiKey: '', model: 'gemini-flash-latest' };
+const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, geminiKey: '', model: 'gemini-2.5-flash' };
 function freshState() {
   return { v: 1, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
 }
@@ -1264,19 +1264,38 @@ CORRECCION: <in Spanish, 1-2 short sentences: fix grammar/vocabulary mistakes in
 PRONUNCIACION: <in Spanish: 1-2 words from your reply or the learner's message that Spanish speakers often mispronounce, each with a very short tip, e.g. "think /θ/: saca la lengua entre los dientes". Keep it short.>
 REPLY: <your answer in simple, natural English, max 2-3 short sentences, staying in the roleplay and ending with a question to keep the conversation going.>`;
 }
-async function gemini(userText) {
-  const key = S.settings.geminiKey.trim(), model = (S.settings.model || 'gemini-flash-latest').trim();
-  const contents = CHAT.hist.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
-  // el mensaje del usuario ya está al final de CHAT.hist
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ system_instruction: { parts: [{ text: chatSystem() }] }, contents, generationConfig: { temperature: 0.7, maxOutputTokens: 600 } })
+async function geminiCall(key, model, contents) {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+    body: JSON.stringify({ systemInstruction: { parts: [{ text: chatSystem() }] }, contents, generationConfig: { temperature: 0.7, maxOutputTokens: 800 } })
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) { const m = (data.error && data.error.message) || res.statusText; throw new Error(res.status + ': ' + m); }
+  if (!res.ok) { const m = (data.error && data.error.message) || res.statusText || 'error'; const e = new Error(res.status + ': ' + m); e.status = res.status; throw e; }
   const text = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts || []).map(p => p.text || '').join('').trim();
-  if (!text) throw new Error('Respuesta vacía del modelo.');
+  if (!text) { const e = new Error('Respuesta vacía del modelo.'); e.status = 0; throw e; }
   return text;
+}
+async function gemini(userText) {
+  const key = S.settings.geminiKey.trim();
+  const pref = (S.settings.model || 'gemini-2.5-flash').trim();
+  const contents = CHAT.hist.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
+  const models = [pref, 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest'].filter((m, i, a) => m && a.indexOf(m) === i);
+  let lastErr;
+  for (const model of models) {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        const out = await geminiCall(key, model, contents);
+        if (model !== pref) { S.settings.model = model; save(); }
+        return out;
+      } catch (e) {
+        lastErr = e;
+        if (e.status === 400 || e.status === 401 || e.status === 403) throw e; // clave inválida: no sirve reintentar
+        if (e.status === 429 || e.status >= 500) await new Promise(r => setTimeout(r, 1200));
+        if (!(e.status >= 500) || attempt === 1) break; // 404/429/vacío: pasar al siguiente modelo
+      }
+    }
+  }
+  throw lastErr;
 }
 function parseTutor(t) {
   const get = lab => { const m = t.match(new RegExp(lab + '\\s*:\\s*([\\s\\S]*?)(?=\\n\\s*(CORRECCI[OÓ]N|PRONUNCIACI[OÓ]N|REPLY)\\s*:|$)', 'i')); return m ? m[1].trim() : ''; };
@@ -1309,7 +1328,7 @@ VIEWS.chat = v => {
     if (CHAT.busy || !text) return; CHAT.err = null; CHAT.busy = true;
     CHAT.hist.push({ role: 'user', text, hidden, conf }); draw();
     try { const out = await gemini(text); CHAT.hist.push({ role: 'model', text: out }); CHAT.busy = false; draw(); addXP(1); if (S.settings.autoplay) speak(parseTutor(out).reply); }
-    catch (e) { CHAT.hist.pop(); CHAT.busy = false; CHAT.err = 'Error con Gemini: ' + e.message + (/404|not found/i.test(e.message) ? ' — Prueba otro modelo en Ajustes (botón "Detectar modelos").' : /429|quota/i.test(e.message) ? ' — Límite gratuito alcanzado; espera un momento.' : /400|API key/i.test(e.message) ? ' — Revisa tu clave en Ajustes.' : ''); draw(); }
+    catch (e) { CHAT.hist.pop(); CHAT.busy = false; CHAT.err = 'Error con Gemini: ' + e.message + (/404|not found|50\d/i.test(e.message) ? ' — Google no respondió con ningún modelo. Espera un minuto y toca Reintentar, o prueba otro modelo en Ajustes (botón "Detectar modelos").' : /429|quota/i.test(e.message) ? ' — Límite gratuito alcanzado; espera un momento.' : /400|API key/i.test(e.message) ? ' — Revisa tu clave en Ajustes.' : ''); draw(); }
   };
   const start = () => { CHAT.hist = []; CHAT.err = null; draw(); send('(Start the roleplay now with a short friendly greeting and a first question.)', true); };
   $('#scen').onchange = e => { CHAT.scen = e.target.value; start(); };
