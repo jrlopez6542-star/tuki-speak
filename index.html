@@ -430,6 +430,9 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 [data-theme=dark] .tc-praise{color:#5fe0a0}
 .tc-card.win .tc-ctx{padding-right:84px}
 [data-theme=dark] .tc-top .pill{background:#243241;color:var(--mute)}
+[data-theme=dark] .btn[disabled]{background:#26323d!important;color:#5f6f7e!important;box-shadow:0 4px 0 #1b242d!important}
+.hitem.pend{border-style:dashed}.pill.gen{background:var(--o);color:#fff}
+.rawerr{margin-top:6px;padding:8px;border-radius:10px;background:rgba(127,127,127,.12);font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word}
 </style>
 </head>
 <body>
@@ -844,6 +847,21 @@ COURSE.forEach(u => u.lessons.forEach(l => { if (l.type === 'vocab') { l.ex = l.
 const $ = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* v2.5.1: el texto de la IA puede traer entidades HTML (&quot; &amp; &#39;…). Se decodifica UNA vez al entrar y se escapa UNA vez al pintar. */
+const ENT_NAMED = { quot: '"', amp: '&', apos: "'", lt: '<', gt: '>', nbsp: ' ', ldquo: '“', rdquo: '”', lsquo: '‘', rsquo: '’', hellip: '…', mdash: '—', ndash: '–', iexcl: '¡', iquest: '¿' };
+function decodeEnt(s) {
+  s = String(s ?? ''); if (s.indexOf('&') < 0) return s;
+  for (let k = 0; k < 3; k++) {
+    const t = s.replace(/&(?:#x([0-9a-f]{1,6})|#(\d{1,7})|(quot|amp|apos|nbsp)(?![a-z0-9])|(lt|gt|ldquo|rdquo|lsquo|rsquo|hellip|mdash|ndash|iexcl|iquest));?/gi, (m, hx, dc, n1, n2) => {
+      if (hx || dc) { const cp = parseInt(hx || dc, hx ? 16 : 10); return cp > 0 && cp <= 0x10ffff && !(cp >= 0xd800 && cp <= 0xdfff) ? String.fromCodePoint(cp) : m; }
+      if (!m.endsWith(';') && n2) return m;
+      return ENT_NAMED[(n1 || n2).toLowerCase()] ?? m;
+    });
+    if (t === s) break; s = t;
+  }
+  return s;
+}
+function decodeDeep(o) { if (typeof o === 'string') return decodeEnt(o); if (Array.isArray(o)) return o.map(decodeDeep); if (o && typeof o === 'object') { const r = {}; for (const k in o) r[k] = decodeDeep(o[k]); return r; } return o; }
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const sample = (a, n) => shuffle(a).slice(0, n);
@@ -1697,7 +1715,7 @@ function parseTutor(t) {
 </script>
 <script>
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.5.0';
+const APP_VERSION = '2.5.1';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
@@ -2285,6 +2303,7 @@ ${speedRules(false)}
 ${HELP_COMMANDS}`;
 };
 parseTutor = function (t) {
+  t = decodeEnt(t);
   const LAB = 'CORRECCI[OÓ]N|EXPLICACI[OÓ]N|AYUDA|PRONUNCIACI[OÓ]N|REPLY|PR[AÁ]CTICA';
   const get = lab => { const m = t.match(new RegExp('(?:^|\\n)\\s*\\**(?:' + lab + ')\\**\\s*:\\s*([\\s\\S]*?)(?=\\n\\s*\\**(?:' + LAB + ')\\**\\s*:|$)', 'i')); const v = m ? m[1].trim() : ''; return /^[-—–]?$/.test(v) ? '' : v; };
   const reply = get('REPLY');
@@ -2476,21 +2495,28 @@ async function openaiChat() {
 }
 function resetChat() { CHAT.gen = (CHAT.gen || 0) + 1; CHAT.busy = false; CHAT.hist = []; CHAT.err = null; }
 /* Palabras tocables (ayuda de vocabulario) */
-function tapWords(text) { return esc(text).replace(/[A-Za-z][A-Za-z'’]*(?:-[A-Za-z]+)*/g, w => `<span class="tw" data-tw="${w}">${w}</span>`); }
+function tapWords(text) {
+  const s = decodeEnt(text), re = /[A-Za-z][A-Za-z'’]*(?:-[A-Za-z]+)*/g; let out = '', last = 0, m;
+  while ((m = re.exec(s))) { const w = esc(m[0]); out += esc(s.slice(last, m.index)) + `<span class="tw" data-tw="${w}">${w}</span>`; last = re.lastIndex; }
+  return out + esc(s.slice(last));
+}
+/* Modo español: solo las frases entre comillas son tocables */
+function quoteTap(text) { const s = decodeEnt(text), re = /(["“])([^"”]+)(["”])/g; let out = '', last = 0, m; while ((m = re.exec(s))) { out += esc(s.slice(last, m.index)) + esc(m[1]) + tapWords(m[2]) + esc(m[3]); last = re.lastIndex; } return out + esc(s.slice(last)); }
 function msgActs(i, text, lang) {
+  text = decodeEnt(text);
   return `<div class="msgacts"><button class="mini" data-say-n="${esc(text)}" data-lang="${lang}" title="Escuchar">🔊</button><button class="mini" data-slow-i="${i}" title="Repetir lento">🔁 Lento</button>${lang === 'es' ? '' : `<button class="mini" data-tr-i="${i}" title="Traducir al español">🇪🇸 Traducir</button>`}</div>`;
 }
 const trHTML = m => m.trOpen ? `<div class="trbox">${m.trText ? '🇪🇸 ' + esc(m.trText) : m.trErr ? '⚠️ ' + esc(m.trErr) : '🇪🇸 Traduciendo…'}</div>` : '';
-function msgText(m) { return m.live ? m.text : parseTutor(m.text).reply; }
+function msgText(m) { return m.live ? decodeEnt(m.text) : parseTutor(m.text).reply; }
 function chatDraw(keepScroll) {
   const log = $('#log'); if (!log) return;
   const st = log.scrollTop;
   log.innerHTML = CHAT.hist.map((m, i) => {
-    if (m.role === 'user') return m.hidden ? '' : `<div class="msg me">${m.live ? '🎙️ ' : ''}${esc(m.text)}${m.conf ? `<div class="small" style="opacity:.8">🎤 confianza ${Math.round(m.conf * 100)}%</div>` : ''}</div>`;
+    if (m.role === 'user') return m.hidden ? '' : `<div class="msg me">${m.live ? '🎙️ ' : ''}${esc(decodeEnt(m.text))}${m.conf ? `<div class="small" style="opacity:.8">🎤 confianza ${Math.round(m.conf * 100)}%</div>` : ''}</div>`;
     if (m.live) return `<div class="msg bot"><div class="mtext">${tapWords(m.text)}</div>${trHTML(m)}${msgActs(i, m.text, 'en')}</div>`;
     const p = parseTutor(m.text), esMode = tutorLang() === 'es', exLang = tutorLang() === 'en' ? 'en' : 'es';
     const fixHTML = p.fix ? (isPerfect(p.fix) ? `<div class="msg fix ok">✅ ¡Perfecto! Tu frase fue correcta.</div>` : `<div class="msg fix"><div class="fx-lab">✏️ Corrección (EN)</div><div class="fx-en">${tapWords(p.fix)} <button class="mini" data-say-n="${esc(p.fix)}" data-lang="en" title="Escuchar la frase correcta">🔊</button></div>${p.expl ? `<div class="fx-lab" style="margin-top:6px">💡 ${exLang === 'es' ? 'Explicación (ES)' : 'Why (EN)'}</div><div class="fx-es">${exLang === 'es' ? esc(p.expl) : tapWords(p.expl)}</div>` : ''}</div>`) : (p.expl ? `<div class="msg fix"><div class="fx-lab">💡 ${exLang === 'es' ? 'Explicación (ES)' : 'Why (EN)'}</div><div class="fx-es">${esc(p.expl)}</div></div>` : '');
-    return `${fixHTML}${p.help ? `<div class="msg help">🇨🇴 ${esc(p.help)} <button class="mini" data-say-n="${esc(p.help)}" data-lang="es">🔊</button></div>` : ''}${p.pron ? `<div class="msg fix pron">🗣️ ${esc(p.pron)}</div>` : ''}<div class="msg bot"><div class="mtext">${esMode ? esc(p.reply).replace(/(["“])([^"”]+)(["”])/g, (x, a, q, c) => a + tapWords(q) + c) : tapWords(p.reply)}</div>${trHTML(m)}${msgActs(i, p.reply, esMode ? 'es' : 'en')}</div>${p.practice ? `<div class="msg practice"><div class="fx-lab">🎯 Practica en inglés</div><div class="fx-en">${tapWords(p.practice)}</div><div class="row" style="gap:6px;margin-top:6px"><button class="mini" data-say-n="${esc(p.practice)}" data-lang="en">🔊</button><button class="mini" data-say-slow="${esc(p.practice)}">🐢</button></div></div>` : ''}`;
+    return `${fixHTML}${p.help ? `<div class="msg help">🇨🇴 ${esc(p.help)} <button class="mini" data-say-n="${esc(p.help)}" data-lang="es">🔊</button></div>` : ''}${p.pron ? `<div class="msg fix pron">🗣️ ${esc(p.pron)}</div>` : ''}<div class="msg bot"><div class="mtext">${esMode ? quoteTap(p.reply) : tapWords(p.reply)}</div>${trHTML(m)}${msgActs(i, p.reply, esMode ? 'es' : 'en')}</div>${p.practice ? `<div class="msg practice"><div class="fx-lab">🎯 Practica en inglés</div><div class="fx-en">${tapWords(p.practice)}</div><div class="row" style="gap:6px;margin-top:6px"><button class="mini" data-say-n="${esc(p.practice)}" data-lang="en">🔊</button><button class="mini" data-say-slow="${esc(p.practice)}">🐢</button></div></div>` : ''}`;
   }).join('') + (!CHAT.hist.length && !CHAT.busy && !CHAT.err ? `<div class="empty small">${LIVE.on ? 'Habla cuando quieras: aquí verás lo que tú y Tuki dicen. Di «más despacio» o «¿qué significa…?» si lo necesitas.' : 'Toca <b>«Hablar en vivo»</b> (abajo) para conversar con tu voz, o escribe. Toca <b>Nueva</b> para que Tuki empiece.<br>Toca cualquier palabra en inglés para ver su significado.<br><span class="muted">Nivel: ' + LEVELS[chatLevel()].label + ' · Tutor: ' + TUTOR_LANGS[tutorLang()].name + ' · Velocidad: ' + TUTOR_SPEEDS[tutorSpeed()].name + '. La IA puede equivocarse; tu voz y mensajes se envían a ' + (currentProvider() === 'openai' ? 'OpenAI' : 'Google') + ' con tu clave. Usa audífonos para evitar eco.</span>'}</div>` : '') + (CHAT.busy ? '<div class="msg bot">…</div>' : '') + (CHAT.err ? `<div class="msg err">⚠️ ${esc(CHAT.err)}</div>` : '');
   $$('[data-say-n]', log).forEach(b => b.onclick = () => speak(b.dataset.sayN, false, null, b.dataset.lang === 'es' ? 'es' : undefined, chatMul()));
   $$('[data-say-slow]', log).forEach(b => b.onclick = () => speak(b.dataset.saySlow, true, null, undefined, chatMul()));
@@ -2503,24 +2529,61 @@ function chatDraw(keepScroll) {
 const CACHE_KEYS = { w: 'tukiSpeak.wcache', t: 'tukiSpeak.tcache' };
 function cacheGet(k, id) { try { return (JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'))[id]; } catch (e) { return undefined; } }
 function cacheSet(k, id, v) { try { const o = JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'); o[id] = v; const ks = Object.keys(o); if (ks.length > 400) ks.slice(0, ks.length - 400).forEach(x => delete o[x]); localStorage.setItem(CACHE_KEYS[k], JSON.stringify(o)); } catch (e) {} }
+/* v2.5.1: llamadas únicas a la IA resistentes a saturación (503/429/500/UNAVAILABLE/high demand) */
+const AIQ = { budget: 25000, base: 700, good: null };
+const GEM_QUICK_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.0-flash-lite'];
+function aiTransient(e) { if (!e) return false; const m = String(e.detail || e.message || ''); return [408, 429, 500, 502, 503, 504].includes(e.status) || /UNAVAILABLE|high demand|overloaded|RESOURCE_EXHAUSTED|try again later|temporarily/i.test(m); }
+function aiStatus(msg) { try { document.dispatchEvent(new CustomEvent('tuki-ai-status', { detail: msg || '' })); } catch (e) {} }
+function aiBusyErr(last, prov) { const e = new Error((last && last.message) || 'busy'); e.status = last && last.status; e.detail = (last && (last.detail || last.message)) || ''; e.busy = true; e.friendly = (prov || 'Gemini') + ' está muy ocupado en este momento (mucha demanda). Espera un minuto e intenta de nuevo.'; return e; }
+async function gemQuickCall(model, system, prompt, max, json, timeout) {
+  const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), timeout);
+  try {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', 'x-goog-api-key': S.settings.geminiKey.trim() }, body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: Object.assign({ temperature: 0.2, maxOutputTokens: max }, json ? { responseMimeType: 'application/json' } : {}) }) });
+    if (!r.ok) throw await httpErr(r);
+    const d = await r.json();
+    return ((d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || []).map(x => x.text || '').join('').trim();
+  } catch (e) { if (e.name === 'AbortError') { const x = new Error('Tiempo de espera agotado.'); x.status = 408; throw x; } throw e; }
+  finally { clearTimeout(tm); }
+}
 async function aiQuick(system, prompt, opts = {}) {
-  const max = opts.max || 300;
+  const max = opts.max || 300, out = t => opts.json ? t : decodeEnt(t);
   const prov = currentProvider(); if (!prov) { const e = new Error('Configura una clave de IA en Ajustes para traducir.'); e.friendly = e.message; throw e; }
+  const t0 = Date.now(), left = () => AIQ.budget - (Date.now() - t0);
   if (prov === 'openai') {
-    const model = S.settings.openaiModel || 'gpt-4o-mini', body = { model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], max_completion_tokens: max }; if (opts.json) body.response_format = { type: 'json_object' };
-    const r = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + S.settings.openaiKey.trim(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-    if (!r.ok) throw await httpErr(r); const d = await r.json(); return ((d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '').trim();
+    let last;
+    for (let k = 0; k < 3; k++) {
+      if (k) { if (left() <= 0) break; aiStatus(`OpenAI está ocupado, reintentando… (${k + 1}/3)`); await sleep(Math.min(AIQ.base * 2 * k, Math.max(0, left()))); }
+      try {
+        const model = S.settings.openaiModel || 'gpt-4o-mini', body = { model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], max_completion_tokens: max }; if (opts.json) body.response_format = { type: 'json_object' };
+        const r = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + S.settings.openaiKey.trim(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!r.ok) throw await httpErr(r); const d = await r.json(); aiStatus(''); return out(((d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '').trim());
+      } catch (e) { last = e; if (!aiTransient(e)) { aiStatus(''); throw e; } }
+    }
+    aiStatus(''); throw aiBusyErr(last, 'OpenAI');
   }
-  const models = [S.settings.model || 'gemini-2.5-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest'].filter((m, i, a) => m && a.indexOf(m) === i);
-  let last;
-  for (const model of models) {
-    try {
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': S.settings.geminiKey.trim() }, body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: Object.assign({ temperature: 0.2, maxOutputTokens: max }, opts.json ? { responseMimeType: 'application/json' } : {}) }) });
-      if (!r.ok) { last = await httpErr(r); if (r.status >= 500 || r.status === 404 || r.status === 429) continue; throw last; }
-      const d = await r.json(); const t = ((d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || []).map(x => x.text || '').join('').trim();
-      if (t) return t;
-    } catch (e) { last = e; if (e.status && e.status < 500 && e.status !== 404 && e.status !== 429) break; }
+  const models = [AIQ.good, S.settings.model || 'gemini-2.5-flash', ...GEM_QUICK_MODELS].filter((m, i, a) => m && a.indexOf(m) === i), N = models.length;
+  let last = null;
+  for (let pass = 0; pass < 4; pass++) {
+    let transient = false;
+    for (let i = 0; i < N; i++) {
+      if (last) { if (left() <= 0) break; aiStatus(pass ? `Gemini sigue ocupado, reintentando… (${i + 1}/${N})` : `Gemini está ocupado, probando otro modelo… (${i + 1}/${N})`); }
+      try {
+        const t = await gemQuickCall(models[i], system, prompt, max, opts.json, Math.max(15000, left() + 5000));
+        if (t) { AIQ.good = models[i]; aiStatus(''); return out(t); }
+        last = new Error('Respuesta vacía del modelo.'); last.status = 0;
+      } catch (e) {
+        last = e;
+        if (e instanceof TypeError && !e.status) { aiStatus(''); throw e; }
+        if (e.status === 404) continue;
+        if (aiTransient(e)) { transient = true; if (left() > 0) await sleep(Math.min(AIQ.base, Math.max(0, left()))); continue; }
+        aiStatus(''); throw e;
+      }
+    }
+    if (!transient || left() <= 0) break;
+    aiStatus('Gemini sigue ocupado, esperando un momento para reintentar…'); await sleep(Math.min(AIQ.base * 2 * (pass + 1), Math.max(0, left())));
   }
+  aiStatus('');
+  if (aiTransient(last)) throw aiBusyErr(last, 'Gemini');
   throw last || new Error('Sin respuesta');
 }
 async function toggleTranslate(i) {
@@ -2845,7 +2908,7 @@ const _fresh24 = freshState; freshState = function () { return { ..._fresh24(), 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const clamp100 = x => Math.max(0, Math.min(100, Math.round(+x || 0)));
 function parseJSONLoose(t) { const s = String(t || '').replace(/^```(?:json)?\s*|\s*```$/g, ''); try { return JSON.parse(s); } catch (e) { const m = s.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); throw new Error('La IA no devolvió un resultado válido. Intenta de nuevo.'); } }
-async function aiJSON(system, prompt, max = 1800) { return parseJSONLoose(await aiQuick(system, prompt, { max, json: true })); }
+async function aiJSON(system, prompt, max = 1800) { return decodeDeep(parseJSONLoose(await aiQuick(system, prompt, { max, json: true }))); }
 function sayBtns(t) { return `<button class="mini" data-say-n="${esc(t)}" title="Escuchar">🔊</button><button class="mini" data-say-slow="${esc(t)}" title="Lento">🐢</button>`; }
 function bindSayTap(root) {
   $$('[data-say-n]', root).forEach(b => b.onclick = e => { e.stopPropagation(); speak(b.dataset.sayN, false, null, b.dataset.lang === 'es' ? 'es' : undefined, chatMul()); });
@@ -2872,12 +2935,21 @@ const SUM_SYS = () => `You are an expert English teacher analyzing a conversatio
 Return ONLY JSON with this exact shape (Spanish for all *_es fields, Latin American Spanish, use "tú"):
 {"summary_es":"1-2 sentences about how the conversation went","mistakes":[{"said":"what the learner said (quote)","correct":"correct natural English sentence","explain_es":"short explanation"}],"new_words":[{"en":"useful English word or short phrase from the conversation","es":"Spanish meaning"}],"mispronounced":[{"word":"English word the learner probably mispronounced or the speech recognizer misheard","note_es":"short tip"}],"scores":{"fluency":0-100,"grammar":0-100,"vocabulary":0-100},"tips_es":["tip 1","tip 2"]}
 Rules: max 6 mistakes (most important first), max 8 new_words, max 5 mispronounced, 1-2 tips. Only include real mistakes made by the learner. Be encouraging and fair with scores for the learner's level.`;
-async function summarizeConvo(msgs, meta) {
-  const data = await aiJSON(SUM_SYS(), `Conversation (${meta.title}):\n${convoTranscript(msgs)}`, 4000);
+/* v2.5.1: la transcripción se guarda como «Resumen pendiente» antes de llamar a la IA; si falla, se puede reintentar luego */
+function ensureSP() { if (!Array.isArray(S.sumPending)) S.sumPending = []; }
+function sumPendingAdd(tr, meta) { ensureSP(); const p = { id: uid(), ts: Date.now(), date: dayKey(), title: meta.title || 'Conversación', mode: meta.mode || 'chat', live: !!meta.live, tr }; S.sumPending.unshift(p); S.sumPending = S.sumPending.slice(0, 10); save(); return p; }
+async function summarizeConvo(msgs, meta) { const p = sumPendingAdd(convoTranscript(msgs), meta); return runPendingSummary(p.id); }
+async function runPendingSummary(id) {
+  ensureSP(); const p = S.sumPending.find(x => x.id === id);
+  if (!p) { const e = new Error('Este resumen ya no está pendiente.'); e.friendly = e.message; throw e; }
+  let data;
+  try { data = await aiJSON(SUM_SYS(), `Conversation (${p.title}):\n${p.tr}`, 4000); }
+  catch (e) { p.err = String(e.detail || e.message || e).slice(0, 400); p.tries = (p.tries || 0) + 1; p.last = Date.now(); save(); e.pendId = id; throw e; }
   const d = { summary_es: String(data.summary_es || ''), mistakes: (data.mistakes || []).filter(m => m && m.correct).slice(0, 6), new_words: (data.new_words || []).filter(w => w && w.en).slice(0, 8), mispronounced: (data.mispronounced || []).filter(w => w && w.word).slice(0, 5), scores: { fluency: clamp100((data.scores || {}).fluency), grammar: clamp100((data.scores || {}).grammar), vocabulary: clamp100((data.scores || {}).vocabulary) }, tips_es: (data.tips_es || data.tips || []).slice(0, 2).map(String) };
   const added = addLearnItems([...d.mistakes.map(m => ({ en: m.correct, es: m.explain_es, kind: 'frase' })), ...d.new_words.map(w => ({ en: w.en, es: w.es, kind: /\s/.test(w.en.trim()) ? 'frase' : 'palabra' }))], 'convo');
   flagHard(d.mispronounced, 'convo');
-  const rec = { id: uid(), ts: Date.now(), date: dayKey(), kind: 'summary', title: meta.title, mode: meta.mode, live: !!meta.live, added, data: d };
+  const rec = { id: uid(), ts: Date.now(), date: p.date || dayKey(), kind: 'summary', title: p.title, mode: p.mode, live: p.live, added, data: d };
+  S.sumPending = S.sumPending.filter(x => x.id !== id);
   S.summaries.unshift(rec); S.summaries = S.summaries.slice(0, 60); addXP(5); save(); checkBadges();
   return rec;
 }
@@ -2893,17 +2965,36 @@ function summaryHTML(rec) {
     ${d.tips_es.length ? `<h3>🎯 Consejos</h3><ul class="small">${d.tips_es.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
     ${rec.added ? `<div class="tipbox small">🃏 Se agregaron <b>${rec.added}</b> tarjetas a tu mazo y al <b>Plan de hoy</b>.</div>` : ''}</div>`;
 }
+function aiFriendly(e, what) {
+  if (e && e.friendly) return e.friendly;
+  if (!navigator.onLine) return 'Estás sin conexión a internet. Tu conversación quedó guardada; intenta de nuevo cuando tengas red.';
+  if (e && [400, 401, 403, 404].includes(e.status)) return errES(Object.assign(new Error(''), { status: e.status }));
+  return 'No se pudo generar ' + (what || 'el resumen') + ' en este momento.';
+}
 function openSummarySheet(promiseOrRec, title) {
-  modal(`<div id="sumBody"><div class="sumcard"><h2>📝 Resumen</h2><p class="muted">${esc(title || '')}</p><div class="spinner"></div><p class="small muted" style="text-align:center">Tuki está analizando tu conversación…</p></div></div><div class="row" style="margin-top:10px"><button class="btn ghost block" data-x>Cerrar</button><button class="btn primary block" id="sumPractice" disabled>🎤 Practicar ahora</button></div>`, (el, close) => {
+  modal(`<div id="sumBody"></div><div class="row" style="margin-top:10px"><button class="btn ghost block" data-x>Cerrar</button><button class="btn primary block hidden" id="sumPractice" disabled>🎤 Practicar ahora</button></div>`, (el, close) => {
     $('[data-x]', el).onclick = close; el.closest('.overlay').classList.add('sumsheet');
+    const pb = $('#sumPractice', el);
+    const onStatus = ev => { if (!document.body.contains(el)) return document.removeEventListener('tuki-ai-status', onStatus); const st = $('#sumStatus', el); if (st && ev.detail) st.textContent = ev.detail; };
+    document.addEventListener('tuki-ai-status', onStatus);
+    const loading = () => { pb.classList.add('hidden'); pb.disabled = true; $('#sumBody', el).innerHTML = `<div class="sumcard"><h2>📝 Resumen</h2><p class="muted">${esc(title || '')}</p><div class="spinner"></div><p class="small muted" style="text-align:center" id="sumStatus" aria-live="polite">Tuki está analizando tu conversación…</p></div>`; };
     const show = rec => {
       $('#sumBody', el).innerHTML = summaryHTML(rec); bindSayTap(el);
       const items = [...rec.data.mistakes.map(m => m.correct), ...rec.data.new_words.map(w => w.en)];
-      const pb = $('#sumPractice', el); pb.disabled = !items.length;
+      pb.disabled = !items.length; pb.classList.toggle('hidden', !items.length);
       pb.onclick = () => { close(); startLesson(null, 'practice', items.slice(0, 8).map(t => ({ kind: 'speak', variant: /\s/.test(t) ? 'sentence' : 'word', l: LESSONS[0], text: t, es: '' })), 'Práctica de tu conversación'); };
     };
-    if (promiseOrRec && promiseOrRec.then) promiseOrRec.then(show).catch(e => { $('#sumBody', el).innerHTML = `<div class="sumcard"><h2>📝 Resumen</h2><div class="msg err">⚠️ No se pudo generar el resumen: ${esc(errES(e))}</div></div>`; });
-    else show(promiseOrRec);
+    const fail = e => {
+      if (!document.body.contains(el)) return;
+      pb.classList.add('hidden'); pb.disabled = true;
+      const raw = String((e && (e.detail || e.message)) || e || ''), pid = e && e.pendId;
+      $('#sumBody', el).innerHTML = `<div class="sumcard sumfail"><h2>📝 Resumen</h2><div class="msg err">😕 ${esc(aiFriendly(e))}</div>
+        ${pid ? '<p class="small muted">Tu conversación quedó guardada. Puedes reintentar ahora o más tarde desde <b>Progreso → Historial</b> («Resumen pendiente»).</p><button class="btn primary block" id="sumRetry">🔄 Reintentar</button>' : ''}
+        ${raw ? `<details class="small muted" style="margin-top:10px"><summary>Detalles</summary><div class="rawerr">${esc(raw)}</div></details>` : ''}</div>`;
+      const rb = $('#sumRetry', el); if (rb) rb.onclick = () => run(runPendingSummary(pid));
+    };
+    const run = pr => { loading(); pr.then(r => { if (document.body.contains(el)) show(r); }).catch(fail); };
+    if (promiseOrRec && promiseOrRec.then) run(promiseOrRec); else show(promiseOrRec);
   });
 }
 /* Fin de conversación: Terminar / Nueva / salir de la pestaña */
@@ -3121,13 +3212,15 @@ VIEWS.learn = v => {
 function historyHTML() {
   const items = [...S.summaries.map(s => ({ ts: s.ts, k: 's', id: s.id, ic: s.mode === 'challenge' ? '⏱️' : '📝', t: s.title, sc: Math.round((s.data.scores.fluency + s.data.scores.grammar + s.data.scores.vocabulary) / 3), d: s.date })), ...S.interviews.map(r => ({ ts: r.ts, k: 'i', id: r.id, ic: '🧑‍💼', t: 'Entrevista: ' + r.role, sc: r.data.overall, d: r.date }))].sort((a, b) => b.ts - a.ts);
   return `<div class="card" id="histCard"><h3>🗂️ Historial de conversaciones</h3><div class="small muted">Retos completados: <b>${Object.keys(S.challenges).length}</b> · Entrevistas: <b>${S.interviews.length}</b> · Resúmenes: <b>${S.summaries.length}</b></div>
-    ${items.length ? items.slice(0, 20).map(x => `<button class="hitem" data-h="${x.k}:${x.id}"><span>${x.ic}</span><span class="ht"><b>${esc(x.t)}</b><span class="small muted">${esc(x.d)}</span></span><span class="pill">${x.sc}</span></button>`).join('') : '<p class="small muted">Cuando termines una conversación con la IA, aquí verás su resumen.</p>'}</div>`;
+    ${(S.sumPending || []).map(p => `<button class="hitem pend" data-hp="${p.id}"><span>⏳</span><span class="ht"><b>Resumen pendiente — ${esc(p.title)}</b><span class="small muted">${esc(p.date)} · la IA estaba ocupada</span></span><span class="pill gen">Generar</span></button>`).join('')}
+    ${items.length ? items.slice(0, 20).map(x => `<button class="hitem" data-h="${x.k}:${x.id}"><span>${x.ic}</span><span class="ht"><b>${esc(x.t)}</b><span class="small muted">${esc(x.d)}</span></span><span class="pill">${x.sc}</span></button>`).join('') : (S.sumPending || []).length ? '' : '<p class="small muted">Cuando termines una conversación con la IA, aquí verás su resumen.</p>'}</div>`;
 }
 const _progress24 = VIEWS.progress;
 VIEWS.progress = v => {
   _progress24(v);
   const cards = $$('.card', v); const anchor = cards[1] || cards[0];
   if (anchor) anchor.insertAdjacentHTML('afterend', historyHTML()); else v.insertAdjacentHTML('beforeend', historyHTML());
+  $$('[data-hp]', v).forEach(b => b.onclick = () => { const p = (S.sumPending || []).find(x => x.id === b.dataset.hp); if (!p) return; openSummarySheet(runPendingSummary(p.id), p.title); const re = () => { if (TAB === 'progress' && !$('.sumsheet')) VIEWS.progress($('#view')); else if ($('.sumsheet')) setTimeout(re, 800); }; setTimeout(re, 800); });
   $$('[data-h]', v).forEach(b => b.onclick = () => { const [k, id] = b.dataset.h.split(':'); if (k === 's') { const r = S.summaries.find(x => x.id === id); r && openSummarySheet(r, r.title); } else { const r = S.interviews.find(x => x.id === id); r && openInterviewSheet(r); } });
 };
 </script>
@@ -3706,13 +3799,31 @@ Object.assign(window, { TC_BANK, startTC, tcEval, tcGenerate, tcValidate, tcSetu
 
 </script>
 <script>
+/* =================== v2.5.1: entidades HTML, TTS limpio, migración, resúmenes pendientes =================== */
+const _speak251 = speak; speak = function (text, ...a) { return _speak251(decodeEnt(text), ...a); };
+function ensure251() {
+  ensureSP();
+  if (!S.fix251) {
+    S.summaries = decodeDeep(S.summaries || []); S.interviews = decodeDeep(S.interviews || []); S.convoItems = decodeDeep(S.convoItems || []);
+    Object.values(S.deck || {}).forEach(c => ['en', 'es', 'ex', 'exEs'].forEach(k => { if (typeof c[k] === 'string') c[k] = decodeEnt(c[k]); }));
+    Object.values(S.hard || {}).forEach(h => { if (typeof h.note === 'string') h.note = decodeEnt(h.note); });
+    if (S.tc && Array.isArray(S.tc.ai)) S.tc.ai = decodeDeep(S.tc.ai);
+    S.fix251 = 1;
+  }
+}
+ensure251(); save();
+const _render251 = render; render = function () { ensure251(); _render251(); };
+const _merge251 = mergeStates;
+mergeStates = function (a, b) { const o = _merge251(a, b), seen = new Set(), done = new Set((o.summaries || []).map(x => x.ts)); o.sumPending = [...(a.sumPending || []), ...(b.sumPending || [])].filter(p => p && p.id && !seen.has(p.id) && seen.add(p.id)).slice(0, 10); o.fix251 = 1; return o; };
+</script>
+<script>
 /* =================== INICIO =================== */
 applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp && !/#import=/.test(location.hash)) setTimeout(placementIntro, 300);
 setTimeout(checkImportHash, 200); setTimeout(autoSyncOnOpen, 1500);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, encodeState, decodeState, mergeStates, importFromCode, openTransfer, openScanner, gistSync, gistCfg, aiJSON, chStreak, TC_BANK, TC_CTX, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, encodeState, decodeState, mergeStates, importFromCode, openTransfer, openScanner, gistSync, gistCfg, aiJSON, chStreak, TC_BANK, TC_CTX, decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, version: APP_VERSION };
 </script>
 
 </body>

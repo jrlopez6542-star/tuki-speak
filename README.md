@@ -1,4 +1,4 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.5.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.5.1
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
 Sin backend. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
@@ -34,6 +34,11 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 - Voces naturales opcionales: Azure neural (en-US/en-GB) u OpenAI TTS; si fallan, se usa la voz del dispositivo.
 - Insignias, estadísticas semanales, protector de racha, modo oscuro, tamaño de letra, alto contraste, reducir animaciones, vibración.
 - Recordatorio diario (notificación local o evento de calendario `.ics`), aviso sin conexión, aviso de nueva versión.
+
+### Novedades v2.5.1
+- Corregido: las comillas, apóstrofes y «&» de los mensajes de la IA ya no aparecen como `&quot;`, `&#39;` o `&amp;`. Esto aplica al chat, la voz en vivo, las palabras tocables, Traducir, los resúmenes, los informes y Traduce y completa, y la voz tampoco los lee. Los datos guardados antes se corrigen solos.
+- Si Gemini está saturado (503/429 o «high demand»), las llamadas únicas (resumen, traducción, informe, Traduce y completa) reintentan con espera y prueban otros modelos, incluidos los flash-lite, durante unos 25 s como máximo. Mientras tanto se muestra «Gemini está ocupado, probando otro modelo… (2/6)».
+- Si el resumen igual falla, verás un mensaje claro en español, un botón **Reintentar** y los «Detalles» técnicos plegados. La conversación queda guardada como **Resumen pendiente** en Progreso → Historial para generarlo después, incluso si cierras la app.
 
 ## Probar en tu computador
 ```bash
