@@ -293,6 +293,22 @@ a{color:var(--b-d)}
 .week span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:11px;color:var(--mute);font-weight:800}
 .dict-item .acts{display:flex;gap:6px;margin-left:auto;flex:none}
 .dict-item .acts button{width:36px;height:36px;font-size:15px}
+/* v2.1: pantalla de chat tipo app de mensajería */
+main.chatmode{padding-top:8px;padding-bottom:0}
+.chatscreen{display:flex;flex-direction:column;gap:8px;min-height:300px}
+.chattop .provider{margin-bottom:6px}.chattop .chip{padding:5px 10px;font-size:13px}
+.chatsel{display:flex;gap:6px;align-items:center}.chatsel .field{flex:1;min-width:0;padding:8px 8px;font-size:14px;height:40px}.chatsel .btn{flex:none;padding:8px 10px}
+.chatscreen .chatlog{flex:1;min-height:0;max-height:none;background:var(--card,#fff);border:2px solid var(--line);border-radius:16px;padding:10px 8px}
+.livedock{border:2px solid var(--line);border-radius:16px;padding:6px 10px 8px;background:var(--card,#fff)}
+.livestat{display:flex;align-items:center;gap:4px;font-size:13px;min-height:20px}.livestat b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.livestat .meter{flex:1;height:6px;margin:0 0 0 8px;min-width:40px;display:block}
+.livedock .livebtn{padding:12px 10px;font-size:18px;margin:6px 0 4px;border-radius:16px;box-shadow:0 4px 0 #0b7a55}
+.livedock .livebtn.on{box-shadow:0 4px 0 #b02a2f}
+[data-theme=dark] .chatscreen .chatlog,[data-theme=dark] .livedock{background:var(--card);border-color:var(--line)}
+.toast.top{bottom:auto;top:calc(118px + env(safe-area-inset-top))}
+.msg.fix.pron{background:#f3e8ff;border-color:#e2cdfb;color:#3b2463}
+[data-theme=dark] .msg.fix.pron{background:#2a1f3d;border-color:#4a3868;color:#e6dcff}
+[data-theme=dark] .chip.active{border-color:var(--g);color:#7ee2a8;background:var(--g-l)}
 
 </style>
 </head>
@@ -1561,7 +1577,7 @@ function parseTutor(t) {
 </script>
 <script>
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
@@ -1967,6 +1983,8 @@ if (window.matchMedia) try { matchMedia('(prefers-color-scheme: dark)').addEvent
 const _confetti = confetti; confetti = function () { if (!S.settings.reduceMotion && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) _confetti(); };
 </script>
 <script>
+/* Un solo aviso a la vez; en la pestaña IA se muestra arriba para no tapar el botón de voz */
+toast = function (msg, ms = 2600) { $$('.toast').forEach(x => x.remove()); const t = document.createElement('div'); t.className = 'toast' + (TAB === 'chat' ? ' top' : ''); t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms); };
 /* =================== DICCIONARIO / FRASES =================== */
 let DICT = null, WORDS_MODE = 'deck', dictQ = '';
 function buildDict() {
@@ -2035,9 +2053,55 @@ const LIVE = { on: false, state: 'idle', level: 0, provider: null, ws: null, pc:
 const LIVE_LABEL = { idle: 'Listo para hablar', connecting: 'Conectando…', listening: 'Te escucho… habla cuando quieras', speaking: 'Tuki está hablando (puedes interrumpir)', error: 'No se pudo conectar' };
 const GEMINI_LIVE_MODELS = ['gemini-3.1-flash-live-preview', 'gemini-2.5-flash-native-audio-preview-12-2025', 'gemini-2.5-flash-native-audio-preview-09-2025', 'gemini-live-2.5-flash-preview'];
 function currentProvider() { const s = S.settings; if (s.chatProvider === 'openai' && s.openaiKey) return 'openai'; if (s.geminiKey) return 'gemini'; return s.openaiKey ? 'openai' : null; }
+/* ---- Nivel de inglés para la conversación ---- */
+const LEVELS = {
+  A2: { label: 'Básico (A1-A2)', short: 'Básico',
+    vocab: 'Use only very common, basic words (top 1000) and simple grammar: present simple, present continuous, simple past, "can", "going to". No idioms, no phrasal verbs except the most common ones.',
+    length: 'Very short: 1-2 short sentences (max about 12 words each) per turn, then ONE simple question.',
+    speed: 'Speak SLOWLY and very clearly, with small pauses between phrases, and articulate every word. If the learner does not understand, repeat more slowly with simpler words.',
+    spanish: 'If the learner is stuck, silent, or speaks Spanish, give ONE very short hint in Spanish (a few words, e.g. the English word they need), then continue in English.',
+    correct: 'Correct only the ONE most important mistake per turn, very simply and kindly (e.g. "We say: I went."). Ignore small errors.' },
+  B1: { label: 'Intermedio (B1)', short: 'Intermedio',
+    vocab: 'Use everyday vocabulary and common grammar (past, present perfect, future, comparatives, common phrasal verbs). Avoid rare words and complex idioms.',
+    length: 'Short: 2-3 sentences per turn, then a question.',
+    speed: 'Speak at a moderate, slightly slower than native pace, clearly.',
+    spanish: 'Stay in English. If the learner is stuck or speaks Spanish, rephrase more simply in English or give an example answer; use Spanish only as a last resort (a single word).',
+    correct: 'Briefly correct the main grammar or vocabulary mistake of the turn with the correct sentence; mention pronunciation only if it hurts understanding.' },
+  B2: { label: 'Intermedio alto (B2)', short: 'Interm. alto',
+    vocab: 'Use natural, varied vocabulary including common idioms, phrasal verbs and connectors; a range of tenses, conditionals and passive.',
+    length: '2-4 sentences per turn; ask open questions that invite longer answers and opinions.',
+    speed: 'Speak at a natural, normal pace.',
+    spanish: 'Speak only English. If the learner uses Spanish, encourage them to say it in English and help with paraphrasing in English.',
+    correct: 'Correct grammar and vocabulary mistakes and suggest more natural phrasing or collocations; point out pronunciation or word-stress issues briefly.' },
+  C1: { label: 'Avanzado (C1)', short: 'Avanzado',
+    vocab: 'Use rich, precise and idiomatic English, nuanced vocabulary, complex structures, as with a fluent speaker.',
+    length: 'Natural conversational length (2-5 sentences); challenge the learner with follow-up questions, hypotheticals and opinions.',
+    speed: 'Speak at a natural native pace with normal connected speech.',
+    spanish: 'Speak only English, never Spanish.',
+    correct: 'Correct even subtle mistakes (articles, prepositions, register, word choice) and offer more idiomatic or sophisticated alternatives; comment on intonation, stress or connected speech when relevant.' }
+};
+const LEVEL_KEYS = Object.keys(LEVELS);
+function defaultLevel() { const p = S.placement; if (p && typeof p === 'object' && p.start != null) return p.start <= 1 ? 'A2' : p.start <= 4 ? 'B1' : 'B2'; return 'B1'; }
+const chatLevel = () => LEVELS[S.settings.chatLevel] ? S.settings.chatLevel : defaultLevel();
+function levelRules(voice) {
+  const k = chatLevel(), L0 = LEVELS[k];
+  return `LEARNER LEVEL: CEFR ${k === 'A2' ? 'A1-A2' : k} (${L0.label}). Adapt everything to this level:
+- Vocabulary and grammar: ${L0.vocab}
+- Length: ${L0.length}
+${voice ? '- Speaking speed: ' + L0.speed + '\n' : ''}- Spanish: ${L0.spanish}
+- Corrections: ${L0.correct}`;
+}
+const _chatSystem = chatSystem;
+chatSystem = function () {
+  const k = chatLevel(), L0 = LEVELS[k];
+  return _chatSystem().replace('(beginner/intermediate level)', `(CEFR level ${k === 'A2' ? 'A1-A2' : k})`)
+    .replace('your answer in simple, natural English, max 2-3 short sentences,', `your answer in English adapted to the learner's level (${L0.length}),`)
+    + '\n' + levelRules(false);
+};
 function liveSystem() {
-  return `You are "Tuki", a friendly, patient English conversation tutor for a Spanish-speaking learner from Colombia (beginner/intermediate level). This is a live VOICE conversation. Roleplay: you are ${SCENARIOS[CHAT.scen]}.
-Rules: Speak ONLY in clear, simple English at a slightly slow pace. Keep each turn short (1 to 3 sentences) and usually end with a question. If the learner makes a grammar, vocabulary or pronunciation mistake, first give a very brief spoken correction (for example: "Quick tip: we say 'I went', not 'I goed'." or "Try 'three' with your tongue between your teeth: three."), then continue the roleplay. If the learner is lost or speaks Spanish, give one short hint in Spanish and return to English. Be warm and encouraging.`;
+  return `You are "Tuki", a friendly, patient English conversation tutor for a Spanish-speaking learner from Colombia. This is a live VOICE conversation. Roleplay: you are ${SCENARIOS[CHAT.scen]}.
+Rules: Speak ONLY in English (except the Spanish rule below). Usually end your turn with a question. If the learner makes a grammar, vocabulary or pronunciation mistake, first give a brief spoken correction (for example: "Quick tip: we say 'I went', not 'I goed'." or "Try 'three' with your tongue between your teeth: three."), then continue the roleplay. Be warm and encouraging.
+${levelRules(true)}`;
 }
 function liveSet(st) { LIVE.state = st; const d = $('#ldot'), l = $('#lstate'); if (d) d.className = 'live-dot ' + st; if (l) l.textContent = LIVE_LABEL[st] || st; }
 function liveUI() { liveSet(LIVE.state); const b = $('#liveBtn'); if (b) { b.classList.toggle('on', LIVE.on); b.innerHTML = LIVE.on ? '⏹ Terminar conversación' : '🎙️ Hablar en vivo'; } }
@@ -2176,7 +2240,7 @@ async function startLive() {
   } catch (e) {
     const msg = prov === 'gemini' ? liveErrES(e) : errES(e, 'OpenAI Realtime');
     stopLive(true); liveSet('error');
-    CHAT.err = `No se pudo iniciar la voz en vivo: ${msg} Puedes seguir con el modo alternativo (texto o micrófono) aquí abajo.`; chatDraw();
+    CHAT.err = `No se pudo iniciar la voz en vivo: ${msg} Puedes seguir con el modo alternativo: escribe o dicta con 🎤 en el chat de texto.`; chatDraw();
   }
 }
 function stopLive(silent) {
@@ -2202,28 +2266,31 @@ async function openaiChat() {
   const d = await res.json(); const t = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content || '').trim();
   if (!t) throw new Error('Respuesta vacía de OpenAI.'); return t;
 }
+function resetChat() { CHAT.gen = (CHAT.gen || 0) + 1; CHAT.busy = false; CHAT.hist = []; CHAT.err = null; }
 function chatDraw() {
   const log = $('#log'); if (!log) return;
   log.innerHTML = CHAT.hist.map(m => {
     if (m.role === 'user') return m.hidden ? '' : `<div class="msg me">${m.live ? '🎙️ ' : ''}${esc(m.text)}${m.conf ? `<div class="small" style="opacity:.8">🎤 confianza ${Math.round(m.conf * 100)}%</div>` : ''}</div>`;
     if (m.live) return `<div class="msg bot">${wordsHTML(m.text)}<button class="mini" data-say-n="${esc(m.text)}">🔊</button></div>`;
     const p = parseTutor(m.text);
-    return `${p.fix && !/^[-—–]$/.test(p.fix) ? `<div class="msg fix">✏️ ${esc(p.fix)}</div>` : ''}${p.pron ? `<div class="msg fix" style="background:#f3e8ff;border-color:#e2cdfb;color:#3b2463">🗣️ ${esc(p.pron)}</div>` : ''}<div class="msg bot">${wordsHTML(p.reply)}<button class="mini" data-say-n="${esc(p.reply)}">🔊</button></div>`;
-  }).join('') + (!CHAT.hist.length && !CHAT.busy && !CHAT.err ? `<div class="empty small">${LIVE.on ? 'Habla cuando quieras: aquí verás lo que tú y Tuki dicen.' : 'Toca <b>«Hablar en vivo»</b> para conversar con tu voz, o escribe abajo. Toca <b>Nueva</b> para que Tuki empiece.'}</div>` : '') + (CHAT.busy ? '<div class="msg bot">…</div>' : '') + (CHAT.err ? `<div class="msg err">⚠️ ${esc(CHAT.err)}</div>` : '');
+    return `${p.fix && !/^[-—–]$/.test(p.fix.trim()) ? `<div class="msg fix">✏️ ${esc(p.fix)}</div>` : ''}${p.pron && !/^[-—–]$/.test(p.pron.trim()) ? `<div class="msg fix pron">🗣️ ${esc(p.pron)}</div>` : ''}<div class="msg bot">${wordsHTML(p.reply)}<button class="mini" data-say-n="${esc(p.reply)}">🔊</button></div>`;
+  }).join('') + (!CHAT.hist.length && !CHAT.busy && !CHAT.err ? `<div class="empty small">${LIVE.on ? 'Habla cuando quieras: aquí verás lo que tú y Tuki dicen.' : 'Toca <b>«Hablar en vivo»</b> (abajo) para conversar con tu voz, o escribe. Toca <b>Nueva</b> para que Tuki empiece.<br><span class="muted">Nivel: ' + LEVELS[chatLevel()].label + '. La IA puede equivocarse; tu voz y mensajes se envían a ' + (currentProvider() === 'openai' ? 'OpenAI' : 'Google') + ' con tu clave. Usa audífonos para evitar eco.</span>'}</div>` : '') + (CHAT.busy ? '<div class="msg bot">…</div>' : '') + (CHAT.err ? `<div class="msg err">⚠️ ${esc(CHAT.err)}</div>` : '');
   $$('[data-say-n]', log).forEach(b => b.onclick = () => speak(b.dataset.sayN));
   log.scrollTop = log.scrollHeight;
 }
 async function chatSend(text, hidden = false, conf = 0) {
   if (!text) return;
   if (LIVE.on && LIVE.sendText) return LIVE.sendText(text);
-  if (CHAT.busy) return;
-  const prov = currentProvider(); CHAT.err = null; CHAT.busy = true;
+  if (CHAT.busy) return toast('Espera la respuesta de Tuki…');
+  const prov = currentProvider(), gen = CHAT.gen = CHAT.gen || 0; CHAT.err = null; CHAT.busy = true;
   CHAT.hist.push({ role: 'user', text, hidden, conf }); chatDraw();
   try {
     const out = prov === 'openai' ? await openaiChat() : await gemini(text);
+    if (gen !== CHAT.gen) return;
     CHAT.hist.push({ role: 'model', text: out }); CHAT.busy = false; S.chats = (S.chats || 0) + 1; addXP(1); chatDraw();
     if (S.settings.autoplay) speak(parseTutor(out).reply);
   } catch (e) {
+    if (gen !== CHAT.gen) return;
     CHAT.hist.pop(); CHAT.busy = false;
     CHAT.err = (prov === 'openai' ? 'OpenAI' : 'Gemini') + ': ' + errES(e) + (prov === 'gemini' && e.status >= 500 ? ' Espera un minuto y vuelve a intentar, o prueba otro modelo en Ajustes.' : ''); chatDraw();
   }
@@ -2245,26 +2312,39 @@ VIEWS.chat = v => {
       <div class="card"><h3>Mientras tanto…</h3><p class="muted small">Prueba las <b>Conversaciones reales</b> guiadas (unidades 6, 7 y 12): dices tu parte del diálogo y recibes puntaje.</p></div>`;
     $('#toSet').onclick = () => go('settings'); return;
   }
-  v.innerHTML = `<h2>Conversación con IA 💬</h2>
-    <div class="provider"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
-    <div class="row" style="margin-bottom:10px"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${SCEN_ES[k]}</option>`).join('')}</select><button class="btn ghost sm" id="newc">Nueva</button></div>
-    <div class="card live"><div><span class="live-dot ${LIVE.state}" id="ldot"></span><b id="lstate">${LIVE_LABEL[LIVE.state]}</b></div><div class="meter" aria-hidden="true"><i id="lmeter"></i></div>
-      <button class="livebtn ${LIVE.on ? 'on' : ''}" id="liveBtn">${LIVE.on ? '⏹ Terminar conversación' : '🎙️ Hablar en vivo'}</button>
-      <div class="small muted">Voz a voz en tiempo real con <b>${prov === 'gemini' ? 'Gemini Live' : 'OpenAI Realtime'}</b>: habla normal, Tuki te responde con voz y corrige tus errores. Puedes interrumpirlo. Usa audífonos para evitar eco.</div></div>
-    <div class="card" style="padding:10px"><div class="chatlog" id="log" aria-live="polite"></div>
-      <div class="chatbar"><button class="iconbtn" id="cmic" title="Dictar (modo alternativo)">🎤</button><textarea id="cin" placeholder="Escribe en inglés (o usa 🎤)…" rows="1" aria-label="Mensaje"></textarea><button class="iconbtn" id="csend" title="Enviar">➤</button></div>
-      <div class="small muted" style="margin-top:6px">Modo alternativo: texto o dictado → respuesta con corrección escrita y voz.</div></div>
-    <p class="muted small">La IA puede equivocarse. Tu voz y mensajes se envían a ${prov === 'gemini' ? 'Google' : 'OpenAI'} usando tu clave, directamente desde este dispositivo.</p>`;
-  $$('[data-prov]', v).forEach(b => b.onclick = () => { if (b.disabled) return; if (LIVE.on) stopLive(); S.settings.chatProvider = b.dataset.prov; save(); CHAT.hist = []; VIEWS.chat(v); });
-  const startText = () => { CHAT.hist = []; CHAT.err = null; chatDraw(); chatSend('(Start the roleplay now with a short friendly greeting and a first question.)', true); };
-  $('#scen').onchange = e => { CHAT.scen = e.target.value; if (LIVE.on) stopLive(); startText(); };
+  const lv = chatLevel();
+  v.innerHTML = `<div class="chatscreen" id="chatscreen">
+    <div class="chattop">
+      <div class="provider"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
+      <div class="chatsel"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${SCEN_ES[k]}</option>`).join('')}</select><select class="field" id="level" aria-label="Nivel de inglés" title="Nivel de inglés de la conversación">${LEVEL_KEYS.map(k => `<option value="${k}" ${k === lv ? 'selected' : ''}>${LEVELS[k].label}</option>`).join('')}</select><button class="btn ghost sm" id="newc" title="Nueva conversación">Nueva</button></div>
+    </div>
+    <div class="chatlog" id="log" aria-live="polite"></div>
+    <div class="chatbar"><button class="iconbtn" id="cmic" title="Dictar (modo alternativo)">🎤</button><textarea id="cin" placeholder="Escribe en inglés (o usa 🎤)…" rows="1" aria-label="Mensaje"></textarea><button class="iconbtn" id="csend" title="Enviar">➤</button></div>
+    <div class="livedock">
+      <div class="livestat"><span class="live-dot ${LIVE.state}" id="ldot"></span><b id="lstate">${LIVE_LABEL[LIVE.state]}</b><span class="meter" aria-hidden="true"><i id="lmeter"></i></span></div>
+      <button class="livebtn ${LIVE.on ? 'on' : ''}" id="liveBtn" title="Voz a voz en tiempo real con ${prov === 'gemini' ? 'Gemini Live' : 'OpenAI Realtime'}">${LIVE.on ? '⏹ Terminar conversación' : '🎙️ Hablar en vivo'}</button>
+    </div>
+  </div>`;
+  $$('[data-prov]', v).forEach(b => b.onclick = () => { if (b.disabled) return; if (LIVE.on) stopLive(); S.settings.chatProvider = b.dataset.prov; save(); resetChat(); VIEWS.chat(v); });
+  const startText = () => { resetChat(); chatDraw(); chatSend('(Start the roleplay now with a short friendly greeting and a first question.)', true); };
+  const restart = msg => { toast(msg, 2600); if (LIVE.on) { stopLive(true); resetChat(); chatDraw(); startLive(); } else if (CHAT.hist.length) startText(); else chatDraw(); };
+  $('#scen').onchange = e => { CHAT.scen = e.target.value; restart(LIVE.on ? '🔄 Nuevo escenario: reconectando la voz en vivo…' : '🔄 Nuevo escenario: conversación reiniciada'); };
+  $('#level').onchange = e => { S.settings.chatLevel = e.target.value; save(); const n = LEVELS[e.target.value].label; restart(LIVE.on ? `🎚️ Nivel ${n}: reconectando la voz en vivo…` : `🎚️ Nivel ${n}` + (CHAT.hist.length ? ': conversación reiniciada' : '')); };
   $('#newc').onclick = () => { if (LIVE.on) stopLive(); startText(); };
   $('#liveBtn').onclick = () => LIVE.on ? stopLive() : startLive();
   const cin = $('#cin'); $('#csend').onclick = () => { const t = cin.value.trim(); cin.value = ''; chatSend(t); };
   cin.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#csend').click(); } };
   $('#cmic').onclick = () => chatMic($('#cmic'));
-  chatDraw(); liveUI();
+  chatDraw(); liveUI(); fitChat();
 };
+function fitChat() {
+  const cs = $('#chatscreen'); if (!cs) return;
+  const vh = window.visualViewport ? visualViewport.height : window.innerHeight, zoom = parseFloat(document.body.style.zoom) || 1;
+  const top = cs.getBoundingClientRect().top, nav = $('#tabbar').getBoundingClientRect().height;
+  cs.style.height = Math.max(300, (vh - nav) / zoom - top - 8) + 'px';
+}
+window.addEventListener('resize', fitChat); if (window.visualViewport) visualViewport.addEventListener('resize', fitChat);
+const _render = render; render = function () { const v = $('#view'); v.classList.toggle('chatmode', TAB === 'chat'); _render(); if (TAB === 'chat') fitChat(); };
 
 /* =================== AJUSTES =================== */
 VIEWS.settings = v => {
@@ -2289,6 +2369,7 @@ VIEWS.settings = v => {
   </div>
   <div class="card"><h3>🤖 Conversación con IA <span class="pill">Opcional</span></h3>
     <div class="set-row"><div><label for="chatProvider">Proveedor</label></div><select class="field" id="chatProvider" style="max-width:200px">${opt([['gemini', 'Gemini (gratis)'], ['openai', 'OpenAI (pago)']], s.chatProvider)}</select></div>
+    <div class="set-row"><div><label for="chatLevel">Nivel de la conversación</label><div class="desc">Ajusta vocabulario, velocidad y correcciones del tutor</div></div><select class="field" id="chatLevel" style="max-width:200px">${opt(LEVEL_KEYS.map(k => [k, LEVELS[k].label]), chatLevel())}</select></div>
     <h3 style="margin-top:10px;font-size:16px">✨ Google Gemini (gratis con límites)</h3>
     <p class="small muted">Clave gratuita en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Se usa para el chat y para la <b>voz en vivo (Gemini Live)</b>.</p>
     <input class="field" id="gkey" type="password" placeholder="AIza…" value="${esc(s.geminiKey)}" autocomplete="off" aria-label="Clave de Gemini">
@@ -2326,7 +2407,7 @@ VIEWS.settings = v => {
   <p class="muted small" style="text-align:center">Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.</p>`;
   const set = (k, val) => { S.settings[k] = val; save(); };
   const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
-  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice']].forEach(a => bindSel(...a));
+  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel']].forEach(a => bindSel(...a));
   ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
   $('#rate').oninput = e => { set('rate', +e.target.value); $('#rateV').textContent = (+e.target.value).toFixed(2) + '×'; };
   $('#tRate').onclick = () => speak('Hello! This is how fast I speak. Think, three, very, ship, sheep.');
@@ -2430,7 +2511,7 @@ applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, liveSystem, chatSystem: () => chatSystem(), version: APP_VERSION };
 </script>
 
 </body>
