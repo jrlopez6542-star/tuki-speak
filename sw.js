@@ -1,6 +1,6 @@
 // Service worker: funciona offline. Red primero para index.html (para recibir actualizaciones), caché primero para lo demás.
 // Una versión nueva queda "en espera" hasta que el usuario toca "Actualizar" (mensaje 'skipWaiting').
-const CACHE = 'tuki-speak-v12';
+const CACHE = 'tuki-speak-v13';
 const KEEP = [CACHE, 'tuki-tts-v1']; // tuki-tts-v1: audio de voces en la nube guardado por la app
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))); });
