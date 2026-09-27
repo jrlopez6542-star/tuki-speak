@@ -2,6 +2,7 @@ rules_version = '2';
 
 // Tuki Speak: cada persona solo puede leer y escribir su propio documento.
 // Plan Spark: sin Cloud Functions ni Storage. Todo lo demás está denegado.
+// quota/*: contadores de las claves compartidas, escritos solo por la cuenta de servidor (v2.10).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -76,6 +77,20 @@ service cloud.firestore {
         );
         allow delete: if signedInAs(uid) && docId in ['progress', 'settings'];
       }
+    }
+
+    // v2.10 «claves compartidas»: contadores diarios de uso gratis (quota/{día}_{uid}).
+    // Solo los escribe la cuenta de servidor de la API de Vercel; nadie los puede leer ni borrar desde el navegador.
+    match /quota/{docId} {
+      allow create, update: if request.auth != null
+        && request.auth.uid == 'R9hBV7CgH1geEUyZZT7wBkrIoE92'
+        && docId.size() <= 160
+        && request.resource.data.keys().hasOnly(['gemini', 'live', 'azure', 'updatedAt'])
+        && (!('gemini' in request.resource.data) || request.resource.data.gemini is int)
+        && (!('live' in request.resource.data) || request.resource.data.live is int)
+        && (!('azure' in request.resource.data) || request.resource.data.azure is int)
+        && request.resource.data.updatedAt is timestamp;
+      allow read, delete: if false;
     }
 
     // Todo lo demás: denegado

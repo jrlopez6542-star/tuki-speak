@@ -1,9 +1,15 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.9.1
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.10.0
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
-Sin backend propio (la cuenta opcional usa Firebase en el plan gratuito Spark). Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
+Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.10.0 «claves compartidas»
+- Si **iniciaste sesión** (con Google o con correo verificado) y **no pusiste tus propias claves**, la IA usa automáticamente las claves de Gemini y Azure del dueño de la app a través de una API mínima en Vercel (`/api/gemini`, `/api/azure-token`, `/api/live-token`). **Las claves nunca llegan al navegador**: Gemini texto va por el proxy (modelos y forma de la petición en lista blanca, tamaño limitado, misma cadena de respaldo de modelos), Azure usa un token de 10 minutos (`Authorization: Bearer`) y Gemini Live usa un **token efímero** oficial de un solo uso. Si pones tus claves, se usan como antes. Sin sesión verás «Inicia sesión para usar la IA de Tuki». En Ajustes, una línea indica el modo: «Usando tus claves» o «Usando las claves de Tuki · límite diario».
+- **La cuota es compartida**: todos usan el plan gratuito del dueño (Google AI Studio y Azure F0), así que hay un **límite diario por persona** (60 solicitudes de Gemini, 20 sesiones de voz en vivo y 100 tokens de Azure; se reinicia a medianoche de Colombia). Al llegar al límite: «Llegaste al límite gratis de hoy. Vuelve mañana o pon tu propia clave en Ajustes.»
+- La API verifica el token de Firebase en el servidor (firma, `aud`, `iss`, `exp`), acepta solo los orígenes de la app y guarda los contadores en Firestore (`quota/*`), que solo puede escribir la cuenta del servidor (cambio en `firestore.rules`).
+- **Vercel Hobby es solo para uso personal, no comercial.** Todo sigue siendo gratis (Vercel Hobby + Firebase Spark, sin tarjeta).
 
 ## Novedades v2.9.1
 - Se quitó la sección **«Uso del plan gratis»** de Ajustes (tablas de Vercel Hobby y Firebase Spark, contadores locales de lecturas/escrituras y botones «Ver uso en Vercel/Firebase»), junto con su código. La sincronización sigue igual y no se borra ningún dato guardado.

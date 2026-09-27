@@ -14,7 +14,7 @@ def policy(hashes, header):
         ("img-src", "'self' data: blob: https://*.googleusercontent.com https://www.google.com"),
         ("media-src", "'self' blob: data:"),
         ("font-src", "'self' data:"),
-        ("connect-src", "'self' https://*.googleapis.com wss://generativelanguage.googleapis.com https://*.firebaseapp.com https://www.gstatic.com https://apis.google.com https://www.google.com "
+        ("connect-src", "'self' https://tuki-speak.vercel.app https://*.googleapis.com wss://generativelanguage.googleapis.com https://*.firebaseapp.com https://www.gstatic.com https://apis.google.com https://www.google.com "
                         "https://api.openai.com https://*.stt.speech.microsoft.com wss://*.stt.speech.microsoft.com https://*.tts.speech.microsoft.com wss://*.tts.speech.microsoft.com "
                         "https://*.api.cognitive.microsoft.com https://*.cognitiveservices.azure.com wss://*.cognitiveservices.azure.com https://api.github.com https://gist.githubusercontent.com"),
         ("frame-src", "https://tuki-speak.firebaseapp.com https://accounts.google.com https://apis.google.com"),
@@ -43,7 +43,7 @@ def main():
         {"key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups"},
         {"key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload"},
     ]
-    cfg = {"headers": [{"source": "/(.*)", "headers": headers}, {"source": "/sw.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}]}
+    cfg = {"functions": {"api/*.js": {"maxDuration": 60}}, "headers": [{"source": "/(.*)", "headers": headers}, {"source": "/sw.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}]}
     open(os.path.join(ROOT, 'vercel.json'), 'w').write(json.dumps(cfg, indent=2, ensure_ascii=False) + '\n')
     print(f'{len(hashes)} scripts en línea con hash; CSP escrita en index.html y vercel.json')
 if __name__ == '__main__': main()

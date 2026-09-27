@@ -2,7 +2,7 @@
 //   npx firebase emulators:exec --only firestore "node tests/rules.test.mjs"
 import { readFileSync } from 'node:fs';
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, writeBatch, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs, writeBatch, serverTimestamp, increment } from 'firebase/firestore';
 
 const env = await initializeTestEnvironment({ projectId: 'tuki-speak', firestore: { rules: readFileSync(new URL('../firestore.rules', import.meta.url), 'utf8'), host: '127.0.0.1', port: 8085 } });
 let pass = 0, fail = 0;
@@ -47,6 +47,20 @@ await t('other subcollection denied', assertFails(setDoc(doc(ana, 'users/ana/ext
 await t('other top-level collection denied', assertFails(setDoc(doc(ana, 'public/x'), { a: 1 })));
 await t('owner can delete own data', assertSucceeds(deleteDoc(doc(ana, 'users/ana/data/progress'))));
 await t('other user cannot delete', assertFails(deleteDoc(doc(bob, 'users/ana'))));
+// ---- v2.10: contadores de las claves compartidas (quota/*), solo la cuenta de servidor ----
+const SRV = 'R9hBV7CgH1geEUyZZT7wBkrIoE92', srv = env.authenticatedContext(SRV, { email: 'quota-server@tuki-speak.invalid' }).firestore();
+const qd = db => doc(db, 'quota/2026-09-27_ana');
+await t('server account creates a counter with increment + server time', assertSucceeds(setDoc(qd(srv), { gemini: increment(1), updatedAt: serverTimestamp() }, { merge: true })));
+await t('server account increments another counter', assertSucceeds(setDoc(qd(srv), { azure: increment(1), updatedAt: serverTimestamp() }, { merge: true })));
+await t('server account can refund (increment -1)', assertSucceeds(setDoc(qd(srv), { gemini: increment(-1), updatedAt: serverTimestamp() }, { merge: true })));
+await t('user cannot write own counter (reset attempt)', assertFails(setDoc(qd(ana), { gemini: 0, updatedAt: serverTimestamp() }, { merge: true })));
+await t('user cannot read counters', assertFails(getDoc(qd(ana))));
+await t('unauthenticated cannot write counters', assertFails(setDoc(qd(anon), { gemini: 0, updatedAt: serverTimestamp() }, { merge: true })));
+await t('user cannot delete counters', assertFails(deleteDoc(qd(ana))));
+await t('server cannot delete counters', assertFails(deleteDoc(qd(srv))));
+await t('server: unknown field denied', assertFails(setDoc(qd(srv), { gemini: increment(1), updatedAt: serverTimestamp(), note: 'x' }, { merge: true })));
+await t('server: non-int counter denied', assertFails(setDoc(qd(srv), { live: 'x', updatedAt: serverTimestamp() }, { merge: true })));
+await t('list on quota denied', assertFails(getDocs(collection(srv, 'quota'))));
 await env.cleanup();
 console.log(`RULES RESULTS: ${pass}/${pass + fail}`);
 process.exit(fail ? 1 : 0);

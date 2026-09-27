@@ -1,0 +1,10 @@
+{
+  "name": "tuki-speak",
+  "version": "2.10.0",
+  "private": true,
+  "type": "module",
+  "description": "Tuki Speak: app estática + API mínima en Vercel (claves compartidas)",
+  "engines": { "node": ">=20" },
+  "scripts": { "test:api": "node tests/api.test.mjs" },
+  "dependencies": { "jose": "^6.1.0" }
+}
