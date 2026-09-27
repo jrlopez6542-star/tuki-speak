@@ -433,6 +433,21 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 [data-theme=dark] .btn[disabled]{background:#26323d!important;color:#5f6f7e!important;box-shadow:0 4px 0 #1b242d!important}
 .hitem.pend{border-style:dashed}.pill.gen{background:var(--o);color:#fff}
 .rawerr{margin-top:6px;padding:8px;border-radius:10px;background:rgba(127,127,127,.12);font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word}
+/* v2.6: Traduce y completa por voz */
+.tc-top{flex-wrap:wrap}
+.tc-voice{display:flex;align-items:center;gap:12px;margin-top:12px;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:10px 12px}
+.tc-mic{flex:none;width:72px;height:72px;border-radius:50%;border:0;background:linear-gradient(135deg,#1cb0f6,#1fa463);color:#fff;font-size:32px;box-shadow:0 5px 0 #127a8f;display:grid;place-items:center;cursor:pointer}
+.tc-mic:active{transform:translateY(3px);box-shadow:0 2px 0 #127a8f}
+.tc-mic.on{background:linear-gradient(135deg,#ff6f61,#e5484d);box-shadow:0 5px 0 #a8323a;animation:tcPulse 1.1s ease-in-out infinite}
+@keyframes tcPulse{0%,100%{outline:0 solid rgba(229,72,77,.35)}50%{outline:12px solid rgba(229,72,77,0)}}
+.tc-vstat{flex:1;min-width:0;font-size:15px;line-height:1.3}
+.tc-vstat #tcHeard{margin-top:3px;word-break:break-word}
+.tc-voice .chip{flex:none;min-height:44px}
+.tc-voice[data-state=listening]{border-color:#ff8a7a}
+.tc-voice[data-state=speaking]{border-color:#9bd3f7}
+#tcAz .ph{font-size:13px;padding:2px 6px;margin:2px 2px 0 0;display:inline-block}
+[data-theme=dark] .tc-voice[data-state=speaking]{border-color:#2a6f99}
+@media (prefers-reduced-motion: reduce){.tc-mic.on{animation:none}}
 </style>
 </head>
 <body>
@@ -1715,7 +1730,7 @@ function parseTutor(t) {
 </script>
 <script>
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.5.1';
+const APP_VERSION = '2.6.0';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
@@ -3817,13 +3832,217 @@ const _merge251 = mergeStates;
 mergeStates = function (a, b) { const o = _merge251(a, b), seen = new Set(), done = new Set((o.summaries || []).map(x => x.ts)); o.sumPending = [...(a.sumPending || []), ...(b.sumPending || [])].filter(p => p && p.id && !seen.has(p.id) && seen.add(p.id)).slice(0, 10); o.fix251 = 1; return o; };
 </script>
 <script>
+/* =================== v2.6: TRADUCE Y COMPLETA POR VOZ =================== */
+const V = { gen: 0, sup: 0, paused: false, timer: null, fails: 0, state: 'idle' };
+const tcCanVoice = () => !!(HAS_SR || azureReady());
+function ensure26() { if (S.settings.tcInput !== 'voice' && S.settings.tcInput !== 'text') S.settings.tcInput = window.__tcInputDefault || (tcCanVoice() ? 'voice' : 'text'); }
+ensure26();
+const _render26 = render; render = function () { ensure26(); _render26(); };
+const tcVoiceOn = () => !!(L && L.mode === 'tc' && L.cur && L.cur.kind === 'tc' && S.settings.tcInput === 'voice' && tcCanVoice());
+const tcOk = (g, ex) => g === V.gen && L && L.cur === ex && !V.paused && tcVoiceOn() && document.body.contains($('#tcBox'));
+const TC_FILLERS = new Set(['um', 'umm', 'uh', 'uhm', 'uhh', 'er', 'erm', 'ah', 'eh', 'mm', 'mmm', 'hmm', 'so', 'entonces', 'este', 'pues', 'bueno', 'well', 'like', 'okay', 'ok']);
+const TC_SR_ES = { 'not-allowed': 'permiso de micrófono denegado', 'service-not-allowed': 'el reconocimiento de voz no está permitido aquí', 'audio-capture': 'no se encontró micrófono', unsupported: 'este navegador no tiene reconocimiento de voz', NotAllowedError: 'permiso de micrófono denegado', NotFoundError: 'no se encontró micrófono' };
+/* Una vez: callback que se llama al terminar de hablar (o por tiempo, si el navegador no avisa) */
+function tcOnce(fn, ms) { let done = false; const f = () => { if (done) return; done = true; clearTimeout(t); fn && fn(); }; const t = setTimeout(f, ms); return f; }
+function tcSpeakEs(text, onend) { const f = tcOnce(onend, 2500 + text.length * 95 / chatMul()); speak(text, false, f, 'es', chatMul()); }
+function tcSpeakEn(text, onend) { const f = tcOnce(onend, 2500 + text.length * 110 / chatMul()); speak(text, false, f, undefined, chatMul()); }
+/* ---- Extraer las palabras de cada hueco a partir de lo que dijo ---- */
+function tcExtractAll(it, text) {
+  const n = it.b.length, segs = it.en.split('{}').map(s => normText(s)), fixed = segs.flat();
+  const ansTok = new Set(it.b.flatMap(b => [...b.a, ...Object.keys(b.n || {})]).flatMap(a => normText(a)));
+  const near = (a, b) => a === b || (a.length >= 4 && b.length >= 4 && lev(a, b) <= 1);
+  const hyp = normText(text).filter(w => !TC_FILLERS.has(w) || ansTok.has(w) || fixed.includes(w));
+  if (!hyp.length) return [];
+  const maxLen = i => Math.max(1, ...[...it.b[i].a, ...Object.keys(it.b[i].n || {})].map(a => normText(a).length));
+  const align = () => { const out = []; let p = 0;
+    for (let i = 0; i < n; i++) {
+      const Lf = segs[i], R = segs[i + 1];
+      if (Lf.length) { const last = Lf[Lf.length - 1]; for (let k = p; k < hyp.length; k++) if (near(hyp[k], last)) { p = k + 1; break; } }
+      let e = -1;
+      if (R.length) { for (let k = p; k < hyp.length; k++) if (near(hyp[k], R[0])) { e = k; break; } } else e = hyp.length;
+      if (e < 0) e = Math.min(hyp.length, p + maxLen(i));
+      out.push(hyp.slice(p, e).join(' ')); p = e;
+    }
+    return out; };
+  const words = h => { if (n === 1) return [h.join(' ')]; const out = []; let p = 0;
+    for (let i = 0; i < n; i++) {
+      if (i === n - 1) { out.push(h.slice(p).join(' ')); break; }
+      const cands = [...it.b[i].a, ...Object.keys(it.b[i].n || {})].map(a => normText(a)).filter(c => c.length).sort((a, b) => b.length - a.length);
+      let took = 0; for (const c of cands) if (c.every((w, j) => h[p + j] && near(h[p + j], w))) { took = c.length; break; }
+      out.push(h.slice(p, p + (took || 1)).join(' ')); p += took || 1;
+    }
+    return out; };
+  const hits = fixed.filter(w => hyp.some(h => near(h, w))).length, full = hits >= 2 || (hits >= 1 && fixed.length <= 2);
+  const stripped = hyp.filter(w => ansTok.has(w) || !fixed.some(f => near(w, f)));
+  const c = full ? [align(), words(stripped), words(hyp)] : [words(hyp), words(stripped), align()];
+  const seen = new Set(); return c.filter(x => { const k = x.join('|'); if (seen.has(k) || !x.some(Boolean)) return false; seen.add(k); return true; });
+}
+function tcExtract(it, text) { return tcExtractAll(it, text)[0] || it.b.map(() => ''); }
+function tcBestFromAlts(ex, alts) {
+  const it = ex.item, W = { ok: 3, near: 2, typo: 1, unknown: 0.5, empty: 0 }; let best = null, bs = -1;
+  alts.forEach((a, ai) => tcExtractAll(it, a.t).forEach((vals, ci) => {
+    let sc = 0; vals.forEach((v, i) => { if (!ex.st.ok[i]) sc += W[tcEval(it, i, v, ex.st.extra[i]).k] || 0; });
+    sc -= ai * 0.01 + ci * 0.001; if (sc > bs) { bs = sc; best = vals; }
+  }));
+  return best;
+}
+/* ---- Reconocimiento (Web Speech en-US con resultados parciales) ---- */
+function tcRecognize(onInterim) {
+  return new Promise((resolve, reject) => {
+    if (!HAS_SR) return reject('unsupported');
+    let r; try { r = new SR(); } catch (e) { return reject('unsupported'); }
+    r.lang = 'en-US'; r.interimResults = true; r.maxAlternatives = 5; r.continuous = false;
+    let got = null, err = null;
+    r.onresult = e => {
+      const res = [...e.results], pre = res.slice(0, -1).map(x => (x[0] && x[0].transcript) || '').join(' '), last = res[res.length - 1];
+      const alts = [...last].map(a => ({ t: ((pre ? pre + ' ' : '') + (a.transcript || '')).trim(), c: a.confidence || 0 })).filter(a => a.t);
+      if (last.isFinal === false) { if (alts.length) r.__interim = alts; onInterim && alts[0] && onInterim(alts[0].t); } else got = alts;
+    };
+    r.onerror = e => { err = e.error; };
+    r.onend = () => { curRec = null; const a = got || r.__interim; if (a && a.length) resolve(a); else reject(err || 'no-speech'); };
+    try { r.start(); curRec = r; } catch (e) { return reject('busy'); }
+    setTimeout(() => { try { r.stop(); } catch (e) {} }, 10000);
+  });
+}
+/* ---- Interfaz ---- */
+function tcVState(k, heard) {
+  V.state = k; const b = $('#tcVoice'); if (!b) return;
+  const T = { speaking: '🔊 Tuki está hablando…', listening: '🔴 Escuchando… di la frase completa o solo la palabra', thinking: '⏳ Revisando tu respuesta…', idle: '🎙️ Toca el micrófono para responder', paused: '⏸️ Voz en pausa', done: '✅ ¡Bien! Pasando a la siguiente…' };
+  b.dataset.state = k; $('#tcVState').textContent = T[k] || '';
+  if (heard !== undefined) $('#tcHeard').textContent = heard ? 'Escuché: «' + heard + '»' : '';
+  const m = $('#tcMicBig'); m.classList.toggle('on', k === 'listening'); m.setAttribute('aria-pressed', k === 'listening');
+  m.textContent = k === 'listening' ? '⏹️' : '🎙️';
+  $('#tcPause').textContent = V.paused ? '▶️ Seguir' : '⏸️ Pausa';
+}
+function tcVoiceUI() {
+  const on = S.settings.tcInput === 'voice' && tcCanVoice(), mb = $('#tcModeBtn');
+  if (mb) { mb.textContent = on ? '⌨️ Escribir' : '🎙️ Hablar'; mb.title = on ? 'Cambiar a escribir' : 'Cambiar a hablar'; }
+  const vb = $('#tcVoice'); if (vb) vb.classList.toggle('hidden', !on);
+  const mu = $('#tcMute'); if (mu) mu.classList.toggle('hidden', on);
+}
+function tcVoiceStop() { V.gen++; clearTimeout(V.timer); stopRecognize(); try { if (MicCap.active) MicCap.stop(); } catch (e) {} try { speechSynthesis && speechSynthesis.cancel(); } catch (e) {} try { stopAudio(); } catch (e) {} }
+function tcVoiceFallback(reason) {
+  tcVoiceStop(); S.settings.tcInput = 'text'; save();
+  toast('🎙️ No pude usar la voz (' + (TC_SR_ES[reason] || reason) + '). Cambié a ⌨️ Escribir; puedes volver a Hablar desde la tarjeta.', 5000);
+  tcVoiceUI(); const f = $('#tcEn .tc-in:not([readonly])'); f && f.focus({ preventScroll: true });
+}
+function tcRelisten(ex) { const g = V.gen; return () => { if (tcOk(g, ex) && !ex.st.done) V.timer = setTimeout(() => { if (tcOk(g, ex) && !ex.st.done) tcListen(ex); }, 350); else if (tcVoiceOn() && !V.paused && L && L.cur === ex && !ex.st.done) tcVState('idle'); }; }
+/* ---- Turno de voz ---- */
+function tcVoiceStart(ex) {
+  const g = ++V.gen; V.fails = 0; if (V.paused) return tcVState('paused');
+  const it = ex.item, intro = L.done === 0 && !L.tcIntro ? '¿Sabes cómo se dice esto en inglés? ' : pick(['¿Y esta? ', '¿Cómo dirías esto en inglés? ', 'Siguiente frase: ']); L.tcIntro = 1;
+  tcVState('speaking', ''); tcSpeakEs(intro + tcEsPlain(it), () => { if (tcOk(g, ex)) tcListen(ex); });
+}
+async function tcListen(ex) {
+  const g = ++V.gen; if (!tcVoiceOn() || ex.st.done || V.paused) return;
+  try { speechSynthesis && speechSynthesis.cancel(); } catch (e) {}
+  tcVState('listening', '');
+  try {
+    let alts, az = null;
+    if (azureReady()) {
+      const rec = await MicCap.start({ maxMs: Math.min(12000, 4000 + tcFull(ex.item).split(/\s+/).length * 600) });
+      if (g !== V.gen || !L || L.cur !== ex) return;
+      tcVState('thinking');
+      az = await azureAssess(tcFull(ex.item), rec.wav);
+      alts = (az.alts && az.alts.filter(a => a.t).length ? az.alts.filter(a => a.t) : [{ t: az.heard || '', c: 1 }]);
+    } else alts = await tcRecognize(t => { if (g === V.gen) tcVoiceInterim(ex, t); });
+    if (!tcOk(g, ex)) return;
+    tcVoiceResult(ex, alts, az);
+  } catch (err) {
+    if (g !== V.gen || !L || L.cur !== ex) return;
+    const code = typeof err === 'string' ? err : (err && (err.name === 'NotAllowedError' || err.name === 'NotFoundError') ? err.name : null);
+    if (code && TC_SR_ES[code]) return tcVoiceFallback(code);
+    if (err && typeof err === 'object' && azureReady() && (err.status === 401 || err.status === 403 || err instanceof TypeError) && HAS_SR) { window.__azOff = true; toast('Azure no respondió (' + errES(err) + '). Uso el reconocimiento del navegador.', 4000); return tcListen(ex); }
+    if (code === 'aborted') return tcVState('idle');
+    V.fails++;
+    if (V.fails <= 2 && (code === 'no-speech' || !code)) { tcVState('speaking'); tcSpeakEs(code === 'no-speech' ? 'No te escuché. Inténtalo otra vez.' : 'No te entendí. Inténtalo otra vez.', () => { if (tcOk(g, ex)) tcListen(ex); }); }
+    else { tcVState('idle'); if (code && code !== 'no-speech') toast((SR_ERR[code] || errES(err)), 3500); }
+  }
+}
+function tcVoiceInterim(ex, t) {
+  const vals = tcExtract(ex.item, t); $('#tcHeard').textContent = 'Escuché: «' + t + '»';
+  $$('#tcEn .tc-in').forEach((inp, i) => { if (!ex.st.ok[i] && vals[i] != null) { inp.value = vals[i]; tcSize(inp); } });
+}
+function tcVoiceResult(ex, alts, az) {
+  const it = ex.item, heard = (alts[0] && alts[0].t) || '', low = alts.map(a => a.t.toLowerCase()).join(' | ');
+  tcVState('thinking', heard);
+  if (/\b(pista|pistas|pisto|hint|clue)\b|me das una/.test(low)) { if (ex.st.hint >= 2) { tcVState('speaking'); tcSay('Ya te di todas las pistas. Inténtalo, tú puedes.', tcRelisten(ex)); } else tcHint(ex); return; }
+  if (/\b(repite|rep[ií]telo|repeat|otra vez|again)\b/.test(low) && !tcExtractAll(it, heard).some(v => v.some((x, i) => tcEval(it, i, x, ex.st.extra[i]).k === 'ok'))) { tcVState('speaking'); return tcSpeakEs(tcEsPlain(it), tcRelisten(ex)); }
+  if (/\b(no s[eé]|me rindo|give up|ver respuesta|la respuesta|show me the answer)\b/.test(low)) return tcReveal(ex);
+  const vals = tcBestFromAlts(ex, alts);
+  if (az) tcShowAzure(ex, az);
+  if (!vals || !vals.some((v, i) => v && !ex.st.ok[i])) { V.fails++; tcVState('speaking'); return tcSpeakEs('No te entendí bien. Di la frase otra vez, despacio.', tcRelisten(ex)); }
+  $$('#tcEn .tc-in').forEach((inp, i) => { if (!ex.st.ok[i]) { inp.value = vals[i] || ''; tcSize(inp); inp.parentNode.classList.remove('bad'); } });
+  tcCheck(ex, true);
+}
+function tcShowAzure(ex, az) {
+  const ans = new Set(ex.item.b.flatMap(b => b.a).flatMap(a => normText(a)));
+  const ws = (az.words || []).filter(w => ans.has(normText(w.tok).join(' ')) && w.err !== 'Omission');
+  const box = $('#tcAz'); if (box) box.innerHTML = ws.length ? '🔬 Pronunciación: ' + ws.map(w => `<span class="ph ${colorOf(w.s)}">${esc(w.tok.replace(/[.,!?;:"]/g, ''))} ${Math.round(w.s * 100)}</span>`).join(' ') + (az.pct != null ? ` <span class="small muted">· frase ${az.pct}/100</span>` : '') : '';
+  const lowW = ws.filter(w => w.s < 0.6); if (lowW.length) flagHard(lowW.map(w => ({ word: w.tok.replace(/[.,!?;:"]/g, ''), note_es: 'Pronunciación baja en Traduce y completa (' + Math.round(w.s * 100) + '/100)' })), 'traduce-voz');
+  (ex.st.az = ex.st.az || []).push(az.pct);
+}
+/* ---- Enganches con el modo de texto ---- */
+const _tcSay26 = tcSay;
+tcSay = function (msg, onend) { if (V.sup) return; if (tcVoiceOn()) { if (!msg) return onend && onend(); tcVState('speaking'); return tcSpeakEs(String(msg).replace(/[✍️💡🤔✨👀]/gu, ''), onend); } _tcSay26(msg); onend && onend(); };
+const _tcBubble26 = tcBubble;
+tcBubble = function (i, msg, cls = '') { if (tcVoiceOn() && msg && i != null && cls !== 'think') { V.sup++; try { _tcBubble26(i, msg, cls); } finally { V.sup--; } return tcSay(msg, tcRelisten(L.cur)); } if (cls === 'think' && tcVoiceOn()) tcVState('thinking'); return _tcBubble26(i, msg, cls); };
+const _tcHint26 = tcHint;
+tcHint = function (ex) { _tcHint26(ex); if (!tcVoiceOn()) return; const it = ex.item, lt = it.b.map((b, i) => ex.st.ok[i] ? null : '«' + b.a[0].charAt(0) + '»').filter(Boolean); tcSay(ex.st.hint >= 2 ? 'La respuesta empieza por ' + lt.join(' y ') + '.' : 'Pista: ' + it.h, tcRelisten(ex)); };
+const _tcSuccess26 = tcSuccess;
+tcSuccess = function (ex) {
+  const voice = tcVoiceOn(); if (!voice) return _tcSuccess26(ex);
+  V.sup++; try { _tcSuccess26(ex); } finally { V.sup--; }
+  const g = ++V.gen, praise = ($('.tc-praise') || {}).textContent || '¡Muy bien!', last = !L.queue.length;
+  tcVState('speaking');
+  tcSpeakEs(praise + (last ? '' : ' Siguiente.'), () => { if (!tcOk(g, ex)) return; tcSpeakEn(tcFull(ex.item), () => { if (!tcOk(g, ex)) return; tcVState('done'); V.timer = setTimeout(() => { if (tcOk(g, ex)) nextEx(); }, 1200); }); });
+};
+const _tcReveal26 = tcReveal;
+tcReveal = function (ex) {
+  const voice = tcVoiceOn(); _tcReveal26(ex); if (!voice) return;
+  const g = ++V.gen; tcVState('speaking');
+  tcSpeakEs('Se dice así:', () => { if (!tcOk(g, ex)) return; tcSpeakEn(tcFull(ex.item), () => { if (!tcOk(g, ex)) return; tcVState('done'); V.timer = setTimeout(() => { if (tcOk(g, ex)) nextEx(); }, 1500); }); });
+};
+const _renderTC26 = RENDER.tc;
+RENDER.tc = (ex, body) => {
+  tcVoiceStop(); _renderTC26(ex, body);
+  if (L.mode !== 'tc') return;
+  $('.tc-top', body).insertAdjacentHTML('beforeend', `<button class="tc-mute" id="tcModeBtn"></button>`);
+  $('#tcBox', body).insertAdjacentHTML('afterend', `<div class="tc-voice hidden" id="tcVoice" data-state="idle"><button class="tc-mic" id="tcMicBig" aria-label="Hablar">🎙️</button><div class="tc-vstat"><b id="tcVState"></b><div class="small muted" id="tcHeard"></div><div class="small" id="tcAz"></div></div><button class="chip" id="tcPause">⏸️ Pausa</button></div>`);
+  $('#tcModeBtn').onclick = () => {
+    if (S.settings.tcInput === 'voice' && tcCanVoice()) { S.settings.tcInput = 'text'; save(); tcVoiceStop(); tcVoiceUI(); return; }
+    if (!tcCanVoice()) return toast('🎙️ Este navegador no tiene reconocimiento de voz. Usa Chrome en Android o configura Azure en Ajustes.', 4000);
+    S.settings.tcInput = 'voice'; save(); tcVoiceUI(); if (!ex.st.done) { V.paused = false; tcVoiceStart(ex); }
+  };
+  $('#tcMicBig').onclick = () => { if (V.state === 'listening') { stopRecognize(); try { MicCap.active && MicCap.stop(); } catch (e) {} return; } V.paused = false; tcVoiceStop(); if (ex.st.done) return nextEx(); tcListen(ex); };
+  $('#tcPause').onclick = () => { V.paused = !V.paused; if (V.paused) { tcVoiceStop(); tcVState('paused'); } else if (ex.st.done) nextEx(); else { tcVState('idle'); tcListen(ex); } };
+  tcVoiceUI();
+  if (tcVoiceOn()) { if (V.paused) tcVState('paused', ''); else setTimeout(() => { if (L && L.cur === ex) tcVoiceStart(ex); }, 250); }
+};
+const _close26 = closeLesson; closeLesson = function () { tcVoiceStop(); V.paused = false; _close26(); };
+const _finish26 = finishLesson; finishLesson = function () { tcVoiceStop(); return _finish26(); };
+/* Selector en la hoja de inicio */
+const _tcSetup26 = tcSetup;
+tcSetup = function () {
+  _tcSetup26();
+  const lv = $('#tcLv'); if (!lv) return; const sheet = lv.closest('.sheet'), can = tcCanVoice();
+  const note = [...$$('.small.muted', sheet)].find(x => /dominadas \/ total/.test(x.textContent)) || lv;
+  note.insertAdjacentHTML('afterend', `<div class="small muted" style="font-weight:800;margin-top:10px">Cómo respondes</div><div class="chips" id="tcInSel"><button class="chip" data-in="text">⌨️ Escribir</button><button class="chip" data-in="voice" ${can ? '' : 'disabled'}>🎙️ Hablar</button></div><div class="small muted" id="tcInNote"></div>`);
+  const draw = () => { const m = S.settings.tcInput === 'voice' && can ? 'voice' : 'text'; $$('[data-in]', sheet).forEach(b => b.classList.toggle('active', b.dataset.in === m)); $('#tcInNote', sheet).textContent = !can ? 'Hablar necesita reconocimiento de voz (Chrome en Android) o Azure.' : m === 'voice' ? 'Tuki lee cada frase en español y tú respondes en inglés con tu voz. Di «pista» si necesitas ayuda.' : 'Escribes la respuesta en los espacios azules.'; };
+  $$('[data-in]', sheet).forEach(b => b.onclick = () => { if (b.disabled) return; S.settings.tcInput = b.dataset.in; save(); draw(); });
+  draw();
+};
+Object.assign(window, { tcExtract, tcExtractAll });
+
+</script>
+<script>
 /* =================== INICIO =================== */
 applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp && !/#import=/.test(location.hash)) setTimeout(placementIntro, 300);
 setTimeout(checkImportHash, 200); setTimeout(autoSyncOnOpen, 1500);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, encodeState, decodeState, mergeStates, importFromCode, openTransfer, openScanner, gistSync, gistCfg, aiJSON, chStreak, TC_BANK, TC_CTX, decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, encodeState, decodeState, mergeStates, importFromCode, openTransfer, openScanner, gistSync, gistCfg, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, version: APP_VERSION };
 </script>
 
 </body>

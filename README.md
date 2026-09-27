@@ -1,4 +1,4 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.5.1
+# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.6.0
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
 Sin backend. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
@@ -34,6 +34,15 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 - Voces naturales opcionales: Azure neural (en-US/en-GB) u OpenAI TTS; si fallan, se usa la voz del dispositivo.
 - Insignias, estadísticas semanales, protector de racha, modo oscuro, tamaño de letra, alto contraste, reducir animaciones, vibración.
 - Recordatorio diario (notificación local o evento de calendario `.ics`), aviso sin conexión, aviso de nueva versión.
+
+### Novedades v2.6.0: Traduce y completa por voz
+- Nuevo selector **⌨️ Escribir / 🎙️ Hablar** en la hoja de inicio y en la tarjeta. Se guarda en Ajustes, y Hablar viene activado si el navegador tiene reconocimiento de voz.
+- **Así funciona Hablar:** Tuki lee la frase en español («¿Sabes cómo se dice esto en inglés? …») con Azure `es-CO-SalomeNeural` o con la voz del dispositivo, a la velocidad Lenta o Muy lenta que elijas. Después escucha solo (en-US).
+- Puedes decir la frase completa o solo la palabra que falta; las muletillas (umm, uh, so, entonces…) se ignoran. Los espacios azules se llenan mientras hablas y la respuesta se revisa como en el modo de texto. Tuki te lee la burbuja de ayuda en español y vuelve a escucharte.
+- Di **«pista»** para recibir una pista hablada. Con **«repite»** Tuki vuelve a leer la frase, y con **«no sé»** te muestra la respuesta.
+- Cuando aciertas, Tuki dice «¡Muy bien! Siguiente.», lee la frase en inglés y pasa sola a la siguiente, así puedes hacer toda la ronda sin tocar la pantalla. Tienes un botón **Pausa** y el micrófono grande para hablar cuando quieras.
+- Con Azure configurado verás el puntaje de pronunciación de las palabras de tu respuesta, y las que salgan bajas pasan a *Mis palabras difíciles*.
+- Si no hay reconocimiento de voz o niegas el micrófono, la app te avisa en español y cambia a Escribir.
 
 ### Novedades v2.5.1
 - Corregido: las comillas, apóstrofes y «&» de los mensajes de la IA ya no aparecen como `&quot;`, `&#39;` o `&amp;`. Esto aplica al chat, la voz en vivo, las palabras tocables, Traducir, los resúmenes, los informes y Traduce y completa, y la voz tampoco los lee. Los datos guardados antes se corrigen solos.
