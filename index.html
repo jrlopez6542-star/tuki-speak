@@ -329,6 +329,40 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 [data-theme=dark] .wordpop{background:var(--card);border-color:#3b4d5e}
 .msgacts .mini,.wordpop .mini{border:1.5px solid var(--line);border-radius:999px;background:transparent;color:var(--ink);padding:3px 9px;font-size:13px;font-weight:700;line-height:1.3}
 .wordpop .mini{font-size:15px}
+/* v2.4 */
+.spinner{width:36px;height:36px;border:4px solid var(--line);border-top-color:var(--g);border-radius:50%;margin:18px auto 6px;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.sumsheet .sheet{max-height:92vh}
+.sumcard h3{margin:14px 0 6px;font-size:16px}
+.sumscore{min-width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;background:var(--g-l);color:var(--g-d);border:3px solid var(--g)}
+.sumbars{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.mist,.ivq{border:2px solid var(--line);border-radius:14px;padding:9px 11px;margin:6px 0;background:var(--card)}
+.mist .said{color:var(--r-d);text-decoration:line-through;font-size:14px}.mist .good{font-weight:800;margin:3px 0}
+.nwi{padding:6px 0;border-bottom:1px solid var(--line)}.nwi:last-child{border-bottom:0}
+.sumcard .mini{border:1.5px solid var(--line);border-radius:999px;background:transparent;color:var(--ink);padding:2px 8px;font-size:13px;margin-left:2px;vertical-align:middle}
+.sumcard .tw,.topic .tw{cursor:pointer;border-bottom:1px dotted var(--mute)}
+.better{background:var(--g-l);border-radius:12px;padding:8px 10px;margin-top:6px;font-weight:600}
+.pill.ok{background:var(--g-l);color:var(--g-d)}.pill.mid{background:#fff1d6;color:var(--o-d)}.pill.low{background:var(--r-l);color:var(--r-d)}
+.modebar{display:flex;align-items:center;justify-content:space-between;gap:8px;border-radius:12px;padding:6px 10px;margin-bottom:6px;font-size:14px;background:#e8f0ff;color:#1b3a6b}
+.modebar.ch{background:#fff1d6;color:#6b4200}.modebar b#chClock{font-variant-numeric:tabular-nums;font-size:16px}
+.modebar .mini{border:1.5px solid currentColor;border-radius:999px;background:transparent;color:inherit;padding:3px 10px;font-weight:800;font-size:13px;flex:none}
+.modebar>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chattop.inmode .provider{display:none}
+.duo2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}
+.mcard{display:flex;gap:10px;align-items:flex-start;text-align:left;margin:0;padding:12px;cursor:pointer;font:inherit;color:inherit;border:2px solid var(--line)}
+.mcard.ch{background:linear-gradient(135deg,#fff7e6,var(--card))}.mcard.iv{background:linear-gradient(135deg,#eaf2ff,var(--card))}
+.mcard .mc-ic{font-size:28px;line-height:1}.mcard b{display:block;font-size:15px}
+.mcard .small.muted{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ivgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.sheet label.small{display:block;margin:10px 0 4px}
+.topic{border:2px dashed var(--o);border-radius:16px;padding:12px;margin:10px 0}
+.qrbox{background:#fff;border-radius:14px;padding:8px;max-width:300px;margin:8px auto}.qrbox svg{display:block;width:100%;height:auto}
+.scanvid{width:100%;max-height:300px;border-radius:14px;background:#000;object-fit:cover}
+.hitem{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 2px;font:inherit;color:inherit;cursor:pointer}.hitem .ht{flex:1;display:flex;flex-direction:column;min-width:0}.hitem:last-child{border-bottom:0}
+.hardlist summary,.gistbox summary{cursor:pointer;padding:4px 0}.gistbox{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}.gistbox code{font-size:12px}
+.gistbox a{word-break:break-all}
+[data-theme=dark] .modebar{background:#1b2b44;color:#cfe0ff}[data-theme=dark] .modebar.ch{background:#3a2a0e;color:#ffdca0}
+[data-theme=dark] .mcard.ch{background:linear-gradient(135deg,#3a2a0e,var(--card))}[data-theme=dark] .mcard.iv{background:linear-gradient(135deg,#1b2b44,var(--card))}
+[data-theme=dark] .pill.mid{background:#3a2a0e;color:#ffcf70}
 
 </style>
 </head>
@@ -1597,7 +1631,7 @@ function parseTutor(t) {
 </script>
 <script>
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.3.0';
+const APP_VERSION = '2.4.0';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
@@ -2403,10 +2437,11 @@ function chatDraw(keepScroll) {
 const CACHE_KEYS = { w: 'tukiSpeak.wcache', t: 'tukiSpeak.tcache' };
 function cacheGet(k, id) { try { return (JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'))[id]; } catch (e) { return undefined; } }
 function cacheSet(k, id, v) { try { const o = JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'); o[id] = v; const ks = Object.keys(o); if (ks.length > 400) ks.slice(0, ks.length - 400).forEach(x => delete o[x]); localStorage.setItem(CACHE_KEYS[k], JSON.stringify(o)); } catch (e) {} }
-async function aiQuick(system, prompt) {
+async function aiQuick(system, prompt, opts = {}) {
+  const max = opts.max || 300;
   const prov = currentProvider(); if (!prov) { const e = new Error('Configura una clave de IA en Ajustes para traducir.'); e.friendly = e.message; throw e; }
   if (prov === 'openai') {
-    const model = S.settings.openaiModel || 'gpt-4o-mini', body = { model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], max_completion_tokens: 300 };
+    const model = S.settings.openaiModel || 'gpt-4o-mini', body = { model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], max_completion_tokens: max }; if (opts.json) body.response_format = { type: 'json_object' };
     const r = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + S.settings.openaiKey.trim(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (!r.ok) throw await httpErr(r); const d = await r.json(); return ((d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '').trim();
   }
@@ -2414,7 +2449,7 @@ async function aiQuick(system, prompt) {
   let last;
   for (const model of models) {
     try {
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': S.settings.geminiKey.trim() }, body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 300 } }) });
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': S.settings.geminiKey.trim() }, body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: Object.assign({ temperature: 0.2, maxOutputTokens: max }, opts.json ? { responseMimeType: 'application/json' } : {}) }) });
       if (!r.ok) { last = await httpErr(r); if (r.status >= 500 || r.status === 404 || r.status === 429) continue; throw last; }
       const d = await r.json(); const t = ((d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || []).map(x => x.text || '').join('').trim();
       if (t) return t;
@@ -2719,12 +2754,521 @@ if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.
   } catch (e) {}
 });
 
+</script>
+<script>
+/* qrcode-generator 1.4.4 — (c) 2009 Kazuhiko Arase — MIT license — https://github.com/kazuhikoarase/qrcode-generator */
+// Copyright (c) 2009 Kazuhiko Arase
+// Licensed under the MIT license:
+//  http://www.opensource.org/licenses/mit-license.php
+var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],f={},c=function(t,r){o=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(i=4*e+17),l(0,0),l(i-7,0),l(0,i-7),s(),h(),d(t,r),e>=7&&v(t),null==a&&(a=p(e,n,u)),w(a,r)},l=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||i<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||i<=r+n||(o[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},h=function(){for(var t=8;t<i-8;t+=1)null==o[t][6]&&(o[t][6]=t%2==0);for(var r=8;r<i-8;r+=1)null==o[6][r]&&(o[6][r]=r%2==0)},s=function(){for(var t=B.getPatternPosition(e),r=0;r<t.length;r+=1)for(var n=0;n<t.length;n+=1){var i=t[r],a=t[n];if(null==o[i][a])for(var u=-2;u<=2;u+=1)for(var f=-2;f<=2;f+=1)o[i+u][a+f]=-2==u||2==u||-2==f||2==f||0==u&&0==f}},v=function(t){for(var r=B.getBCHTypeNumber(e),n=0;n<18;n+=1){var a=!t&&1==(r>>n&1);o[Math.floor(n/3)][n%3+i-8-3]=a}for(n=0;n<18;n+=1){a=!t&&1==(r>>n&1);o[n%3+i-8-3][Math.floor(n/3)]=a}},d=function(t,r){for(var e=n<<3|r,a=B.getBCHTypeInfo(e),u=0;u<15;u+=1){var f=!t&&1==(a>>u&1);u<6?o[u][8]=f:u<8?o[u+1][8]=f:o[i-15+u][8]=f}for(u=0;u<15;u+=1){f=!t&&1==(a>>u&1);u<8?o[8][i-u-1]=f:u<9?o[8][15-u-1+1]=f:o[8][15-u-1]=f}o[i-8][8]=!t},w=function(t,r){for(var e=-1,n=i-1,a=7,u=0,f=B.getMaskFunction(r),c=i-1;c>0;c-=2)for(6==c&&(c-=1);;){for(var g=0;g<2;g+=1)if(null==o[n][c-g]){var l=!1;u<t.length&&(l=1==(t[u]>>>a&1)),f(n,c-g)&&(l=!l),o[n][c-g]=l,-1==(a-=1)&&(u+=1,a=7)}if((n+=e)<0||i<=n){n-=e,e=-e;break}}},p=function(t,r,e){for(var n=A.getRSBlocks(t,r),o=b(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=k(i[u],l.getLength()-1).mod(l);for(a[u]=new Array(l.getLength()-1),g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=s>=0?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};f.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=M(t);break;case"Alphanumeric":e=x(t);break;case"Byte":e=m(t);break;case"Kanji":e=L(t);break;default:throw"mode:"+r}u.push(e),a=null},f.isDark=function(t,r){if(t<0||i<=t||r<0||i<=r)throw t+","+r;return o[t][r]},f.getModuleCount=function(){return i},f.make=function(){if(e<1){for(var t=1;t<40;t++){for(var r=A.getRSBlocks(t,n),o=b(),i=0;i<u.length;i++){var a=u[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var g=0;for(i=0;i<r.length;i++)g+=r[i].dataCount;if(o.getLengthInBits()<=8*g)break}e=t}c(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){c(!0,e);var n=B.getLostPoint(f);(0==e||t>n)&&(t=n,r=e)}return r}())},f.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<f.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<f.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=f.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},f.createSvgTag=function(t,r,e,n){var o={};"object"==typeof arguments[0]&&(t=(o=arguments[0]).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,c,g=f.getModuleCount()*t+2*r,l="";for(c="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",l+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',l+=o.scalable?"":' width="'+g+'px" height="'+g+'px"',l+=' viewBox="0 0 '+g+" "+g+'" ',l+=' preserveAspectRatio="xMinYMin meet"',l+=n.text||e.text?' role="img" aria-labelledby="'+y([n.id,e.id].join(" ").trim())+'"':"",l+=">",l+=n.text?'<title id="'+y(n.id)+'">'+y(n.text)+"</title>":"",l+=e.text?'<description id="'+y(e.id)+'">'+y(e.text)+"</description>":"",l+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',l+='<path d="',a=0;a<f.getModuleCount();a+=1)for(u=a*t+r,i=0;i<f.getModuleCount();i+=1)f.isDark(a,i)&&(l+="M"+(i*t+r)+","+u+c);return l+='" stroke="transparent" fill="black"/>',l+="</svg>"},f.createDataURL=function(t,r){t=t||2,r=void 0===r?4*t:r;var e=f.getModuleCount()*t+2*r,n=r,o=e-r;return I(e,e,(function(r,e){if(n<=r&&r<o&&n<=e&&e<o){var i=Math.floor((r-n)/t),a=Math.floor((e-n)/t);return f.isDark(a,i)?0:1}return 1}))},f.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=f.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=f.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=y(e),o+='"'),o+="/>"};var y=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return f.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*f.getModuleCount()+2*t,u=t,c=a-t,g={"██":"█","█ ":"▀"," █":"▄","  ":" "},l={"██":"▀","█ ":"▀"," █":" ","  ":" "},h="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<c&&u<=r&&r<c&&f.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<c&&u<=r+1&&r+1<c&&f.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",h+=t<1&&r+1>=c?l[i]:g[i];h+="\n"}return a%2&&t>0?h.substring(0,h.length-a-1)+Array(a+1).join("▀"):h.substring(0,h.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=f.getModuleCount()*t+2*r,u=r,c=a-r,g=Array(t+1).join("██"),l=Array(t+1).join("  "),h="",s="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),s="",n=0;n<a;n+=1)i=1,u<=n&&n<c&&u<=e&&e<c&&f.isDark(o,Math.floor((n-u)/t))&&(i=0),s+=i?g:l;for(o=0;o<t;o+=1)h+=s+"\n"}return h.substring(0,h.length-1)},f.renderTo2dContext=function(t,r){r=r||2;for(var e=f.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=f.isDark(n,o)?"black":"white",t.fillRect(n*r,o*r,r,r)},f};t.stringToBytes=(t.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,t.createStringToBytes=function(t,r){var e=function(){for(var e=S(t),n=function(){var t=e.read();if(-1==t)throw"eof";return t},o=0,i={};;){var a=e.read();if(-1==a)break;var u=n(),f=n()<<8|n();i[String.fromCharCode(a<<8|u)]=f,o+=1}if(o!=r)throw o+" != "+r;return i}(),n="?".charCodeAt(0);return function(t){for(var r=[],o=0;o<t.length;o+=1){var i=t.charCodeAt(o);if(i<128)r.push(i);else{var a=e[t.charAt(o)];"number"==typeof a?(255&a)==a?r.push(a):(r.push(a>>>8),r.push(255&a)):r.push(n)}}return r}};var r,e,n,o,i,a=1,u=2,f=4,c=8,g={L:1,M:0,Q:3,H:2},l=0,h=1,s=2,v=3,d=4,w=5,p=6,y=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],e=1335,n=7973,i=function(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r},(o={}).getBCHTypeInfo=function(t){for(var r=t<<10;i(r)-i(e)>=0;)r^=e<<i(r)-i(e);return 21522^(t<<10|r)},o.getBCHTypeNumber=function(t){for(var r=t<<12;i(r)-i(n)>=0;)r^=n<<i(r)-i(n);return t<<12|r},o.getPatternPosition=function(t){return r[t-1]},o.getMaskFunction=function(t){switch(t){case l:return function(t,r){return(t+r)%2==0};case h:return function(t,r){return t%2==0};case s:return function(t,r){return r%3==0};case v:return function(t,r){return(t+r)%3==0};case d:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case w:return function(t,r){return t*r%2+t*r%3==0};case p:return function(t,r){return(t*r%2+t*r%3)%2==0};case y:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},o.getErrorCorrectPolynomial=function(t){for(var r=k([1],0),e=0;e<t;e+=1)r=r.multiply(k([1,C.gexp(e)],0));return r},o.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case f:case c:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case f:return 16;case c:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case f:return 16;case c:return 12;default:throw"mode:"+t}}},o.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);i>5&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},o),C=function(){for(var t=new Array(256),r=new Array(256),e=0;e<8;e+=1)t[e]=1<<e;for(e=8;e<256;e+=1)t[e]=t[e-4]^t[e-5]^t[e-6]^t[e-8];for(e=0;e<255;e+=1)r[t[e]]=e;var n={glog:function(t){if(t<1)throw"glog("+t+")";return r[t]},gexp:function(r){for(;r<0;)r+=255;for(;r>=256;)r-=255;return t[r]}};return n}();function k(t,r){if(void 0===t.length)throw t.length+"/"+r;var e=function(){for(var e=0;e<t.length&&0==t[e];)e+=1;for(var n=new Array(t.length-e+r),o=0;o<t.length-e;o+=1)n[o]=t[o+e];return n}(),n={getAt:function(t){return e[t]},getLength:function(){return e.length},multiply:function(t){for(var r=new Array(n.getLength()+t.getLength()-1),e=0;e<n.getLength();e+=1)for(var o=0;o<t.getLength();o+=1)r[e+o]^=C.gexp(C.glog(n.getAt(e))+C.glog(t.getAt(o)));return k(r,0)},mod:function(t){if(n.getLength()-t.getLength()<0)return n;for(var r=C.glog(n.getAt(0))-C.glog(t.getAt(0)),e=new Array(n.getLength()),o=0;o<n.getLength();o+=1)e[o]=n.getAt(o);for(o=0;o<t.getLength();o+=1)e[o]^=C.gexp(C.glog(t.getAt(o))+r);return k(e,0).mod(t)}};return n}var A=function(){var t=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],r=function(t,r){var e={};return e.totalCount=t,e.dataCount=r,e},e={};return e.getRSBlocks=function(e,n){var o=function(r,e){switch(e){case g.L:return t[4*(r-1)+0];case g.M:return t[4*(r-1)+1];case g.Q:return t[4*(r-1)+2];case g.H:return t[4*(r-1)+3];default:return}}(e,n);if(void 0===o)throw"bad rs block @ typeNumber:"+e+"/errorCorrectionLevel:"+n;for(var i=o.length/3,a=[],u=0;u<i;u+=1)for(var f=o[3*u+0],c=o[3*u+1],l=o[3*u+2],h=0;h<f;h+=1)a.push(r(c,l));return a},e}(),b=function(){var t=[],r=0,e={getBuffer:function(){return t},getAt:function(r){var e=Math.floor(r/8);return 1==(t[e]>>>7-r%8&1)},put:function(t,r){for(var n=0;n<r;n+=1)e.putBit(1==(t>>>r-n-1&1))},getLengthInBits:function(){return r},putBit:function(e){var n=Math.floor(r/8);t.length<=n&&t.push(0),e&&(t[n]|=128>>>r%8),r+=1}};return e},M=function(t){var r=a,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+2<r.length;)t.put(o(r.substring(n,n+3)),10),n+=3;n<r.length&&(r.length-n==1?t.put(o(r.substring(n,n+1)),4):r.length-n==2&&t.put(o(r.substring(n,n+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return n},x=function(t){var r=u,e=t,n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=e,n=0;n+1<r.length;)t.put(45*o(r.charAt(n))+o(r.charAt(n+1)),11),n+=2;n<r.length&&t.put(o(r.charAt(n)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return n},m=function(r){var e=f,n=t.stringToBytes(r),o={getMode:function(){return e},getLength:function(t){return n.length},write:function(t){for(var r=0;r<n.length;r+=1)t.put(n[r],8)}};return o},L=function(r){var e=c,n=t.stringToBytesFuncs.SJIS;if(!n)throw"sjis not supported.";!function(){var t=n("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=n(r),i={getMode:function(){return e},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return i},D=function(){var t=[],r={writeByte:function(r){t.push(255&r)},writeShort:function(t){r.writeByte(t),r.writeByte(t>>>8)},writeBytes:function(t,e,n){e=e||0,n=n||t.length;for(var o=0;o<n;o+=1)r.writeByte(t[o+e])},writeString:function(t){for(var e=0;e<t.length;e+=1)r.writeByte(t.charCodeAt(e))},toByteArray:function(){return t},toString:function(){var r="";r+="[";for(var e=0;e<t.length;e+=1)e>0&&(r+=","),r+=t[e];return r+="]"}};return r},S=function(t){var r=t,e=0,n=0,o=0,i={read:function(){for(;o<8;){if(e>=r.length){if(0==o)return-1;throw"unexpected end of file./"+o}var t=r.charAt(e);if(e+=1,"="==t)return o=0,-1;t.match(/^\s$/)||(n=n<<6|a(t.charCodeAt(0)),o+=6)}var i=n>>>o-8&255;return o-=8,i}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return i},I=function(t,r,e){for(var n=function(t,r){var e=t,n=r,o=new Array(t*r),i={setPixel:function(t,r,n){o[r*e+t]=n},write:function(t){t.writeString("GIF87a"),t.writeShort(e),t.writeShort(n),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(e),t.writeShort(n),t.writeByte(0);var r=a(2);t.writeByte(2);for(var o=0;r.length-o>255;)t.writeByte(255),t.writeBytes(r,o,255),o+=255;t.writeByte(r.length-o),t.writeBytes(r,o,r.length-o),t.writeByte(0),t.writeString(";")}},a=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,i=u(),a=0;a<r;a+=1)i.add(String.fromCharCode(a));i.add(String.fromCharCode(r)),i.add(String.fromCharCode(e));var f,c,g,l=D(),h=(f=l,c=0,g=0,{write:function(t,r){if(t>>>r!=0)throw"length over";for(;c+r>=8;)f.writeByte(255&(t<<c|g)),r-=8-c,t>>>=8-c,g=0,c=0;g|=t<<c,c+=r},flush:function(){c>0&&f.writeByte(g)}});h.write(r,n);var s=0,v=String.fromCharCode(o[s]);for(s+=1;s<o.length;){var d=String.fromCharCode(o[s]);s+=1,i.contains(v+d)?v+=d:(h.write(i.indexOf(v),n),i.size()<4095&&(i.size()==1<<n&&(n+=1),i.add(v+d)),v=d)}return h.write(i.indexOf(v),n),h.write(e,n),h.flush(),l.toByteArray()},u=function(){var t={},r=0,e={add:function(n){if(e.contains(n))throw"dup key:"+n;t[n]=r,r+=1},size:function(){return r},indexOf:function(r){return t[r]},contains:function(r){return void 0!==t[r]}};return e};return i}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=D();n.write(a);for(var u=function(){var t=0,r=0,e=0,n="",o={},i=function(t){n+=String.fromCharCode(a(63&t))},a=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return o.writeByte=function(n){for(t=t<<8|255&n,r+=8,e+=1;r>=6;)i(t>>>r-6),r-=6},o.flush=function(){if(r>0&&(i(t<<6-r),t=0,r=0),e%3!=0)for(var o=3-e%3,a=0;a<o;a+=1)n+="="},o.toString=function(){return n},o}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return t}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||n>=57344?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}((function(){return qrcode}));
+</script>
+<script>
+/* =================== v2.4: DATOS NUEVOS (migración sin pérdida) =================== */
+function ensure24() {
+  S.summaries = Array.isArray(S.summaries) ? S.summaries : [];
+  S.interviews = Array.isArray(S.interviews) ? S.interviews : [];
+  S.challenges = S.challenges && typeof S.challenges === 'object' ? S.challenges : {};
+  S.hard = S.hard && typeof S.hard === 'object' ? S.hard : {};
+  S.convoItems = Array.isArray(S.convoItems) ? S.convoItems : [];
+  if (!S.mt) S.mt = Date.now();
+  if (S.settings.autoSummary === undefined) S.settings.autoSummary = true;
+}
+ensure24();
+const _render24 = render; render = function () { ensure24(); _render24(); };
+const _fresh24 = freshState; freshState = function () { return { ..._fresh24(), summaries: [], interviews: [], challenges: {}, hard: {}, convoItems: [] }; };
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const clamp100 = x => Math.max(0, Math.min(100, Math.round(+x || 0)));
+function parseJSONLoose(t) { const s = String(t || '').replace(/^```(?:json)?\s*|\s*```$/g, ''); try { return JSON.parse(s); } catch (e) { const m = s.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); throw new Error('La IA no devolvió un resultado válido. Intenta de nuevo.'); } }
+async function aiJSON(system, prompt, max = 1800) { return parseJSONLoose(await aiQuick(system, prompt, { max, json: true })); }
+function sayBtns(t) { return `<button class="mini" data-say-n="${esc(t)}" title="Escuchar">🔊</button><button class="mini" data-say-slow="${esc(t)}" title="Lento">🐢</button>`; }
+function bindSayTap(root) {
+  $$('[data-say-n]', root).forEach(b => b.onclick = e => { e.stopPropagation(); speak(b.dataset.sayN, false, null, b.dataset.lang === 'es' ? 'es' : undefined, chatMul()); });
+  $$('[data-say-slow]', root).forEach(b => b.onclick = e => { e.stopPropagation(); speak(b.dataset.saySlow, true); });
+  $$('.tw', root).forEach(w => w.onclick = e => { e.stopPropagation(); const c = w.closest('[data-ctx]'); openWordPop(w.dataset.tw, c ? c.dataset.ctx : w.parentElement.innerText, w); });
+}
+function scoreBarH(label, v) { v = clamp100(v); const c = v >= 80 ? 'var(--g)' : v >= 60 ? 'var(--o)' : 'var(--r)'; return `<div class="az-bar">${label} · ${v}<div class="tr"><i style="width:${v}%;background:${c}"></i></div></div>`; }
+
+/* =================== 1) RESUMEN DE CONVERSACIÓN =================== */
+function convoTranscript(msgs) {
+  return msgs.filter(m => !m.hidden).map(m => m.role === 'user' ? 'Learner: ' + m.text : 'Tuki: ' + (m.live ? m.text : (() => { const p = parseTutor(m.text); return (p.fix && !isPerfect(p.fix) ? '[correction: ' + p.fix + '] ' : '') + p.reply; })())).join('\n').slice(-7000);
+}
+function addLearnItems(items, src) {
+  let added = 0; const now = Date.now();
+  items.forEach(it => {
+    if (!it.en) return; const en = String(it.en).trim(), key = (it.kind === 'frase' ? 's:' : 'w:') + en.toLowerCase();
+    if (!S.deck[key] && !S.deck[(it.kind === 'frase' ? 's:' : 'w:') + en]) { addToDeck([{ key, en, es: it.es || '', kind: it.kind, lesson: null }]); added++; }
+    if (!S.convoItems.some(c => c.en.toLowerCase() === en.toLowerCase())) S.convoItems.unshift({ en, es: it.es || '', kind: it.kind, ts: now, src });
+  });
+  S.convoItems = S.convoItems.slice(0, 60); save(); return added;
+}
+function flagHard(words, src) { const now = Date.now(); (words || []).forEach(x => { const w = String(x.word || x || '').toLowerCase().replace(/[^a-z' -]/g, '').trim(); if (!w || w.length < 2) return; const h = S.hard[w] || (S.hard[w] = { w, n: 0, t: 0, src, note: '' }); h.n++; h.t = now; if (x.note_es) h.note = x.note_es; }); save(); }
+const SUM_SYS = () => `You are an expert English teacher analyzing a conversation between a Spanish-speaking learner from Colombia (CEFR ${chatLevel() === 'A2' ? 'A1-A2' : chatLevel()}) and a tutor called Tuki. The learner's lines usually come from speech-to-text, so odd words may be pronunciation problems.
+Return ONLY JSON with this exact shape (Spanish for all *_es fields, Latin American Spanish, use "tú"):
+{"summary_es":"1-2 sentences about how the conversation went","mistakes":[{"said":"what the learner said (quote)","correct":"correct natural English sentence","explain_es":"short explanation"}],"new_words":[{"en":"useful English word or short phrase from the conversation","es":"Spanish meaning"}],"mispronounced":[{"word":"English word the learner probably mispronounced or the speech recognizer misheard","note_es":"short tip"}],"scores":{"fluency":0-100,"grammar":0-100,"vocabulary":0-100},"tips_es":["tip 1","tip 2"]}
+Rules: max 6 mistakes (most important first), max 8 new_words, max 5 mispronounced, 1-2 tips. Only include real mistakes made by the learner. Be encouraging and fair with scores for the learner's level.`;
+async function summarizeConvo(msgs, meta) {
+  const data = await aiJSON(SUM_SYS(), `Conversation (${meta.title}):\n${convoTranscript(msgs)}`, 4000);
+  const d = { summary_es: String(data.summary_es || ''), mistakes: (data.mistakes || []).filter(m => m && m.correct).slice(0, 6), new_words: (data.new_words || []).filter(w => w && w.en).slice(0, 8), mispronounced: (data.mispronounced || []).filter(w => w && w.word).slice(0, 5), scores: { fluency: clamp100((data.scores || {}).fluency), grammar: clamp100((data.scores || {}).grammar), vocabulary: clamp100((data.scores || {}).vocabulary) }, tips_es: (data.tips_es || data.tips || []).slice(0, 2).map(String) };
+  const added = addLearnItems([...d.mistakes.map(m => ({ en: m.correct, es: m.explain_es, kind: 'frase' })), ...d.new_words.map(w => ({ en: w.en, es: w.es, kind: /\s/.test(w.en.trim()) ? 'frase' : 'palabra' }))], 'convo');
+  flagHard(d.mispronounced, 'convo');
+  const rec = { id: uid(), ts: Date.now(), date: dayKey(), kind: 'summary', title: meta.title, mode: meta.mode, live: !!meta.live, added, data: d };
+  S.summaries.unshift(rec); S.summaries = S.summaries.slice(0, 60); addXP(5); save(); checkBadges();
+  return rec;
+}
+function summaryHTML(rec) {
+  const d = rec.data, sc = d.scores, avgS = Math.round((sc.fluency + sc.grammar + sc.vocabulary) / 3);
+  return `<div class="sumcard"><div class="row between"><h2 style="margin:0">📝 Resumen</h2><div class="sumscore">${avgS}</div></div>
+    <div class="small muted">${esc(rec.title)} · ${esc(rec.date)}${rec.live ? ' · 🎙️ voz en vivo' : ' · ⌨️ texto'}</div>
+    ${d.summary_es ? `<p>${esc(d.summary_es)}</p>` : ''}
+    <div class="sumbars">${scoreBarH('Fluidez', sc.fluency)}${scoreBarH('Gramática', sc.grammar)}${scoreBarH('Vocabulario', sc.vocabulary)}</div>
+    <h3>✏️ Errores (${d.mistakes.length})</h3>${d.mistakes.length ? d.mistakes.map(m => `<div class="mist" data-ctx="${esc(m.correct)}"><div class="said">✗ ${esc(m.said || '')}</div><div class="good">✓ ${tapWords(m.correct)} ${sayBtns(m.correct)}</div><div class="small">💡 ${esc(m.explain_es || '')}</div></div>`).join('') : '<p class="small muted">¡No se detectaron errores importantes! 🎉</p>'}
+    ${d.new_words.length ? `<h3>🆕 Palabras y frases nuevas</h3><div class="nw">${d.new_words.map(w => `<div class="nwi" data-ctx="${esc(w.en)}"><b>${tapWords(w.en)}</b> <span class="muted small">— ${esc(w.es || '')}</span> ${sayBtns(w.en)}</div>`).join('')}</div>` : ''}
+    ${d.mispronounced.length ? `<h3>🗣️ Para pronunciar mejor</h3>${d.mispronounced.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtns(w.word)} <div class="small muted">${esc(w.note_es || '')}</div></div>`).join('')}` : ''}
+    ${d.tips_es.length ? `<h3>🎯 Consejos</h3><ul class="small">${d.tips_es.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+    ${rec.added ? `<div class="tipbox small">🃏 Se agregaron <b>${rec.added}</b> tarjetas a tu mazo y al <b>Plan de hoy</b>.</div>` : ''}</div>`;
+}
+function openSummarySheet(promiseOrRec, title) {
+  modal(`<div id="sumBody"><div class="sumcard"><h2>📝 Resumen</h2><p class="muted">${esc(title || '')}</p><div class="spinner"></div><p class="small muted" style="text-align:center">Tuki está analizando tu conversación…</p></div></div><div class="row" style="margin-top:10px"><button class="btn ghost block" data-x>Cerrar</button><button class="btn primary block" id="sumPractice" disabled>🎤 Practicar ahora</button></div>`, (el, close) => {
+    $('[data-x]', el).onclick = close; el.closest('.overlay').classList.add('sumsheet');
+    const show = rec => {
+      $('#sumBody', el).innerHTML = summaryHTML(rec); bindSayTap(el);
+      const items = [...rec.data.mistakes.map(m => m.correct), ...rec.data.new_words.map(w => w.en)];
+      const pb = $('#sumPractice', el); pb.disabled = !items.length;
+      pb.onclick = () => { close(); startLesson(null, 'practice', items.slice(0, 8).map(t => ({ kind: 'speak', variant: /\s/.test(t) ? 'sentence' : 'word', l: LESSONS[0], text: t, es: '' })), 'Práctica de tu conversación'); };
+    };
+    if (promiseOrRec && promiseOrRec.then) promiseOrRec.then(show).catch(e => { $('#sumBody', el).innerHTML = `<div class="sumcard"><h2>📝 Resumen</h2><div class="msg err">⚠️ No se pudo generar el resumen: ${esc(errES(e))}</div></div>`; });
+    else show(promiseOrRec);
+  });
+}
+/* Fin de conversación: Terminar / Nueva / salir de la pestaña */
+function endConversation(reason) {
+  const from = CHAT.sumFrom || 0, msgs = CHAT.hist.slice(from); CHAT.sumFrom = CHAT.hist.length;
+  const userTurns = msgs.filter(m => m.role === 'user' && !m.hidden).length, wasLive = msgs.some(m => m.live);
+  if (CHAT.scen === '__iv') return finishInterview(msgs, userTurns);
+  if (CHAT.scen === '__ch') return finishChallenge(msgs, userTurns, wasLive);
+  if (userTurns >= 2 && S.settings.autoSummary !== false && currentProvider()) openSummarySheet(summarizeConvo(msgs, { title: SCEN_ES[CHAT.scen] || 'Conversación', mode: 'chat', live: wasLive }), SCEN_ES[CHAT.scen]);
+}
+const _resetChat24 = resetChat; resetChat = function () { _resetChat24(); CHAT.sumFrom = 0; };
+const _stopLive24 = stopLive; stopLive = function (silent) { const was = LIVE.on; _stopLive24(silent); if (was && !silent) endConversation('live'); };
+const _go24 = go; go = function (tab) { const leaving = TAB === 'chat' && tab !== 'chat'; if (leaving && !LIVE.on) endConversation('leave'); _go24(tab); };
+
+/* Plan de hoy y Práctica con lo aprendido en conversaciones y palabras difíciles */
+function convoPracticeItems(n) { return S.convoItems.filter(c => Date.now() - c.ts < 14 * DAY).slice(0, n).map(c => ({ kind: 'speak', variant: c.kind === 'frase' ? 'sentence' : 'word', l: LESSONS[0], text: c.en, es: c.es, cardKey: S.deck[(c.kind === 'frase' ? 's:' : 'w:') + c.en.toLowerCase()] ? (c.kind === 'frase' ? 's:' : 'w:') + c.en.toLowerCase() : undefined })); }
+const _buildPlan24 = buildPlan;
+buildPlan = function () { const base = _buildPlan24(), extra = [...convoPracticeItems(2), ...hardDrillItems(2)]; return [...extra, ...base].slice(0, 10); };
+
+/* =================== 2) MIS PALABRAS DIFÍCILES =================== */
+function hardWords() {
+  const out = new Map();
+  Object.entries(S.wd || {}).forEach(([k, r]) => { if (!k || k.includes(' ') || k.length < 2 || /^\d+$/.test(k)) return; const a = r.sum / r.n; if (r.last >= 85) return; if (r.last < 70 || (r.n >= 2 && a < 65)) out.set(k, { w: r.disp || k, key: k, last: r.last, avg: Math.round(a), n: r.n, src: 'lesson', sid: r.sid }); });
+  Object.values(S.hard || {}).forEach(h => { const k = normText(h.w).join(' '), r = (S.wd || {})[k]; if (r && r.t > h.t && r.last >= 75) return; if (!out.has(k)) out.set(k, { w: h.w, key: k, last: r && r.t > h.t ? r.last : null, avg: null, n: h.n, src: h.src || 'convo', note: h.note }); else out.get(k).src = 'both'; });
+  return [...out.values()].sort((a, b) => (a.last == null ? -1 : a.last) - (b.last == null ? -1 : b.last));
+}
+function hardDrillItems(n) { return hardWords().slice(0, n).map(h => ({ kind: 'speak', variant: 'word', l: LESSON[h.sid] || LESSONS[0], text: h.w, es: h.note || 'Palabra difícil para ti' })); }
+function startHardDrill() { const q = hardDrillItems(8); if (!q.length) return toast('Aún no hay palabras difíciles. ¡Sigue practicando!'); startLesson(null, 'practice', q, 'Mis palabras difíciles'); }
+const _practice24 = VIEWS.practice;
+VIEWS.practice = v => {
+  _practice24(v);
+  const hw = hardWords(), ci = S.convoItems.filter(c => Date.now() - c.ts < 14 * DAY);
+  const h2 = $('h2', v).nextElementSibling;
+  h2.insertAdjacentHTML('afterend', `<button class="card pcard" id="hardBtn"><div class="em" style="background:#ffe3ea">🎯</div><div><h3 style="margin:0 0 2px">Mis palabras difíciles${hw.length ? ` (${hw.length})` : ''}</h3><div class="muted small">${hw.length ? `${hw.slice(0, 5).map(h => esc(h.w)).join(', ')}${hw.length > 5 ? '…' : ''} · ${azureReady() ? 'puntaje por fonemas con Azure' : 'puntaje con el reconocimiento del navegador'}` : 'Aquí aparecerán las palabras que pronuncies mal en lecciones y conversaciones.'}</div></div></button>
+    ${ci.length ? `<button class="card pcard" id="convoBtn"><div class="em" style="background:#e6f0ff">🗂️</div><div><h3 style="margin:0 0 2px">De tus conversaciones (${ci.length})</h3><div class="muted small">Correcciones y palabras nuevas de tus resúmenes.</div></div></button>` : ''}
+    ${hw.length ? `<details class="card hardlist"><summary><b>Ver mis palabras difíciles</b></summary>${hw.slice(0, 30).map(h => `<div class="witem"><button class="spk" data-say="${esc(h.w)}">🔊</button><div style="min-width:0"><div class="en">${esc(h.w)}</div><div class="es small">${h.last == null ? 'Sin practicar' : 'Último: ' + h.last + '%'}${h.src === 'convo' || h.src === 'both' ? ' · 💬 de una conversación' : ''}${h.note ? ' · ' + esc(h.note) : ''}</div></div><button class="spk slow" data-unhard="${esc(h.key)}" title="Quitar">✕</button></div>`).join('')}</details>` : ''}`);
+  $('#hardBtn').onclick = startHardDrill;
+  const cb = $('#convoBtn'); if (cb) cb.onclick = () => startLesson(null, 'practice', convoPracticeItems(8), 'De tus conversaciones');
+  $$('[data-unhard]', v).forEach(b => b.onclick = () => { const k = b.dataset.unhard; if (S.wd[k]) S.wd[k].last = 100; Object.keys(S.hard).forEach(w => { if (normText(w).join(' ') === k) delete S.hard[w]; }); save(); VIEWS.practice(v); });
+};
+</script>
+<script>
+/* =================== 3) SIMULADOR DE ENTREVISTA · 4) RETO DIARIO =================== */
+const numHash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h; };
+const SENIORITY = { intern: ['Practicante / pasantía', 'internship'], junior: ['Junior', 'junior'], mid: ['Semi-senior', 'mid-level'], senior: ['Senior', 'senior'], lead: ['Líder / gerente', 'lead / manager'] };
+const IV_END = /end of the interview/i;
+Object.defineProperty(SCENARIOS, '__iv', { enumerable: true, get: () => { const iv = CHAT.iv || {}; return `a professional recruiter conducting a job interview in English for a ${(SENIORITY[iv.sen] || SENIORITY.junior)[1]} ${iv.role || 'office job'} position` } });
+Object.defineProperty(SCENARIOS, '__ch', { enumerable: true, get: () => `a friendly conversation partner for today's 5-minute speaking challenge about: ${todayTopic().en}` });
+SCEN_ES.__iv = '🧑‍💼 Simulador de entrevista'; SCEN_ES.__ch = '⏱️ Reto diario de 5 min';
+function modeRules() {
+  if (CHAT.scen === '__iv' && CHAT.iv) { const n = CHAT.iv.n; return `\nJOB INTERVIEW SIMULATOR (most important rules): You are the recruiter. The job: ${(SENIORITY[CHAT.iv.sen] || SENIORITY.junior)[1]} ${CHAT.iv.role}. Ask EXACTLY ${n} interview questions in total, ONE question per turn. Start with a very short greeting and question 1 ("Tell me about yourself" style). Then mix experience, behavioral (STAR), role-specific, motivation and a final closing question. Do not answer for the candidate. Keep any correction to one short line so the interview flows. After the candidate answers question ${n}, thank them in one sentence and then say exactly: "That's the end of the interview. Thank you!" Never ask more than ${n} questions.`; }
+  if (CHAT.scen === '__ch') return `\nDAILY 5-MINUTE SPEAKING CHALLENGE: Today's topic is "${todayTopic().en}". Keep the learner talking about this topic: ask one open, interesting follow-up question per turn, react briefly to what they say and keep your own turns short (the learner should speak most of the time).`;
+  return '';
+}
+const _chatSystem24 = chatSystem; chatSystem = function () { return _chatSystem24() + modeRules(); };
+const _liveSystem24 = liveSystem; liveSystem = function () { return _liveSystem24() + modeRules(); };
+
+const TOPICS = {
+  A2: ['Your favorite food and how to cook it|Tu comida favorita y cómo prepararla', 'Your family and your home|Tu familia y tu casa', 'A normal day in your life|Un día normal en tu vida', 'Your best friend|Tu mejor amigo o amiga', 'Your favorite place in your city|Tu lugar favorito en tu ciudad', 'What you did last weekend|Qué hiciste el fin de semana pasado', 'Your pets or an animal you like|Tus mascotas o un animal que te guste', 'Your favorite music and singers|Tu música y cantantes favoritos', 'The weather today and your favorite season|El clima de hoy y tu estación favorita', 'Shopping for clothes|Comprar ropa', 'Your plans for next weekend|Tus planes para el próximo fin de semana', 'Your favorite movie or series|Tu película o serie favorita', 'Sports you like to watch or play|Deportes que te gusta ver o practicar', 'Your breakfast and your eating habits|Tu desayuno y tus hábitos de comida', 'Your job or your studies|Tu trabajo o tus estudios', 'A birthday party you remember|Una fiesta de cumpleaños que recuerdes', 'How you go to work or school|Cómo vas al trabajo o a estudiar', 'Your dream vacation|Tus vacaciones soñadas', 'Colombian food for a tourist|Comida colombiana para un turista', 'Your hobbies and free time|Tus pasatiempos y tiempo libre', 'Your phone and your favorite apps|Tu celular y tus apps favoritas', 'A restaurant you like|Un restaurante que te guste', 'Your childhood|Tu infancia', 'Your neighborhood|Tu barrio'],
+  B1: ['A trip that changed you|Un viaje que te cambió', 'The best advice you ever received|El mejor consejo que has recibido', 'Working from home vs. working in an office|Trabajar desde casa vs. en una oficina', 'How to stay healthy|Cómo mantenerte saludable', 'A skill you want to learn this year|Una habilidad que quieres aprender este año', 'Your city: problems and solutions|Tu ciudad: problemas y soluciones', 'Social media: good or bad?|Redes sociales: ¿buenas o malas?', 'A difficult moment and how you solved it|Un momento difícil y cómo lo resolviste', 'Traditions and festivals in Colombia|Tradiciones y festivales en Colombia', 'Your ideal job|Tu trabajo ideal', 'Why you are learning English|Por qué estás aprendiendo inglés', 'A book, podcast or video you recommend|Un libro, pódcast o video que recomiendas', 'Saving money: tips and habits|Ahorrar dinero: consejos y hábitos', 'Public transport in your city|El transporte público en tu ciudad', 'A person you admire|Una persona que admiras', 'Cooking at home vs. eating out|Cocinar en casa vs. comer afuera', 'Your goals for the next five years|Tus metas para los próximos cinco años', 'The perfect weekend|El fin de semana perfecto', 'Learning from mistakes|Aprender de los errores', 'Technology in your daily life|La tecnología en tu vida diaria', 'Living in a big city or a small town|Vivir en una ciudad grande o en un pueblo', 'Music that reminds you of something|Música que te recuerda algo', 'Your first job or first day at school|Tu primer trabajo o primer día de clases', 'Coffee culture|La cultura del café'],
+  B2: ['Should university be free for everyone?|¿La universidad debería ser gratis para todos?', 'The impact of artificial intelligence on jobs|El impacto de la inteligencia artificial en el empleo', 'Remote work and work-life balance|Trabajo remoto y equilibrio vida-trabajo', 'Tourism: benefits and problems|Turismo: beneficios y problemas', 'Climate change in your country|El cambio climático en tu país', 'Is it better to rent or to buy a home?|¿Es mejor arrendar o comprar vivienda?', 'How social media affects mental health|Cómo las redes sociales afectan la salud mental', 'The role of sports in society|El papel del deporte en la sociedad', 'Fast fashion and consumerism|La moda rápida y el consumismo', 'What makes a good leader|Qué hace a un buen líder', 'Learning languages as an adult|Aprender idiomas de adulto', 'The future of cities and transport|El futuro de las ciudades y el transporte', 'Entrepreneurship: risks and rewards|Emprender: riesgos y recompensas', 'Privacy in the digital age|La privacidad en la era digital', 'Street food and food culture|La comida callejera y la cultura gastronómica', 'Should kids have smartphones?|¿Los niños deberían tener celular?', 'Volunteering and helping your community|El voluntariado y ayudar a tu comunidad', 'The four-day work week|La semana laboral de cuatro días', 'Streaming vs. going to the cinema|Streaming vs. ir al cine', 'Moving abroad for work|Irse a otro país a trabajar', 'Healthy habits that are hard to keep|Hábitos saludables difíciles de mantener', 'The value of failure|El valor del fracaso', 'Music festivals and live events|Festivales de música y eventos en vivo', 'Online learning vs. classroom learning|Aprender en línea vs. en el aula'],
+  C1: ['Universal basic income: utopia or necessity?|Ingreso básico universal: ¿utopía o necesidad?', 'Ethics of artificial intelligence|La ética de la inteligencia artificial', 'Globalization and local cultures|La globalización y las culturas locales', 'Should voting be mandatory?|¿El voto debería ser obligatorio?', 'The attention economy|La economía de la atención', 'Meritocracy: myth or reality?|La meritocracia: ¿mito o realidad?', 'Space exploration: worth the cost?|La exploración espacial: ¿vale la pena el costo?', 'Cancel culture and free speech|La cultura de la cancelación y la libertad de expresión', 'Balancing economic growth and the environment|Equilibrar crecimiento económico y medio ambiente', 'The future of work after automation|El futuro del trabajo tras la automatización', 'Urbanization and inequality in Latin America|Urbanización y desigualdad en América Latina', 'How history is taught in schools|Cómo se enseña la historia en los colegios', 'Personal data as a currency|Los datos personales como moneda', 'The role of art in society|El papel del arte en la sociedad', 'Genetic engineering and designer babies|Ingeniería genética y bebés de diseño', 'Is happiness a choice?|¿La felicidad es una elección?', 'Brain drain: talent leaving the country|Fuga de cerebros: el talento que se va del país', 'Misinformation and how to fight it|La desinformación y cómo combatirla', 'The ethics of eating meat|La ética de comer carne', 'Cryptocurrencies and the future of money|Las criptomonedas y el futuro del dinero', 'Leadership lessons from failure|Lecciones de liderazgo a partir del fracaso', 'Tradition vs. progress|Tradición vs. progreso', 'Should museums return artifacts?|¿Los museos deberían devolver objetos históricos?', 'Living a minimalist life|Vivir una vida minimalista']
+};
+function todayTopic(day) { const lv = chatLevel(), pool = TOPICS[lv] || TOPICS.B1, k = day || dayKey(), i = numHash('tuki-ch-' + k + '-' + lv) % pool.length; const [en, es] = pool[i].split('|'); return { en, es, lv }; }
+const chSecs = () => window.__challengeSecs || 300;
+BADGES.push(
+  { id: 'ch1', i: '⏱️', t: 'Primer reto', d: 'Completa un reto diario de 5 minutos', c: () => Object.keys(S.challenges).length >= 1 },
+  { id: 'ch7', i: '🔥', t: 'Retador', d: 'Completa 7 retos diarios', c: () => Object.keys(S.challenges).length >= 7 },
+  { id: 'ch30', i: '🏆', t: 'Maestro del reto', d: 'Completa 30 retos diarios', c: () => Object.keys(S.challenges).length >= 30 },
+  { id: 'iv1', i: '🧑‍💼', t: 'Entrevistado', d: 'Termina una entrevista simulada', c: () => S.interviews.length >= 1 }
+);
+function enterMode(scen, voice) {
+  if (LIVE.on) stopLive(true);
+  if (TAB === 'chat' && CHAT.scen !== '__iv' && CHAT.scen !== '__ch') endConversation('switch');
+  CHAT.scen = scen; resetChat(); closeWordPop();
+  if (TAB !== 'chat') go('chat'); else render();
+  if (!currentProvider()) return;
+  if (voice) startLive(); else { chatDraw(); chatSend('(Start the roleplay now with a short friendly greeting and a first question.)', true); }
+}
+function leaveMode() { clearInterval(CHAT.timer); CHAT.timer = null; CHAT.scen = 'free'; CHAT.iv = null; CHAT.ch = null; resetChat(); if (TAB === 'chat') render(); }
+function interviewSetup() {
+  if (!currentProvider()) { toast('El simulador necesita una clave de Gemini (gratis) u OpenAI en Ajustes.', 3500); return go('settings'); }
+  const last = S.settings.ivLast || {}, lv = chatLevel();
+  modal(`<h2>🧑‍💼 Simulador de entrevista</h2><p class="small muted">Tuki hará de reclutador y al final recibirás un informe en español con puntaje y mejores respuestas.</p>
+    <label class="small"><b>Cargo o industria</b></label><input class="field" id="ivRole" maxlength="80" placeholder="Ej.: desarrollador frontend, enfermera, ventas…" value="${esc(last.role || '')}">
+    <div class="ivgrid"><div><label class="small"><b>Nivel del cargo</b></label><select class="field" id="ivSen">${Object.entries(SENIORITY).map(([k, v]) => `<option value="${k}" ${k === (last.sen || 'junior') ? 'selected' : ''}>${v[0]}</option>`).join('')}</select></div>
+    <div><label class="small"><b>Tu inglés</b></label><select class="field" id="ivLv">${LEVEL_KEYS.map(k => `<option value="${k}" ${k === lv ? 'selected' : ''}>${LEVELS[k].label}</option>`).join('')}</select></div></div>
+    <label class="small"><b>Número de preguntas</b></label><div class="chips" id="ivN">${[5, 8, 12].map(n => `<button class="chip ${n === (last.n || 5) ? 'active' : ''}" data-n="${n}">${n} preguntas</button>`).join('')}</div>
+    <label class="small"><b>Modo</b></label><div class="chips" id="ivMode"><button class="chip ${last.voice !== false ? 'active' : ''}" data-v="1">🎙️ Voz en vivo</button><button class="chip ${last.voice === false ? 'active' : ''}" data-v="0">⌨️ Texto</button></div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost block" data-x>Cancelar</button><button class="btn primary block" id="ivGo">Empezar entrevista</button></div>`, (el, close) => {
+    $('[data-x]', el).onclick = () => { close(); if (TAB === 'chat') render(); };
+    $$('#ivN .chip, #ivMode .chip', el).forEach(c => c.onclick = () => { $$('.chip', c.parentElement).forEach(x => x.classList.remove('active')); c.classList.add('active'); });
+    $('#ivGo', el).onclick = () => {
+      const role = $('#ivRole', el).value.trim(); if (!role) { $('#ivRole', el).focus(); return toast('Escribe el cargo o la industria.'); }
+      const iv = { role, sen: $('#ivSen', el).value, n: +$('#ivN .active', el).dataset.n, voice: $('#ivMode .active', el).dataset.v === '1', level: $('#ivLv', el).value, t0: Date.now() };
+      S.settings.ivLast = { role: iv.role, sen: iv.sen, n: iv.n, voice: iv.voice }; S.settings.chatLevel = iv.level; save(); close();
+      CHAT.iv = iv; CHAT.ivEnding = false; enterMode('__iv', iv.voice);
+    };
+  });
+}
+function ivQuestion() { if (!CHAT.iv) return 0; const q = CHAT.hist.filter(m => m.role === 'model' && !m.hidden && m.text.trim()).length; return Math.max(1, Math.min(CHAT.iv.n, q)); }
+async function reportInterview(iv, msgs) {
+  const sys = `You are an expert career coach and English teacher. Evaluate a job interview practice in English by a Spanish-speaking learner from Colombia (English level ${iv.level}) for a ${(SENIORITY[iv.sen] || SENIORITY.junior)[1]} ${iv.role} position. The candidate's lines come from speech-to-text.
+Return ONLY JSON: {"overall":0-100,"summary_es":"2-3 sentences in Spanish","questions":[{"q":"the recruiter's question (English)","answer_summary":"short summary of what the candidate said (English)","score":0-100,"feedback_es":"specific feedback in Spanish: content + English","better":"a stronger sample answer in natural English, 2-4 sentences, adapted to level ${iv.level}"}],"common_mistakes":[{"said":"candidate quote","correct":"correct English","explain_es":"short explanation in Spanish"}],"tips_es":["tip","tip"]}
+Include one item per recruiter question that the candidate answered (max ${iv.n}). Max 6 common_mistakes, 2-3 tips. Use "tú" in Spanish.`;
+  const data = await aiJSON(sys, 'Interview transcript:\n' + convoTranscript(msgs), 6000);
+  const d = { overall: clamp100(data.overall), summary_es: String(data.summary_es || ''), questions: (data.questions || []).filter(q => q && q.q).slice(0, iv.n).map(q => ({ q: String(q.q), answer_summary: String(q.answer_summary || ''), score: clamp100(q.score), feedback_es: String(q.feedback_es || ''), better: String(q.better || '') })), common_mistakes: (data.common_mistakes || []).filter(m => m && m.correct).slice(0, 6), tips_es: (data.tips_es || []).slice(0, 3).map(String) };
+  const added = addLearnItems(d.common_mistakes.map(m => ({ en: m.correct, es: m.explain_es, kind: 'frase' })), 'interview');
+  const rec = { id: uid(), ts: Date.now(), date: dayKey(), role: iv.role, sen: iv.sen, n: iv.n, level: iv.level, voice: iv.voice, added, data: d };
+  S.interviews.unshift(rec); S.interviews = S.interviews.slice(0, 30); addXP(10); save(); checkBadges(); return rec;
+}
+function interviewHTML(rec) {
+  const d = rec.data;
+  return `<div class="sumcard"><div class="row between"><h2 style="margin:0">🧑‍💼 Informe de entrevista</h2><div class="sumscore">${d.overall}</div></div>
+    <div class="small muted">${esc(rec.role)} · ${esc((SENIORITY[rec.sen] || SENIORITY.junior)[0])} · ${rec.n} preguntas · ${esc(rec.date)}</div>
+    ${d.summary_es ? `<p>${esc(d.summary_es)}</p>` : ''}
+    ${d.questions.map((q, i) => `<div class="ivq"><div class="row between"><b>Pregunta ${i + 1}</b><span class="pill ${q.score >= 80 ? 'ok' : q.score >= 60 ? 'mid' : 'low'}">${q.score}</span></div>
+      <div class="small" data-ctx="${esc(q.q)}">❓ ${tapWords(q.q)} ${sayBtns(q.q)}</div>${q.answer_summary ? `<div class="small muted">🗣️ ${esc(q.answer_summary)}</div>` : ''}
+      <div class="small">💡 ${esc(q.feedback_es)}</div>${q.better ? `<div class="better" data-ctx="${esc(q.better)}"><div class="small"><b>Respuesta más fuerte:</b></div>${tapWords(q.better)} ${sayBtns(q.better)}</div>` : ''}</div>`).join('')}
+    ${d.common_mistakes.length ? `<h3>✏️ Errores comunes</h3>${d.common_mistakes.map(m => `<div class="mist" data-ctx="${esc(m.correct)}"><div class="said">✗ ${esc(m.said || '')}</div><div class="good">✓ ${tapWords(m.correct)} ${sayBtns(m.correct)}</div><div class="small">💡 ${esc(m.explain_es || '')}</div></div>`).join('')}` : ''}
+    ${d.tips_es.length ? `<h3>🎯 Consejos</h3><ul class="small">${d.tips_es.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+    ${rec.added ? `<div class="tipbox small">🃏 Se agregaron <b>${rec.added}</b> frases corregidas a tus tarjetas.</div>` : ''}</div>`;
+}
+function openInterviewSheet(p) {
+  modal(`<div id="ivBody"><div class="sumcard"><h2>🧑‍💼 Informe de entrevista</h2><div class="spinner"></div><p class="small muted" style="text-align:center">Evaluando tus respuestas…</p></div></div><div class="row" style="margin-top:10px"><button class="btn ghost block" data-x>Cerrar</button><button class="btn primary block" id="ivAgain">🔁 Otra entrevista</button></div>`, (el, close) => {
+    el.closest('.overlay').classList.add('sumsheet'); $('[data-x]', el).onclick = close; $('#ivAgain', el).onclick = () => { close(); interviewSetup(); };
+    const show = rec => { $('#ivBody', el).innerHTML = interviewHTML(rec); bindSayTap(el); };
+    if (p && p.then) p.then(show).catch(e => { $('#ivBody', el).innerHTML = `<div class="sumcard"><h2>🧑‍💼 Informe</h2><div class="msg err">⚠️ No se pudo generar el informe: ${esc(errES(e))}</div></div>`; }); else show(p);
+  });
+}
+function finishInterview(msgs, userTurns) {
+  const iv = CHAT.iv; clearTimeout(CHAT.ivT); leaveMode();
+  if (!iv || userTurns < 1) return toast('Entrevista cancelada.');
+  openInterviewSheet(reportInterview(iv, msgs));
+}
+function challengeSetup() {
+  if (!currentProvider()) { toast('El reto usa la conversación con IA: agrega una clave gratuita de Gemini en Ajustes.', 3500); return go('settings'); }
+  const t = todayTopic(), done = S.challenges[dayKey()];
+  modal(`<h2>⏱️ Reto diario de 5 minutos</h2><p class="small muted">${done ? '✅ Ya completaste el reto de hoy. ¡Puedes repetirlo!' : 'Habla 5 minutos sobre el tema del día. Al final recibes un resumen y +20 XP.'}</p>
+    <div class="topic"><div class="small muted">Tema de hoy · ${LEVELS[t.lv].label}</div><div style="font-size:20px;font-weight:800" data-ctx="${esc(t.en)}">${tapWords(t.en)} ${sayBtns(t.en)}</div><div class="small">${esc(t.es)}</div></div>
+    <div class="row" style="margin-top:14px"><button class="btn ghost block" id="chText">⌨️ Texto</button><button class="btn primary block" id="chVoice">🎙️ Voz en vivo</button></div><button class="btn ghost block" data-x style="margin-top:8px">Cancelar</button>`, (el, close) => {
+    bindSayTap(el); $('[data-x]', el).onclick = close;
+    const go2 = voice => { close(); CHAT.ch = { t0: Date.now(), secs: chSecs(), day: dayKey(), topic: t, voice, finished: false }; enterMode('__ch', voice); startChTimer(); };
+    $('#chText', el).onclick = () => go2(false); $('#chVoice', el).onclick = () => go2(true);
+  });
+}
+function chLeft() { const c = CHAT.ch; return c ? Math.max(0, c.secs - Math.floor((Date.now() - c.t0) / 1000)) : 0; }
+function startChTimer() {
+  clearInterval(CHAT.timer);
+  CHAT.timer = setInterval(() => {
+    if (!CHAT.ch) return clearInterval(CHAT.timer);
+    const left = chLeft(), el = $('#chClock'); if (el) el.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+    if (left <= 0 && !CHAT.ch.finished) { CHAT.ch.finished = true; clearInterval(CHAT.timer); toast('⏱️ ¡Tiempo! Reto completado 🎉', 3000); if (LIVE.on) stopLive(); else endConversation('timer'); }
+  }, 250);
+}
+function finishChallenge(msgs, userTurns, wasLive) {
+  const ch = CHAT.ch; if (!ch) return leaveMode();
+  const complete = (ch.finished || Date.now() - ch.t0 >= ch.secs * 1000) && userTurns >= 1; leaveMode();
+  if (!complete) return toast(userTurns ? '⏹ Reto sin terminar: complétalo los 5 minutos para ganar el bonus.' : 'Reto cancelado.', 3500);
+  const first = !S.challenges[ch.day];
+  S.challenges[ch.day] = { topic: ch.topic.en, ts: Date.now(), turns: userTurns, live: wasLive, secs: ch.secs };
+  if (first) addXP(20); save(); checkBadges();
+  toast(first ? '🏆 ¡Reto diario completado! +20 XP' : '🏆 ¡Reto completado otra vez!', 3000);
+  if (currentProvider()) openSummarySheet(summarizeConvo(msgs, { title: 'Reto: ' + ch.topic.en, mode: 'challenge', live: wasLive }), 'Reto diario');
+}
+function chStreak() { let n = 0; const d = new Date(); for (;;) { const k = dayKey(d); if (!S.challenges[k]) { if (n === 0 && k === dayKey()) { d.setDate(d.getDate() - 1); continue; } break; } n++; d.setDate(d.getDate() - 1); } return n; }
+
+/* Chat: barra del modo, Nueva, escenario especial, detección del fin de la entrevista */
+const _chatDraw24 = chatDraw;
+chatDraw = function (keepScroll) {
+  _chatDraw24(keepScroll);
+  if (CHAT.scen === '__iv' && CHAT.iv) {
+    const k = $('#ivK'); if (k) k.textContent = `Pregunta ${ivQuestion()}/${CHAT.iv.n}`;
+    const lastM = [...CHAT.hist].reverse().find(m => m.role === 'model');
+    if (lastM && IV_END.test(lastM.text) && !CHAT.ivEnding) { CHAT.ivEnding = true; toast('✅ Entrevista terminada: preparando tu informe…', 2500); CHAT.ivT = setTimeout(() => { if (CHAT.scen !== '__iv') return; if (LIVE.on) stopLive(); else endConversation('ivend'); }, window.__ivEndDelay != null ? window.__ivEndDelay : 3500); }
+  }
+};
+const _chatView24 = VIEWS.chat;
+VIEWS.chat = v => {
+  if ((CHAT.scen === '__iv' && !CHAT.iv) || (CHAT.scen === '__ch' && !CHAT.ch)) CHAT.scen = 'free';
+  _chatView24(v);
+  const scen = $('#scen', v); if (!scen) return;
+  const top = $('.chattop', v);
+  if (CHAT.scen === '__iv') top.insertAdjacentHTML('afterbegin', `<div class="modebar iv"><span>🧑‍💼 <b>${esc(CHAT.iv.role)}</b> · <span id="ivK">Pregunta ${ivQuestion()}/${CHAT.iv.n}</span></span><button class="mini" id="modeEnd">Finalizar</button></div>`);
+  if (CHAT.scen === '__ch') top.insertAdjacentHTML('afterbegin', `<div class="modebar ch"><span>⏱️ <b id="chClock">${Math.floor(chLeft() / 60)}:${String(chLeft() % 60).padStart(2, '0')}</b> · <span class="small">${esc(CHAT.ch.topic.en)}</span></span><button class="mini" id="modeEnd">Terminar</button></div>`);
+  if (CHAT.scen === '__iv' || CHAT.scen === '__ch') { top.classList.add('inmode'); const me = $('#modeEnd', v); me.onclick = () => { if (LIVE.on) stopLive(); else endConversation('end'); }; }
+  const origScen = scen.onchange;
+  scen.onchange = e => {
+    const val = e.target.value;
+    if (val === '__iv' || val === '__ch') { e.target.value = CHAT.scen; return val === '__iv' ? interviewSetup() : challengeSetup(); }
+    if (CHAT.scen === '__iv' || CHAT.scen === '__ch') { if (LIVE.on) stopLive(true); clearInterval(CHAT.timer); CHAT.iv = CHAT.ch = null; CHAT.scen = val; resetChat(); return render(); }
+    if (!LIVE.on) endConversation('scen');
+    origScen(e);
+  };
+  $('#newc', v).onclick = () => {
+    if (CHAT.scen === '__iv' || CHAT.scen === '__ch') { if (LIVE.on) stopLive(); else endConversation('new'); return; }
+    if (LIVE.on) stopLive(); else endConversation('new');
+    resetChat(); chatDraw(); chatSend('(Start the roleplay now with a short friendly greeting and a first question.)', true);
+  };
+  fitChat();
+};
+
+/* Aprender: tarjetas del reto diario y la entrevista */
+const _learn24 = VIEWS.learn;
+VIEWS.learn = v => {
+  _learn24(v);
+  const t = todayTopic(), done = S.challenges[dayKey()], cs = chStreak();
+  const html = `<div class="duo2"><button class="card mcard ch" id="chCard"><div class="mc-ic">${done ? '✅' : '⏱️'}</div><div><b>Reto diario · 5 min</b><div class="small muted">${esc(t.en)}</div><div class="small">${done ? '¡Completado hoy!' : '+20 XP'}${cs ? ` · 🔥 ${cs}` : ''}</div></div></button>
+    <button class="card mcard iv" id="ivCard"><div class="mc-ic">🧑‍💼</div><div><b>Entrevista de trabajo</b><div class="small muted">Simulador con informe</div><div class="small">${S.interviews.length ? 'Última: ' + S.interviews[0].data.overall + '/100' : '5, 8 o 12 preguntas'}</div></div></button></div>`;
+  const anchor = $('.plan-card', v) || $('.card.goal', v);
+  if (anchor) anchor.insertAdjacentHTML('afterend', html); else v.insertAdjacentHTML('afterbegin', html);
+  $('#chCard', v).onclick = challengeSetup; $('#ivCard', v).onclick = interviewSetup;
+};
+/* Progreso: historial */
+function historyHTML() {
+  const items = [...S.summaries.map(s => ({ ts: s.ts, k: 's', id: s.id, ic: s.mode === 'challenge' ? '⏱️' : '📝', t: s.title, sc: Math.round((s.data.scores.fluency + s.data.scores.grammar + s.data.scores.vocabulary) / 3), d: s.date })), ...S.interviews.map(r => ({ ts: r.ts, k: 'i', id: r.id, ic: '🧑‍💼', t: 'Entrevista: ' + r.role, sc: r.data.overall, d: r.date }))].sort((a, b) => b.ts - a.ts);
+  return `<div class="card" id="histCard"><h3>🗂️ Historial de conversaciones</h3><div class="small muted">Retos completados: <b>${Object.keys(S.challenges).length}</b> · Entrevistas: <b>${S.interviews.length}</b> · Resúmenes: <b>${S.summaries.length}</b></div>
+    ${items.length ? items.slice(0, 20).map(x => `<button class="hitem" data-h="${x.k}:${x.id}"><span>${x.ic}</span><span class="ht"><b>${esc(x.t)}</b><span class="small muted">${esc(x.d)}</span></span><span class="pill">${x.sc}</span></button>`).join('') : '<p class="small muted">Cuando termines una conversación con la IA, aquí verás su resumen.</p>'}</div>`;
+}
+const _progress24 = VIEWS.progress;
+VIEWS.progress = v => {
+  _progress24(v);
+  const cards = $$('.card', v); const anchor = cards[1] || cards[0];
+  if (anchor) anchor.insertAdjacentHTML('afterend', historyHTML()); else v.insertAdjacentHTML('beforeend', historyHTML());
+  $$('[data-h]', v).forEach(b => b.onclick = () => { const [k, id] = b.dataset.h.split(':'); if (k === 's') { const r = S.summaries.find(x => x.id === id); r && openSummarySheet(r, r.title); } else { const r = S.interviews.find(x => x.id === id); r && openInterviewSheet(r); } });
+};
+</script>
+<script>
+/* =================== 5) PROGRESO ENTRE DISPOSITIVOS =================== */
+const SECRET_KEYS = ['geminiKey', 'openaiKey', 'azureKey'];
+const settingsSig = () => { const o = { ...S.settings }; SECRET_KEYS.forEach(k => delete o[k]); delete o.ivLast; return JSON.stringify(o); };
+let _setSig = settingsSig();
+const _save24 = save; save = function () { const g = settingsSig(); if (g !== _setSig) { _setSig = g; S.mt = Date.now(); } _save24(); };
+function exportState() { const o = JSON.parse(JSON.stringify(S)); SECRET_KEYS.forEach(k => { if (o.settings) delete o.settings[k]; }); return o; }
+const b64u = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const unb64u = str => { const s = atob(str.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((str.length + 3) % 4)); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+async function streamBytes(bytes, T) { return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(T)).arrayBuffer()); }
+async function encodeState() {
+  const raw = new TextEncoder().encode(JSON.stringify(exportState()));
+  if (window.CompressionStream) { try { return 'TK1' + b64u(await streamBytes(raw, new CompressionStream('deflate-raw'))); } catch (e) {} }
+  return 'TK0' + b64u(raw);
+}
+async function decodeState(code) {
+  code = String(code || '').trim(); const m = code.match(/#import=([A-Za-z0-9_\-]+)/); if (m) code = m[1];
+  const tag = code.slice(0, 3), body = code.slice(3); let bytes;
+  if (!/^[A-Za-z0-9_\-]+$/.test(body)) throw new Error('Código no válido: tiene caracteres que no corresponden. Cópialo de nuevo completo.');
+  try {
+  if (tag === 'TK1') { if (!window.DecompressionStream) throw new Error('Este navegador no puede leer el código comprimido. Actualízalo o usa el archivo JSON.'); bytes = await streamBytes(unb64u(body), new DecompressionStream('deflate-raw')); }
+  else if (tag === 'TK0') bytes = unb64u(body); else throw new Error('Código no válido: debe empezar por TK1 o TK0.');
+  } catch (e) { if (/^Código|navegador/.test(e.message)) throw e; throw new Error('Código incompleto o dañado. Cópialo de nuevo completo.'); }
+  let d; try { d = JSON.parse(new TextDecoder().decode(bytes)); } catch (e) { throw new Error('Código incompleto o dañado. Cópialo de nuevo completo.'); }
+  if (!d || typeof d !== 'object' || !d.settings || !(d.v >= 1)) throw new Error('El código no contiene un progreso válido.');
+  return d;
+}
+/* Fusión: nunca se pierde progreso */
+function mergeStates(a, b) {
+  const o = JSON.parse(JSON.stringify(a)), num = x => +x || 0;
+  ['xp', 'bestStreak', 'spoken', 'sessions', 'reviewed', 'chats', 'lives'].forEach(k => o[k] = Math.max(num(a[k]), num(b[k])));
+  const al = a.lastDay || '', bl = b.lastDay || '';
+  if (bl > al) { o.lastDay = b.lastDay; o.streak = num(b.streak); o.freezes = num(b.freezes); } else if (bl === al) { o.streak = Math.max(num(a.streak), num(b.streak)); o.freezes = Math.max(num(a.freezes), num(b.freezes)); }
+  if (num(b.heartTs) > num(a.heartTs)) { o.hearts = b.hearts; o.heartTs = b.heartTs; }
+  const fieldMax = (x = {}, y = {}) => { const r = { ...x }; for (const k in y) { if (typeof y[k] === 'number') r[k] = Math.max(num(r[k]), y[k]); else if (r[k] === undefined) r[k] = y[k]; } return r; };
+  const perKey = (x = {}, y = {}, pick) => { const r = { ...x }; for (const k in y) r[k] = r[k] === undefined ? y[k] : pick(r[k], y[k]); return r; };
+  o.days = perKey(a.days, b.days, fieldMax);
+  o.done = perKey(a.done, b.done, (x, y) => { const r = fieldMax(x, y); if (x.placed && !y.placed || y.placed && !x.placed) delete r.placed; if (r.times && r.placed) delete r.placed; return r; });
+  o.deck = perKey(a.deck, b.deck, (x, y) => num(y.reps) > num(x.reps) || (num(y.reps) === num(x.reps) && num(y.due) > num(x.due)) ? y : x);
+  o.snd = perKey(a.snd, b.snd, (x, y) => { const seen = new Set(), r = []; [...x, ...y].sort((p, q) => p.t - q.t).forEach(e => { const k = e.t + ':' + e.s; if (!seen.has(k)) { seen.add(k); r.push(e); } }); return r.slice(-40); });
+  const byN = (x, y) => num(y.n) > num(x.n) ? y : x;
+  o.wd = perKey(a.wd, b.wd, byN); o.ph = perKey(a.ph, b.ph, byN);
+  o.ear = perKey(a.ear, b.ear, (x, y) => num(y.r) + num(y.w) > num(x.r) + num(x.w) ? y : x);
+  o.badges = perKey(a.badges, b.badges, (x, y) => Math.min(x, y));
+  o.plans = { ...(b.plans || {}), ...(a.plans || {}) }; o.challenges = { ...(b.challenges || {}), ...(a.challenges || {}) };
+  o.hard = perKey(a.hard, b.hard, (x, y) => num(y.t) > num(x.t) ? { ...y, n: Math.max(x.n, y.n) } : { ...x, n: Math.max(x.n, y.n) });
+  const byId = (x = [], y = [], cap) => { const m = new Map(); [...x, ...y].forEach(e => e && e.id && !m.has(e.id) && m.set(e.id, e)); return [...m.values()].sort((p, q) => q.ts - p.ts).slice(0, cap); };
+  o.summaries = byId(a.summaries, b.summaries, 60); o.interviews = byId(a.interviews, b.interviews, 30);
+  const ci = new Map(); [...(a.convoItems || []), ...(b.convoItems || [])].forEach(c => { const k = String(c.en).toLowerCase(); if (!ci.has(k) || ci.get(k).ts < c.ts) ci.set(k, c); }); o.convoItems = [...ci.values()].sort((p, q) => q.ts - p.ts).slice(0, 60);
+  o.placement = a.placement || b.placement || null;
+  const keep = {}; SECRET_KEYS.forEach(k => keep[k] = a.settings[k] || '');
+  if (num(b.mt) > num(a.mt)) { o.settings = { ...a.settings, ...b.settings }; o.mt = b.mt; }
+  SECRET_KEYS.forEach(k => o.settings[k] = keep[k]);
+  return o;
+}
+function adoptState(d) {
+  const f = freshState(); for (const k in f) if (d[k] === undefined || (d[k] === null && k !== 'placement' && k !== 'lastDay')) d[k] = f[k];
+  d.settings = { ...DEFAULT_SETTINGS, ...d.settings }; S = d;
+  ['summaries', 'interviews', 'convoItems'].forEach(k => { if (!Array.isArray(S[k])) S[k] = []; }); ['challenges', 'hard'].forEach(k => { if (!S[k] || typeof S[k] !== 'object') S[k] = {}; });
+  _setSig = settingsSig(); _save24(); applyPrefs(); render();
+}
+function applyImport(d, how) {
+  const keep = {}; SECRET_KEYS.forEach(k => keep[k] = S.settings[k] || '');
+  const next = how === 'replace' ? JSON.parse(JSON.stringify(d)) : mergeStates(S, d);
+  next.settings = next.settings || {}; SECRET_KEYS.forEach(k => next.settings[k] = keep[k]);
+  adoptState(next); checkBadges();
+}
+function importPrompt(d, src) {
+  const days = Object.keys(d.days || {}).length, done = Object.values(d.done || {}).filter(x => x.times).length;
+  modal(`<h2>📥 Importar progreso</h2><p class="small">${esc(src || 'Código')} con <b>${num0(d.xp)} XP</b>, racha <b>${num0(d.streak)}</b>, <b>${done}</b> lecciones, <b>${Object.keys(d.deck || {}).length}</b> tarjetas y <b>${days}</b> días de actividad.</p>
+    <div class="tipbox small"><b>Combinar</b> junta ambos progresos sin perder nada (recomendado). <b>Reemplazar</b> borra el progreso de este dispositivo. Tus claves de API de este dispositivo se conservan.</div>
+    <div class="row"><button class="btn ghost block" data-x>Cancelar</button><button class="btn ghost block" id="impRep">Reemplazar</button><button class="btn primary block" id="impMerge">Combinar</button></div>`, (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $('#impMerge', el).onclick = () => { applyImport(d, 'merge'); close(); toast('✅ Progreso combinado'); };
+    $('#impRep', el).onclick = () => confirmBox('¿Reemplazar progreso?', 'Se borrará el progreso de este dispositivo y se usará el importado. No se puede deshacer.', 'Reemplazar', () => { applyImport(d, 'replace'); close(); toast('✅ Progreso reemplazado'); }, true);
+  });
+}
+const num0 = x => Math.round(+x || 0);
+async function importFromCode(code, src) { try { importPrompt(await decodeState(code), src); return true; } catch (e) { toast('⚠️ ' + (e.message || e), 4500); return false; } }
+function checkImportHash() {
+  const m = location.hash.match(/#import=([A-Za-z0-9_\-]+)/); if (!m) return;
+  history.replaceState(null, '', location.pathname + location.search);
+  importFromCode(m[1], 'Enlace');
+}
+/* QR */
+function qrSVG(text) { const q = qrcode(0, 'L'); q.addData(text, 'Byte'); q.make(); return q.createSvgTag({ cellSize: 4, margin: 3, scalable: true }); }
+const QR_SINGLE_MAX = 1000, QR_CHUNK = 450;
+async function openTransfer() {
+  const code = await encodeState(), link = location.origin + location.pathname + '#import=' + code;
+  const single = link.length <= QR_SINGLE_MAX, id = Math.random().toString(36).slice(2, 6);
+  const frames = single ? [link] : (() => { const n = Math.ceil(code.length / QR_CHUNK), r = []; for (let i = 0; i < n; i++) r.push(`TKQR|${id}|${i + 1}|${n}|${code.slice(i * QR_CHUNK, (i + 1) * QR_CHUNK)}`); return r; })();
+  let fi = 0, timer = null;
+  modal(`<h2>📲 Pasar mi progreso a otro dispositivo</h2>
+    <p class="small muted">${single ? 'Escanea este código con la cámara del otro dispositivo (o con “Escanear” en Ajustes de Tuki Speak) y abre el enlace.' : `Tu progreso es grande: son <b>${frames.length}</b> códigos QR que cambian solos. En el otro dispositivo abre <b>Ajustes → Escanear código</b> y apunta a la pantalla hasta completar todos.`}</p>
+    <div class="qrbox" id="qrBox">${qrSVG(frames[0])}</div><div class="small muted" id="qrInfo" style="text-align:center">${single ? '' : `Código 1/${frames.length}`}</div>
+    <div class="row" style="flex-wrap:wrap;margin-top:8px"><button class="btn ghost" id="qrCopyLink">🔗 Copiar enlace</button><button class="btn ghost" id="qrCopyCode">📋 Copiar código</button>${navigator.share ? '<button class="btn ghost" id="qrShare">📤 Compartir</button>' : ''}</div>
+    <p class="small muted">El código no incluye tus claves de API. Tamaño: ${Math.round(code.length / 1024 * 10) / 10} KB.</p><button class="btn primary block" data-x>Listo</button>`, (el, close) => {
+    const stop = () => clearInterval(timer); const x = () => { stop(); close(); };
+    $('[data-x]', el).onclick = x; el.closest('.overlay').addEventListener('click', e => { if (e.target === e.currentTarget) stop(); });
+    if (!single) timer = setInterval(() => { if (!document.body.contains(el)) return stop(); fi = (fi + 1) % frames.length; $('#qrBox', el).innerHTML = qrSVG(frames[fi]); $('#qrInfo', el).textContent = `Código ${fi + 1}/${frames.length}`; }, window.__qrFrameMs || 900);
+    const copy = (t, msg) => (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast(msg)).catch(() => { prompt('Copia este texto:', t); });
+    $('#qrCopyLink', el).onclick = () => copy(link, '🔗 Enlace copiado');
+    $('#qrCopyCode', el).onclick = () => copy(code, '📋 Código copiado');
+    const sh = $('#qrShare', el); if (sh) sh.onclick = () => navigator.share({ title: 'Mi progreso de Tuki Speak', text: 'Abre este enlace para importar mi progreso:', url: link }).catch(() => {});
+  });
+}
+function openScanner() {
+  const parts = {}; let stream = null, raf = null, total = 0, done = false;
+  modal(`<h2>📷 Recibir progreso</h2>
+    <div id="scanArea">${'BarcodeDetector' in window ? '<video id="scanVid" playsinline muted class="scanvid"></video><div class="small muted" id="scanInfo" style="text-align:center">Apunta al código QR del otro dispositivo…</div>' : '<div class="tipbox small">Tu navegador no puede leer QR desde la app. Escanea el código con la cámara del teléfono (abre el enlace) o pega el código abajo.</div>'}</div>
+    <label class="small"><b>O pega el enlace o el código (TK1…)</b></label><textarea class="field" id="scanPaste" rows="3" placeholder="https://…#import=TK1… o TK1…"></textarea>
+    <div class="row" style="margin-top:8px"><button class="btn ghost block" data-x>Cancelar</button><button class="btn primary block" id="scanGo">Importar</button></div>`, (el, close) => {
+    const stop = () => { done = true; cancelAnimationFrame(raf); if (stream) stream.getTracks().forEach(t => t.stop()); };
+    const x = () => { stop(); close(); };
+    $('[data-x]', el).onclick = x; el.closest('.overlay').addEventListener('click', e => { if (e.target === e.currentTarget) stop(); });
+    $('#scanGo', el).onclick = async () => { const t = $('#scanPaste', el).value.trim(); if (!t) return toast('Pega el enlace o el código.'); if (await importFromCode(t, 'Código pegado')) x(); };
+    const got = async txt => {
+      if (/#import=|^TK[01]/.test(txt)) { stop(); close(); importFromCode(txt, 'Código QR'); return; }
+      const m = txt.match(/^TKQR\|(\w+)\|(\d+)\|(\d+)\|(.+)$/); if (!m) return;
+      if (parts.id && parts.id !== m[1]) { for (const k in parts) delete parts[k]; }
+      parts.id = m[1]; total = +m[3]; parts[m[2]] = m[4];
+      const have = Object.keys(parts).filter(k => k !== 'id').length; const info = $('#scanInfo', el); if (info) info.innerHTML = `Recibidos <b>${have}/${total}</b> códigos…`;
+      if (have === total) { let code = ''; for (let i = 1; i <= total; i++) code += parts[i]; stop(); close(); importFromCode(code, 'Códigos QR'); }
+    };
+    if (!('BarcodeDetector' in window)) return;
+    (async () => {
+      try {
+        const det = new BarcodeDetector({ formats: ['qr_code'] });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); if (done) return stop();
+        const vid = $('#scanVid', el); vid.srcObject = stream; await vid.play().catch(() => {});
+        const loop = async () => { if (done) return; try { const r = await det.detect(vid); for (const c of r) await got(c.rawValue); } catch (e) {} if (!done) raf = requestAnimationFrame(loop); };
+        loop();
+      } catch (e) { const a = $('#scanArea', el); if (a) a.innerHTML = `<div class="msg err small">No se pudo abrir la cámara (${esc(errES(e))}). Pega el código abajo.</div>`; }
+    })();
+  });
+}
+/* Sincronización opcional con un Gist secreto de GitHub */
+const GIST_KEY = 'tukiSpeak.gist', GIST_FILE = 'tuki-speak-sync.json', GH = 'https://api.github.com';
+const gistCfg = () => { try { return JSON.parse(localStorage.getItem(GIST_KEY)) || {}; } catch (e) { return {}; } };
+const setGistCfg = c => localStorage.setItem(GIST_KEY, JSON.stringify(c));
+async function gh(path, opts = {}) {
+  const c = gistCfg(); const r = await fetch(GH + path, { ...opts, headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(opts.body ? { 'Content-Type': 'application/json' } : {}) } });
+  if (!r.ok) { const e = new Error(r.status === 401 ? 'Token de GitHub inválido o vencido.' : r.status === 403 || r.status === 404 ? 'El token no tiene permiso para gists (o el gist ya no existe).' : 'GitHub respondió ' + r.status); e.status = r.status; throw e; }
+  return r.status === 204 ? null : r.json();
+}
+let SYNC_BUSY = false;
+async function gistSync(opts = {}) {
+  const c = gistCfg(); if (!c.token) throw new Error('Primero pega tu token de GitHub.');
+  if (SYNC_BUSY) return; SYNC_BUSY = true;
+  try {
+    let remote = null, id = c.id;
+    if (id) { try { const g = await gh('/gists/' + id); const f = g.files && g.files[GIST_FILE]; if (f) remote = JSON.parse(f.truncated ? await (await fetch(f.raw_url)).text() : f.content); else id = null; } catch (e) { if (e.status === 404) id = null; else throw e; } }
+    if (!id) { const list = await gh('/gists?per_page=100'); const g = (list || []).find(x => x.files && x.files[GIST_FILE]); if (g) { id = g.id; const full = await gh('/gists/' + id); const f = full.files[GIST_FILE]; remote = JSON.parse(f.truncated ? await (await fetch(f.raw_url)).text() : f.content); } }
+    if (remote && remote.state) { const merged = mergeStates(S, remote.state); SECRET_KEYS.forEach(k => merged.settings[k] = S.settings[k] || ''); adoptState(merged); }
+    const payload = { app: 'tuki-speak', v: 1, updated: new Date().toISOString(), device: navigator.userAgent.slice(0, 80), state: exportState() };
+    const files = { [GIST_FILE]: { content: JSON.stringify(payload) } };
+    if (id) await gh('/gists/' + id, { method: 'PATCH', body: JSON.stringify({ files }) });
+    else { const g = await gh('/gists', { method: 'POST', body: JSON.stringify({ description: 'Tuki Speak – progreso sincronizado (no borrar)', public: false, files }) }); id = g.id; }
+    setGistCfg({ ...gistCfg(), id, last: Date.now(), err: '' }); if (!opts.quiet) toast('☁️ Progreso sincronizado'); return true;
+  } catch (e) { setGistCfg({ ...gistCfg(), err: e.message || String(e) }); if (!opts.quiet) toast('⚠️ ' + (e.message || e), 4500); throw e; }
+  finally { SYNC_BUSY = false; if (TAB === 'settings') { const st = $('#gistStat'); if (st) st.innerHTML = gistStatus(); } }
+}
+function gistStatus() { const c = gistCfg(); if (!c.token) return 'Sin conectar.'; return (c.last ? '✅ Última sincronización: ' + new Date(c.last).toLocaleString('es-CO') : 'Conectado, aún sin sincronizar.') + (c.err ? `<br><span style="color:var(--r)">⚠️ ${esc(c.err)}</span>` : ''); }
+function autoSyncOnOpen() { const c = gistCfg(); if (c.token && c.auto !== false && navigator.onLine) gistSync({ quiet: true }).catch(() => {}); }
+document.addEventListener('visibilitychange', () => {
+  const c = gistCfg(); if (document.visibilityState !== 'hidden' || !c.token || c.auto === false || !navigator.onLine) return;
+  try { const payload = { app: 'tuki-speak', v: 1, updated: new Date().toISOString(), state: exportState() }; if (c.id) fetch(GH + '/gists/' + c.id, { method: 'PATCH', keepalive: JSON.stringify(payload).length < 60000, headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'Content-Type': 'application/json' }, body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(payload) } } }) }).then(r => { if (r.ok) setGistCfg({ ...gistCfg(), last: Date.now() }); }).catch(() => {}); } catch (e) {}
+});
+/* Ajustes: resumen automático + sincronización */
+const _settings24 = VIEWS.settings;
+VIEWS.settings = v => {
+  _settings24(v);
+  const c = gistCfg(), s = S.settings;
+  const html = `<div class="card" id="syncCard"><h3>📲 Progreso en varios dispositivos</h3>
+    <p class="small muted">Pasa tu progreso al celular o al computador. Nunca se copian tus claves de API.</p>
+    <div class="row" style="flex-wrap:wrap"><button class="btn primary" id="qrOut">📤 Mostrar código QR</button><button class="btn ghost" id="qrIn">📷 Escanear / pegar código</button></div>
+    <details class="gistbox" ${c.token ? 'open' : ''}><summary><b>☁️ Sincronización automática con GitHub (opcional)</b></summary>
+      <ol class="small"><li>Crea una cuenta gratis en GitHub si no tienes.</li><li>Abre <a href="https://github.com/settings/tokens/new?scopes=gist&description=Tuki%20Speak" target="_blank" rel="noopener">github.com/settings/tokens/new?scopes=gist&amp;description=Tuki%20Speak</a>, elige una expiración, deja marcado solo <b>gist</b> y pulsa <b>Generate token</b>.</li><li>Copia el token (empieza por <code>ghp_</code>) y pégalo aquí. Haz lo mismo en tus otros dispositivos con el <b>mismo</b> token o uno nuevo de la misma cuenta.</li></ol>
+      <p class="small muted">Alternativa: un token “fine-grained” con el permiso <b>Gists: Read and write</b>. Tu progreso se guarda en un gist <b>secreto</b> de tu cuenta (no aparece en tu perfil ni en búsquedas, pero cualquiera con el enlace exacto podría verlo; no contiene claves). El token queda solo en este dispositivo.</p>
+      <input class="field" id="gistTok" type="password" autocomplete="off" placeholder="ghp_… o github_pat_…" value="${esc(c.token || '')}">
+      <div class="set-row"><div><label for="gistAuto">Sincronizar sola</label><div class="desc">Al abrir la app y al cerrarla o cambiar de app</div></div><label class="switch"><input type="checkbox" id="gistAuto" ${c.auto !== false ? 'checked' : ''}><span></span></label></div>
+      <div class="row" style="flex-wrap:wrap"><button class="btn primary" id="gistSync">🔄 Sincronizar ahora</button>${c.token ? '<button class="btn ghost" id="gistOff">Desconectar</button>' : ''}</div>
+      <div class="small muted" id="gistStat" style="margin-top:6px">${gistStatus()}</div></details></div>
+    <div class="card"><h3>📝 Resúmenes de conversación</h3><div class="set-row"><div><label for="autoSummary">Resumen al terminar</label><div class="desc">Al terminar una conversación con la IA verás tus errores, palabras nuevas y puntajes. Se agregan a tus tarjetas.</div></div><label class="switch"><input type="checkbox" id="autoSummary" ${s.autoSummary !== false ? 'checked' : ''}><span></span></label></div></div>`;
+  const cards = $$(':scope > .card', v), anchor = cards.find(x => /Datos|progreso|Respaldo/i.test($('h3', x) ? $('h3', x).textContent : '')) || cards[cards.length - 1];
+  anchor.insertAdjacentHTML('beforebegin', html);
+  $('#qrOut', v).onclick = () => openTransfer().catch(e => toast('⚠️ ' + errES(e)));
+  $('#qrIn', v).onclick = openScanner;
+  $('#autoSummary', v).onchange = e => { S.settings.autoSummary = e.target.checked; save(); };
+  $('#gistAuto', v).onchange = e => setGistCfg({ ...gistCfg(), auto: e.target.checked });
+  const tok = $('#gistTok', v); tok.onchange = () => { const t = tok.value.trim(); const cur = gistCfg(); setGistCfg(t ? { ...cur, token: t, id: cur.token === t ? cur.id : null, err: '' } : {}); };
+  $('#gistSync', v).onclick = async e => { tok.onchange(); const b = e.currentTarget; b.disabled = true; b.textContent = '⏳ Sincronizando…'; try { await gistSync(); } catch (er) {} finally { if (document.body.contains(b)) { b.disabled = false; b.textContent = '🔄 Sincronizar ahora'; } } if (TAB === 'settings') render(); };
+  const off = $('#gistOff', v); if (off) off.onclick = () => confirmBox('¿Desconectar GitHub?', 'Este dispositivo dejará de sincronizar. El gist no se borra.', 'Desconectar', () => { localStorage.removeItem(GIST_KEY); render(); });
+};
+window.addEventListener('hashchange', checkImportHash);
+</script>
+<script>
 /* =================== INICIO =================== */
 applyPrefs(); save(); render(); netBanner();
-if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
+if (S.placement == null && !Object.keys(S.done).length && !S.xp && !/#import=/.test(location.hash)) setTimeout(placementIntro, 300);
+setTimeout(checkImportHash, 200); setTimeout(autoSyncOnOpen, 1500);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem, chatSystem: () => chatSystem(), version: APP_VERSION };
+window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, encodeState, decodeState, mergeStates, importFromCode, openTransfer, openScanner, gistSync, gistCfg, aiJSON, chStreak, version: APP_VERSION };
 </script>
 
 </body>
