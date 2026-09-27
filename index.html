@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2hKjGawRUhIYp52Ac3PRlwuICbF5pkizo44YsSGcW1A=' 'sha256-N6jfRbL3RzkQNwmVmO/crQ6XG0jdOOL1AyWh2F494k4=' 'sha256-iPBiO7BTNTuDNJdqMqklnDFA0Ab+pMzJfvNhcywCEYg=' 'sha256-uWWWCS5gSow77yF7MuLZjodigaFTSpT7VXx5kJcwhbc=' 'sha256-FHEzimNx08U2dmh5ytweA2vW+PE+rwFOTqA99vQyxvA=' 'sha256-VkDqCjZMRbI2qG+Ik67kKeNRZGSXcPLsjQmRVsBOH0Y=' 'sha256-A7wAfFVOoEp5xlhi/shp6yQdxfcEaga5tqfZJPeaPPI=' 'sha256-LG0deP3s9Ut+p+hVq/mNN/y3T45v5dU++4MpWUimzig=' 'sha256-GqxceauTweF3ApSdmPJ6y/8++nC9KaUgUd0IBYBfvkU=' 'sha256-LKtW5sa6Fs7TCrUjbNrp09LVX+Ntzh+DtJj9lBFcFvo=' 'sha256-QT0zDsGr8RzMcsyEx/tX70w0vcxU5hiJfGYec3Eu6uk=' 'sha256-9ny4uj7oHH2V2iqVZtDO17ZtSfLyx7T6PdIMh/fYBTs=' 'sha256-RI+HAmVwpy3LCzI0+5MmxBRzj+/nM9VBo7PfyJ+BmPk=' 'sha256-yMqYXraAo9Do9rQlQUT6cP6jNk2EIG4PdYKcNJPn+PM=' 'sha256-iZuVGIJlpz3GDlNlTVcpwS+RCLBbkm3iCUP23KPjO54=' 'sha256-qzf9oYRM1BPT7FRS/t+clgiGmR6i3Jx1WReBO50xajs=' 'sha256-VDWKiSJ4+HU5a/q/JNu8VhYTw2GV0juwWVDhiIb4NYE=' https://www.gstatic.com/firebasejs/12.19.0/ https://apis.google.com blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com https://www.google.com; media-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' https://*.googleapis.com wss://generativelanguage.googleapis.com https://*.firebaseapp.com https://www.gstatic.com https://apis.google.com https://www.google.com https://api.openai.com https://*.stt.speech.microsoft.com wss://*.stt.speech.microsoft.com https://*.tts.speech.microsoft.com wss://*.tts.speech.microsoft.com https://*.api.cognitive.microsoft.com https://*.cognitiveservices.azure.com wss://*.cognitiveservices.azure.com https://api.github.com https://gist.githubusercontent.com; frame-src https://tuki-speak.firebaseapp.com https://accounts.google.com https://apis.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tuki Speak – Pronunciación en inglés gratis</title>
 <meta name="color-scheme" content="light dark">
@@ -495,6 +496,36 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 [data-theme=dark] .pd-fb.fix{background:#3a2e08;color:#ffd666}
 [data-theme=dark] .pd-fb.off{background:#431b1b;color:#ffabab}
 @media (max-width:400px){.pd-bigq{font-size:21px}.pd-home h3{font-size:17px}}
+
+/* v2.8 Cuenta, frase de seguridad y uso del plan */
+.ac-msg{font-size:13px;line-height:1.4;margin:8px 0;min-height:1px;color:var(--mute)}
+.ac-msg.ok{color:var(--g-d)}.ac-msg.err{color:var(--r)}
+.gbtn{background:#fff;color:#1f1f1f;border:2px solid var(--line);box-shadow:0 4px 0 var(--line);font-weight:800;display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px}
+.gbtn .g{font-weight:900;font-size:20px;background:conic-gradient(from -45deg,#ea4335 0 25%,#fbbc05 0 50%,#34a853 0 75%,#4285f4 0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ac-or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px;margin:12px 0}
+.ac-or::before,.ac-or::after{content:'';flex:1;height:2px;background:var(--line)}
+.seg{display:flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:8px}
+.seg button{flex:1;border:0;background:transparent;padding:10px;font-weight:800;color:var(--mute);font-size:15px}
+.seg button.active{background:var(--b);color:#fff}
+#acctCard .field,#keysCard .field{margin-bottom:8px;font-size:16px;min-height:46px}
+.linkbtn{background:none;border:0;color:var(--b);font-weight:800;padding:8px 2px;text-decoration:underline;font-size:14px}
+.ac-user{display:flex;align-items:center;gap:12px;margin:6px 0 10px}
+.ac-av{width:44px;height:44px;border-radius:50%;background:var(--b);color:#fff;display:grid;place-items:center;font-weight:900;font-size:20px;flex:none}
+.ac-mail{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ac-sync{background:var(--bg,#f7f7f7);border:2px solid var(--line);border-radius:12px;padding:10px;margin:8px 0}
+.kp-meter{display:flex;align-items:center;gap:8px;margin:-2px 0 8px;font-size:12px;color:var(--mute)}
+.kp-meter i{width:70px;height:6px;border-radius:3px;background:var(--line);position:relative;overflow:hidden;flex:none}
+.kp-meter i::after{content:'';position:absolute;inset:0;width:0;background:var(--r);transition:width .2s}
+.kp-meter[data-lv="1"] i::after{width:33%;background:var(--r)}.kp-meter[data-lv="2"] i::after{width:66%;background:var(--o)}.kp-meter[data-lv="3"] i::after{width:100%;background:var(--g)}
+.tbl-wrap{overflow-x:auto;margin:8px 0;border:2px solid var(--line);border-radius:12px}
+.utbl{width:100%;border-collapse:collapse;font-size:13px}
+.utbl th,.utbl td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.utbl th{background:rgba(28,176,246,.08);font-weight:900}
+.utbl tr:last-child td{border-bottom:0}
+.u-me{background:rgba(88,204,2,.1);border-radius:12px;padding:10px;margin:8px 0;font-size:14px}
+[data-theme=dark] .gbtn{background:#1f2a33;color:#e8eef2}
+[data-theme=dark] .ac-sync{background:rgba(255,255,255,.04)}
+[data-theme=dark] .utbl th{background:rgba(28,176,246,.14)}
 
 </style>
 </head>
@@ -1778,7 +1809,7 @@ function parseTutor(t) {
 </script>
 <script>
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.7.0';
+const APP_VERSION = '2.8.0';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
@@ -4369,13 +4400,468 @@ Object.assign(window, { startPD });
 
 </script>
 <script>
+/* =================== v2.8 CUENTA, NUBE Y SEGURIDAD =================== */
+const lsGet = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+/* ---- Validación de datos importados (QR, enlace, Gist, archivo, nube) ---- */
+const BAD_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+const clampNum = x => { const n = +x; return Number.isFinite(n) ? Math.max(-1e15, Math.min(1e15, n)) : 0; };
+function deepClean(x, depth, cnt) {
+  if (x === null) return null;
+  const t = typeof x;
+  if (t === 'string') return x.length > 4000 ? x.slice(0, 4000) : x;
+  if (t === 'number') return Number.isFinite(x) ? x : 0;
+  if (t === 'boolean') return x;
+  if (t !== 'object' || depth > 10) return undefined;
+  if (++cnt.n > 250000) throw new Error('El progreso es demasiado grande o está dañado.');
+  if (Array.isArray(x)) { const out = []; for (let i = 0; i < Math.min(x.length, 3000); i++) { const v = deepClean(x[i], depth + 1, cnt); if (v !== undefined) out.push(v); } return out; }
+  const o = {}; for (const k of Object.keys(x)) { if (BAD_KEYS.has(k) || k.length > 200) continue; const v = deepClean(x[k], depth + 1, cnt); if (v !== undefined) o[k] = v; }
+  return o;
+}
+function sanitizeSettings(s) {
+  const out = {}; if (!s || typeof s !== 'object' || Array.isArray(s)) return out;
+  for (const k of Object.keys(s)) {
+    if (SECRET_KEYS.includes(k) || BAD_KEYS.has(k) || k.length > 60) continue;
+    const v = s[k], def = DEFAULT_SETTINGS[k];
+    if (def !== undefined && def !== null && typeof v !== typeof def) continue;
+    if (typeof v === 'string') out[k] = v.slice(0, 300);
+    else if (typeof v === 'number') out[k] = Number.isFinite(v) ? v : (def || 0);
+    else if (typeof v === 'boolean') out[k] = v;
+    else if (v && typeof v === 'object' && !Array.isArray(v) && JSON.stringify(v).length < 2000) out[k] = deepClean(v, 0, { n: 0 });
+  }
+  return out;
+}
+function sanitizeState(d) {
+  if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('El progreso no es válido.');
+  const o = deepClean(d, 0, { n: 0 }), f = freshState();
+  for (const k in f) {
+    if (!(k in o)) continue; const want = f[k], v = o[k];
+    if (typeof want === 'number') o[k] = clampNum(v);
+    else if (Array.isArray(want)) { if (!Array.isArray(v)) o[k] = []; }
+    else if (want && typeof want === 'object') { if (!v || typeof v !== 'object' || Array.isArray(v)) o[k] = {}; }
+  }
+  ['placement', 'lastDay'].forEach(k => { if (k in o) o[k] = typeof o[k] === 'string' ? o[k].slice(0, 40) : null; });
+  const objMap = (m, fn) => { for (const k of Object.keys(m || {})) { const e = m[k]; if (!e || typeof e !== 'object' || Array.isArray(e)) delete m[k]; else if (fn) fn(e, k); } };
+  if (o.deck) objMap(o.deck, e => { e.en = String(e.en ?? '').slice(0, 400); e.es = String(e.es ?? '').slice(0, 400); ['ef', 'int', 'reps', 'due', 'lapses'].forEach(n => { if (n in e) e[n] = clampNum(e[n]); }); });
+  if (o.hard) objMap(o.hard, e => { e.w = String(e.w ?? '').slice(0, 80); e.n = clampNum(e.n); e.t = clampNum(e.t); if (e.note != null) e.note = String(e.note).slice(0, 300); });
+  ['done', 'ear', 'wd', 'ph', 'days', 'plans', 'challenges'].forEach(k => { if (o[k]) objMap(o[k]); });
+  if (o.snd) for (const k of Object.keys(o.snd)) { if (!Array.isArray(o.snd[k])) delete o.snd[k]; else o.snd[k] = o.snd[k].filter(e => e && typeof e === 'object' && !Array.isArray(e)); }
+  ['summaries', 'interviews', 'convoItems'].forEach(k => { if (k in o) o[k] = Array.isArray(o[k]) ? o[k].filter(e => e && typeof e === 'object' && !Array.isArray(e)).slice(0, 100) : []; });
+  (o.convoItems || []).forEach(c => { c.en = String(c.en ?? '').slice(0, 400); if (c.es != null) c.es = String(c.es).slice(0, 400); c.ts = clampNum(c.ts); });
+  const str = (x, n) => String(x ?? '').slice(0, n);
+  if (o.summaries) o.summaries = o.summaries.map(r => { const d = r.data && typeof r.data === 'object' && !Array.isArray(r.data) ? r.data : {}; const arr = (x, f) => Array.isArray(x) ? x.filter(e => e && typeof e === 'object').slice(0, 12).map(f) : [];
+    return { ...r, id: str(r.id || uid(), 40), ts: clampNum(r.ts), title: str(r.title, 120), date: str(r.date, 20), added: clampNum(r.added), data: { summary_es: str(d.summary_es, 1500), scores: d.scores && typeof d.scores === 'object' && !Array.isArray(d.scores) ? d.scores : {},
+      mistakes: arr(d.mistakes, m => ({ said: str(m.said, 400), correct: str(m.correct, 400), explain_es: str(m.explain_es, 600) })).filter(m => m.correct), new_words: arr(d.new_words, w => ({ en: str(w.en, 200), es: str(w.es, 200) })).filter(w => w.en),
+      mispronounced: arr(d.mispronounced, w => ({ word: str(w.word, 80), note_es: str(w.note_es, 300) })).filter(w => w.word), tips_es: Array.isArray(d.tips_es) ? d.tips_es.slice(0, 6).map(t => str(t, 400)) : [] } }; });
+  if (o.badges) for (const k of Object.keys(o.badges)) o.badges[k] = clampNum(o.badges[k]);
+  ['tc', 'pd'].forEach(k => { if (k in o && (!o[k] || typeof o[k] !== 'object' || Array.isArray(o[k]))) o[k] = {}; });
+  o.settings = sanitizeSettings(o.settings);
+  return o;
+}
+const _decode28 = decodeState; decodeState = async function (code) { return sanitizeState(await _decode28(code)); };
+const _merge28 = mergeStates; mergeStates = function (a, b) { return _merge28(a, sanitizeState(b)); };
+const _applyImport28 = applyImport; applyImport = function (d, how) { return _applyImport28(sanitizeState(d), how); };
+const _importPrompt28 = importPrompt; importPrompt = function (d, src) { let c; try { c = sanitizeState(d); } catch (e) { return toast('⚠️ ' + (e.message || e), 4500); } return _importPrompt28(c, src); };
+
+/* ---- Frase de seguridad: PBKDF2-SHA256 + AES-GCM 256 (WebCrypto) ---- */
+const KDF_ITER = 310000, KEYS_AAD = 'tuki-keys-v1', LOCK_FIELDS = ['geminiKey', 'openaiKey', 'azureKey', 'azureRegion'], KEYS_LOCAL = 'tukiSpeak.keysLocal';
+const KS = { key: null, salt: '', iter: 0 };
+let LOCKED = false;
+const _te = new TextEncoder(), _td = new TextDecoder();
+async function kdf(phrase, saltBytes, iter) {
+  const base = await crypto.subtle.importKey('raw', _te.encode(String(phrase).normalize('NFC')), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', hash: 'SHA-256', salt: saltBytes, iterations: iter }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function newKS(phrase) { const salt = crypto.getRandomValues(new Uint8Array(16)); return { key: await kdf(phrase, salt, KDF_ITER), salt: b64u(salt), iter: KDF_ITER }; }
+async function sealKeys(obj, ks) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: _te.encode(KEYS_AAD) }, ks.key, _te.encode(JSON.stringify(obj))));
+  return { v: 1, alg: 'PBKDF2-SHA256/AES-GCM-256', salt: ks.salt, iv: b64u(iv), ct: b64u(ct), iter: ks.iter };
+}
+function validBlob(b) { return !!b && typeof b === 'object' && b.v === 1 && typeof b.salt === 'string' && b.salt.length >= 16 && b.salt.length <= 64 && typeof b.iv === 'string' && b.iv.length >= 12 && b.iv.length <= 32 && typeof b.ct === 'string' && b.ct.length > 0 && b.ct.length <= 8192 && Number.isInteger(b.iter) && b.iter >= KDF_ITER && b.iter <= 5000000; }
+async function openKeys(blob, key) {
+  if (!validBlob(blob)) { const e = new Error('Los datos cifrados no son válidos.'); e.code = 'bad-blob'; throw e; }
+  let pt; try { pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64u(blob.iv), additionalData: _te.encode(KEYS_AAD) }, key, unb64u(blob.ct)); }
+  catch (e) { const er = new Error('Frase incorrecta. Revisa mayúsculas, espacios y tildes.'); er.code = 'bad-phrase'; throw er; }
+  const o = JSON.parse(_td.decode(pt)), out = {}; LOCK_FIELDS.forEach(k => { if (typeof o[k] === 'string') out[k] = o[k].slice(0, 400); }); return out;
+}
+async function ksFromPhrase(blob, phrase) { if (!validBlob(blob)) throw Object.assign(new Error('Los datos cifrados no son válidos.'), { code: 'bad-blob' }); const key = await kdf(phrase, unb64u(blob.salt), blob.iter); const obj = await openKeys(blob, key); return { ks: { key, salt: blob.salt, iter: blob.iter }, obj }; }
+const keysObj = () => { const o = {}; LOCK_FIELDS.forEach(k => o[k] = String(S.settings[k] || '')); return o; };
+const keysSig = () => String(numHash(JSON.stringify(keysObj())));
+const hasAnyKey = () => SECRET_KEYS.some(k => !!S.settings[k]);
+function phraseStrength(p) {
+  p = String(p || ''); let sc = 0; if (p.length >= 10) sc++; if (p.length >= 14) sc++; if (p.length >= 20) sc++;
+  if (/[a-záéíóúñ]/.test(p) && /[A-ZÁÉÍÓÚÑ]/.test(p)) sc++; if (/\d/.test(p)) sc++; if (/[^\wáéíóúñÁÉÍÓÚÑ]/.test(p)) sc++; if (/\s/.test(p.trim()) && p.trim().split(/\s+/).length >= 3) sc++;
+  if (/^(.)\1+$/.test(p) || /^(1234|abcd|qwer|password|contraseña)/i.test(p)) sc = Math.min(sc, 1);
+  const lv = p.length < 10 ? 0 : sc <= 2 ? 1 : sc <= 4 ? 2 : 3;
+  return { lv, label: ['Muy corta (mínimo 10)', 'Débil', 'Aceptable', 'Fuerte'][lv], tip: lv < 2 ? 'Usa una frase de 3 o 4 palabras que solo tú sepas, con algún número o signo.' : '' };
+}
+/* Claves bloqueadas: en localStorage solo queda la versión cifrada */
+function lockApply() { if (!LOCKED || !S || !S.settings) return; LOCK_FIELDS.forEach(k => { const d = Object.getOwnPropertyDescriptor(S.settings, k); if (d && !d.enumerable) return; const v = S.settings[k] || ''; delete S.settings[k]; Object.defineProperty(S.settings, k, { value: v, writable: true, enumerable: false, configurable: true }); }); }
+function lockRelease() { if (!S || !S.settings) return; LOCK_FIELDS.forEach(k => { const v = S.settings[k] || ''; delete S.settings[k]; S.settings[k] = v; }); }
+let _lockSig = '';
+const _save28 = save; save = function () {
+  if (LOCKED) lockApply();
+  _save28();
+  if (LOCKED && KS.key) { const sg = keysSig(); if (sg !== _lockSig) { _lockSig = sg; sealKeys(keysObj(), KS).then(b => lsSet(KEYS_LOCAL, b)).catch(() => {}); } }
+  if (typeof fbMarkDirty === 'function') fbMarkDirty();
+};
+const _adopt28 = adoptState; adoptState = function (d) {
+  const keep = {}; LOCK_FIELDS.forEach(k => { keep[k] = (d.settings && d.settings[k]) || ''; if (LOCKED && d.settings) delete d.settings[k]; });
+  _adopt28(d);
+  if (LOCKED) { LOCK_FIELDS.forEach(k => { delete S.settings[k]; Object.defineProperty(S.settings, k, { value: keep[k], writable: true, enumerable: false, configurable: true }); }); _save28(); }
+};
+function applyKeys(obj, overwrite) { LOCK_FIELDS.forEach(k => { if (obj[k] && (overwrite || !S.settings[k])) S.settings[k] = obj[k]; }); }
+async function setLocalLock(on) {
+  if (on) { if (!KS.key) throw new Error('Primero crea o escribe tu frase de seguridad.'); lsSet(KEYS_LOCAL, await sealKeys(keysObj(), KS)); LOCKED = true; _lockSig = keysSig(); lockApply(); save(); }
+  else { LOCKED = false; lockRelease(); lsSet(KEYS_LOCAL, null); save(); }
+}
+if (validBlob(lsGet(KEYS_LOCAL, null))) { LOCKED = true; lockApply(); }
+
+/* ---- Firebase (plan Spark): Auth + Firestore Lite, cargados solo cuando hacen falta ---- */
+const FB_VER = '12.19.0', FB_BASE = 'https://www.gstatic.com/firebasejs/' + FB_VER + '/';
+const FB_CFG = { apiKey: 'AIzaSyBdnIF-wOZSz49VP9iEXJKCfCG_4mLyoNA', authDomain: 'tuki-speak.firebaseapp.com', projectId: 'tuki-speak', storageBucket: 'tuki-speak.firebasestorage.app', messagingSenderId: '948705004733', appId: '1:948705004733:web:94f96d5fba0d8d7b707bd4' };
+const FB_HINT = 'tukiSpeak.fbUser', FB_OWNER = 'tukiSpeak.owner', FB_USAGE = 'tukiSpeak.fbUsage', CLOUD_META = 'tukiSpeak.cloudMeta';
+const CLOUD_SCHEMA = 1, SYNC_MIN_MS = 45000, SYNC_DEBOUNCE_MS = 8000, CLOUD_MAX = 950000;
+const syncMin = () => window.__syncMinMs ?? SYNC_MIN_MS, syncDebounce = () => window.__syncDebounceMs ?? SYNC_DEBOUNCE_MS;
+const FB = { st: 'idle', user: null, ready: null, err: '', msg: '', dirty: false, timer: null, busy: false, lastSync: 0, first: false, remoteKeys: undefined, keysDirty: false };
+const AUTH_ERR = {
+  'auth/invalid-email': 'El correo no es válido. Revísalo.', 'auth/missing-email': 'Escribe tu correo.', 'auth/missing-password': 'Escribe tu contraseña.',
+  'auth/user-disabled': 'Esta cuenta está desactivada.', 'auth/user-not-found': 'No hay ninguna cuenta con ese correo. ¿Quieres crearla?',
+  'auth/wrong-password': 'Correo o contraseña incorrectos.', 'auth/invalid-credential': 'Correo o contraseña incorrectos.', 'auth/invalid-login-credentials': 'Correo o contraseña incorrectos.',
+  'auth/email-already-in-use': 'Ya existe una cuenta con ese correo. Toca «Entrar» o usa «Olvidé mi contraseña».', 'auth/weak-password': 'La contraseña es muy débil: usa al menos 6 caracteres (mejor 10 o más).',
+  'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.', 'auth/network-request-failed': 'Sin conexión a internet. Revisa tu red e inténtalo otra vez.',
+  'auth/popup-closed-by-user': 'Cerraste la ventana de Google antes de terminar.', 'auth/cancelled-popup-request': 'Se canceló el inicio de sesión. Inténtalo otra vez.',
+  'auth/popup-blocked': 'El navegador bloqueó la ventana de Google. Te llevamos a la página de inicio de sesión…', 'auth/unauthorized-domain': 'Este sitio no está autorizado para iniciar sesión.',
+  'auth/operation-not-allowed': 'Este método de inicio de sesión no está activado.', 'auth/requires-recent-login': 'Por seguridad, vuelve a iniciar sesión.',
+  'auth/account-exists-with-different-credential': 'Ese correo ya está registrado con otro método. Entra con correo y contraseña.', 'auth/internal-error': 'Error interno del servicio. Inténtalo más tarde.',
+  'auth/user-token-expired': 'Tu sesión venció. Vuelve a iniciar sesión.', 'auth/web-storage-unsupported': 'Tu navegador bloquea el almacenamiento necesario (¿modo privado?).',
+  'permission-denied': 'La nube rechazó el acceso (reglas de seguridad).', 'unavailable': 'La nube no responde. Se intentará más tarde.', 'resource-exhausted': 'Se alcanzó el límite gratis de hoy. Se reintentará mañana.',
+  'unauthenticated': 'Tu sesión venció. Vuelve a iniciar sesión.', 'deadline-exceeded': 'La nube tardó demasiado. Se intentará más tarde.'
+};
+const authErr = e => AUTH_ERR[e && e.code] || AUTH_ERR[String(e && e.code || '').replace(/^firestore\//, '')] || (e && e.message && !/firebase/i.test(e.message) ? e.message : 'No se pudo completar. Inténtalo otra vez.');
+function fbCount(kind, n = 1) { const u = lsGet(FB_USAGE, {}), d = dayKey(); if (u.day !== d) { u.day = d; u.r = 0; u.w = 0; } u[kind] = (u[kind] || 0) + n; u['t' + kind] = (u['t' + kind] || 0) + n; lsSet(FB_USAGE, u); }
+function fbUsage() { const u = lsGet(FB_USAGE, {}); return u.day === dayKey() ? { r: u.r || 0, w: u.w || 0, tr: u.tr || 0, tw: u.tw || 0 } : { r: 0, w: 0, tr: u.tr || 0, tw: u.tw || 0 }; }
+const devName = () => { const ua = navigator.userAgent; return ((/Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iOS' : /Windows/.test(ua) ? 'Windows' : /Mac/.test(ua) ? 'Mac' : 'Linux') + ' · ' + (/Edg\//.test(ua) ? 'Edge' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Navegador')).slice(0, 60); };
+function fbLoad() {
+  if (FB.ready) return FB.ready;
+  FB.st = 'loading'; FB.err = ''; fbRefreshUI();
+  FB.ready = (async () => {
+    const imp = window.__fbImport || (n => import(FB_BASE + 'firebase-' + n + '.js'));
+    const [A, U, F] = await Promise.all([imp('app'), imp('auth'), imp('firestore-lite')]);
+    FB.U = U; FB.F = F;
+    FB.app = A.getApps && A.getApps().length ? A.getApps()[0] : A.initializeApp(FB_CFG);
+    FB.auth = U.getAuth(FB.app); FB.db = F.getFirestore(FB.app);
+    try { U.useDeviceLanguage && U.useDeviceLanguage(FB.auth); } catch (e) {}
+    try { await U.getRedirectResult(FB.auth); } catch (e) { FB.err = authErr(e); }
+    await new Promise(res => { let first = true; U.onAuthStateChanged(FB.auth, u => { fbOnUser(u); if (first) { first = false; res(); } }); });
+    FB.st = 'ready'; fbRefreshUI();
+  })();
+  FB.ready.catch(e => { FB.ready = null; FB.st = 'error'; FB.err = navigator.onLine ? 'No se pudo cargar el inicio de sesión. Revisa tu conexión o si un bloqueador lo impide.' : 'Sin conexión: la cuenta se conectará cuando vuelvas a tener internet. La app sigue funcionando.'; fbRefreshUI(); });
+  return FB.ready;
+}
+function fbOnUser(u) {
+  const prev = FB.user && FB.user.uid;
+  FB.raw = u || null;
+  FB.user = u ? { uid: u.uid, email: String(u.email || ''), name: String(u.displayName || ''), verified: !!u.emailVerified, provider: (u.providerData && u.providerData[0] && u.providerData[0].providerId) || 'password' } : null;
+  if (u) { lsSet(FB_HINT, { uid: u.uid, email: FB.user.email }); if (prev !== u.uid) { FB.first = false; FB.remoteKeys = undefined; setTimeout(() => cloudFirstSync().catch(fbFail), 0); } }
+  else { lsSet(FB_HINT, null); FB.remoteKeys = undefined; clearTimeout(FB.timer); FB.timer = null; }
+  fbRefreshUI();
+}
+function fbFail(e) { FB.busy = false; FB.err = authErr(e); fbRefreshUI(); }
+const localHasData = () => !!(S.xp || Object.keys(S.done || {}).length || Object.keys(S.deck || {}).length || (S.sessions || 0) > 0);
+const cloudMeta = () => (lsGet(CLOUD_META, {})[FB.user && FB.user.uid] || {});
+const setCloudMeta = o => { const m = lsGet(CLOUD_META, {}); m[FB.user.uid] = { ...(m[FB.user.uid] || {}), ...o }; lsSet(CLOUD_META, m); };
+const uref = (...p) => FB.F.doc(FB.db, 'users', FB.user.uid, ...p);
+async function readMeta() { const m = await FB.F.getDoc(uref()); fbCount('r'); const d = m.exists() ? m.data() : null; FB.remoteKeys = d && validBlob(d.keysEnc) ? d.keysEnc : null; return d; }
+async function readData() {
+  const [p, s] = await Promise.all([FB.F.getDoc(uref('data', 'progress')), FB.F.getDoc(uref('data', 'settings'))]); fbCount('r', 2);
+  if (!p.exists()) return null;
+  const pd = p.data(); if (!pd || typeof pd.z !== 'string' || !/^TK[01]$/.test(pd.enc)) throw new Error('Los datos de la nube no son válidos.');
+  const st = await decodeState(pd.enc + pd.z);
+  st.settings = sanitizeSettings(s.exists() ? (s.data() || {}).s : {});
+  return st;
+}
+function cloudSettings() { const o = sanitizeSettings(JSON.parse(JSON.stringify(S.settings))); LOCK_FIELDS.forEach(k => delete o[k]); return o; }
+async function packProgress() {
+  const o = exportState(); o.settings = {}; LOCK_FIELDS.forEach(k => delete o.settings[k]);
+  const raw = new TextEncoder().encode(JSON.stringify(o));
+  if (window.CompressionStream) { try { return { z: b64u(await streamBytes(raw, new CompressionStream('deflate-raw'))), enc: 'TK1', n: raw.length }; } catch (e) {} }
+  return { z: b64u(raw), enc: 'TK0', n: raw.length };
+}
+async function keysForCloud(force) {
+  if (!KS.key) return undefined;
+  const sg = keysSig(); if (!force && !FB.keysDirty && sg === cloudMeta().k && FB.remoteKeys) return undefined;
+  const blob = await sealKeys(keysObj(), KS); FB.pendingKeySig = sg; return blob;
+}
+async function cloudPush(opts = {}) {
+  const now = Date.now(), rev = FB.rev || 0, prog = await packProgress();
+  if (prog.z.length > CLOUD_MAX) throw new Error('Tu progreso es demasiado grande para la nube (' + Math.round(prog.z.length / 1024) + ' KB).');
+  const sets = cloudSettings(), sig = { p: String(numHash(prog.z)), s: String(numHash(JSON.stringify(sets))) }, last = cloudMeta();
+  const b = FB.F.writeBatch(FB.db); let n = 0;
+  if (opts.force || sig.p !== last.p) { b.set(uref('data', 'progress'), { z: prog.z, enc: prog.enc, n: prog.n, updatedAt: now }); n++; }
+  if (opts.force || sig.s !== last.s) { b.set(uref('data', 'settings'), { s: sets, updatedAt: now }); n++; }
+  const ke = await keysForCloud(opts.forceKeys);
+  if (!n && ke === undefined) { FB.dirty = (FB.rev || 0) !== rev; return 0; }
+  const meta = { schemaVersion: CLOUD_SCHEMA, updatedAt: now, device: devName(), progressSize: prog.n, app: 'tuki-speak' };
+  if (ke !== undefined) meta.keysEnc = ke;
+  b.set(uref(), meta, { merge: true }); n++;
+  await b.commit(); fbCount('w', n);
+  const upd = { p: sig.p, s: sig.s, seen: now, last: now }; if (ke !== undefined) { upd.k = FB.pendingKeySig; FB.remoteKeys = ke; FB.keysDirty = false; }
+  setCloudMeta(upd); FB.dirty = (FB.rev || 0) !== rev; FB.lastSync = now; FB.writes = (FB.writes || 0) + n;
+  return n;
+}
+function adoptMerged(remote) {
+  const merged = mergeStates(S, remote);
+  LOCK_FIELDS.forEach(k => merged.settings[k] = S.settings[k] || '');
+  adoptState(merged); checkBadges();
+}
+async function cloudFirstSync() {
+  if (FB.first || !FB.user) return; FB.first = true; FB.busy = true; FB.err = ''; fbRefreshUI();
+  try {
+    const uid = FB.user.uid, owner = lsGet(FB_OWNER, null);
+    const meta = await readMeta(), remote = meta ? await readData() : null;
+    let mode = remote ? 'merge' : 'upload';
+    if (owner && owner.uid && owner.uid !== uid && localHasData()) {
+      mode = await askOtherOwner(owner, !!remote);
+      if (mode === 'cancel') { FB.busy = false; await fbSignOut(false, true); toast('Sesión cerrada. Tus datos locales no se tocaron.'); return; }
+    }
+    if (mode === 'cloud') { const f = remote || freshState(); LOCK_FIELDS.forEach(k => { if (f.settings) f.settings[k] = ''; }); KS.key = null; if (LOCKED) { LOCKED = false; lsSet(KEYS_LOCAL, null); } _adopt28FromCloud(f); }
+    else if (remote) adoptMerged(remote);
+    lsSet(FB_OWNER, { uid, email: FB.user.email });
+    if (remote) setCloudMeta({ seen: meta.updatedAt });
+    FB.busy = false; await cloudPush({ force: !remote });
+    FB.msg = remote ? (mode === 'cloud' ? '☁️ Usando el progreso de esta cuenta.' : '☁️ Progreso de la nube combinado con este dispositivo.') : '☁️ Tu progreso se subió a la nube.';
+    toast(FB.msg);
+    if (FB.remoteKeys && !KS.key && !hasAnyKey()) setTimeout(() => unlockPrompt('cloud'), 400);
+  } catch (e) { fbFail(e); } finally { FB.busy = false; fbRefreshUI(); }
+}
+function _adopt28FromCloud(f) { const fr = freshState(); const d = { ...fr, ...f, settings: { ...DEFAULT_SETTINGS, ...(f.settings || {}) } }; LOCK_FIELDS.forEach(k => d.settings[k] = ''); adoptState(d); }
+function askOtherOwner(owner, hasRemote) {
+  return new Promise(res => {
+    let done = false; const fin = (v, close) => { if (done) return; done = true; close && close(); res(v); };
+    modal(`<h2>👥 Otra cuenta en este dispositivo</h2><p class="small">Este dispositivo tiene progreso de <b>${esc(owner.email || 'otra cuenta')}</b>. Estás entrando como <b>${esc(FB.user.email || 'otra cuenta')}</b>.</p>
+      <div class="tipbox small"><b>Combinar</b> junta ese progreso con el de tu cuenta. <b>Usar solo mi cuenta</b> reemplaza lo de este dispositivo por ${hasRemote ? 'lo que tienes en la nube' : 'un progreso nuevo'} (también quita las claves de API guardadas aquí).</div>
+      <div class="col" style="gap:8px;display:flex;flex-direction:column"><button class="btn primary block" id="ooMerge">Combinar con mi cuenta</button><button class="btn ghost block" id="ooCloud">Usar solo mi cuenta</button><button class="btn ghost block" id="ooCancel">Cancelar y cerrar sesión</button></div>`, (el, close) => {
+      $('#ooMerge', el).onclick = () => fin('merge', close); $('#ooCloud', el).onclick = () => fin('cloud', close); $('#ooCancel', el).onclick = () => fin('cancel', close);
+      el.closest('.overlay').addEventListener('click', e => { if (e.target === e.currentTarget) fin('cancel'); });
+    });
+  });
+}
+async function cloudSync(reason) {
+  if (!FB.user || FB.busy || !FB.F) return;
+  if (!navigator.onLine) { FB.err = 'Sin conexión: se sincronizará al volver internet.'; fbRefreshUI(); return; }
+  FB.busy = true; clearTimeout(FB.timer); FB.timer = null; FB.err = ''; fbRefreshUI();
+  try {
+    const meta = await readMeta(), cm = cloudMeta();
+    if (meta && meta.updatedAt && meta.updatedAt !== cm.seen) { const remote = await readData(); if (remote) adoptMerged(remote); setCloudMeta({ seen: meta.updatedAt }); }
+    const n = await cloudPush({ forceKeys: reason === 'keys' });
+    if (reason === 'manual') toast(n ? '☁️ Sincronizado' : '☁️ Todo al día');
+  } catch (e) { fbFail(e); if (reason === 'manual') toast('⚠️ ' + authErr(e), 4500); }
+  finally { FB.busy = false; fbRefreshUI(); if (FB.dirty) fbSchedule(); }
+}
+function fbSchedule() {
+  if (!FB.user || FB.timer) return;
+  const wait = Math.max(syncDebounce(), FB.lastSync + syncMin() - Date.now());
+  FB.timer = setTimeout(() => { FB.timer = null; cloudSync('auto'); }, wait);
+}
+function fbMarkDirty() { FB.rev = (FB.rev || 0) + 1; if (!FB.user) return; FB.dirty = true; if (!FB.busy) fbSchedule(); }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && FB.user && FB.dirty && Date.now() - FB.lastSync > 10000) cloudSync('hidden'); });
+/* ---- acciones de cuenta ---- */
+async function fbGoogle() {
+  await fbLoad(); const U = FB.U, prov = new U.GoogleAuthProvider(); try { prov.setCustomParameters({ prompt: 'select_account' }); } catch (e) {}
+  const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  if (standalone && /Android|iPhone|iPad/.test(navigator.userAgent)) return U.signInWithRedirect(FB.auth, prov);
+  try { await U.signInWithPopup(FB.auth, prov); }
+  catch (e) { if (['auth/popup-blocked', 'auth/operation-not-supported-in-this-environment'].includes(e.code)) { acMsg(authErr(e)); return U.signInWithRedirect(FB.auth, prov); } throw e; }
+}
+async function fbEmail(mode, email, pass) {
+  email = String(email || '').trim(); if (!email) throw { code: 'auth/missing-email' }; if (!pass) throw { code: 'auth/missing-password' };
+  await fbLoad(); const U = FB.U;
+  if (mode === 'up') { if (String(pass).length < 6) throw { code: 'auth/weak-password' }; await U.createUserWithEmailAndPassword(FB.auth, email, pass); }
+  else await U.signInWithEmailAndPassword(FB.auth, email, pass);
+}
+async function fbReset(email) { email = String(email || '').trim(); if (!email) throw { code: 'auth/missing-email' }; await fbLoad(); await FB.U.sendPasswordResetEmail(FB.auth, email); }
+async function fbVerify() { await FB.U.sendEmailVerification(FB.raw); }
+async function fbReload() { if (FB.U.reload) await FB.U.reload(FB.raw); else if (FB.raw.reload) await FB.raw.reload(); fbOnUser(FB.auth.currentUser || FB.raw); }
+async function fbSignOut(wipe, quiet) {
+  if (FB.user && FB.dirty && !wipe && !quiet) { try { await Promise.race([cloudSync('signout'), new Promise(r => setTimeout(r, 5000))]); } catch (e) {} }
+  clearTimeout(FB.timer); FB.timer = null;
+  if (FB.U) await FB.U.signOut(FB.auth);
+  KS.key = null; FB.dirty = false; FB.first = false;
+  if (wipe) {
+    [FB_OWNER, KEYS_LOCAL, CLOUD_META, GIST_KEY].forEach(k => localStorage.removeItem(k)); LOCKED = false;
+    const f = freshState(); f.settings = { ...DEFAULT_SETTINGS, theme: S.settings.theme }; adoptState(f); toast('🧹 Datos de este dispositivo borrados.');
+  } else if (!quiet) toast('👋 Sesión cerrada. Tu progreso sigue en este dispositivo.');
+  fbRefreshUI();
+}
+function unlockPrompt(src) {
+  if (document.querySelector('#ulPhrase')) return;
+  modal(`<h2>🔐 Desbloquear tus claves</h2><p class="small">${src === 'cloud' ? 'Tienes claves de API guardadas <b>cifradas</b> en tu cuenta.' : 'Tus claves de API están <b>bloqueadas</b> en este dispositivo.'} Escribe tu frase de seguridad para usarlas.</p>
+    <input class="field" id="ulPhrase" type="password" autocomplete="off" placeholder="Frase de seguridad"><div class="ac-msg small" id="ulMsg" role="status"></div>
+    <div class="row"><button class="btn ghost block" data-x>Ahora no</button><button class="btn primary block" id="ulGo">🔓 Desbloquear</button></div>`, (el, close) => {
+    $('[data-x]', el).onclick = () => { sessionStorage.setItem('tukiUnlockLater', '1'); close(); };
+    const go = async () => { const b = $('#ulGo', el); b.disabled = true; $('#ulMsg', el).textContent = '⏳ Comprobando…'; try { await unlockKeys($('#ulPhrase', el).value); close(); toast('🔓 Claves desbloqueadas'); } catch (e) { $('#ulMsg', el).textContent = '❌ ' + (e.message || e); $('#ulMsg', el).className = 'ac-msg err small'; b.disabled = false; } };
+    $('#ulGo', el).onclick = go; $('#ulPhrase', el).onkeydown = e => { if (e.key === 'Enter') go(); };
+  });
+}
+async function unlockKeys(phrase) {
+  const cands = [FB.remoteKeys, lsGet(KEYS_LOCAL, null)].filter(validBlob); if (!cands.length) throw new Error('No hay claves cifradas para desbloquear.');
+  let last; for (const b of cands) { try { const { ks, obj } = await ksFromPhrase(b, phrase); Object.assign(KS, ks); applyKeys(obj, false); if (b === FB.remoteKeys && FB.user) setCloudMeta({ k: keysSig() }); if (LOCKED) { lsSet(KEYS_LOCAL, await sealKeys(keysObj(), KS)); _lockSig = keysSig(); lockApply(); } save(); fbRefreshUI(); if (TAB === 'settings') render(); return true; } catch (e) { last = e; } }
+  throw last;
+}
+async function createPhrase(p1, p2) {
+  if (String(p1).length < 10) throw new Error('La frase debe tener al menos 10 caracteres.'); if (p1 !== p2) throw new Error('Las dos frases no coinciden.');
+  if (FB.remoteKeys) throw new Error('Ya tienes una frase en la nube: desbloquéala o usa «Olvidé mi frase».');
+  Object.assign(KS, await newKS(p1)); FB.keysDirty = true;
+  if (LOCKED) lsSet(KEYS_LOCAL, await sealKeys(keysObj(), KS));
+  if (FB.user) await cloudSync('keys');
+}
+async function changePhrase(oldP, p1, p2) {
+  if (String(p1).length < 10) throw new Error('La nueva frase debe tener al menos 10 caracteres.'); if (p1 !== p2) throw new Error('Las dos frases nuevas no coinciden.');
+  const cur = FB.remoteKeys || lsGet(KEYS_LOCAL, null);
+  if (validBlob(cur)) await ksFromPhrase(cur, oldP); else if (!KS.key) throw new Error('No hay frase activa.');
+  Object.assign(KS, await newKS(p1)); FB.keysDirty = true;
+  if (LOCKED) { lsSet(KEYS_LOCAL, await sealKeys(keysObj(), KS)); _lockSig = keysSig(); }
+  if (FB.user) await cloudSync('keys');
+}
+async function forgetPhrase() {
+  KS.key = null; KS.salt = ''; if (LOCKED) { LOCKED = false; lockRelease(); } lsSet(KEYS_LOCAL, null); save();
+  if (FB.user && FB.F) { await FB.F.setDoc(uref(), { keysEnc: null, updatedAt: Date.now(), schemaVersion: CLOUD_SCHEMA }, { merge: true }); fbCount('w'); FB.remoteKeys = null; setCloudMeta({ k: '' }); }
+}
+/* ---- interfaz: Cuenta, Frase de seguridad y Uso del plan gratis ---- */
+function acMsg(t, err) { const m = $('#acMsg'); if (m) { m.textContent = t; m.className = 'ac-msg small ' + (err ? 'err' : 'ok'); } }
+function acctHTML() {
+  const u = FB.user, hint = lsGet(FB_HINT, null), c = cloudMeta();
+  if (!u && hint && (FB.st === 'loading' || (FB.st === 'idle' && navigator.onLine))) return `<div class="card" id="acctCard"><h3>👤 Cuenta</h3><p class="small muted">⏳ Conectando con tu cuenta (${esc(hint.email || '')})…</p></div>`;
+  if (!u) return `<div class="card" id="acctCard"><h3>👤 Cuenta <span class="pill">Gratis · opcional</span></h3>
+    <p class="small muted">Inicia sesión para guardar tu progreso en la nube y seguir en cualquier dispositivo. Tus claves de API nunca se suben sin cifrar.</p>
+    <button class="btn gbtn block" id="acGoogle"><span class="g">G</span> Continuar con Google</button>
+    <div class="ac-or"><span>o con tu correo</span></div>
+    <div class="seg" id="acMode"><button data-am="in" class="active">Entrar</button><button data-am="up">Crear cuenta</button></div>
+    <input class="field" id="acEmail" type="email" autocomplete="email" inputmode="email" placeholder="tu@correo.com" aria-label="Correo">
+    <input class="field" id="acPass" type="password" autocomplete="current-password" placeholder="Contraseña" aria-label="Contraseña">
+    <button class="btn primary block" id="acGo">Entrar</button>
+    <button class="linkbtn" id="acForgot">Olvidé mi contraseña</button>
+    <div class="ac-msg small ${FB.err ? 'err' : ''}" id="acMsg" role="status">${esc(FB.err || (FB.st === 'loading' ? '⏳ Cargando…' : ''))}</div></div>`;
+  const us = fbUsage(), prov = u.provider === 'google.com' ? 'Google' : 'Correo y contraseña';
+  return `<div class="card" id="acctCard"><h3>👤 Cuenta</h3>
+    <div class="ac-user"><div class="ac-av" aria-hidden="true">${esc((u.name || u.email || '?').trim().charAt(0).toUpperCase())}</div><div style="min-width:0"><b class="ac-mail">${esc(u.email || u.name || 'Cuenta')}</b><div class="small muted">${prov} · ${u.verified ? '✅ correo verificado' : '⚠️ correo sin verificar'}</div></div></div>
+    ${!u.verified && u.provider === 'password' ? '<div class="row wrap"><button class="btn ghost sm" id="acVerify">📧 Verificar correo</button><button class="btn ghost sm" id="acReload">↻ Ya lo verifiqué</button></div>' : ''}
+    <div class="small ac-sync" id="acSync">${FB.busy ? '⏳ Sincronizando…' : c.last ? '☁️ Última sincronización: ' + esc(new Date(c.last).toLocaleString('es-CO')) : '☁️ Aún sin sincronizar'}${FB.dirty && !FB.busy ? ' · cambios pendientes' : ''}<br><span class="muted">Hoy en este dispositivo: ${us.r} lecturas · ${us.w} escrituras</span></div>
+    <div class="ac-msg small ${FB.err ? 'err' : ''}" id="acMsg" role="status">${esc(FB.err)}</div>
+    <div class="row wrap"><button class="btn primary" id="acSyncNow" ${FB.busy ? 'disabled' : ''}>🔄 Sincronizar ahora</button><button class="btn ghost" id="acOut">Cerrar sesión</button></div></div>`;
+}
+function keysHTML() {
+  const local = validBlob(lsGet(KEYS_LOCAL, null)), cloud = !!FB.remoteKeys, active = !!KS.key;
+  let body;
+  if (!active && (local || cloud)) body = `<p class="small">${cloud ? '☁️ Tienes claves cifradas en tu cuenta.' : ''} ${local ? '🔒 Tus claves están bloqueadas en este dispositivo.' : ''} Escribe tu frase para usarlas.</p>
+    <input class="field" id="kpUnlock" type="password" autocomplete="off" placeholder="Frase de seguridad"><div class="row wrap"><button class="btn primary" id="kpUnlockGo">🔓 Desbloquear</button><button class="linkbtn" id="kpForgot">Olvidé mi frase</button></div>`;
+  else if (!active) body = `<p class="small muted">Crea una frase de seguridad (mínimo 10 caracteres) para ${FB.user ? 'guardar tus claves <b>cifradas</b> en tu cuenta y ' : ''}poder bloquearlas en este dispositivo. La frase nunca se guarda ni se envía: si la olvidas, tendrás que volver a pegar tus claves.</p>
+    <input class="field" id="kpNew1" type="password" autocomplete="new-password" placeholder="Frase de seguridad"><div class="kp-meter" id="kpMeter"><i></i><span></span></div>
+    <input class="field" id="kpNew2" type="password" autocomplete="new-password" placeholder="Repite la frase"><button class="btn primary block" id="kpCreate">🔐 Crear frase${FB.user ? ' y guardar claves cifradas' : ''}</button>`;
+  else body = `<p class="small">✅ Frase activa en esta sesión.${FB.user ? (cloud ? ' ☁️ Tus claves están guardadas cifradas en tu cuenta.' : ' ⏳ Las claves se subirán cifradas en la próxima sincronización.') : ''}</p>
+    <div class="set-row"><div><label for="kpLock">Bloquear claves con la frase en este dispositivo</label><div class="desc">Solo se guarda la versión cifrada; te pediremos la frase una vez cada vez que abras la app.</div></div><label class="switch"><input type="checkbox" id="kpLock" ${LOCKED ? 'checked' : ''}><span></span></label></div>
+    <div class="row wrap"><button class="btn ghost sm" id="kpChange">🔁 Cambiar frase</button><button class="btn ghost sm" id="kpForgot">Olvidé mi frase</button></div>`;
+  return `<div class="card" id="keysCard"><h3>🔐 Frase de seguridad para tus claves</h3>
+    <p class="small muted">Protege tus claves de Gemini, OpenAI y Azure con cifrado AES-256 (PBKDF2, ${KDF_ITER.toLocaleString('es-CO')} iteraciones). Nunca van en el código QR, en GitHub ni en los registros.</p>${body}<div class="ac-msg small" id="kpMsg" role="status"></div></div>`;
+}
+const USAGE_CHECKED = '27 sep 2026';
+const VERCEL_USAGE_URL = 'https://vercel.com/jrlopez6542-1905/~/usage', FIREBASE_USAGE_URL = 'https://console.firebase.google.com/project/tuki-speak/usage';
+function usageHTML() {
+  const us = fbUsage(), pctW = Math.max(us.w * 100 / 20000, 0), pctR = Math.max(us.r * 100 / 50000, 0);
+  const row = (a, b, c) => `<tr><td>${a}</td><td><b>${b}</b></td><td class="muted">${c}</td></tr>`;
+  return `<div class="card" id="usageCard"><h3>📊 Uso del plan gratis</h3>
+    <p class="small muted">Tuki Speak funciona con planes gratuitos: <b>Vercel Hobby</b> (y GitHub Pages) para la página y <b>Firebase Spark</b> para la cuenta y la nube, sin tarjeta. Si algún día se pasara un límite, el servicio se pausa; no se cobra nada.</p>
+    <div class="tbl-wrap"><table class="utbl"><thead><tr><th>Vercel Hobby</th><th>Límite gratis</th><th>Tuki Speak</th></tr></thead><tbody>
+      ${row('Transferencia (Fast Data Transfer)', '100 GB / mes', '≈ 0,3 MB por visita nueva')}
+      ${row('Solicitudes (Edge Requests)', '1 millón / mes', 'pocas por visita (caché offline)')}
+      ${row('Fast Origin Transfer', '10 GB / mes', 'no se usa (sitio estático)')}
+      ${row('Despliegues', '100 por día', '1 por versión')}
+      ${row('Tiempo de build', '45 min por despliegue · máquina Basic incluida · 1 a la vez', 'sin build')}
+      ${row('Subida de archivos (CLI)', '100 MB por despliegue', '< 1 MB')}
+      ${row('Funciones (invocaciones)', '1 millón / mes', 'no se usan')}
+    </tbody></table></div>
+    <p class="small muted">Vercel Hobby es para uso personal y no comercial. Verificado el ${USAGE_CHECKED} en vercel.com/pricing y vercel.com/docs/limits.</p>
+    <div class="tbl-wrap"><table class="utbl"><thead><tr><th>Firebase Spark</th><th>Límite gratis</th><th>Tuki Speak</th></tr></thead><tbody>
+      ${row('Auth (correo y Google)', '50.000 usuarios activos / mes', 'sin SMS ni anónimo')}
+      ${row('Firestore: almacenamiento', '1 GiB', '≈ 10–200 KB por usuario')}
+      ${row('Firestore: lecturas', '50.000 / día', '3 al abrir + 1 por sincronización')}
+      ${row('Firestore: escrituras', '20.000 / día', 'máx. 1 lote cada 45 s y solo si hay cambios')}
+      ${row('Firestore: borrados', '20.000 / día', 'casi nunca')}
+      ${row('Salida de red', '10 GiB / mes', 'muy baja (datos comprimidos)')}
+      ${row('Hosting, Functions, Storage', '—', 'no se usan')}
+    </tbody></table></div>
+    <div class="u-me"><b>Este dispositivo hoy:</b> ${us.r} lecturas y ${us.w} escrituras (${pctR.toFixed(2)}% y ${pctW.toFixed(2)}% del límite diario de todo el proyecto). Total histórico: ${us.tr} lecturas · ${us.tw} escrituras.
+      <div class="small muted">Con 100 personas usando la app así, el proyecto usaría ≈ ${Math.min(100, pctR * 100).toFixed(1)}% de las lecturas y ≈ ${Math.min(100, pctW * 100).toFixed(1)}% de las escrituras diarias.</div></div>
+    <div class="row wrap"><a class="btn ghost" href="${VERCEL_USAGE_URL}" target="_blank" rel="noopener" id="uVercel">▲ Ver uso en Vercel</a><a class="btn ghost" href="${FIREBASE_USAGE_URL}" target="_blank" rel="noopener" id="uFirebase">🔥 Ver uso en Firebase</a></div></div>`;
+}
+function bindAcct(root) {
+  const card = $('#acctCard', root) || $('#acctCard'); if (!card) return;
+  const busy = async (btn, fn) => { if (btn) btn.disabled = true; try { await fn(); } catch (e) { acMsg(authErr(e), true); } finally { if (btn && document.body.contains(btn)) btn.disabled = false; } };
+  let mode = 'in';
+  $$('[data-am]', card).forEach(b => b.onclick = () => { mode = b.dataset.am; $$('[data-am]', card).forEach(x => x.classList.toggle('active', x === b)); $('#acGo', card).textContent = mode === 'up' ? 'Crear cuenta' : 'Entrar'; $('#acPass', card).autocomplete = mode === 'up' ? 'new-password' : 'current-password'; $('#acPass', card).placeholder = mode === 'up' ? 'Contraseña (mínimo 6, mejor 10+)' : 'Contraseña'; });
+  const g = $('#acGoogle', card); if (g) g.onclick = () => busy(g, async () => { acMsg('⏳ Abriendo Google…'); await fbGoogle(); });
+  const go = $('#acGo', card); if (go) go.onclick = () => busy(go, async () => { acMsg('⏳ ' + (mode === 'up' ? 'Creando tu cuenta…' : 'Entrando…')); await fbEmail(mode, $('#acEmail', card).value, $('#acPass', card).value); });
+  const pw = $('#acPass', card); if (pw) pw.onkeydown = e => { if (e.key === 'Enter') go.click(); };
+  const fg = $('#acForgot', card); if (fg) fg.onclick = () => busy(fg, async () => { await fbReset($('#acEmail', card).value); acMsg('📧 Si existe una cuenta con ese correo, te enviamos un enlace para cambiar la contraseña. Revisa también «Spam».'); });
+  const vf = $('#acVerify', card); if (vf) vf.onclick = () => busy(vf, async () => { await fbVerify(); acMsg('📧 Te enviamos un correo de verificación a ' + FB.user.email + '. Abre el enlace y toca «Ya lo verifiqué».'); });
+  const rl = $('#acReload', card); if (rl) rl.onclick = () => busy(rl, async () => { await fbReload(); acMsg(FB.user && FB.user.verified ? '✅ ¡Correo verificado!' : 'Todavía aparece sin verificar. Abre el enlace del correo e inténtalo de nuevo.', !(FB.user && FB.user.verified)); });
+  const sn = $('#acSyncNow', card); if (sn) sn.onclick = () => cloudSync('manual');
+  const out = $('#acOut', card); if (out) out.onclick = () => modal(`<h2>Cerrar sesión</h2><p class="small">Tu progreso queda guardado en tu cuenta. Por defecto también se queda en este dispositivo.</p>
+      <label class="set-row" style="cursor:pointer"><div><b>Borrar datos de este dispositivo</b><div class="desc">Progreso, ajustes, claves de API y token de GitHub de este dispositivo. Tu cuenta en la nube no se toca.</div></div><input type="checkbox" id="soWipe"></label>
+      <div class="row"><button class="btn ghost block" data-x>Cancelar</button><button class="btn primary block" id="soGo">Cerrar sesión</button></div>`, (el, close) => {
+    $('[data-x]', el).onclick = close; $('#soGo', el).onclick = async () => { const w = $('#soWipe', el).checked; close(); try { await fbSignOut(w); } catch (e) { toast('⚠️ ' + authErr(e)); } if (TAB === 'settings') render(); };
+  });
+}
+function bindKeys(root) {
+  const card = $('#keysCard', root) || $('#keysCard'); if (!card) return;
+  const msg = (t, err) => { const m = $('#kpMsg', card); m.textContent = t; m.className = 'ac-msg small ' + (err ? 'err' : 'ok'); };
+  const busy = async (btn, fn) => { btn.disabled = true; try { await fn(); } catch (e) { msg('❌ ' + (e.message || authErr(e)), true); } finally { if (document.body.contains(btn)) btn.disabled = false; } };
+  const n1 = $('#kpNew1', card); if (n1) n1.oninput = () => { const s = phraseStrength(n1.value), m = $('#kpMeter', card); m.dataset.lv = s.lv; $('span', m).textContent = n1.value ? s.label + (s.tip ? ' · ' + s.tip : '') : ''; };
+  const cr = $('#kpCreate', card); if (cr) cr.onclick = () => busy(cr, async () => { msg('⏳ Cifrando…'); await createPhrase($('#kpNew1', card).value, $('#kpNew2', card).value); toast('🔐 Frase creada' + (FB.user ? ' y claves guardadas cifradas' : '')); render(); });
+  const ul = $('#kpUnlockGo', card); if (ul) ul.onclick = () => busy(ul, async () => { msg('⏳ Comprobando…'); await unlockKeys($('#kpUnlock', card).value); toast('🔓 Claves desbloqueadas'); });
+  const lk = $('#kpLock', card); if (lk) lk.onchange = async () => { try { await setLocalLock(lk.checked); msg(lk.checked ? '🔒 Claves bloqueadas: en este dispositivo solo queda la versión cifrada.' : '🔓 Bloqueo desactivado: las claves se guardan como antes en este dispositivo.'); } catch (e) { lk.checked = !lk.checked; msg('❌ ' + e.message, true); } };
+  const ch = $('#kpChange', card); if (ch) ch.onclick = () => modal(`<h2>🔁 Cambiar frase</h2><p class="small muted">Tus claves se volverán a cifrar con la nueva frase. En tus otros dispositivos tendrás que escribir la nueva.</p>
+      <input class="field" id="cpOld" type="password" autocomplete="off" placeholder="Frase actual"><input class="field" id="cpN1" type="password" autocomplete="new-password" placeholder="Nueva frase (mínimo 10)"><input class="field" id="cpN2" type="password" autocomplete="new-password" placeholder="Repite la nueva frase">
+      <div class="ac-msg small" id="cpMsg"></div><div class="row"><button class="btn ghost block" data-x>Cancelar</button><button class="btn primary block" id="cpGo">Cambiar</button></div>`, (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $('#cpGo', el).onclick = async () => { const b = $('#cpGo', el); b.disabled = true; $('#cpMsg', el).textContent = '⏳ Cifrando…'; try { await changePhrase($('#cpOld', el).value, $('#cpN1', el).value, $('#cpN2', el).value); close(); toast('🔐 Frase cambiada'); render(); } catch (e) { $('#cpMsg', el).textContent = '❌ ' + (e.message || e); $('#cpMsg', el).className = 'ac-msg err small'; b.disabled = false; } };
+  });
+  const fg = $('#kpForgot', card); if (fg) fg.onclick = () => confirmBox('¿Olvidaste tu frase?', 'No hay forma de recuperarla: nadie más la conoce. Se borrarán tus claves cifradas' + (FB.user ? ' de la nube y' : '') + ' de este dispositivo. Después tendrás que volver a pegar tus claves de Gemini, OpenAI y Azure y crear una frase nueva.', 'Borrar claves cifradas', async () => { try { await forgetPhrase(); toast('Claves cifradas borradas. Vuelve a pegar tus claves.'); } catch (e) { toast('⚠️ ' + authErr(e)); } render(); }, true);
+}
+function fbRefreshUI() {
+  if (TAB !== 'settings') return;
+  const a = $('#acctCard'); if (a) { a.outerHTML = acctHTML(); bindAcct(document); }
+  const k = $('#keysCard'); if (k && !(document.activeElement && k.contains(document.activeElement))) { k.outerHTML = keysHTML(); bindKeys(document); }
+}
+const _settings28 = VIEWS.settings;
+VIEWS.settings = v => {
+  _settings28(v);
+  const h2 = $('h2', v); (h2 || v).insertAdjacentHTML(h2 ? 'afterend' : 'afterbegin', acctHTML());
+  const cards = $$(':scope > .card', v), az = cards.find(x => /Azure/.test(($('h3', x) || {}).textContent || '')) || cards[1];
+  az.insertAdjacentHTML('beforebegin', keysHTML());
+  const sync = $('#syncCard', v); (sync || cards[cards.length - 1]).insertAdjacentHTML('afterend', usageHTML());
+  bindAcct(v); bindKeys(v);
+  if (LOCKED && !KS.key) { $$('#azKey, #gkey, #okey', v).forEach(i => { i.placeholder = '🔒 Bloqueada: desbloquea con tu frase'; }); }
+  const imp = $('#imp', v); if (imp) imp.onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { let d; try { d = JSON.parse(t); } catch (er) { throw new Error('El archivo no es JSON válido.'); } if (!d || !(d.v === 1 || d.v === 2) || !d.settings) throw new Error('Archivo no válido'); importPrompt(d, 'Archivo'); }).catch(err => toast('Error: ' + err.message)); e.target.value = ''; };
+};
+/* Arranque: la cuenta se conecta sola solo si ya habías iniciado sesión */
+setTimeout(() => {
+  if (lsGet(FB_HINT, null) && (navigator.onLine || window.__fbImport)) fbLoad().catch(() => {});
+  if (LOCKED && !KS.key && !sessionStorage.getItem('tukiUnlockLater') && S.placement != null) unlockPrompt('local');
+}, window.__fbBootMs ?? 1200);
+window.addEventListener('online', () => { if (lsGet(FB_HINT, null) && !FB.ready) fbLoad().catch(() => {}); else if (FB.user && FB.dirty) fbSchedule(); });
+
+</script>
+<script>
 /* =================== INICIO =================== */
 applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp && !/#import=/.test(location.hash)) setTimeout(placementIntro, 300);
 setTimeout(checkImportHash, 200); setTimeout(autoSyncOnOpen, 1500);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, encodeState, decodeState, mergeStates, importFromCode, openTransfer, openScanner, gistSync, gistCfg, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, encodeState, decodeState, mergeStates, importFromCode, openTransfer, openScanner, gistSync, gistCfg, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, fbUsage, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, USAGE_CHECKED, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, version: APP_VERSION };
 </script>
 
 </body>

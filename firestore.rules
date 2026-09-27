@@ -1,0 +1,86 @@
+rules_version = '2';
+
+// Tuki Speak: cada persona solo puede leer y escribir su propio documento.
+// Plan Spark: sin Cloud Functions ni Storage. Todo lo demás está denegado.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedInAs(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isTime(v) {
+      return v is timestamp || (v is number && v >= 0 && v < 100000000000000);
+    }
+
+    function strMax(v, n) {
+      return v is string && v.size() <= n;
+    }
+
+    // keysEnc: null (sin claves) o el sobre AES-GCM {v, alg, salt, iv, ct, iter}
+    function validKeysEnc(k) {
+      return k == null || (
+        k is map
+        && k.keys().hasOnly(['v', 'alg', 'salt', 'iv', 'ct', 'iter'])
+        && k.keys().hasAll(['v', 'salt', 'iv', 'ct', 'iter'])
+        && k.v is int && k.v >= 1 && k.v <= 10
+        && k.salt is string && k.salt.size() >= 16 && k.salt.size() <= 64
+        && k.iv is string && k.iv.size() >= 12 && k.iv.size() <= 32
+        && k.ct is string && k.ct.size() >= 1 && k.ct.size() <= 8192
+        && k.iter is int && k.iter >= 310000 && k.iter <= 5000000
+        && (!('alg' in k) || strMax(k.alg, 64))
+      );
+    }
+
+    function validMeta(d) {
+      return d.keys().hasOnly(['schemaVersion', 'updatedAt', 'keysEnc', 'device', 'progressSize', 'app'])
+        && d.keys().hasAll(['schemaVersion', 'updatedAt'])
+        && d.schemaVersion is int && d.schemaVersion >= 1 && d.schemaVersion <= 100
+        && isTime(d.updatedAt)
+        && (!('keysEnc' in d) || validKeysEnc(d.keysEnc))
+        && (!('device' in d) || strMax(d.device, 80))
+        && (!('progressSize' in d) || (d.progressSize is int && d.progressSize >= 0 && d.progressSize <= 20000000))
+        && (!('app' in d) || strMax(d.app, 40));
+    }
+
+    function validProgress(d) {
+      return d.keys().hasOnly(['z', 'enc', 'n', 'updatedAt'])
+        && d.keys().hasAll(['z', 'enc', 'updatedAt'])
+        && d.z is string && d.z.size() <= 1000000
+        && d.enc in ['TK1', 'TK0']
+        && (!('n' in d) || (d.n is int && d.n >= 0 && d.n <= 20000000))
+        && isTime(d.updatedAt);
+    }
+
+    // Ajustes sin claves de API (las claves solo viajan cifradas en keysEnc)
+    function validSettings(d) {
+      return d.keys().hasOnly(['s', 'updatedAt'])
+        && d.keys().hasAll(['s', 'updatedAt'])
+        && d.s is map && d.s.size() <= 200
+        && !d.s.keys().hasAny(['geminiKey', 'openaiKey', 'azureKey', 'apiKey', 'token'])
+        && isTime(d.updatedAt);
+    }
+
+    match /users/{uid} {
+      allow get: if signedInAs(uid);
+      allow list: if false;
+      allow create, update: if signedInAs(uid) && validMeta(request.resource.data);
+      allow delete: if signedInAs(uid);
+
+      match /data/{docId} {
+        allow get: if signedInAs(uid) && docId in ['progress', 'settings'];
+        allow list: if false;
+        allow create, update: if signedInAs(uid) && (
+          (docId == 'progress' && validProgress(request.resource.data)) ||
+          (docId == 'settings' && validSettings(request.resource.data))
+        );
+        allow delete: if signedInAs(uid) && docId in ['progress', 'settings'];
+      }
+    }
+
+    // Todo lo demás: denegado
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
