@@ -1,9 +1,14 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.10.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.10.1
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.10.1
+- Se quitó de Ajustes toda la tarjeta **«📲 Progreso en varios dispositivos»**: el código QR para pasar el progreso (mostrar/escanear, enlace `#import=` y pegar código) y la **sincronización automática con un Gist de GitHub**, con todo su código (incluida la librería de QR). Para usar Tuki en varios dispositivos inicia sesión en **Cuenta** (Google o correo): la sincronización con Firebase lo hace sola.
+- El token de GitHub que hubieras guardado se **borra al abrir la app** (ya no se usa). El progreso no se toca, y **Exportar / Importar archivo** (💾 Datos) sigue igual.
+- La CSP ya no permite `api.github.com` ni `gist.githubusercontent.com`, y `Permissions-Policy` ya no permite la cámara (solo la usaba el escáner de QR).
 
 ## Novedades v2.10.0 «claves compartidas»
 - Si **iniciaste sesión** (con Google o con correo verificado) y **no pusiste tus propias claves**, la IA usa automáticamente las claves de Gemini y Azure del dueño de la app a través de una API mínima en Vercel (`/api/gemini`, `/api/azure-token`, `/api/live-token`). **Las claves nunca llegan al navegador**: Gemini texto va por el proxy (modelos y forma de la petición en lista blanca, tamaño limitado, misma cadena de respaldo de modelos), Azure usa un token de 10 minutos (`Authorization: Bearer`) y Gemini Live usa un **token efímero** oficial de un solo uso. Si pones tus claves, se usan como antes. Sin sesión verás «Inicia sesión para usar la IA de Tuki». En Ajustes, una línea indica el modo: «Usando tus claves» o «Usando las claves de Tuki · límite diario».
@@ -56,9 +61,7 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
   - 🧑‍💼 **Simulador de entrevista de trabajo**: cargo/industria, nivel del cargo, tu nivel, 5/8/12 preguntas, por voz o texto. Contador «Pregunta k/N», botón Finalizar e **informe en español** con puntaje, retroalimentación por pregunta, respuestas modelo más fuertes en inglés (🔊/🐢) y errores comunes.
   - ⏱️ **Reto diario de 5 minutos**: tema del día según tu nivel (lista grande, elegido por fecha), temporizador, voz o texto, resumen al final, +20 XP (cuenta para la racha) e insignias de 1, 7 y 30 retos.
 - 🎯 **Mis palabras difíciles** (Práctica): palabras con puntaje bajo en lecciones + palabras que la IA detectó mal pronunciadas en conversaciones. Se califican con Azure (fonemas) si está configurado, o con el reconocimiento del navegador.
-- 📲 **Progreso en varios dispositivos** (Ajustes):
-  - **Código QR / enlace**: exporta tu progreso comprimido (sin claves de API). Si es grande se muestran varios QR animados. En el otro dispositivo: escanear (cámara con BarcodeDetector) o pegar el enlace/código, y elegir **Combinar** o **Reemplazar**.
-  - **Sincronización opcional con GitHub Gist**: pega un token con permiso `gist` (https://github.com/settings/tokens/new?scopes=gist&description=Tuki%20Speak, o fine-grained con «Gists: Read and write»). Se guarda en un gist **secreto** (no privado: quien tenga el enlace exacto podría verlo; no incluye claves). Sincroniza al abrir, al cerrar/cambiar de app y con «Sincronizar ahora», combinando sin perder progreso.
+- 🔄 **Progreso en varios dispositivos**: inicia sesión en **Cuenta** (Ajustes) y se sincroniza con Firebase; también puedes **Exportar / Importar** un archivo (💾 Datos).
 - **Evaluación avanzada con Azure** (opcional): puntaje fonema por fonema en IPA, precisión, fluidez, integridad y prosodia, y consejos tipo «en think la /θ/ sonó como /s/».
 - Voces naturales opcionales: Azure neural (en-US/en-GB) u OpenAI TTS; si fallan, se usa la voz del dispositivo.
 - Insignias, estadísticas semanales, protector de racha, modo oscuro, tamaño de letra, alto contraste, reducir animaciones, vibración.
@@ -105,7 +108,6 @@ El micrófono, el reconocimiento de voz, la voz en vivo y el modo offline necesi
 | Google Gemini (gratis con límites) | Chat de texto y **voz en vivo** | https://aistudio.google.com/apikey |
 | OpenAI (pago) | Chat, voz en vivo Realtime, voz TTS | https://platform.openai.com/api-keys |
 | Azure AI Speech (nivel gratuito F0 limitado) | Evaluación por fonemas, voces neurales | Portal de Azure → recurso "Speech" (clave + región) |
-| GitHub token `gist` (gratis, opcional) | Sincronizar progreso entre dispositivos | https://github.com/settings/tokens/new?scopes=gist&description=Tuki%20Speak |
 
 ⚠️ Sin servidor propio, las claves se usan directamente desde el dispositivo: úsalas solo en tu propio equipo y configura límites de gasto.
 
@@ -119,7 +121,6 @@ GitHub Pages, Netlify Drop, Vercel o Cloudflare Pages: sube `index.html`, `manif
 ## Límites conocidos
 - Sin Azure, el puntaje de pronunciación usa el reconocimiento del navegador (por palabra, no por fonema).
 - Los recordatorios del navegador solo se muestran si la app está abierta o en segundo plano; el `.ics` es la opción confiable.
-- El lector de QR integrado requiere `BarcodeDetector` (Chrome/Edge en Android, algunos navegadores de escritorio); si no existe, escanea con la cámara del teléfono o pega el código.
 - La sincronización al cerrar la app es de mejor esfuerzo (el navegador puede cortarla); usa «Sincronizar ahora» antes de cambiar de dispositivo.
 - Resúmenes, entrevista y reto necesitan una clave de IA (Gemini gratis u OpenAI). «Traduce y completa» funciona sin clave con su banco de frases; la IA solo agrega explicaciones para respuestas que no están en el banco y frases nuevas.
 - La curva de entonación del modelo solo se dibuja con voces en la nube (el audio de la voz del dispositivo no se puede capturar).

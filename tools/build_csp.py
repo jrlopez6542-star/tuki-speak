@@ -16,7 +16,7 @@ def policy(hashes, header):
         ("font-src", "'self' data:"),
         ("connect-src", "'self' https://tuki-speak.vercel.app https://*.googleapis.com wss://generativelanguage.googleapis.com https://*.firebaseapp.com https://www.gstatic.com https://apis.google.com https://www.google.com "
                         "https://api.openai.com https://*.stt.speech.microsoft.com wss://*.stt.speech.microsoft.com https://*.tts.speech.microsoft.com wss://*.tts.speech.microsoft.com "
-                        "https://*.api.cognitive.microsoft.com https://*.cognitiveservices.azure.com wss://*.cognitiveservices.azure.com https://api.github.com https://gist.githubusercontent.com"),
+                        "https://*.api.cognitive.microsoft.com https://*.cognitiveservices.azure.com wss://*.cognitiveservices.azure.com"),
         ("frame-src", "https://tuki-speak.firebaseapp.com https://accounts.google.com https://apis.google.com"),
         ("worker-src", "'self' blob:"),
         ("manifest-src", "'self'"),
@@ -38,7 +38,7 @@ def main():
         {"key": "Content-Security-Policy", "value": policy(hashes, True)},
         {"key": "X-Content-Type-Options", "value": "nosniff"},
         {"key": "Referrer-Policy", "value": "strict-origin-when-cross-origin"},
-        {"key": "Permissions-Policy", "value": "microphone=(self), camera=(self), geolocation=(), payment=(), usb=(), interest-cohort=()"},
+        {"key": "Permissions-Policy", "value": "microphone=(self), camera=(), geolocation=(), payment=(), usb=(), interest-cohort=()"},
         {"key": "X-Frame-Options", "value": "DENY"},
         {"key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups"},
         {"key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload"},
