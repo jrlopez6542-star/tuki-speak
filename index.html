@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tuki Speak – Pronunciación en inglés gratis</title>
+<meta name="color-scheme" content="light dark">
 <meta name="description" content="Mejora tu pronunciación y conversación en inglés gratis: sonidos difíciles, pares mínimos, shadowing y diálogos con puntaje.">
 <meta name="theme-color" content="#1fa463">
 <link rel="manifest" href="manifest.json">
@@ -219,6 +220,80 @@ a{color:var(--b-d)}
 .kpi{background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px}.kpi b{display:block;font-size:24px}.kpi span{font-size:12px;color:var(--mute);font-weight:800;text-transform:uppercase}
 .pcard{display:flex;gap:14px;align-items:center;cursor:pointer;text-align:left;width:100%}
 .pcard .em{font-size:34px;width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex:none}
+/* ===== v2: accesibilidad, tema oscuro, nuevas vistas ===== */
+:focus-visible{outline:3px solid #1cb0f6;outline-offset:2px}
+[data-theme=dark]{--ink:#e6edf3;--mute:#9fb0bf;--line:#2c3a47;--bg:#0f1720;--card:#17212b;--g-l:#12382a;--r-l:#3b1d21}
+[data-theme=dark] body,[data-theme=dark] #app{background:var(--bg);color:var(--ink)}
+[data-theme=dark] .topbar,[data-theme=dark] .tabbar,[data-theme=dark] .full,[data-theme=dark] .sheet,[data-theme=dark] .card,[data-theme=dark] .opt,[data-theme=dark] .tile,[data-theme=dark] .bubble,[data-theme=dark] .face,[data-theme=dark] .witem,[data-theme=dark] .kpi,[data-theme=dark] .chip,[data-theme=dark] .search,[data-theme=dark] .field,[data-theme=dark] .mic,[data-theme=dark] .msg.bot,[data-theme=dark] textarea,[data-theme=dark] .iconbtn,[data-theme=dark] .btn.ghost,[data-theme=dark] .start-tip,[data-theme=dark] .scard .v,[data-theme=dark] .ring::after,[data-theme=dark] .spk.slow,[data-theme=dark] .badge,[data-theme=dark] .plan-step{background:var(--card);color:var(--ink);border-color:var(--line)}
+[data-theme=dark] .start-tip::after{border-top-color:var(--card)}
+[data-theme=dark] .stat:hover{background:#22303c}
+[data-theme=dark] .tile.used{background:#22303c;border-color:#22303c}
+[data-theme=dark] .tipbox,[data-theme=dark] .face.back{background:#12261d;border-color:#1f4d35}
+[data-theme=dark] .tipbox b{color:#5fe0a0}
+[data-theme=dark] .notice,[data-theme=dark] .msg.fix{background:#33290f;border-color:#6b5314;color:var(--ink)}
+[data-theme=dark] .lfoot.ok{background:#16330f;border-top-color:#16330f}
+[data-theme=dark] .lfoot.bad{background:#3b1d21;border-top-color:#3b1d21}
+[data-theme=dark] .fb .exp{color:#c9d4de}
+[data-theme=dark] .opt.sel{background:#0f3346;border-color:#1c7fb0;color:#8fd6ff}
+[data-theme=dark] .wd.g{background:#123a24;color:#6ee7a3}[data-theme=dark] .wd.y{background:#3a2e0f;color:#fcd34d}[data-theme=dark] .wd.r{background:#3f1a1c;color:#fca5a5}
+[data-theme=dark] .tab.active{border-color:#1f5b3d}
+[data-theme=dark] textarea.inp{background:#111a22}
+[data-theme=dark] .pbar{background:#2c3a47}
+[data-contrast=high]{--ink:#000;--mute:#2b3440;--line:#5c6a78;--g:#0a7a3d;--g-d:#065a2c;--b-d:#0b5f8a}
+[data-contrast=high][data-theme=dark]{--ink:#fff;--mute:#dfe6ec;--line:#9aa9b6}
+[data-contrast=high] .btn,[data-contrast=high] .opt,[data-contrast=high] .tile{border-width:3px}
+[data-contrast=high] a{text-decoration:underline}
+[data-motion=reduce] *,[data-motion=reduce] *::before,[data-motion=reduce] *::after{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion: reduce){.node.current,.start-tip{animation:none}}
+.banner{position:fixed;left:50%;transform:translateX(-50%);z-index:95;max-width:540px;width:calc(100% - 20px);border-radius:14px;padding:10px 14px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:10px;justify-content:space-between;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.banner.net{top:calc(64px + env(safe-area-inset-top));background:#33290f;color:#fff}
+.banner.upd{bottom:calc(84px + env(safe-area-inset-bottom));background:#1f2a33;color:#fff}
+.banner .btn{padding:8px 12px;font-size:13px}
+/* mouth diagrams */
+.mouths{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.mouth{flex:1 1 140px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:6px;text-align:center;font-size:13px;font-weight:800}
+.mouth svg{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}
+[data-theme=dark] .mouth{background:#1b2732}
+/* azure */
+.az{margin-top:12px}
+.az-bars{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0}
+.az-bar{font-size:12px;font-weight:800}.az-bar .tr{height:10px;background:#eef1f3;border-radius:6px;overflow:hidden;margin-top:3px}.az-bar .tr i{display:block;height:100%}
+.phw{display:inline-flex;flex-direction:column;align-items:center;margin:4px 6px 4px 0;vertical-align:top}
+.phw .w{font-weight:800;font-size:14px}
+.ph{display:inline-block;font-family:"Doulos SIL","Charis SIL","Segoe UI",sans-serif;font-size:13px;padding:1px 4px;border-radius:5px;margin:1px}
+.ph.g{background:#e3f8ec;color:#1c8a4a}.ph.y{background:#fff3d6;color:#a86b00}.ph.r{background:#ffe3e3;color:#c62828}
+[data-theme=dark] .ph.g{background:#123a24;color:#6ee7a3}[data-theme=dark] .ph.y{background:#3a2e0f;color:#fcd34d}[data-theme=dark] .ph.r{background:#3f1a1c;color:#fca5a5}
+.tips li{margin:4px 0}
+/* viz */
+.viz canvas{width:100%;height:90px;background:#f7faf8;border:2px solid var(--line);border-radius:12px;display:block;margin-top:6px}
+[data-theme=dark] .viz canvas{background:#111a22}
+/* live */
+.live{text-align:center}
+.live-dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:#aab4bc;margin-right:6px;vertical-align:middle}
+.live-dot.connecting{background:var(--o);animation:pulse 1s infinite}.live-dot.listening{background:var(--g);animation:pulse 1.4s infinite}.live-dot.speaking{background:var(--b);animation:pulse .7s infinite}.live-dot.error{background:var(--r)}
+.livebtn{width:100%;border:0;border-radius:22px;padding:22px 14px;font-size:20px;font-weight:900;color:#fff;background:linear-gradient(135deg,#1fa463,#0ea5e9);box-shadow:0 6px 0 #0b7a55;margin:10px 0}
+.livebtn.on{background:linear-gradient(135deg,#e5484d,#ff9f1c);box-shadow:0 6px 0 #b02a2f}
+.livebtn:active{transform:translateY(4px);box-shadow:0 2px 0 #0b7a55}
+.meter{height:10px;background:#eef1f3;border-radius:6px;overflow:hidden;margin:6px 0}.meter i{display:block;height:100%;width:0;background:var(--g);transition:width .08s}
+[data-theme=dark] .meter,[data-theme=dark] .az-bar .tr{background:#2c3a47}
+.provider{display:flex;gap:8px;margin-bottom:10px}
+.provider .chip{flex:1;text-align:center}
+/* badges / plan */
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.badge{border:2px solid var(--line);border-radius:14px;padding:10px 6px;text-align:center;background:#fff;font-size:12px;font-weight:800}
+.badge .i{font-size:28px;display:block}
+.badge.off{opacity:.38;filter:grayscale(1)}
+.plan-card{background:linear-gradient(135deg,#1fa463,#0ea5e9);color:#fff;border:0}
+.plan-card .muted{color:rgba(255,255,255,.9)}
+.plan-steps{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.plan-step{background:rgba(255,255,255,.2);border-radius:10px;padding:4px 8px;font-size:12px;font-weight:800}
+.plan-card .plan-step{background:rgba(255,255,255,.22);color:#fff;border:0}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end;height:90px;margin-top:8px}
+.week div{background:var(--o);border-radius:6px 6px 0 0;min-height:3px;position:relative}
+.week span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:11px;color:var(--mute);font-weight:800}
+.dict-item .acts{display:flex;gap:6px;margin-left:auto;flex:none}
+.dict-item .acts button{width:36px;height:36px;font-size:15px}
+
 </style>
 </head>
 <body>
@@ -465,6 +540,169 @@ const COURSE = [
 ];
 </script>
 <script>
+/* =================== CONTENIDO ADICIONAL (v2) =================== */
+COURSE.push(
+{ id:'u8', title:'Habla conectada', icon:'🔗', color:'#0ea5e9',
+  desc:'Cómo hablan los nativos: palabras unidas, gonna/wanna y la T americana.',
+  lessons:[
+  { id:'linking', sound:'linking', title:'Unir palabras (linking)', icon:'🧷',
+    expl:'En inglés natural, una palabra que termina en consonante se une con la siguiente si empieza por vocal: "turn it off" suena "tur-ni-toff" y "an apple" suena "a-napple". Si separas cada palabra, suenas robótico y te cuesta entender a los nativos.',
+    mouth:'No hagas pausa entre palabras: pasa la consonante final a la vocal siguiente como si fuera una sola palabra larga. Practica despacio y luego acelera.',
+    ex:[['turn it off','apágalo'],['an apple','una manzana'],['pick it up','recógelo'],['come on','¡vamos!'],['check it out','míralo'],['hold on','espera']],
+    quiz:[{q:'«turn it off» suena más natural como…',say:'turn it off',opts:['tur-ni-toff (unido)','turn · it · off (separado)'],a:0},
+          {q:'«an apple» suena como…',say:'an apple',opts:['a-napple','an · apple con pausa'],a:0},
+          {q:'¿Cómo se une «pick it up»?',say:'pick it up',opts:['pi-ki-tup','pick · it · up con pausas','pik-kit-tup'],a:0},
+          {q:'«hold on» suena como…',say:'hold on',opts:['hol-don','hold · on'],a:0},
+          {q:'«miss you» en habla rápida suele sonar como…',say:'I miss you',opts:['mi-shu','miss · you con pausa','mis-yu con y fuerte'],a:0}],
+    sents:[['Can you turn it off, please?','¿Puedes apagarlo, por favor?'],['Pick it up and put it on the table.','Recógelo y ponlo en la mesa.'],['Hold on, I need an apple.','Espera, necesito una manzana.']] },
+  { id:'reductions', sound:'reducciones', title:'Gonna, wanna, gotta', icon:'💨',
+    expl:'En conversación informal (sobre todo en EE. UU.) "going to" se reduce a "gonna", "want to" a "wanna", "got to" a "gotta", "let me" a "lemme" y "kind of" a "kinda". Entenderlas es clave para comprender series y nativos. Úsalas al hablar, no en escritura formal.',
+    mouth:'Las palabras pequeñas pierden fuerza: "to" se vuelve /tə/ y se funde con la palabra anterior. Mantén la fuerza en el verbo principal: "I\'m gonna CALL you".',
+    ex:[['going to','gonna (voy a)'],['want to','wanna (quiero)'],['got to','gotta (tengo que)'],['kind of','kinda (medio, algo)'],['let me','lemme (déjame)'],['give me','gimme (dame)']],
+    quiz:[{q:'«I\'m gonna call you» significa…',say:"I'm gonna call you",opts:['Te voy a llamar','Te llamé','Quiero llamarte'],a:0},
+          {q:'«I wanna go home» significa…',say:'I wanna go home',opts:['Quiero ir a casa','Voy a ir a casa','Tengo que ir a casa'],a:0},
+          {q:'«I gotta go» significa…',say:'I gotta go',opts:['Tengo que irme','Me gusta ir','Me fui'],a:0},
+          {q:'«Lemme see» significa…',say:'Lemme see',opts:['Déjame ver','Mírame','Lo vi'],a:0},
+          {q:'«It\'s kinda cold» significa…',say:"It's kinda cold",opts:['Hace algo de frío','Hace mucho calor','No hace frío'],a:0}],
+    sents:[["I'm going to call you tomorrow.",'Te voy a llamar mañana.'],['I want to learn English.','Quiero aprender inglés.'],["I've got to go now.",'Tengo que irme ya.']] },
+  { id:'flap-t', sound:'ɾ', title:'La T americana (water)', icon:'💧',
+    expl:'En inglés americano, la "t" entre vocales suena como una "r" suave del español (la de "pero"): water → "wárer", better → "bérer", city → "ciri". En inglés británico suele sonar como una "t" clara.',
+    mouth:'Da un toque rápido y suave con la punta de la lengua detrás de los dientes de arriba, un solo golpe, igual que la "r" de "cara". No la hagas explosiva.',
+    ex:[['water','agua'],['better','mejor'],['city','ciudad'],['party','fiesta'],['little','pequeño'],['computer','computador']],
+    quiz:[{q:'En inglés americano, «water» suena como…',say:'water',opts:['wárer (t suave como r)','wa-ter (t fuerte)','wa-cher'],a:0},
+          {q:'«better» suena como…',say:'better',opts:['bérer','be-ter con t fuerte','bet · ter con pausa'],a:0},
+          {q:'¿En cuál palabra la T suena como r suave?',say:'city',opts:['city','ten','stop'],a:0},
+          {q:'«get it» en habla rápida suena como…',say:'get it',opts:['gué-rit','get · it','guet-chit'],a:0},
+          {q:'¿En cuál palabra la T NO es suave?',say:'table',opts:['table (t al inicio)','water','party'],a:0}],
+    sents:[['Can I have a glass of water?','¿Me das un vaso de agua?'],['This city is better at night.','Esta ciudad es mejor de noche.'],['We had a little party.','Hicimos una pequeña fiesta.']] }
+  ]},
+{ id:'u9', title:'Números, fechas y horas', icon:'🔢', color:'#f59e0b',
+  desc:'13 vs 30, fechas, precios y la hora sin confusiones.',
+  lessons:[
+  { id:'teen-ty', sound:'-teen / -ty', title:'Thirteen vs. Thirty', icon:'🔟',
+    expl:'Los números en -teen (13-19) llevan el acento al final: thir-TEEN, con "t" clara e "ii" larga. Los números en -ty (30, 40…90) llevan el acento al inicio: THIR-ty, y la t suena suave. Confundirlos es muy común… ¡y costoso con precios!',
+    mouth:'-teen: alarga y da fuerza a la última sílaba ("fif-TIIIN"). -ty: fuerza en la primera sílaba y final corto ("FIF-ti").',
+    pairLabels:['-teen (13-19)','-ty (30-90)'],
+    ex:[['thirteen','trece'],['thirty','treinta'],['fifteen','quince'],['fifty','cincuenta'],['nineteen','diecinueve'],['ninety','noventa']],
+    pairs:[['thirteen','thirty'],['fourteen','forty'],['fifteen','fifty'],['sixteen','sixty'],['seventeen','seventy'],['eighteen','eighty']],
+    sents:[['The ticket costs fifteen dollars.','El tiquete cuesta quince dólares.'],['My brother is thirty years old.','Mi hermano tiene treinta años.'],['The class has sixteen students.','La clase tiene dieciséis estudiantes.']] },
+  { id:'dates', sound:'ordinales', title:'Fechas y ordinales', icon:'📅',
+    expl:'Para las fechas se usan números ordinales: first (1st), second (2nd), third (3rd), fourth (4th), fifth (5th)… En EE. UU. se dice "May fifth" y en Reino Unido "the fifth of May". Los años se leen en pares: 1995 = "nineteen ninety-five", 2026 = "twenty twenty-six".',
+    mouth:'Muchos ordinales terminan en /θ/: fifth, sixth, twelfth. Saca la lengua entre los dientes al final. "Fifth" y "twelfth" son difíciles: di despacio "fif-θ", "twelf-θ".',
+    ex:[['first','primero'],['second','segundo'],['third','tercero'],['fifth','quinto'],['twelfth','duodécimo'],['twentieth','vigésimo']],
+    quiz:[{q:'¿Cómo se dice la fecha «5 de mayo» (EE. UU.)?',say:'May fifth',opts:['May fifth','May five','Five of May'],a:0},
+          {q:'«first, second, third» significan…',say:'first, second, third',opts:['primero, segundo, tercero','uno, dos, tres','primera, siguiente, última'],a:0},
+          {q:'¿Cómo se lee normalmente el año 2026?',say:'twenty twenty-six',opts:['twenty twenty-six','two zero two six','twenty hundred twenty-six'],a:0},
+          {q:'¿Cómo suena el final de «fifth»?',say:'fifth',opts:['/θ/ (lengua entre dientes)','/t/','/s/'],a:0},
+          {q:'«My birthday is on the twelfth of March» — ¿qué día?',say:'My birthday is on the twelfth of March',opts:['12 de marzo','20 de marzo','2 de marzo'],a:0}],
+    sents:[['My birthday is on May fifth.','Mi cumpleaños es el cinco de mayo.'],['The meeting is on the third of June.','La reunión es el tres de junio.'],['I was born in nineteen ninety-five.','Nací en 1995.']] },
+  { id:'prices-time', sound:'hora y precios', title:'Precios y horas', icon:'🕒',
+    expl:'Horas: "a quarter past five" = 5:15, "half past seven" = 7:30, "ten to nine" = 8:50; también puedes decir los números: "five fifteen". Precios: $4.99 se dice "four ninety-nine" y $120 "a hundred and twenty dollars".',
+    mouth:'En los precios, junta los números sin pausa ("four-ninety-nine") y acentúa el número importante. Recuerda -teen vs -ty.',
+    ex:[['a quarter past','y cuarto'],['half past','y media'],['a quarter to','menos cuarto'],['hundred','cien'],['thousand','mil'],["o'clock",'en punto']],
+    quiz:[{q:'«It\'s a quarter past five» significa…',say:"It's a quarter past five",opts:['Son las 5:15','Son las 4:45','Son las 5:25'],a:0},
+          {q:'«It\'s half past seven» significa…',say:"It's half past seven",opts:['Son las 7:30','Son las 6:30','Son las 7:50'],a:0},
+          {q:'¿Cómo se dice $4.99 normalmente?',say:'four ninety-nine',opts:['four ninety-nine','four point ninety-nine cents','four and ninety-nine'],a:0},
+          {q:'«It costs a hundred and twenty dollars» — ¿cuánto cuesta?',say:'It costs a hundred and twenty dollars',opts:['$120','$102','$1,200'],a:0},
+          {q:'«It\'s ten to nine» significa…',say:"It's ten to nine",opts:['Son las 8:50','Son las 9:10','Son las 10:09'],a:0}],
+    sents:[['The movie starts at half past eight.','La película empieza a las ocho y media.'],['This jacket costs sixty dollars.','Esta chaqueta cuesta sesenta dólares.'],["It's a quarter to ten.",'Son las diez menos cuarto.']] }
+  ]},
+{ id:'u10', title:'Phrasal verbs comunes', icon:'🧱', color:'#10b981',
+  desc:'Verbo + partícula: el vocabulario que más usan los nativos.',
+  lessons:[
+  { id:'pv-daily', type:'vocab', sound:'phrasal verbs', title:'Phrasal verbs del día a día', icon:'☀️',
+    expl:'Un phrasal verb es un verbo + una partícula (up, on, off, for…) y su significado cambia por completo: "look" = mirar, pero "look for" = buscar. Son muy frecuentes en la conversación diaria.',
+    items:[['wake up','despertarse','I wake up at six every day.','Me despierto a las seis todos los días.'],
+           ['get up','levantarse (de la cama)','I get up right after my alarm.','Me levanto justo después de la alarma.'],
+           ['turn on','encender','Please turn on the lights.','Por favor enciende las luces.'],
+           ['turn off','apagar','Turn off your phone, please.','Apaga tu teléfono, por favor.'],
+           ['pick up','recoger','I pick up my kids at three.','Recojo a mis hijos a las tres.'],
+           ['look for','buscar','I am looking for my keys.','Estoy buscando mis llaves.']] },
+  { id:'pv-life', type:'vocab', sound:'phrasal verbs', title:'Phrasal verbs útiles', icon:'🧭',
+    expl:'Estos phrasal verbs aparecen todo el tiempo en series, canciones y conversaciones. Apréndelos con un ejemplo completo: así los recuerdas mejor.',
+    items:[['find out','averiguar / enterarse','I found out the truth yesterday.','Me enteré de la verdad ayer.'],
+           ['give up','rendirse / dejar de','Don\'t give up, you can do it.','No te rindas, tú puedes.'],
+           ['run out of','quedarse sin','We ran out of milk.','Nos quedamos sin leche.'],
+           ['come back','volver','I will come back tomorrow.','Volveré mañana.'],
+           ['figure out','resolver / entender','I can\'t figure out this problem.','No logro resolver este problema.'],
+           ['look forward to','esperar con ganas','I look forward to meeting you.','Espero con ganas conocerte.']] },
+  { id:'pv-work', type:'vocab', sound:'phrasal verbs', title:'Phrasal verbs en el trabajo', icon:'💼',
+    expl:'En correos y reuniones de trabajo en inglés se usan muchísimo. Te harán sonar profesional y natural.',
+    items:[['set up','organizar / configurar','Let\'s set up a meeting for Monday.','Organicemos una reunión para el lunes.'],
+           ['follow up','hacer seguimiento','I will follow up by email.','Haré seguimiento por correo.'],
+           ['call off','cancelar','They called off the meeting.','Cancelaron la reunión.'],
+           ['put off','posponer','Don\'t put off your work.','No pospongas tu trabajo.'],
+           ['fill out','llenar (un formulario)','Please fill out this form.','Por favor llena este formulario.'],
+           ['carry on','continuar','Carry on with your presentation.','Continúa con tu presentación.']] }
+  ]},
+{ id:'u11', title:'Falsos amigos', icon:'🎭', color:'#ec4899',
+  desc:'Palabras que parecen español pero significan otra cosa.',
+  lessons:[
+  { id:'ff-1', type:'vocab', sound:'falsos amigos', title:'Falsos amigos I', icon:'😳',
+    expl:'Los "falsos amigos" se parecen a palabras en español pero significan otra cosa. Decir "I\'m embarrassed" pensando en "embarazada" puede causar una situación muy graciosa (o incómoda).',
+    items:[['actually','en realidad','Actually, I live in Cali, not in Bogota.','En realidad vivo en Cali, no en Bogotá.','actualmente'],
+           ['embarrassed','avergonzado','I was so embarrassed at the party.','Estaba muy avergonzado en la fiesta.','embarazada'],
+           ['library','biblioteca','I study at the library.','Estudio en la biblioteca.','librería'],
+           ['sensible','sensato','That is a sensible decision.','Esa es una decisión sensata.','sensible (emocional)'],
+           ['realize','darse cuenta','I didn\'t realize it was so late.','No me di cuenta de que era tan tarde.','realizar'],
+           ['exit','salida','The exit is on the left.','La salida está a la izquierda.','éxito']] },
+  { id:'ff-2', type:'vocab', sound:'falsos amigos', title:'Falsos amigos II', icon:'🏫',
+    expl:'Más falsos amigos muy comunes en el estudio y el trabajo. Fíjate especialmente en "assist" y "attend": ¡son al revés de lo que parece!',
+    items:[['assist','ayudar','Can I assist you?','¿Le puedo ayudar?','asistir (ir a)'],
+           ['attend','asistir (ir a)','I attend classes on Saturdays.','Asisto a clases los sábados.','atender'],
+           ['career','carrera profesional','She has a great career in marketing.','Ella tiene una gran carrera profesional en mercadeo.','carrera universitaria'],
+           ['college','universidad','My son is in college.','Mi hijo está en la universidad.','colegio'],
+           ['carpet','alfombra','The carpet is new.','La alfombra es nueva.','carpeta'],
+           ['fabric','tela','This fabric is very soft.','Esta tela es muy suave.','fábrica']] },
+  { id:'ff-3', type:'vocab', sound:'falsos amigos', title:'Falsos amigos III', icon:'🎬',
+    expl:'Estos confunden incluso a estudiantes avanzados. "Constipated" no es resfriado, "lecture" no es lectura y "record" no es recordar.',
+    items:[['constipated','estreñido','I feel constipated today.','Hoy me siento estreñido.','constipado (resfriado)'],
+           ['support','apoyar','My family supports me.','Mi familia me apoya.','soportar (aguantar)'],
+           ['argument','discusión (pelea)','We had an argument yesterday.','Tuvimos una discusión ayer.','argumento (de película)'],
+           ['lecture','conferencia / clase magistral','The lecture starts at nine.','La conferencia empieza a las nueve.','lectura'],
+           ['pretend','fingir','He pretends to be busy.','Él finge estar ocupado.','pretender (intentar)'],
+           ['record','grabar','Can I record the meeting?','¿Puedo grabar la reunión?','recordar']] }
+  ]},
+{ id:'u12', title:'Small talk y entrevista avanzada', icon:'🌟', color:'#a855f7',
+  desc:'Charlas casuales, networking y preguntas difíciles de entrevista.',
+  lessons:[
+  { id:'c-smalltalk', type:'dialog', sound:'conversación', title:'Small talk', icon:'☕',
+    scene:'Te encuentras a un compañero en la cafetería de la oficina. Tú eres B.',
+    lines:[['A',"Hey! How's it going?",'¡Hola! ¿Cómo va todo?'],
+           ['B','Pretty good, thanks. How about you?','Bastante bien, gracias. ¿Y tú?'],
+           ['A','Not bad. Crazy weather today, right?','Nada mal. Qué clima tan loco hoy, ¿no?'],
+           ['B',"I know! It was sunny this morning and now it's raining.",'¡Sí! Estaba soleado en la mañana y ahora está lloviendo.'],
+           ['A','Any plans for the weekend?','¿Algún plan para el fin de semana?'],
+           ['B',"I'm going to visit some friends and watch a soccer game.",'Voy a visitar a unos amigos y ver un partido de fútbol.'],
+           ['A','Sounds fun. Who are you rooting for?','Suena divertido. ¿Por quién vas a hinchar?'],
+           ['B',"Colombia, of course! It's going to be a great match.",'¡Por Colombia, claro! Va a ser un gran partido.']] },
+  { id:'c-network', type:'dialog', sound:'conversación', title:'Evento de networking', icon:'🤝',
+    scene:'Estás en un evento profesional y conoces a alguien. Tú eres B.',
+    lines:[['A',"Hi, I don't think we've met. I'm David.",'Hola, creo que no nos conocemos. Soy David.'],
+           ['B',"Nice to meet you, David. I'm Ana. I work in digital marketing.",'Mucho gusto, David. Soy Ana. Trabajo en mercadeo digital.'],
+           ['A','Interesting! How long have you been doing that?','¡Interesante! ¿Hace cuánto te dedicas a eso?'],
+           ['B','About four years. I really enjoy working with data.','Unos cuatro años. Me encanta trabajar con datos.'],
+           ['A','Are you looking for new opportunities?','¿Estás buscando nuevas oportunidades?'],
+           ['B',"Yes, I'm open to remote positions with international teams.",'Sí, estoy abierta a cargos remotos con equipos internacionales.'],
+           ['A',"Let's keep in touch. Here's my card.",'Sigamos en contacto. Aquí está mi tarjeta.'],
+           ['B',"Thanks! I'll send you a message on LinkedIn.",'¡Gracias! Te escribo por LinkedIn.']] },
+  { id:'c-interview2', type:'dialog', sound:'conversación', title:'Entrevista avanzada', icon:'🎯',
+    scene:'Segunda ronda de una entrevista con preguntas difíciles. Tú eres B (candidato).',
+    lines:[['A','What would you say is your biggest weakness?','¿Cuál dirías que es tu mayor debilidad?'],
+           ['B',"Sometimes I focus too much on details, but I'm learning to prioritize.",'A veces me enfoco demasiado en los detalles, pero estoy aprendiendo a priorizar.'],
+           ['A','Tell me about a time you solved a difficult problem.','Cuéntame de una vez que resolviste un problema difícil.'],
+           ['B','Last year our main client was unhappy, so I organized a meeting and we fixed the issue together.','El año pasado nuestro cliente principal estaba insatisfecho, así que organicé una reunión y resolvimos el problema juntos.'],
+           ['A','Where do you see yourself in five years?','¿Dónde te ves en cinco años?'],
+           ['B',"I'd like to lead a team and keep growing in this industry.",'Me gustaría liderar un equipo y seguir creciendo en esta industria.'],
+           ['A','What are your salary expectations?','¿Cuáles son tus expectativas salariales?'],
+           ['B',"Based on my experience, I'm looking for a competitive salary within the market range.",'Según mi experiencia, busco un salario competitivo dentro del rango del mercado.']] }
+  ]}
+);
+// Las lecciones de vocabulario reutilizan ex/sents para tarjetas, diccionario y shadowing
+COURSE.forEach(u => u.lessons.forEach(l => { if (l.type === 'vocab') { l.ex = l.items.map(i => [i[0], i[1]]); l.sents = l.items.map(i => [i[2], i[3]]); } }));
+</script>
+
+<script>
 'use strict';
 /* =================== UTILIDADES =================== */
 const $ = (s, r=document) => r.querySelector(s);
@@ -482,16 +720,23 @@ const MASCOT = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ar
 
 /* =================== ESTADO / PERSISTENCIA =================== */
 const KEY = 'tukiSpeak.v1';
-const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, geminiKey: '', model: 'gemini-2.5-flash' };
+const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, geminiKey: '', model: 'gemini-2.5-flash',
+  accent: 'en-US', ttsEngine: 'device', azureKey: '', azureRegion: '', azureVoice: 'en-US-JennyNeural', openaiKey: '', openaiModel: 'gpt-4o-mini', openaiVoice: 'marin', openaiTtsModel: 'gpt-4o-mini-tts', realtimeModel: 'gpt-realtime', chatProvider: 'gemini', liveModel: 'gemini-3.1-flash-live-preview', liveVoice: 'Kore',
+  theme: 'auto', fontScale: 1, contrast: false, reduceMotion: false, haptics: true, remindOn: false, remindTime: '19:00' };
 function freshState() {
-  return { v: 1, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
+  return { v: 2, badges: {}, freezes: 0, placement: null, plans: {}, reviewed: 0, chats: 0, lives: 0, ph: {}, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
 }
 let S;
 function load() {
-  try { S = JSON.parse(localStorage.getItem(KEY)) || freshState(); } catch (e) { S = freshState(); }
-  const f = freshState();
-  for (const k in f) if (S[k] === undefined) S[k] = f[k];
+  let raw = null;
+  try { raw = localStorage.getItem(KEY); S = JSON.parse(raw) || freshState(); } catch (e) { S = freshState(); }
+  if (!S || typeof S !== 'object') S = freshState();
+  const f = freshState(), oldV = S.v || 1;
+  // Migración sin pérdida de datos: guarda copia de seguridad del esquema anterior
+  if (raw && oldV < 2) { try { localStorage.setItem(KEY + '.backup-v1', raw); } catch (e) {} }
+  for (const k in f) if (S[k] === undefined || S[k] === null && k !== 'placement' && k !== 'lastDay') S[k] = f[k];
   S.settings = { ...DEFAULT_SETTINGS, ...S.settings };
+  if (oldV < 2) { S.v = 2; if (raw && (Object.keys(S.done || {}).length || S.xp)) S.placement = S.placement || 'legacy'; }
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { console.warn('save failed', e); } }
 load();
@@ -617,10 +862,14 @@ const Rec = {
 const CONTR = { "i'm": 'i am', "you're": 'you are', "we're": 'we are', "they're": 'they are', "he's": 'he is', "she's": 'she is', "it's": 'it is', "that's": 'that is', "what's": 'what is', "where's": 'where is', "there's": 'there is', "here's": 'here is', "how's": 'how is', "let's": 'let us', "i'll": 'i will', "you'll": 'you will', "we'll": 'we will', "they'll": 'they will', "i'd": 'i would', "you'd": 'you would', "we'd": 'we would', "i've": 'i have', "you've": 'you have', "we've": 'we have', "don't": 'do not', "doesn't": 'does not', "didn't": 'did not', "can't": 'can not', "cannot": 'can not', "won't": 'will not', "isn't": 'is not', "aren't": 'are not', "wasn't": 'was not', "weren't": 'were not', "haven't": 'have not', "hasn't": 'has not', "couldn't": 'could not', "wouldn't": 'would not', "shouldn't": 'should not' };
 const ONES = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
 const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+const ORD = [, 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth', 'twenty first', 'twenty second', 'twenty third', 'twenty fourth', 'twenty fifth', 'twenty sixth', 'twenty seventh', 'twenty eighth', 'twenty ninth', 'thirtieth', 'thirty first'];
 function numWords(n) { n = +n; if (n < 20) return ONES[n]; if (n < 100) return TENS[Math.floor(n / 10)] + (n % 10 ? ' ' + ONES[n % 10] : ''); if (n < 1000) return ONES[Math.floor(n / 100)] + ' hundred' + (n % 100 ? ' ' + numWords(n % 100) : ''); return String(n); }
 function normText(s) {
   s = String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'");
+  s = s.replace(/\$(\d+)\.(\d\d)\b/g, (m, d, c) => numWords(d) + ' ' + numWords(+c));
   s = s.replace(/\$(\d+)/g, '$1 dollars');
+  s = s.replace(/\b(\d{1,2})(st|nd|rd|th)\b/g, (m, n) => ORD[+n] || m);
+  s = s.replace(/\b(19|20)(\d\d)\b/g, (m, a, b) => a === '20' && +b < 10 ? 'two thousand' + (+b ? ' ' + ONES[+b] : '') : numWords(+a) + ' ' + (+b < 10 ? (+b ? 'oh ' + ONES[+b] : 'hundred') : numWords(+b)));
   s = s.replace(/\b(\d{1,2}):(\d{2})\b/g, (m, h, mm) => numWords(h) + (mm === '00' ? '' : ' ' + numWords(mm)));
   s = s.replace(/\b\d{1,3}\b/g, m => numWords(m));
   s = s.replace(/[-–—/]/g, ' ').replace(/[^a-z0-9' ]/g, ' ');
@@ -733,6 +982,7 @@ const tokensOf = s => s.replace(/[¿¡?!.,;:"]/g, '').split(/\s+/).filter(Boolea
 function earEx(l, i, P, Q) { return P ? { kind: 'pick', l, pair: P[i % P.length], side: Math.random() < .5 ? 0 : 1 } : { kind: 'quiz', l, q: Q[i % Q.length] }; }
 function sayPairEx(l, pair) { return { kind: 'saypair', l, pair, side: Math.random() < .6 ? 0 : 1 }; }
 function buildLesson(l, mode = 'lesson') {
+  if (l.type === 'vocab') return buildVocabLesson(l, mode);
   const ex = [];
   if (l.type === 'dialog') {
     if (mode === 'lesson') ex.push({ kind: 'learn', l });
@@ -803,7 +1053,7 @@ function closeLesson() { $$('.confetti').forEach(c => c.remove()); stopRecognize
 function lessonShell() {
   const pct = Math.round(L.done / L.total * 100);
   return `<div class="lhead"><button class="xbtn" id="xLesson" aria-label="Salir">✕</button><div class="pbar"><i style="width:${pct}%"></i></div>${L.mode === 'lesson' ? `<div class="lhearts">❤️ ${S.hearts}</div>` : `<div class="lhearts" style="color:var(--b)">🎯</div>`}</div>
-  <div class="lbody" id="lbody"></div><div class="lfoot" id="lfoot"></div>`;
+  <div class="lbody" id="lbody"></div><div class="lfoot" id="lfoot" aria-live="polite"></div>`;
 }
 function nextEx() {
   if (!L) return;
@@ -827,6 +1077,7 @@ function feedback(ok, answerHTML, expl, sayText) {
   $('#primaryBtn').onclick = nextEx; $('#primaryBtn').focus();
 }
 function earResult(ex, ok, answerHTML, expl, sayText) {
+  if (L.mode === 'placement') { L.earN++; if (ok) L.earOk++; L.done++; (L.place = L.place || []).push({ u: ex.pu, ok }); $('.pbar i').style.width = Math.round(L.done / L.total * 100) + '%'; feedback(ok, answerHTML, expl, sayText); return; }
   L.earN++; if (ok) { L.earOk++; L.done++; } else {
     L.mistakes++; ex.attempt = null; L.queue.push({ ...ex });
     if (L.mode === 'lesson') { loseHeart(); }
@@ -844,7 +1095,7 @@ function checkEar() {
     const target = ex.pair[ex.side], ok = ex.sel === ex.side, lab = ex.l.pairLabels || ['', ''];
     earResult(ex, ok, `Escuchaste: «${esc(target)}»`, `${esc(ex.pair[0])} = ${esc(lab[0])} · ${esc(ex.pair[1])} = ${esc(lab[1])}`, target);
   } else if (ex.kind === 'quiz') {
-    const ok = ex.sel === ex.q.a; earResult(ex, ok, `Respuesta: ${esc(ex.q.opts[ex.q.a])}`, esc(ex.l.title) + ' · ' + esc(ex.q.say), ex.q.say);
+    const ok = ex.sel === ex.q.a; earResult(ex, ok, `Respuesta: ${esc(ex.q.opts[ex.q.a])}`, (ex.q.expl ? esc(ex.q.expl) : esc(ex.l.title) + ' · ' + esc(ex.q.say)), ex.q.say);
   } else if (ex.kind === 'order') {
     const got = ex.sel.map(i => ex.tiles[i]).join(' ').toLowerCase(), want = ex.words.join(' ').toLowerCase();
     earResult(ex, got === want, esc(ex.text), esc(ex.es), ex.text);
@@ -858,6 +1109,7 @@ function checkEar() {
 const RENDER = {};
 RENDER.learn = (ex, body) => {
   const l = ex.l;
+  if (l.type === 'vocab') return renderVocabLearn(ex, body);
   if (l.type === 'dialog') {
     body.innerHTML = `<div class="ex-title">${l.icon} ${esc(l.title)}</div><div class="tipbox">🎬 ${esc(l.scene)}</div>
       <p class="muted small">Escucha el diálogo completo. Luego dirás las líneas de <b>B</b> y recibirás un puntaje por palabra. Toca cualquier palabra para oírla lento.</p>
@@ -867,7 +1119,7 @@ RENDER.learn = (ex, body) => {
   } else {
     body.innerHTML = `<div class="badge-new">NUEVO SONIDO</div><div class="ex-title">${l.icon} ${esc(l.title)} <span class="ipa">/${esc(l.sound)}/</span></div>
       <div class="prompt"><div class="mascot">${MASCOT}</div><div class="bubble" style="font-size:16px;font-weight:600">${esc(l.expl)}</div></div>
-      <div class="tipbox"><b>👄 Boca y lengua:</b> ${esc(l.mouth)}</div>
+      <div class="tipbox"><b>👄 Boca y lengua:</b> ${esc(l.mouth)}</div>${mouthPanelHTML(l.id)}
       <h3>Ejemplos (toca para escuchar)</h3>
       <div class="wlist">${l.ex.map(w => `<div class="witem"><button class="spk" data-say-n="${esc(w[0])}">🔊</button><div><div class="en">${esc(w[0])}</div><div class="es">${esc(w[1])}</div></div><button class="spk slow" data-say="${esc(w[0])}" style="margin-left:auto" title="Lento">🐢</button></div>`).join('')}</div>
       ${l.pairs ? `<h3 style="margin-top:14px">Pares mínimos</h3><div class="chips">${l.pairs.map(p => `<button class="chip" data-pair="${esc(p.join('|'))}">${esc(p[0])} · ${esc(p[1])}</button>`).join('')}</div>` : ''}`;
@@ -889,9 +1141,9 @@ RENDER.pick = (ex, body) => {
 };
 RENDER.quiz = (ex, body) => {
   const q = ex.q; const order = shuffle(q.opts.map((o, i) => i)); ex.map = order;
-  body.innerHTML = `<div class="ex-title">${esc(q.q)}</div><div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>${optionsHTML(order.map(i => esc(q.opts[i])))}`;
-  $('#pl').onclick = () => speak(q.say); $('#pls').onclick = () => speak(q.say, true);
-  bindOptions(body, ex, i => { ex.sel = order[i]; }); footCheck(false); if (S.settings.autoplay) setTimeout(() => speak(q.say), 300);
+  body.innerHTML = `<div class="ex-title">${esc(q.q)}</div>${q.hide ? '<div style="height:10px"></div>' : '<div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>'}${optionsHTML(order.map(i => esc(q.opts[i])))}`;
+  if (!q.hide) { $('#pl').onclick = () => speak(q.say); $('#pls').onclick = () => speak(q.say, true); }
+  bindOptions(body, ex, i => { ex.sel = order[i]; }); footCheck(false); if (S.settings.autoplay && !q.hide) setTimeout(() => speak(q.say), 300);
 };
 RENDER.order = (ex, body) => {
   ex.words = tokensOf(ex.text);
@@ -936,12 +1188,12 @@ RENDER.speak = RENDER.shadow = RENDER.dialog = RENDER.saypair = (ex, body) => {
     <div id="micArea"></div><div id="res"></div>`;
   $$('[data-say-n]', body).forEach(b => b.onclick = () => speak(b.dataset.sayN));
   $('#pl').onclick = () => speak(target); $('#pls').onclick = () => speak(target, true);
-  const skip = `<button class="btn ghost" id="skipBtn">${HAS_SR ? 'No puedo hablar ahora' : 'Saltar'}</button>`;
+  const skip = `<button class="btn ghost" id="skipBtn">${canSpeak() ? 'No puedo hablar ahora' : 'Saltar'}</button>`;
   setFoot(`${skip}<button class="btn primary" id="primaryBtn" disabled>Continuar</button>`);
   $('#skipBtn').onclick = () => { L.done++; nextEx(); };
-  if (HAS_SR) {
+  if (canSpeak()) {
     $('#micArea').innerHTML = `<button class="mic" id="mic">🎤 Toca para hablar</button>`;
-    $('#mic').onclick = () => doMic($('#mic'), alts => onSpeechResult(ex, target, alts));
+    $('#mic').onclick = () => doMic($('#mic'), (alts, url, az) => onSpeechResult(ex, target, alts, url, az), target);
   } else {
     $('#micArea').innerHTML = `<div class="notice">⚠️ Tu navegador no soporta reconocimiento de voz, así que no puedo darte un puntaje. <b>Chrome</b> (Android o computador) o Edge funcionan mejor. Mientras tanto puedes grabarte y comparar con el modelo.</div>
       ${Rec.supported ? `<button class="mic" id="recOnly">⏺ Grabar mi voz</button>` : ''}`;
@@ -954,9 +1206,12 @@ RENDER.speak = RENDER.shadow = RENDER.dialog = RENDER.saypair = (ex, body) => {
   }
   if (S.settings.autoplay) setTimeout(() => speak(target, false, variant === 'shadow' ? () => setTimeout(() => L && L.cur === ex && speak(target, true), 400) : null), 350);
 };
-async function doMic(btn, onResult) {
+async function doMic(btn, onResult, target) {
   if (curRec) { stopRecognize(); return; }
-  speechSynthesis && speechSynthesis.cancel();
+  if (MicCap.active) { MicCap.stop(); return; }
+  speechSynthesis && speechSynthesis.cancel(); stopAudio();
+  if (target && azureReady()) return azureMic(btn, onResult, target);
+  if (!HAS_SR) { toast(SR_ERR.unsupported + ' Usa Chrome o configura Azure en Ajustes.', 4000); return; }
   btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando… habla ahora';
   let recOn = false;
   if (S.settings.recordVoice && Rec.supported) { try { await Rec.start(); recOn = true; } catch (e) {} }
@@ -972,13 +1227,14 @@ async function recOnlyToggle(btn, onDone) {
 }
 function compareHTML(target, url) { return `<div class="cmp"><button class="btn blue sm" data-cmp="model">🔊 Modelo</button><button class="btn ghost sm" data-cmp="slow">🐢 Lento</button>${url ? `<button class="btn orange sm" data-cmp="me">▶️ Mi voz</button>` : ''}</div>`; }
 function bindCompare(target, url, root = document) { $$('[data-cmp]', root).forEach(b => b.onclick = () => { const k = b.dataset.cmp; if (k === 'model') speak(target); else if (k === 'slow') speak(target, true); else Rec.play(url); }); }
-function onSpeechResult(ex, target, alts) {
+function onSpeechResult(ex, target, alts, url0, az) {
   let r;
-  if (ex.kind === 'saypair') { r = scorePair(target, ex.pair[1 - ex.side], alts); r.words = [{ tok: target, s: r.pct / 100, c: colorOf(r.pct / 100) }]; r.alts = alts; r.conf = alts[0].c; }
+  if (az) { r = az; if (ex.kind === 'saypair') { r.ok = r.pct >= S.settings.threshold; r.msg = (r.tips && r.tips[0]) || (r.ok ? '¡Bien pronunciada!' : 'Intenta de nuevo exagerando el sonido.'); } }
+  else if (ex.kind === 'saypair') { r = scorePair(target, ex.pair[1 - ex.side], alts); r.words = [{ tok: target, s: r.pct / 100, c: colorOf(r.pct / 100) }]; r.alts = alts; r.conf = alts[0].c; }
   else r = scoreSpeech(target, alts);
   if (!ex.attempt || r.pct >= ex.attempt.pct) ex.attempt = r;
   ex.tries = (ex.tries || 0) + 1;
-  const url = Rec.url && S.settings.recordVoice ? Rec.url : null;
+  const url = url0 || (Rec.url && S.settings.recordVoice ? Rec.url : null);
   $('#tgt').innerHTML = wordsHTML(target, r.words);
   const retry = r.words.filter(w => w.c !== 'g').map(w => w.tok.replace(/[.,!?;:"]/g, ''));
   const pass = ex.kind === 'saypair' ? r.ok : r.pct >= S.settings.threshold;
@@ -987,13 +1243,13 @@ function onSpeechResult(ex, target, alts) {
     ${r.msg ? `<div class="small" style="margin-top:4px">${esc(r.msg)}</div>` : ''}
     ${retry.length && ex.kind !== 'saypair' ? `<div class="small" style="margin-top:8px">Repite: ${retry.map(w => `<span class="wd r" data-say="${esc(w)}">${esc(w)} 🐢</span>`).join(' ')}</div>` : ''}
     ${r.alts.length > 1 ? `<details class="small muted" style="margin-top:6px"><summary>Otras interpretaciones del reconocedor</summary>${r.alts.slice(1).map(a => esc(a.t)).join(' · ')}</details>` : ''}
-    ${compareHTML(target, url)}</div>`;
-  bindCompare(target, url, $('#res'));
+    ${compareHTML(target, url)}${extraResultHTML(r, target, url, ex)}</div>`;
+  bindCompare(target, url, $('#res')); bindExtra($('#res'), r, target, url, ex);
   beep(pass ? 'ok' : 'bad');
   const f = setFoot(`<div class="fb"><h3>${pass ? (r.pct >= 90 ? '🌟 ¡Excelente pronunciación!' : '✅ ¡Bien dicho!') : '🔁 Sigue practicando'}</h3><div class="exp">${pass ? 'Puedes continuar o intentar mejorar tu puntaje.' : 'Escucha el modelo lento, fíjate en las palabras en rojo/amarillo y vuelve a intentarlo. En voz no pierdes vidas.'}</div></div>
     <div class="row"><button class="btn ghost" id="againBtn">Repetir</button><button class="btn primary" id="primaryBtn">Continuar</button></div>`, pass ? 'ok' : 'bad');
   $('#againBtn').onclick = () => $('#mic').click();
-  $('#primaryBtn').onclick = () => { const best = ex.attempt; recordSpeech(ex.l.id, best); if (best.words) best.words.forEach(w => { const k = normText(w.tok).join(' '); if (S.wd[k]) S.wd[k].sid = ex.l.id; }); save(); L.speak.push(best.pct); L.done++; nextEx(); };
+  $('#primaryBtn').onclick = () => { const best = ex.attempt; recordSpeech(ex.l.id, best); if (L.mode === 'placement') (L.place = L.place || []).push({ u: ex.pu, ok: best.pct >= S.settings.threshold }); if (ex.cardKey && S.deck[ex.cardKey]) sm2(S.deck[ex.cardKey], best.pct >= S.settings.threshold ? 4 : 2); if (best.words) best.words.forEach(w => { const k = normText(w.tok).join(' '); if (S.wd[k]) S.wd[k].sid = ex.l.id; }); save(); L.speak.push(best.pct); L.done++; nextEx(); };
 }
 
 /* ---- fin de lección ---- */
@@ -1009,7 +1265,7 @@ function finishLesson() {
     addToDeck(lessonItems(L.l));
     if (first) extra = `<p class="muted">🃏 Se agregaron ${lessonItems(L.l).length} tarjetas a tu mazo de repaso.</p>`;
   } else { refreshHearts(); if (S.hearts < MAX_HEARTS) { S.hearts++; extra = '<p class="muted">❤️ ¡Recuperaste una vida por practicar!</p>'; } }
-  S.sessions++;
+  S.sessions++; todayRec().sec = (todayRec().sec || 0) + secs;
   const up = addXP(xp); beep('done');
   const goal = S.settings.goal, today = todayRec().xp;
   const retry = {};
@@ -1067,7 +1323,7 @@ VIEWS.learn = v => {
   const due = dueCards().length;
   let html = `<div class="card goal"><div class="ring" style="--p:${p}" data-t="${Math.min(t, goal)}/${goal}"></div><div style="flex:1"><h3>Meta diaria</h3><div class="muted small">${t >= goal ? '🎉 ¡Meta cumplida! Sigue si quieres.' : `Te faltan ${goal - t} XP hoy.`}</div>
     ${due ? `<button class="btn blue sm" style="margin-top:8px" id="dueBtn">🃏 Repasar ${due} tarjeta${due > 1 ? 's' : ''}</button>` : ''}</div></div>`;
-  if (!HAS_SR) html += `<div class="notice">⚠️ Este navegador no tiene reconocimiento de voz: podrás escuchar, grabarte y comparar, pero no recibir puntaje. Para la experiencia completa usa <b>Google Chrome</b> (Android o computador) o Edge.</div>`;
+  if (!canSpeak()) html += `<div class="notice">⚠️ Este navegador no tiene reconocimiento de voz: podrás escuchar, grabarte y comparar, pero no recibir puntaje (o configura Azure en Ajustes). Para la experiencia completa usa <b>Google Chrome</b> (Android o computador) o Edge.</div>`;
   COURSE.forEach((u, ui) => {
     const done = u.lessons.filter(l => isDone(l.id)).length;
     html += `<section class="unit"><div class="unit-head" style="background:${u.color}"><div><p>Unidad ${ui + 1} · ${done}/${u.lessons.length}</p><h3>${u.icon} ${esc(u.title)}</h3><p>${esc(u.desc)}</p></div><button class="guide" data-guide="${u.id}">📘 Guía</button></div><div class="path">`;
@@ -1089,14 +1345,14 @@ VIEWS.learn = v => {
 };
 function lessonSheet(l) {
   const unl = isUnlocked(l), d = S.done[l.id];
-  modal(`<div class="row"><div style="font-size:40px">${l.icon}</div><div><div class="muted small">${esc(l.unit.title)} · Lección ${l.li + 1}</div><h2 style="margin:0">${esc(l.title)}</h2>${l.type !== 'dialog' ? `<div class="ipa">/${esc(l.sound)}/</div>` : ''}</div></div>
-    <div class="tipbox small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</div>
-    ${d ? `<p class="small muted">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : ''}
+  modal(`<div class="row"><div style="font-size:40px">${l.icon}</div><div><div class="muted small">${esc(l.unit.title)} · Lección ${l.li + 1}</div><h2 style="margin:0">${esc(l.title)}</h2>${!l.type ? `<div class="ipa">/${esc(l.sound)}/</div>` : ''}</div></div>
+    <div class="tipbox small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</div>${mouthPanelHTML(l.id, true)}
+    ${d && d.placed && !d.times ? '<p class="small muted">✅ Aprobada en la prueba de nivel</p>' : d ? `<p class="small muted">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : ''}
     ${unl ? `<button class="btn primary block" data-go>${d ? 'Repetir lección' : 'Empezar lección'} (+10 XP)</button>${d ? '<button class="btn ghost block" style="margin-top:10px" data-drill>🎯 Práctica de este sonido</button>' : ''}` : `<div class="notice">🔒 Completa la lección anterior para desbloquear esta (o activa el modo libre en Ajustes).</div>`}`,
     (el, close) => { const g = $('[data-go]', el); if (g) g.onclick = () => { close(); startLesson(l); }; const dr = $('[data-drill]', el); if (dr) dr.onclick = () => { close(); startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); }; });
 }
 function guideSheet(u) {
-  modal(`<h2>📘 ${esc(u.title)}</h2>${u.lessons.map(l => `<div class="tipbox"><b>${l.icon} ${esc(l.title)}</b> ${l.type !== 'dialog' ? `<span class="ipa">/${esc(l.sound)}/</span>` : ''}<p class="small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>${l.mouth ? `<p class="small"><b>👄</b> ${esc(l.mouth)}</p>` : ''}</div>`).join('')}<button class="btn primary block" data-x>Cerrar</button>`, (el, c) => $('[data-x]', el).onclick = c);
+  modal(`<h2>📘 ${esc(u.title)}</h2>${u.lessons.map(l => `<div class="tipbox"><b>${l.icon} ${esc(l.title)}</b> ${!l.type ? `<span class="ipa">/${esc(l.sound)}/</span>` : ''}<p class="small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>${l.mouth ? `<p class="small"><b>👄</b> ${esc(l.mouth)}</p>` : ''}</div>`).join('')}<button class="btn primary block" data-x>Cerrar</button>`, (el, c) => $('[data-x]', el).onclick = c);
 }
 
 /* ---- Práctica ---- */
@@ -1128,12 +1384,12 @@ VIEWS.studio = v => {
   const opts = []; LESSONS.forEach(l => { if (l.type === 'dialog') l.lines.forEach(x => opts.push(x[1])); else { l.ex.forEach(x => opts.push(x[0])); l.sents.forEach(x => opts.push(x[0])); } });
   v.innerHTML = `<button class="btn ghost sm" id="back">← Práctica</button><h2 style="margin-top:12px">🎙️ Estudio: grabar y comparar</h2>
     <p class="muted small">1) Escucha el modelo · 2) Grábate · 3) Compara tu voz con el modelo · 4) Evalúa con el reconocedor (Chrome).</p>
-    <div class="card"><label class="small muted" for="stText">Frase o palabra</label><textarea class="inp" id="stText" style="min-height:70px">${esc(pick(opts))}</textarea>
+    <div class="card"><label class="small muted" for="stText">Frase o palabra</label><textarea class="inp" id="stText" style="min-height:70px">${esc(STUDIO_PRESET() || pick(opts))}</textarea>
     <div class="row wrap" style="margin-top:8px"><button class="btn ghost sm" id="rnd">🎲 Otra frase</button><select class="field" id="stSel" style="flex:1;min-width:0"><option value="">— Elegir del curso —</option>${opts.map(o => `<option>${esc(o)}</option>`).join('')}</select></div></div>
     <div class="card"><div class="target" id="tgt"></div>
       <div class="cmp"><button class="btn blue sm" id="m1">🔊 Modelo</button><button class="btn ghost sm" id="m2">🐢 Lento</button>
       ${Rec.supported ? `<button class="btn red sm" id="rec">⏺ Grabar</button><button class="btn orange sm" id="me" disabled>▶️ Mi voz</button><button class="btn ghost sm" id="ab" disabled>🔁 Modelo → Mi voz</button>` : '<span class="small muted">Grabación no disponible en este navegador.</span>'}</div>
-      ${HAS_SR ? `<button class="mic" id="mic" style="margin-top:14px">🎯 Evaluar pronunciación</button>` : `<div class="notice">Evaluación automática no disponible: usa Chrome.</div>`}
+      ${canSpeak() ? `<button class="mic" id="mic" style="margin-top:14px">🎯 Evaluar pronunciación</button>` : `<div class="notice">Evaluación automática no disponible: usa Chrome.</div>`}
       <div id="res"></div></div>`;
   const txt = () => $('#stText').value.trim() || 'Hello';
   const upd = () => { $('#tgt').innerHTML = wordsHTML(txt()); };
@@ -1146,13 +1402,13 @@ VIEWS.studio = v => {
   const rb = $('#rec'); if (rb) rb.onclick = () => recOnlyToggle(rb, url => { myUrl = url; $('#me').disabled = !url; $('#ab').disabled = !url; rb.innerHTML = '⏺ Grabar de nuevo'; });
   const me = $('#me'); if (me) me.onclick = () => Rec.play(myUrl);
   const ab = $('#ab'); if (ab) ab.onclick = () => speak(txt(), false, () => setTimeout(() => Rec.play(myUrl), 300));
-  const mic = $('#mic'); if (mic) mic.onclick = () => doMic(mic, (alts, url) => {
-    const r = scoreSpeech(txt(), alts); recordSpeech('studio', r); addXP(1);
+  const mic = $('#mic'); if (mic) mic.onclick = () => doMic(mic, (alts, url, az) => {
+    const r = az || scoreSpeech(txt(), alts); recordSpeech('studio', r); addXP(1);
     if (url) { myUrl = url; if (me) { me.disabled = false; ab.disabled = false; } }
     $('#tgt').innerHTML = wordsHTML(txt(), r.words);
-    $('#res').innerHTML = `<div class="scorebig" style="margin-top:10px;color:${r.pct >= S.settings.threshold ? 'var(--g-d)' : 'var(--o-d)'}">${r.pct}%</div><div class="heard">Escuché: «<b>${esc(r.heard)}</b>» ${r.conf ? `<span class="small muted">(confianza ${Math.round(r.conf * 100)}%)</span>` : ''}</div>`;
+    $('#res').innerHTML = `<div class="scorebig" style="margin-top:10px;color:${r.pct >= S.settings.threshold ? 'var(--g-d)' : 'var(--o-d)'}">${r.pct}%</div><div class="heard">Escuché: «<b>${esc(r.heard)}</b>» ${r.conf ? `<span class="small muted">(confianza ${Math.round(r.conf * 100)}%)</span>` : ''}</div>${extraResultHTML(r, txt(), myUrl)}`; bindExtra($('#res'), r, txt(), myUrl);
     mic.innerHTML = '🎯 Evaluar de nuevo';
-  });
+  }, txt());
 };
 
 /* ---- Progreso ---- */
@@ -1189,10 +1445,10 @@ VIEWS.progress = v => {
     <div class="card"><h3>💡 Recomendación</h3><p style="margin:0">${rec}</p>${weakest.length ? `<button class="btn primary sm" style="margin-top:10px" data-drill="${weakest[0].l.id}">Practicar ${esc(weakest[0].l.title)}</button>` : ''}</div>
     <div class="card"><h3>Últimos 14 días</h3><div class="small muted">Línea verde: puntaje promedio de voz · barras: XP</div>${chart}</div>
     <div class="card"><h3>Puntaje por sonido</h3><div class="small muted" style="margin-bottom:10px">Promedio de tus últimos 10 intentos de voz por lección.</div><div class="bars">
-      ${rows.map(r => `<div class="bar"><span title="${esc(r.l.title)}">${r.l.icon} ${esc(r.l.type === 'dialog' ? r.l.title.split(' ').slice(-1)[0] : '/' + r.l.sound + '/')}</span><div class="tr"><i style="width:${r.a || 0}%;background:${r.a === null ? '#eef1f3' : r.a >= 80 ? 'var(--g)' : r.a >= 60 ? 'var(--o)' : 'var(--r)'}"></i></div><span>${r.a === null ? '—' : r.a + '%'}</span></div>`).join('')}</div></div>
+      ${rows.map(r => `<div class="bar"><span title="${esc(r.l.title)}">${r.l.icon} ${esc(r.l.type ? r.l.title.split(' ').slice(-2).join(' ') : '/' + r.l.sound + '/')}</span><div class="tr"><i style="width:${r.a || 0}%;background:${r.a === null ? '#eef1f3' : r.a >= 80 ? 'var(--g)' : r.a >= 60 ? 'var(--o)' : 'var(--r)'}"></i></div><span>${r.a === null ? '—' : r.a + '%'}</span></div>`).join('')}</div></div>
     ${weakest.length ? `<div class="card"><h3>Sonidos más débiles</h3>${weakest.map(r => `<div class="row between" style="padding:6px 0"><span>${r.l.icon} <b>${esc(r.l.title)}</b> <span class="pill">${r.a}%</span></span><button class="btn ghost sm" data-drill="${r.l.id}">Practicar</button></div>`).join('')}</div>` : ''}
     <div class="card"><h3>Palabras para repetir</h3>${wwords.length ? `<div class="chips">${wwords.map(w => `<span class="wd ${colorOf(w.a / 100)}" data-say="${esc(w.disp)}">${esc(w.disp)} · ${w.a}%</span>`).join('')}</div><button class="btn blue sm" id="ww">🔁 Practicar estas palabras</button>` : '<div class="muted small">Aún no hay datos. Haz ejercicios de voz.</div>'}</div>
-    <p class="muted small">ℹ️ El puntaje compara, palabra por palabra, lo que el reconocedor de voz del navegador entendió con la frase objetivo (usando su confianza y alternativas). No es un análisis fonético por sonido como el de apps de pago; úsalo como guía y complementa con "Grabar y comparar".</p>`;
+    <p class="muted small">ℹ️ ${azureReady() ? 'Con Azure activo, los ejercicios usan evaluación fonema por fonema (precisión, fluidez, integridad y prosodia). Sin Azure, ' : ''}el puntaje compara, palabra por palabra, lo que el reconocedor de voz del navegador entendió con la frase objetivo (usando su confianza y alternativas). No es un análisis fonético por sonido como el de apps de pago; úsalo como guía y complementa con "Grabar y comparar".</p>`;
   $$('[data-drill]', v).forEach(b => b.onclick = () => { const l = LESSON[b.dataset.drill]; startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); });
   const ww = $('#ww'); if (ww) ww.onclick = () => { const q = buildPractice('words'); q.length ? startLesson(null, 'practice', q, 'Palabras para repetir') : toast('Todas tus palabras tienen buen puntaje. 🎉'); };
 };
@@ -1236,19 +1492,19 @@ function nextCard() {
   $('#fullInner').innerHTML = `<div class="lhead"><button class="xbtn" id="xr">✕</button><div class="pbar"><i style="width:${Math.round(R.n / (R.n + R.q.length) * 100)}%"></i></div><div class="lhearts" style="color:var(--b)">🃏 ${R.q.length}</div></div>
     <div class="lbody"><div class="ex-title">Repaso de tarjetas</div>
     <div class="flash" id="flash"><div class="flash-in"><div class="face"><div class="muted small">${card.kind === 'frase' ? 'FRASE' : 'PALABRA'} · ¿Qué significa?</div><div class="big">${esc(card.en)}</div><div class="row"><button class="spk" id="c1">🔊</button><button class="spk slow" id="c2">🐢</button></div><div class="muted small">Toca la tarjeta para voltearla</div></div>
-    <div class="face back"><div class="big" style="font-size:24px">${esc(card.es)}</div><div class="muted">${esc(card.en)}</div>${HAS_SR ? '<button class="btn blue sm" id="csay">🎤 Pronunciar</button><div id="cres" class="small"></div>' : ''}</div></div></div></div>
+    <div class="face back"><div class="big" style="font-size:24px">${esc(card.es)}</div><div class="muted">${esc(card.en)}</div>${canSpeak() ? '<button class="btn blue sm" id="csay">🎤 Pronunciar</button><div id="cres" class="small"></div>' : ''}</div></div></div></div>
     <div class="lfoot" id="lfoot"><span></span><button class="btn primary" id="primaryBtn">Mostrar respuesta</button></div>`;
   $('#xr').onclick = closeReview;
   const flip = () => { $('#flash').classList.add('flipped'); showRate(); };
   $('.flash-in').onclick = e => { if (e.target.closest('button')) return; $('#flash').classList.contains('flipped') ? $('#flash').classList.remove('flipped') : flip(); };
   $('#c1').onclick = () => speak(card.en); $('#c2').onclick = () => speak(card.en, true);
   $('#primaryBtn').onclick = flip;
-  const cs = $('#csay'); if (cs) cs.onclick = () => doMic(cs, alts => { const r = scoreSpeech(card.en, alts); recordSpeech(card.lesson, r); $('#cres').innerHTML = `<div class="target" style="font-size:18px">${wordsHTML(card.en, r.words)}</div><b>${r.pct}%</b> · escuché «${esc(r.heard)}»`; });
+  const cs = $('#csay'); if (cs) cs.onclick = () => doMic(cs, (alts, url, az) => { const r = az || scoreSpeech(card.en, alts); recordSpeech(card.lesson, r); $('#cres').innerHTML = `<div class="target" style="font-size:18px">${wordsHTML(card.en, r.words)}</div><b>${r.pct}%</b> · escuché «${esc(r.heard)}»`; }, card.en);
   if (S.settings.autoplay) setTimeout(() => speak(card.en), 250);
   function showRate() {
     const f = $('#lfoot'); f.style.display = 'block';
     f.innerHTML = `<div class="rate">${[[1, 'Otra vez', 'red'], [3, 'Difícil', 'orange'], [4, 'Bien', 'blue'], [5, 'Fácil', 'primary']].map(([q, lab, cl]) => `<button class="btn ${cl}" data-q="${q}">${lab}<small>${intervalLabel(card, q)}</small></button>`).join('')}</div>`;
-    $$('[data-q]', f).forEach(b => b.onclick = () => { const q = +b.dataset.q; sm2(card, q); R.n++; const it = R.q.shift(); if (q < 3) R.q.push(it); beep(q < 3 ? 'bad' : 'ok'); nextCard(); });
+    $$('[data-q]', f).forEach(b => b.onclick = () => { const q = +b.dataset.q; sm2(card, q); R.n++; S.reviewed = (S.reviewed || 0) + 1; save(); const it = R.q.shift(); if (q < 3) R.q.push(it); beep(q < 3 ? 'bad' : 'ok'); nextCard(); });
   }
 }
 
@@ -1302,109 +1558,880 @@ function parseTutor(t) {
   const reply = get('REPLY');
   return { fix: get('CORRECCI[OÓ]N'), pron: get('PRONUNCIACI[OÓ]N'), reply: reply || t };
 }
+</script>
+<script>
+/* =================== v2: AYUDAS GENERALES =================== */
+const APP_VERSION = '2.0.0';
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function errES(e, provider) {
+  const pre = provider ? provider + ': ' : '';
+  if (e && e.friendly) return pre + e.friendly;
+  if (!navigator.onLine) return pre + 'Estás sin conexión a internet. Revisa tu red e intenta de nuevo.';
+  const st = e && e.status, m = (e && e.message) || String(e || 'error');
+  if (e instanceof TypeError || /Failed to fetch|NetworkError|Load failed|network/i.test(m)) return pre + 'No se pudo conectar con el servicio (sin internet, bloqueado por el navegador/antivirus, o región/URL incorrecta).';
+  const map = { 400: 'Solicitud inválida (revisa región, modelo o formato).', 401: 'Clave inválida o no autorizada. Revísala en Ajustes.', 403: 'Acceso denegado: la clave no tiene permiso para este servicio, modelo o región.', 404: 'No encontrado: revisa el nombre del modelo o la región.', 408: 'Tiempo de espera agotado. Intenta de nuevo.', 413: 'El audio es demasiado largo.', 415: 'Formato de audio no soportado.', 429: 'Límite de uso alcanzado (cuota agotada o demasiadas solicitudes). Espera un momento o revisa tu plan.', 500: 'Error interno del servicio. Intenta de nuevo.', 501: 'El servicio no soporta esta operación con ese modelo. Prueba otro modelo.', 502: 'El servicio respondió con error (502). Intenta de nuevo.', 503: 'Servicio saturado o no disponible. Intenta en un minuto.', 504: 'El servicio tardó demasiado en responder.' };
+  return pre + (map[st] || m) + (map[st] && e.detail ? ` (${String(e.detail).slice(0, 140)})` : '');
+}
+async function httpErr(res) { let d = {}; try { d = await res.clone().json(); } catch (x) { try { d = { message: await res.text() }; } catch (y) {} } const msg = (d.error && (d.error.message || d.error.code || (typeof d.error === 'string' ? d.error : ''))) || d.message || res.statusText || ''; const e = new Error(res.status + (msg ? ': ' + msg : '')); e.status = res.status; e.detail = msg; return e; }
+function b64FromBytes(bytes) { let s = ''; for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(s); }
+function f32ToB64(f32) { const i16 = new Int16Array(f32.length); for (let i = 0; i < f32.length; i++) { const s = Math.max(-1, Math.min(1, f32[i])); i16[i] = s < 0 ? s * 0x8000 : s * 0x7fff; } return b64FromBytes(new Uint8Array(i16.buffer)); }
+function hashStr(s) { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0; return h.toString(16) + '_' + s.length; }
+const azureReady = () => !!(S.settings.azureKey && S.settings.azureRegion && !window.__azOff);
+const canSpeak = () => HAS_SR || (azureReady() && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
+let STUDIO_TEXT = null; const STUDIO_PRESET = () => { const t = STUDIO_TEXT; STUDIO_TEXT = null; return t; };
+function vibrate(p) { if (S.settings.haptics && navigator.vibrate) try { navigator.vibrate(p); } catch (e) {} }
+const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
+
+/* =================== VOZ (TTS): dispositivo, Azure u OpenAI =================== */
+const AZ_VOICES = ['en-US-JennyNeural', 'en-US-AriaNeural', 'en-US-AvaNeural', 'en-US-EmmaNeural', 'en-US-GuyNeural', 'en-US-AndrewNeural', 'en-GB-SoniaNeural', 'en-GB-LibbyNeural', 'en-GB-RyanNeural'];
+const OA_VOICES = ['marin', 'cedar', 'alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse'];
+const GEM_VOICES = ['Kore', 'Puck', 'Charon', 'Aoede', 'Fenrir', 'Leda', 'Orus', 'Zephyr'];
+const TTS = { audio: null, seq: 0, cache: new Map(), warned: false };
+pickVoice = function () {
+  if (S.settings.voice) { const v = VOICES.find(v => v.name === S.settings.voice); if (v) return v; }
+  const acc = (S.settings.accent || 'en-US').toLowerCase();
+  const sc = v => (v.lang.replace('_', '-').toLowerCase().startsWith(acc) ? 50 : 0) + (/natural|neural|online|premium|enhanced/i.test(v.name) ? 30 : 0) + (/Google US English|Google UK English/i.test(v.name) ? 25 : 0) + (/Samantha|Ava|Aria|Jenny|Allison|Serena|Libby|Sonia|Daniel|Karen|Moira/i.test(v.name) ? 15 : 0);
+  return VOICES.slice().sort((a, b) => sc(b) - sc(a))[0] || null;
+};
+const _deviceSpeak = speak;
+function stopAudio() { TTS.seq++; if (TTS.audio) { try { TTS.audio.pause(); } catch (e) {} TTS.audio = null; } }
+function cloudTTSReady() { const s = S.settings; return (s.ttsEngine === 'azure' && azureReady()) || (s.ttsEngine === 'openai' && !!s.openaiKey); }
+async function azureTTS(text, rate) {
+  const s = S.settings, voice = s.azureVoice || 'en-US-JennyNeural', lang = voice.slice(0, 5);
+  const x = t => t.replace(/[<>&'"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c]));
+  const ssml = `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="${lang}"><voice name="${voice}"><prosody rate="${Math.round((rate - 1) * 100)}%">${x(text)}</prosody></voice></speak>`;
+  const res = await fetch(`https://${encodeURIComponent(s.azureRegion.trim())}.tts.speech.microsoft.com/cognitiveservices/v1`, { method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': s.azureKey.trim(), 'Content-Type': 'application/ssml+xml', 'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3' }, body: ssml });
+  if (!res.ok) throw await httpErr(res);
+  return await res.blob();
+}
+async function openaiTTS(text, rate) {
+  const s = S.settings, gb = (s.accent || '').startsWith('en-GB');
+  const res = await fetch('https://api.openai.com/v1/audio/speech', { method: 'POST', headers: { Authorization: 'Bearer ' + s.openaiKey.trim(), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: s.openaiTtsModel || 'gpt-4o-mini-tts', voice: s.openaiVoice || 'marin', input: text, speed: Math.max(0.5, Math.min(1.5, rate)), response_format: 'mp3', instructions: `Speak clearly and naturally with a ${gb ? 'British' : 'neutral American'} accent, for an English learner.` }) });
+  if (!res.ok) throw await httpErr(res);
+  return await res.blob();
+}
+async function cloudTTSBlob(text, slow) {
+  const s = S.settings, rate = slow ? Math.max(0.5, s.rate * 0.65) : s.rate;
+  const k = [s.ttsEngine, s.ttsEngine === 'azure' ? s.azureVoice : s.openaiVoice + (s.accent || ''), rate.toFixed(2), text].join('|');
+  if (TTS.cache.has(k)) return TTS.cache.get(k);
+  const url = location.origin + '/__tts/' + hashStr(k); let blob = null;
+  try { const c = await caches.open('tuki-tts-v1'); const m = await c.match(url); if (m) blob = await m.blob(); } catch (e) {}
+  if (!blob) { blob = s.ttsEngine === 'azure' ? await azureTTS(text, rate) : await openaiTTS(text, rate); try { const c = await caches.open('tuki-tts-v1'); await c.put(url, new Response(blob, { headers: { 'Content-Type': blob.type || 'audio/mpeg' } })); } catch (e) {} }
+  TTS.cache.set(k, blob); return blob;
+}
+speak = function (text, slow = false, onend) {
+  stopAudio();
+  if (cloudTTSReady() && navigator.onLine !== false) {
+    const my = TTS.seq; if ('speechSynthesis' in window) speechSynthesis.cancel();
+    cloudTTSBlob(text, slow).then(blob => {
+      if (my !== TTS.seq) return;
+      const a = new Audio(URL.createObjectURL(blob)); TTS.audio = a; a.onended = () => { onend && onend(); };
+      a.play().catch(() => _deviceSpeak(text, slow, onend));
+    }).catch(e => { if (!TTS.warned) { toast('Voz en la nube no disponible (' + errES(e) + '). Uso la voz del dispositivo.', 4500); TTS.warned = true; } if (my === TTS.seq) _deviceSpeak(text, slow, onend); });
+    return;
+  }
+  _deviceSpeak(text, slow, onend);
+};
+
+/* =================== CAPTURA DE MICRÓFONO (PCM/WAV) =================== */
+function resample(f32, from, to) { if (from === to) return f32; const r = from / to, n = Math.floor(f32.length / r), out = new Float32Array(n); for (let i = 0; i < n; i++) { const a = Math.floor(i * r), b = Math.max(a + 1, Math.floor((i + 1) * r)); let s = 0; for (let j = a; j < b; j++) s += f32[j] || 0; out[i] = s / (b - a); } return out; }
+class StreamResampler { constructor(from, to) { this.r = from / to; this.buf = new Float32Array(0); } push(f32) { const all = new Float32Array(this.buf.length + f32.length); all.set(this.buf); all.set(f32, this.buf.length); const n = Math.floor(all.length / this.r), out = new Float32Array(n); for (let i = 0; i < n; i++) { const a = Math.floor(i * this.r), b = Math.max(a + 1, Math.floor((i + 1) * this.r)); let s = 0; for (let j = a; j < b; j++) s += all[j]; out[i] = s / (b - a); } this.buf = all.slice(Math.floor(n * this.r)); return out; } }
+function encodeWAV(f32, rate) {
+  const buf = new ArrayBuffer(44 + f32.length * 2), v = new DataView(buf), w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + f32.length * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, f32.length * 2, true);
+  for (let i = 0, o = 44; i < f32.length; i++, o += 2) { const s = Math.max(-1, Math.min(1, f32[i])); v.setInt16(o, s < 0 ? s * 0x8000 : s * 0x7fff, true); }
+  return new Blob([buf], { type: 'audio/wav' });
+}
+const MicCap = {
+  active: null,
+  async start({ maxMs = 10000, vad = true, onLevel } = {}) {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const src = ctx.createMediaStreamSource(stream), proc = ctx.createScriptProcessor(4096, 1, 1), mute = ctx.createGain(); mute.gain.value = 0;
+    const chunks = []; let spoke = false, silent = 0; const t0 = performance.now();
+    return new Promise(resolve => {
+      const finish = () => {
+        if (!this.active) return; this.active = null;
+        try { proc.disconnect(); src.disconnect(); } catch (e) {} stream.getTracks().forEach(t => t.stop());
+        const rate = ctx.sampleRate; ctx.close().catch(() => {});
+        let len = 0; chunks.forEach(c => len += c.length); const all = new Float32Array(len); let o = 0; chunks.forEach(c => { all.set(c, o); o += c.length; });
+        const s16 = resample(all, rate, 16000); resolve({ samples: s16, wav: encodeWAV(s16, 16000), spoke });
+      };
+      this.active = { stop: finish };
+      proc.onaudioprocess = e => {
+        const d = e.inputBuffer.getChannelData(0); chunks.push(new Float32Array(d));
+        let sum = 0; for (let i = 0; i < d.length; i++) sum += d[i] * d[i]; const rms = Math.sqrt(sum / d.length); onLevel && onLevel(rms);
+        const ms = d.length / ctx.sampleRate * 1000; if (rms > 0.015) { spoke = true; silent = 0; } else if (spoke) silent += ms;
+        if ((vad && spoke && silent > 1300) || performance.now() - t0 > maxMs) finish();
+      };
+      src.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
+    });
+  },
+  stop() { this.active && this.active.stop(); }
+};
+
+/* =================== AZURE: EVALUACIÓN DE PRONUNCIACIÓN =================== */
+const SAPI_IPA = { aa: 'ɑ', ae: 'æ', ah: 'ʌ', ao: 'ɔ', aw: 'aʊ', ax: 'ə', ay: 'aɪ', b: 'b', ch: 'tʃ', d: 'd', dh: 'ð', eh: 'ɛ', er: 'ɝ', ey: 'eɪ', f: 'f', g: 'g', h: 'h', hh: 'h', ih: 'ɪ', iy: 'i', jh: 'dʒ', k: 'k', l: 'l', m: 'm', n: 'n', ng: 'ŋ', ow: 'oʊ', oy: 'ɔɪ', p: 'p', r: 'ɹ', s: 's', sh: 'ʃ', t: 't', th: 'θ', uh: 'ʊ', uw: 'u', v: 'v', w: 'w', y: 'j', z: 'z', zh: 'ʒ' };
+const toIPA = p => { const k = String(p || '').toLowerCase(); return SAPI_IPA[k] || String(p || ''); };
+const PH_TIPS = { 'θ': 'Saca la punta de la lengua entre los dientes y sopla (sin vibrar).', 'ð': 'Lengua entre los dientes y haz vibrar la garganta.', 'ɪ': 'Es una "i" corta y relajada, casi "e".', 'i': 'Es una "i" larga y tensa: sonríe y alárgala.', 'iː': 'Es una "i" larga y tensa: sonríe y alárgala.', 'æ': 'Abre mucho la boca: un sonido entre "a" y "e".', 'ʌ': 'Una "a" corta y relajada, como un "ah" rápido.', 'ə': 'Vocal débil y relajada, muy corta ("uh").', 'v': 'Dientes de arriba sobre el labio inferior y vibra: "vvv".', 'b': 'Junta los dos labios y suéltalos.', 'z': 'Es una "s" que vibra, como una abeja: "zzz".', 's': 'Una "s" clara, sin vibrar.', 'ʃ': 'Labios redondeados hacia adelante: "shhh".', 'tʃ': 'Como la "ch" de "chocolate".', 'dʒ': 'Como una "ll" fuerte con "d": "dj".', 'ɹ': 'La "r" inglesa: la lengua NO toca el paladar, se curva hacia atrás.', 'h': 'Solo aire suave, como un suspiro; no es la jota española.', 'ŋ': 'Nasal con la parte de atrás de la lengua; no pronuncies la "g" final.', 'j': 'Como la "y" de "yo", suave.', 'w': 'Labios redondos como para una "u".', 't': 'Punta de la lengua detrás de los dientes de arriba; no te la comas al final.', 'd': 'Como la "t" pero con vibración; pronúnciala al final de la palabra.', 'k': 'Parte de atrás de la lengua contra el paladar; suelta aire.', 'p': 'Junta los labios y suelta aire con fuerza.', 'ɝ': '"Er" con la lengua curvada hacia atrás.', 'ɚ': '"Er" débil con la lengua curvada.', 'oʊ': 'Es "ou", no una "o" pura.', 'eɪ': 'Es "ei", no una "e" pura.', 'ʊ': 'Una "u" corta y relajada.', 'u': 'Una "u" larga con labios redondos.', 'uː': 'Una "u" larga con labios redondos.', 'ɑ': 'Una "a" muy abierta, de garganta.', 'ɔ': 'Una "o" abierta.', 'ɛ': 'Una "e" abierta.', 'l': 'Al final de palabra, la "l" es más oscura: la lengua sube atrás.', 'aɪ': 'Es "ai".', 'aʊ': 'Es "au".', 'f': 'Dientes de arriba sobre el labio inferior, solo aire.', 'm': 'Labios juntos, sonido nasal.', 'n': 'Punta de la lengua detrás de los dientes, nasal.', 'g': 'Como la "g" de "gato", fuerte.', 'ʒ': 'Como una "sh" que vibra (como la "y" argentina).' };
+function azureToResult(target, data) {
+  if (data.RecognitionStatus && data.RecognitionStatus !== 'Success') {
+    const msg = { InitialSilenceTimeout: 'No se detectó voz. Habla más cerca del micrófono.', NoMatch: 'No reconocí palabras en inglés. Intenta de nuevo, claro y despacio.', BabbleTimeout: 'Hay mucho ruido de fondo.', Error: 'Error interno de Azure. Intenta de nuevo.' }[data.RecognitionStatus] || data.RecognitionStatus;
+    const e = new Error(msg); e.friendly = msg; throw e;
+  }
+  const nb = (data.NBest || [])[0]; if (!nb) { const e = new Error('Azure no devolvió resultados.'); e.friendly = e.message; throw e; }
+  const pa = nb.PronunciationAssessment || nb;
+  const W = (nb.Words || []).map(w => { const wp = w.PronunciationAssessment || w; return { w: String(w.Word || '').toLowerCase().replace(/[^a-z0-9']/g, ''), acc: wp.AccuracyScore ?? 0, err: wp.ErrorType || 'None', ph: (w.Phonemes || []).map(p => { const pp = p.PronunciationAssessment || p; const nbp = (pp.NBestPhonemes || []).filter(x => x.Phoneme); return { p: toIPA(p.Phoneme), s: Math.round(pp.AccuracyScore ?? 0), nb: nbp.length ? toIPA(nbp[0].Phoneme) : null }; }) }; });
+  const ref = W.filter(w => w.err !== 'Insertion');
+  let j = 0;
+  const words = target.split(/\s+/).filter(Boolean).map(tok => {
+    const t = tok.toLowerCase().replace(/[^a-z0-9']/g, ''); let m = null;
+    for (let k = j; k < Math.min(ref.length, j + 3); k++) if (ref[k].w === t || charSim(ref[k].w, t) >= 0.6) { m = ref[k]; j = k + 1; break; }
+    const s = !m || m.err === 'Omission' ? 0 : m.err === 'Mispronunciation' ? Math.min(m.acc, 60) / 100 : m.acc / 100;
+    return { tok, s, c: colorOf(s), heard: m && m.err !== 'Omission' ? m.w : '', ph: m ? m.ph : [], err: m ? m.err : 'Omission' };
+  });
+  const tips = [];
+  words.forEach(w => (w.ph || []).forEach(p => { if (p.s < 60 && tips.length < 4) { const cw = w.tok.replace(/[.,!?;:"¿¡]/g, ''); tips.push((p.nb && p.nb !== p.p ? `En «${cw}», la /${p.p}/ sonó como /${p.nb}/.` : `En «${cw}», mejora la /${p.p}/ (${p.s}/100).`) + (PH_TIPS[p.p] ? ' ' + PH_TIPS[p.p] : '')); } }));
+  words.filter(w => w.err === 'Omission').slice(0, 2).forEach(w => tips.push(`No se escuchó «${w.tok.replace(/[.,!?;:"]/g, '')}». Pronuncia todas las palabras.`));
+  const scores = { acc: pa.AccuracyScore, flu: pa.FluencyScore, comp: pa.CompletenessScore, pros: pa.ProsodyScore };
+  const pct = Math.round(pa.PronScore ?? avg([scores.acc, scores.flu, scores.comp].filter(x => x != null)));
+  return { engine: 'azure', pct: clamp(pct || 0, 0, 100), words, heard: nb.Display || data.DisplayText || '', conf: nb.Confidence || 0, alts: (data.NBest || []).map(n => ({ t: n.Display || '', c: n.Confidence || 0 })), scores, tips, msg: '' };
+}
+async function azureAssess(target, wav) {
+  const s = S.settings, lang = (s.accent || 'en-US').startsWith('en-GB') ? 'en-GB' : 'en-US';
+  const params = { ReferenceText: target, GradingSystem: 'HundredMark', Granularity: 'Phoneme', Dimension: 'Comprehensive', EnableMiscue: 'True', EnableProsodyAssessment: 'True', PhonemeAlphabet: 'IPA', NBestPhonemeCount: 5 };
+  const hdr = btoa(unescape(encodeURIComponent(JSON.stringify(params))));
+  const res = await fetch(`https://${encodeURIComponent(s.azureRegion.trim())}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=${lang}&format=detailed`, { method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': s.azureKey.trim(), 'Content-Type': 'audio/wav; codecs=audio/pcm; samplerate=16000', Accept: 'application/json', 'Pronunciation-Assessment': hdr }, body: wav });
+  if (!res.ok) throw await httpErr(res);
+  return azureToResult(target, await res.json());
+}
+async function azureSTT(wav) {
+  const s = S.settings, lang = (s.accent || 'en-US').startsWith('en-GB') ? 'en-GB' : 'en-US';
+  const res = await fetch(`https://${encodeURIComponent(s.azureRegion.trim())}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=${lang}&format=simple`, { method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': s.azureKey.trim(), 'Content-Type': 'audio/wav; codecs=audio/pcm; samplerate=16000', Accept: 'application/json' }, body: wav });
+  if (!res.ok) throw await httpErr(res);
+  const d = await res.json(); if (d.RecognitionStatus !== 'Success') { const e = new Error('No te entendí.'); e.friendly = e.message; throw e; }
+  return d.DisplayText || '';
+}
+async function openaiSTT(wav) {
+  const fd = new FormData(); fd.append('file', wav, 'voz.wav'); fd.append('model', 'gpt-4o-mini-transcribe'); fd.append('language', 'en');
+  const res = await fetch('https://api.openai.com/v1/audio/transcriptions', { method: 'POST', headers: { Authorization: 'Bearer ' + S.settings.openaiKey.trim() }, body: fd });
+  if (!res.ok) throw await httpErr(res);
+  return ((await res.json()).text || '').trim();
+}
+let LAST_REC = null;
+async function azureMic(btn, onResult, target) {
+  btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando (Azure)… toca para terminar';
+  try {
+    const n = target.split(/\s+/).length;
+    const rec = await MicCap.start({ maxMs: Math.min(15000, 3500 + n * 700) });
+    btn.classList.remove('rec'); btn.innerHTML = '⏳ Analizando pronunciación…';
+    const url = URL.createObjectURL(rec.wav); Rec.url = url; LAST_REC = { url, samples: rec.samples };
+    const az = await azureAssess(target, rec.wav);
+    onResult(az.alts, url, az);
+  } catch (e) {
+    const auth = e.status === 401 || e.status === 403 || e instanceof TypeError;
+    toast('Azure: ' + errES(e) + (auth && HAS_SR ? ' Usaré el reconocimiento del navegador por ahora.' : ''), 5000);
+    if (auth && HAS_SR) window.__azOff = true;
+  } finally { btn.classList.remove('rec'); btn.innerHTML = '🎤 Toca para hablar de nuevo'; }
+}
+function scoreBar(label, v) { if (v == null) return ''; const c = v >= 80 ? 'var(--g)' : v >= 60 ? 'var(--o)' : 'var(--r)'; return `<div class="az-bar">${label} · ${Math.round(v)}<div class="tr"><i style="width:${v}%;background:${c}"></i></div></div>`; }
+function azurePanelHTML(r) {
+  const sc = r.scores || {};
+  return `<div class="az"><div class="small muted">🔬 Evaluación Azure (fonema por fonema)</div>
+    <div class="az-bars">${scoreBar('Precisión', sc.acc)}${scoreBar('Fluidez', sc.flu)}${scoreBar('Integridad', sc.comp)}${scoreBar('Prosodia', sc.pros)}</div>
+    <div>${r.words.map(w => `<span class="phw"><span class="w wd ${w.c}" data-say="${esc(w.tok.replace(/[.,!?;:"¿¡]/g, ''))}">${esc(w.tok)}</span><span>${(w.ph || []).map(p => `<span class="ph ${colorOf(p.s / 100)}" title="${p.s}/100${p.nb && p.nb !== p.p ? ' · sonó como /' + esc(p.nb) + '/' : ''}">${esc(p.p)}</span>`).join('')}</span></span>`).join('')}</div>
+    ${r.tips && r.tips.length ? `<ul class="tips small">${r.tips.map(t => `<li>🗣️ ${esc(t)}</li>`).join('')}</ul>` : '<div class="small" style="margin-top:6px">✅ ¡Todos los sonidos se escucharon bien!</div>'}</div>`;
+}
+function extraResultHTML(r, target, url, ex) { return `${r && r.engine === 'azure' ? azurePanelHTML(r) : ''}<div style="margin-top:10px"><button class="btn ghost sm" data-viz>📊 Onda y entonación</button></div><div class="viz"></div>`; }
+function bindExtra(root, r, target, url, ex) {
+  const b = $('[data-viz]', root), box = $('.viz', root); if (!b) return;
+  b.onclick = () => { b.remove(); drawViz(box, target, url); };
+  if (ex && ex.l && ex.l.id === 'intonation' && url) b.click();
+}
+
+/* =================== VISUALIZACIÓN: ONDA Y TONO =================== */
+async function decodeAudio(src) {
+  const ab = src instanceof Blob ? await src.arrayBuffer() : await (await fetch(src)).arrayBuffer();
+  AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+  const buf = await AC.decodeAudioData(ab.slice(0));
+  return resample(buf.getChannelData(0), buf.sampleRate, 16000);
+}
+function pitchTrack(d, rate = 16000) {
+  const frame = 640, hop = 320, en = [];
+  for (let i = 0; i + frame < d.length; i += hop) { let e = 0; for (let k = 0; k < frame; k++) e += d[i + k] * d[i + k]; en.push(e); }
+  const maxE = Math.max(1e-9, ...en), out = [];
+  en.forEach((e, fi) => {
+    if (e < maxE * 0.08) return out.push(null);
+    const i = fi * hop; let best = 0, bl = 0;
+    for (let lag = Math.floor(rate / 400); lag <= Math.floor(rate / 75); lag++) { let s = 0; for (let k = 0; k < frame - lag; k++) s += d[i + k] * d[i + k + lag]; if (s > best) { best = s; bl = lag; } }
+    out.push(bl && best / e > 0.3 ? rate / bl : null);
+  });
+  return out.map((v, i, a) => { if (v == null) return null; const w = [a[i - 1], v, a[i + 1]].filter(x => x != null).sort((x, y) => x - y); return w[Math.floor(w.length / 2)]; });
+}
+function drawTrack(cv, d, pitch, color) {
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth || 300, H = cv.clientHeight || 90; cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext('2d'); g.scale(dpr, dpr); g.clearRect(0, 0, W, H);
+  g.fillStyle = color + '55'; const step = d.length / W;
+  for (let x = 0; x < W; x++) { let mn = 1, mx = -1; for (let i = Math.floor(x * step); i < Math.floor((x + 1) * step); i++) { const v = d[i] || 0; if (v < mn) mn = v; if (v > mx) mx = v; } g.fillRect(x, H / 2 + mn * H * 0.45, 1, Math.max(1, (mx - mn) * H * 0.45)); }
+  const lo = Math.log(75), hi = Math.log(400); g.strokeStyle = color; g.lineWidth = 2.5; g.beginPath(); let pen = false;
+  pitch.forEach((p, i) => { const x = i / pitch.length * W; if (p == null) { pen = false; return; } const y = H - 6 - (Math.log(p) - lo) / (hi - lo) * (H - 12); if (!pen) { g.moveTo(x, y); pen = true; } else g.lineTo(x, y); });
+  g.stroke();
+}
+function contourDir(pitch) { const v = pitch.filter(p => p != null); if (v.length < 6) return null; const n = v.length, mid = avg(v.slice(Math.floor(n * 0.3), Math.floor(n * 0.65))), end = avg(v.slice(Math.floor(n * 0.7))); const r = end / mid; return r > 1.08 ? 'up' : r < 0.93 ? 'down' : 'flat'; }
+const expectRise = t => /^(do|does|did|are|is|am|was|were|can|could|will|would|have|has|should|may|shall)\b/i.test(t.trim()) && /\?\s*$/.test(t);
+async function drawViz(box, target, url) {
+  box.innerHTML = `<div class="small muted" style="margin-top:8px">🔵 Modelo nativo</div><canvas id="cvM"></canvas><div class="small muted" style="margin-top:6px">🟠 Tu voz</div><canvas id="cvU"></canvas><div class="small" id="intoMsg" style="margin-top:6px"></div>`;
+  const msg = []; let dirU = null;
+  try {
+    if (cloudTTSReady()) { const d = await decodeAudio(await cloudTTSBlob(target, false)); drawTrack($('#cvM', box), d, pitchTrack(d), '#1591cc'); }
+    else { $('#cvM', box).replaceWith(Object.assign(document.createElement('div'), { className: 'notice small', textContent: 'Para ver la curva del modelo activa una voz en la nube (Azure u OpenAI) en Ajustes: la voz del dispositivo no permite capturar su audio.' })); }
+  } catch (e) { msg.push('No se pudo analizar el modelo: ' + errES(e)); }
+  try {
+    const src = url || (LAST_REC && LAST_REC.url);
+    if (!src) throw Object.assign(new Error('sin grabación'), { friendly: 'Activa "Grabar mi voz" en Ajustes (o usa Azure) para ver tu curva.' });
+    const d = await decodeAudio(src); const p = pitchTrack(d); drawTrack($('#cvU', box), d, p, '#d9800a'); dirU = contourDir(p);
+  } catch (e) { const c = $('#cvU', box); if (c) c.replaceWith(Object.assign(document.createElement('div'), { className: 'notice small', textContent: e.friendly || ('No se pudo analizar tu grabación: ' + errES(e)) })); }
+  if (dirU) { const want = expectRise(target) ? 'up' : 'down'; const lab = { up: 'subió ↗', down: 'bajó ↘', flat: 'quedó plana →' }; msg.push(`Tu entonación ${lab[dirU]} al final. ${want === dirU ? '✅ ¡Correcto para esta frase!' : `Para esta frase lo natural es que ${want === 'up' ? 'SUBA ↗ (pregunta de sí/no)' : 'BAJE ↘'}.`}`); }
+  $('#intoMsg', box).textContent = msg.join(' ');
+}
+
+/* =================== DIAGRAMAS DE BOCA (SVG) =================== */
+const TONGUE = { 'high-front': [38, 66, 64, 46], 'mid-front': [38, 68, 68, 53], 'low-front': [38, 76, 70, 70], 'mid-central': [40, 72, 82, 62], dental: [25, 60, 70, 62], alveolar: [41, 51, 72, 58], postalveolar: [45, 54, 74, 51], rest: [39, 71, 76, 64], back: [40, 73, 104, 47] };
+function mouthSVG(c) {
+  const o = c.o || 0.2, jaw = o * 12, [tx, ty0, dx, dy0] = TONGUE[c.t] || TONGUE.rest, fixedTip = ['dental', 'alveolar', 'postalveolar'].includes(c.t);
+  const ty = fixedTip ? ty0 : ty0 + jaw * 0.6, dy = dy0 + jaw * 0.5;
+  let ul = { cx: 22, cy: 55, rx: 7, ry: 5 }, ll = { cx: 22, cy: 70 + jaw, rx: 7, ry: 5 };
+  if (c.lips === 'closed') { ul.cy = 57; ll.cy = 64; } if (c.lips === 'round') { ul = { cx: 16, cy: 56, rx: 6, ry: 6 }; ll = { cx: 16, cy: 68 + jaw, rx: 6, ry: 6 }; } if (c.lips === 'spread') { ul.ry = 4; ll.ry = 4; ul.rx = 8; ll.rx = 8; } if (c.lips === 'lipteeth') { ll = { cx: 29, cy: 63, rx: 6, ry: 5 }; }
+  return `<svg viewBox="0 0 150 132" role="img" aria-label="${esc(c.cap || '')}">
+  <path d="M40 4 Q18 8 14 26 L4 40 L14 44" fill="none" stroke="#9aa6b0" stroke-width="2"/><path d="M18 86 Q20 108 44 116 Q80 124 100 110" fill="none" stroke="#9aa6b0" stroke-width="2"/>
+  <path d="M36 50 Q45 42 60 38 Q90 32 112 44 Q120 50 124 58 L128 124" fill="none" stroke="#7a8793" stroke-width="3" stroke-linecap="round"/>
+  <path d="M122 124 C 126 92, ${dx + 28} ${dy - 2}, ${dx} ${dy} S ${tx + 10} ${ty - 3}, ${tx} ${ty} C ${tx - 2} ${ty + 6}, ${tx + 6} ${ty + 10}, ${tx + 14} ${ty + 10} C 70 ${ty + 26}, 100 112, 110 126 Z" fill="#f28b9b" stroke="#d45d72" stroke-width="1.5"/>
+  <rect x="30" y="49" width="7" height="11" rx="2" fill="#fff" stroke="#9aa6b0"/><rect x="30" y="${63 + jaw}" width="7" height="10" rx="2" fill="#fff" stroke="#9aa6b0"/>
+  <ellipse cx="${ul.cx}" cy="${ul.cy}" rx="${ul.rx}" ry="${ul.ry}" fill="#e57373"/><ellipse cx="${ll.cx}" cy="${ll.cy}" rx="${ll.rx}" ry="${ll.ry}" fill="#e57373"/>
+  ${c.air ? `<path d="M118 76 Q70 ${c.t === 'dental' ? 62 : 70} 6 ${c.t === 'dental' ? 60 : 62}" fill="none" stroke="#1cb0f6" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#ah)"/><defs><marker id="ah" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#1cb0f6"/></marker></defs>` : ''}
+  ${c.v ? `<path d="M132 98 l7 3 l-7 3 l7 3 l-7 3 l7 3" fill="none" stroke="#ff9f1c" stroke-width="2.5"/><text x="118" y="128" font-size="9" fill="#d9800a" font-weight="700">vibra</text>` : `<text x="112" y="128" font-size="9" fill="#9aa6b0" font-weight="700">sin vibrar</text>`}
+  </svg><div>${esc(c.cap || '')}</div>`;
+}
+const MOUTHS = {
+  'ih-ee': [{ t: 'mid-front', lips: 'neutral', o: .3, v: 1, cap: '/ɪ/ corta: relajada' }, { t: 'high-front', lips: 'spread', o: .1, v: 1, cap: '/iː/ larga: sonrisa, lengua alta' }],
+  'ae-uh': [{ t: 'low-front', lips: 'spread', o: .9, v: 1, cap: '/æ/: boca muy abierta' }, { t: 'mid-central', lips: 'neutral', o: .45, v: 1, cap: '/ʌ/: relajada, media' }],
+  schwa: [{ t: 'mid-central', lips: 'neutral', o: .3, v: 1, cap: '/ə/: todo relajado' }],
+  'b-v': [{ t: 'rest', lips: 'closed', o: 0, v: 1, cap: '/b/: labios juntos' }, { t: 'rest', lips: 'lipteeth', o: .1, v: 1, air: 1, cap: '/v/: dientes sobre el labio' }],
+  's-z': [{ t: 'alveolar', lips: 'spread', o: .1, v: 1, air: 1, cap: '/z/: como /s/ pero vibra' }, { t: 'alveolar', lips: 'spread', o: .1, v: 0, air: 1, cap: '/s/: sin vibrar' }],
+  'sh-ch': [{ t: 'postalveolar', lips: 'round', o: .15, v: 0, air: 1, cap: '/ʃ/: labios redondos, aire continuo' }, { t: 'alveolar', lips: 'round', o: .1, v: 0, cap: '/tʃ/: empieza como "t"' }],
+  'th-voiceless': [{ t: 'dental', lips: 'neutral', o: .2, v: 0, air: 1, cap: '/θ/: lengua entre los dientes' }, { t: 'alveolar', lips: 'spread', o: .1, v: 0, air: 1, cap: '❌ /s/: lengua detrás de los dientes' }],
+  'th-voiced': [{ t: 'dental', lips: 'neutral', o: .2, v: 1, air: 1, cap: '/ð/: lengua entre dientes + vibra' }, { t: 'alveolar', lips: 'neutral', o: .1, v: 1, cap: '❌ /d/ fuerte' }],
+  'final-cons': [{ t: 'alveolar', lips: 'neutral', o: .1, v: 0, cap: '/t/ final: la lengua sube' }, { t: 'rest', lips: 'closed', o: 0, v: 0, cap: '/p/ final: labios se cierran' }],
+  's-cluster': [{ t: 'alveolar', lips: 'spread', o: .05, v: 0, air: 1, cap: 'Empieza con "sss", sin "e"' }],
+  'ed-endings': [{ t: 'alveolar', lips: 'neutral', o: .1, v: 0, cap: '/t/ y /d/: lengua detrás de los dientes' }],
+  's-endings': [{ t: 'alveolar', lips: 'spread', o: .1, v: 1, air: 1, cap: '/z/ final: vibra' }],
+  'flap-t': [{ t: 'alveolar', lips: 'neutral', o: .3, v: 1, cap: 'Toque rápido de lengua (como "r" de "pero")' }],
+  'teen-ty': [{ t: 'high-front', lips: 'spread', o: .1, v: 1, cap: '-teen: "iii" larga y fuerte' }, { t: 'alveolar', lips: 'neutral', o: .2, v: 1, cap: '-ty: final corto y suave' }],
+  dates: [{ t: 'dental', lips: 'neutral', o: .2, v: 0, air: 1, cap: 'fifth, twelfth: termina en /θ/' }]
+};
+function mouthPanelHTML(id, compact) { const m = MOUTHS[id]; if (!m) return ''; return `<div class="mouths" ${compact ? 'style="margin-top:4px"' : ''}>${m.map(c => `<div class="mouth">${mouthSVG(c)}</div>`).join('')}</div>`; }
+
+/* =================== LECCIONES DE VOCABULARIO =================== */
+function buildVocabLesson(l, mode = 'lesson') {
+  const I = shuffle(l.items), all = l.items;
+  const meaningQ = it => { const others = shuffle(all.filter(x => x !== it).map(x => x[1])); const opts = [it[1], ...(it[4] ? [it[4]] : []), ...others].filter((o, i, a) => a.indexOf(o) === i).slice(0, 3); return { kind: 'quiz', l, q: { q: `¿Qué significa «${it[0]}»?`, say: it[0], opts, a: 0, expl: `«${it[0]}» = ${it[1]}.` + (it[4] ? ` Ojo: NO significa «${it[4]}».` : '') + ` Ej.: ${it[2]}` } }; };
+  const enQ = it => ({ kind: 'quiz', l, q: { q: `¿Cómo se dice «${it[1]}» en inglés?`, say: it[0], hide: true, opts: [it[0], ...shuffle(all.filter(x => x !== it).map(x => x[0])).slice(0, 2)], a: 0, expl: `${it[0]} — ${it[2]}` } });
+  const ex = [];
+  if (mode === 'lesson') ex.push({ kind: 'learn', l });
+  ex.push(meaningQ(I[0]), meaningQ(I[1]));
+  ex.push({ kind: 'speak', variant: 'word', l, text: I[0][0], es: I[0][1] });
+  ex.push(enQ(I[2]));
+  ex.push({ kind: 'speak', variant: 'sentence', l, text: I[1][2], es: I[1][3] });
+  ex.push({ kind: 'order', l, text: I[3][2], es: I[3][3], pool: all.map(x => x[2]) });
+  ex.push({ kind: 'shadow', l, text: I[4][2], es: I[4][3] });
+  ex.push(meaningQ(I[5]));
+  if (mode !== 'lesson') ex.push({ kind: 'speak', variant: 'word', l, text: I[5][0], es: I[5][1] });
+  return ex;
+}
+function renderVocabLearn(ex, body) {
+  const l = ex.l;
+  body.innerHTML = `<div class="badge-new">VOCABULARIO NUEVO</div><div class="ex-title">${l.icon} ${esc(l.title)}</div>
+    <div class="prompt"><div class="mascot">${MASCOT}</div><div class="bubble" style="font-size:16px;font-weight:600">${esc(l.expl)}</div></div>
+    <div class="wlist">${l.items.map(it => `<div class="witem" style="align-items:flex-start"><button class="spk" data-say-n="${esc(it[0])}">🔊</button><div style="min-width:0"><div class="en">${esc(it[0])} <span class="es">— ${esc(it[1])}</span></div><div class="small">${wordsHTML(it[2])}</div><div class="es small">${esc(it[3])}</div>${it[4] ? `<div class="small" style="color:var(--r)">⚠️ No significa «${esc(it[4])}»</div>` : ''}</div><button class="spk slow" data-say-n="${esc(it[2])}" style="margin-left:auto" title="Escuchar ejemplo">💬</button></div>`).join('')}</div>`;
+  $$('[data-say-n]', body).forEach(b => b.onclick = () => speak(b.dataset.sayN));
+  setFoot(`<span class="muted small">${L.mode === 'lesson' ? 'Lección ' + (l.li + 1) + ' · ' + esc(l.unit.title) : ''}</span><button class="btn primary" id="primaryBtn">¡Entendido!</button>`);
+  $('#primaryBtn').onclick = () => { L.done++; nextEx(); };
+}
+
+/* =================== PRUEBA DE NIVEL =================== */
+function buildPlacement() {
+  const P = id => LESSON[id];
+  const pk = (id, pu) => ({ kind: 'pick', l: P(id), pair: pick(P(id).pairs), side: Math.random() < .5 ? 0 : 1, pu });
+  const qz = (id, pu) => ({ kind: 'quiz', l: P(id), q: pick(P(id).quiz), pu });
+  const q = [pk('ih-ee', 0), pk('ae-uh', 0), pk('b-v', 1), pk('sh-ch', 1), pk('th-voiceless', 2), qz('ed-endings', 3), qz('intonation', 4)];
+  if (canSpeak()) q.push({ kind: 'speak', variant: 'sentence', l: P('ih-ee'), text: 'Please sit in this seat.', es: 'Por favor siéntate en este asiento.', pu: 0 }, { kind: 'speak', variant: 'sentence', l: P('th-voiceless'), text: 'I think my birthday is this month.', es: 'Creo que mi cumpleaños es este mes.', pu: 2 }, { kind: 'speak', variant: 'sentence', l: P('c-interview'), text: "I'm organized, and I work well in a team.", es: 'Soy organizado y trabajo bien en equipo.', pu: 5 });
+  else q.push(pk('s-z', 1), qz('s-endings', 3), qz('word-stress', 4));
+  return q;
+}
+function placementIntro() {
+  $('#full').classList.remove('hidden'); document.body.style.overflow = 'hidden';
+  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div><h1 style="color:var(--g-d)">¡Hola! Soy Tuki 🦜</h1>
+    <p style="max-width:420px">Haz una <b>prueba de nivel corta</b> (10 preguntas, unos 3 minutos) con ejercicios de oído${canSpeak() ? ' y de pronunciación' : ''}. Así empiezas en la unidad adecuada.</p>
+    <button class="btn primary" id="plGo" style="min-width:240px">Empezar prueba</button><button class="btn ghost" id="plSkip" style="min-width:240px;margin-top:6px">Saltar, empiezo desde cero</button></div>`;
+  $('#plGo').onclick = () => startLesson(null, 'placement', buildPlacement(), 'Prueba de nivel');
+  $('#plSkip').onclick = () => { S.placement = 'skipped'; save(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; render(); };
+}
+function placementFinish() {
+  const res = L.place || [], byU = {}; res.forEach(x => { (byU[x.u] = byU[x.u] || []).push(x.ok); });
+  const fails = Object.keys(byU).map(Number).filter(u => byU[u].some(ok => !ok)).sort((a, b) => a - b);
+  const start = Math.min(fails.length ? fails[0] : 5, 5);
+  LESSONS.forEach(l => { if (l.ui < start && !S.done[l.id]) S.done[l.id] = { times: 0, best: 0, placed: true }; });
+  const okN = res.filter(x => x.ok).length;
+  S.placement = { date: dayKey(), start, score: okN + '/' + res.length }; addXP(10); save();
+  const AREAS = ['Vocales', 'Consonantes', 'TH y finales', 'Terminaciones', 'Entonación', 'Conversación'];
+  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:110px;height:110px">${MASCOT}</div><h1>¡Prueba terminada!</h1>
+    <p>Acertaste <b>${okN} de ${res.length}</b>.</p><div class="card" style="max-width:420px;width:100%;text-align:left">${Object.keys(byU).map(u => `<div class="row between"><span>${AREAS[u]}</span><b>${byU[u].every(Boolean) ? '✅' : '🔁 practicar'}</b></div>`).join('')}</div>
+    <p>Empezarás en la <b>Unidad ${start + 1}: ${esc(COURSE[start].title)}</b>.${start ? ' Las unidades anteriores quedan desbloqueadas por si quieres repasarlas.' : ''}</p>
+    <button class="btn primary" id="primaryBtn" style="min-width:220px">¡Vamos!</button></div>`;
+  $('#primaryBtn').onclick = closeLesson; confetti();
+}
+
+/* =================== PLAN DE HOY =================== */
+function buildPlan() {
+  const weak = buildPractice('weak').filter(e => e.kind !== 'learn').slice(0, 4);
+  const due = dueCards().sort((a, b) => a.due - b.due).slice(0, 4).map(c => ({ kind: 'speak', variant: c.kind === 'frase' ? 'sentence' : 'word', l: LESSON[c.lesson] || LESSONS[0], text: c.en, es: c.es, cardKey: c.key }));
+  const pairs = buildPractice('pairs').slice(0, 10 - weak.length - due.length);
+  return shuffle([...weak, ...due]).concat(pairs).slice(0, 10);
+}
+function planCardHTML() {
+  const done = S.plans && S.plans[dayKey()], due = dueCards().length, cur = currentLesson();
+  return `<div class="card plan-card"><div class="row between"><div><h3 style="margin:0">📅 Plan de hoy · ~10 min</h3><div class="muted small">${done ? '✅ ¡Completado hoy! Puedes repetirlo.' : 'Sesión automática hecha para ti.'}</div></div><div style="font-size:34px">${done ? '🏆' : '🎯'}</div></div>
+    <div class="plan-steps"><span class="plan-step">🎯 Sonidos débiles</span><span class="plan-step">🃏 ${Math.min(4, due)} tarjetas</span><span class="plan-step">👂 Pares mínimos</span>${cur ? `<span class="plan-step">⭐ ${esc(cur.title)}</span>` : ''}</div>
+    <button class="btn orange block" id="planBtn">${done ? 'Repetir plan' : 'Empezar plan de hoy'}</button></div>`;
+}
+const _finishLesson = finishLesson;
+finishLesson = function () {
+  if (L.mode === 'placement') return placementFinish();
+  const wasPlan = L.mode === 'plan';
+  if (wasPlan) { S.plans = S.plans || {}; S.plans[dayKey()] = 1; }
+  _finishLesson();
+  if (wasPlan) { const cur = currentLesson(); if (cur) { const b = document.createElement('button'); b.className = 'btn blue'; b.style.minWidth = '220px'; b.textContent = '⭐ Lección nueva: ' + cur.title; b.onclick = () => { closeLesson(); startLesson(cur); }; $('.complete').appendChild(b); } }
+  checkBadges();
+};
+
+/* =================== INSIGNIAS, RACHA, PREFERENCIAS =================== */
+const nDone = () => Object.values(S.done).filter(d => !d.placed || d.times).length;
+const BADGES = [
+  { id: 'first', i: '🐣', t: 'Primer paso', d: 'Completa tu primera lección', c: () => nDone() >= 1 },
+  { id: 'five', i: '📚', t: 'Constante', d: 'Completa 5 lecciones', c: () => nDone() >= 5 },
+  { id: 'fifteen', i: '🎓', t: 'Dedicación', d: 'Completa 15 lecciones', c: () => nDone() >= 15 },
+  { id: 'unit', i: '🏅', t: 'Unidad completa', d: 'Termina una unidad entera', c: () => COURSE.some(u => u.lessons.every(l => S.done[l.id] && S.done[l.id].times)) },
+  { id: 'streak3', i: '🔥', t: 'Racha de 3', d: '3 días seguidos', c: () => S.bestStreak >= 3 },
+  { id: 'streak7', i: '⚡', t: 'Racha de 7', d: 'Una semana seguida', c: () => S.bestStreak >= 7 },
+  { id: 'streak30', i: '🏆', t: 'Racha de 30', d: 'Un mes seguido', c: () => S.bestStreak >= 30 },
+  { id: 'voice50', i: '🎤', t: 'Buena voz', d: '50 intentos de voz', c: () => S.spoken >= 50 },
+  { id: 'voice300', i: '🎙️', t: 'Imparable', d: '300 intentos de voz', c: () => S.spoken >= 300 },
+  { id: 'perfect', i: '💯', t: 'Perfecto', d: '100% en un ejercicio de voz', c: () => Object.values(S.snd).some(a => a.some(x => x.s >= 100)) },
+  { id: 'th', i: '👅', t: 'Maestro de la TH', d: '≥85% en /θ/ y /ð/', c: () => soundAvg('th-voiceless') >= 85 && soundAvg('th-voiced') >= 85 },
+  { id: 'cards50', i: '🃏', t: 'Memoria de elefante', d: 'Repasa 50 tarjetas', c: () => (S.reviewed || 0) >= 50 },
+  { id: 'chat', i: '💬', t: 'Conversador', d: 'Chatea con la IA', c: () => (S.chats || 0) >= 1 },
+  { id: 'live', i: '📞', t: 'En vivo', d: 'Conversación de voz en vivo', c: () => (S.lives || 0) >= 1 },
+  { id: 'plan5', i: '📅', t: 'Disciplina', d: 'Plan de hoy 5 días', c: () => Object.keys(S.plans || {}).length >= 5 },
+  { id: 'placement', i: '🧭', t: 'Explorador', d: 'Haz la prueba de nivel', c: () => S.placement && typeof S.placement === 'object' },
+  { id: 'goal', i: '🎯', t: 'Meta cumplida', d: 'Cumple tu meta diaria', c: () => Object.values(S.days).some(d => d.xp >= S.settings.goal) }
+];
+let badgeTimer = null;
+function checkBadges() {
+  const fresh = BADGES.filter(b => !S.badges[b.id] && (() => { try { return b.c(); } catch (e) { return false; } })());
+  if (!fresh.length) return; fresh.forEach(b => S.badges[b.id] = Date.now()); _save();
+  fresh.forEach((b, i) => setTimeout(() => toast(`${b.i} ¡Nueva insignia: ${b.t}!`, 3200), i * 1200));
+}
+const _save = save; save = function () { _save(); clearTimeout(badgeTimer); badgeTimer = setTimeout(checkBadges, 400); };
+streakNow = function () { if (!S.lastDay) return 0; const d = dayDiff(S.lastDay, dayKey()); return d <= 1 ? S.streak : (d - 1 <= (S.freezes || 0) ? S.streak : 0); };
+addXP = function (n) {
+  const k = dayKey(); let up = false;
+  if (S.lastDay !== k) {
+    const d = S.lastDay ? dayDiff(S.lastDay, k) : 99;
+    if (d === 1) S.streak++;
+    else if (d > 1 && d < 99 && d - 1 <= (S.freezes || 0)) { S.freezes -= d - 1; S.streak++; setTimeout(() => toast(`🧊 Usaste ${d - 1} protector${d > 2 ? 'es' : ''} de racha. ¡Tu racha sigue!`, 3500), 500); }
+    else S.streak = 1;
+    S.lastDay = k; up = true;
+    if (S.streak > 0 && S.streak % 7 === 0 && (S.freezes || 0) < 2) { S.freezes = (S.freezes || 0) + 1; setTimeout(() => toast('🧊 ¡Ganaste un protector de racha por 7 días seguidos!', 3500), 800); }
+  }
+  S.bestStreak = Math.max(S.bestStreak, S.streak); S.xp += n; todayRec().xp += n; save(); return up;
+};
+function applyPrefs() {
+  const s = S.settings, root = document.documentElement;
+  const dark = s.theme === 'dark' || (s.theme === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+  root.dataset.theme = dark ? 'dark' : 'light'; root.dataset.contrast = s.contrast ? 'high' : 'normal'; root.dataset.motion = s.reduceMotion ? 'reduce' : 'normal';
+  document.body.style.zoom = s.fontScale && s.fontScale !== 1 ? s.fontScale : '';
+  const m = $('meta[name=theme-color]'); if (m) m.content = dark ? '#0f1720' : '#1fa463';
+}
+if (window.matchMedia) try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyPrefs); } catch (e) {}
+const _confetti = confetti; confetti = function () { if (!S.settings.reduceMotion && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) _confetti(); };
+</script>
+<script>
+/* =================== DICCIONARIO / FRASES =================== */
+let DICT = null, WORDS_MODE = 'deck', dictQ = '';
+function buildDict() {
+  const m = new Map(), add = (en, es, kind, l) => { const k = en.toLowerCase(); if (!m.has(k)) m.set(k, { key: (kind === 'palabra' ? 'w:' : 's:') + en, en, es, kind, lesson: l.id, src: l.title }); };
+  LESSONS.forEach(l => { if (l.type === 'dialog') l.lines.forEach(x => add(x[1], x[2], 'frase', l)); else { (l.ex || []).forEach(x => add(x[0], x[1], 'palabra', l)); (l.sents || []).forEach(x => add(x[0], x[1], 'frase', l)); } });
+  return [...m.values()];
+}
+function renderDict(v) {
+  DICT = DICT || buildDict();
+  const q = dictQ.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const res = DICT.filter(d => !q || (d.en + ' ' + d.es + ' ' + d.src).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(q));
+  v.innerHTML = `${wordsToggleHTML()}<h2>Diccionario y frases 📖</h2><p class="muted small">${DICT.length} palabras y frases del curso con audio. Busca en inglés o en español.</p>
+    <input class="search" id="dq" placeholder="Buscar (ej. «think», «cuenta», «meeting»)…" value="${esc(dictQ)}">
+    <div class="small muted" style="margin:8px 0">${res.length} resultado${res.length === 1 ? '' : 's'}${res.length > 80 ? ' (mostrando 80)' : ''}</div>
+    <div class="wlist">${res.slice(0, 80).map((d, i) => `<div class="witem dict-item"><button class="spk" data-say-n="${esc(d.en)}">🔊</button><div style="min-width:0"><div class="en">${esc(d.en)}</div><div class="es">${esc(d.es)} · <span class="small">${esc(d.src)}</span></div></div><div class="acts"><button class="spk slow" data-say="${esc(d.en)}" title="Lento">🐢</button><button class="spk slow" data-add="${i}" title="Agregar a tarjetas">${S.deck[d.key] ? '✓' : '➕'}</button><button class="spk slow" data-studio="${esc(d.en)}" title="Practicar pronunciación">🎙️</button></div></div>`).join('') || '<div class="empty">Sin resultados.</div>'}</div>`;
+  bindWordsToggle(v);
+  const dq = $('#dq'); dq.oninput = e => { dictQ = e.target.value; const p = e.target.selectionStart; renderDict(v); const n = $('#dq'); n.focus(); n.setSelectionRange(p, p); };
+  $$('[data-say-n]', v).forEach(b => b.onclick = () => speak(b.dataset.sayN));
+  $$('[data-add]', v).forEach(b => b.onclick = () => { const d = res[+b.dataset.add]; addToDeck([d]); b.textContent = '✓'; toast('Agregada a tus tarjetas 🃏'); });
+  $$('[data-studio]', v).forEach(b => b.onclick = () => { STUDIO_TEXT = b.dataset.studio; go('studio'); });
+}
+const wordsToggleHTML = () => `<div class="provider"><button class="chip ${WORDS_MODE === 'deck' ? 'active' : ''}" data-wm="deck">🃏 Mis tarjetas</button><button class="chip ${WORDS_MODE === 'dict' ? 'active' : ''}" data-wm="dict">📖 Diccionario</button></div>`;
+function bindWordsToggle(v) { $$('[data-wm]', v).forEach(b => b.onclick = () => { WORDS_MODE = b.dataset.wm; VIEWS.words(v); }); }
+const _words = VIEWS.words;
+VIEWS.words = v => { if (WORDS_MODE === 'dict') return renderDict(v); _words(v); v.insertAdjacentHTML('afterbegin', wordsToggleHTML()); bindWordsToggle(v); };
+
+/* =================== VISTA APRENDER: plan + prueba de nivel =================== */
+const _learn = VIEWS.learn;
+VIEWS.learn = v => {
+  _learn(v);
+  const g = $('.card.goal', v);
+  const cta = S.placement == null || S.placement === 'skipped' && !Object.keys(S.done).length ? `<div class="card row between"><div><b>🧭 Prueba de nivel</b><div class="small muted">3 minutos para empezar en la unidad correcta.</div></div><button class="btn blue sm" id="plBtn">Hacer</button></div>` : '';
+  g.insertAdjacentHTML('afterend', planCardHTML() + cta);
+  $('#planBtn').onclick = () => { const q = buildPlan(); q.length ? startLesson(null, 'plan', q, 'Plan de hoy') : toast('Completa una lección primero.'); };
+  const pb = $('#plBtn'); if (pb) pb.onclick = placementIntro;
+};
+
+/* =================== PROGRESO: semana, fonemas, insignias =================== */
+const _progress = VIEWS.progress;
+VIEWS.progress = v => {
+  _progress(v);
+  const wk = off => { let xp = 0, n = 0, sum = 0, sec = 0, act = 0; for (let i = off; i < off + 7; i++) { const r = S.days[dayKey(new Date(Date.now() - i * DAY))]; if (r) { xp += r.xp; n += r.n; sum += r.sum; sec += r.sec || 0; if (r.xp) act++; } } return { xp, n, avg: n ? Math.round(sum / n) : null, min: Math.round(sec / 60), act }; };
+  const a = wk(0), b = wk(7), delta = (x, y) => y ? ` <span class="small" style="color:${x >= y ? 'var(--g-d)' : 'var(--r)'}">${x >= y ? '▲' : '▼'} ${Math.abs(x - y)}</span>` : '';
+  const days = []; for (let i = 6; i >= 0; i--) { const d = new Date(Date.now() - i * DAY); days.push({ l: 'DLMMJVS'[d.getDay()], xp: (S.days[dayKey(d)] || {}).xp || 0 }); }
+  const mx = Math.max(10, ...days.map(d => d.xp));
+  const phs = Object.entries(S.ph || {}).filter(([p, r]) => r.n >= 2).map(([p, r]) => ({ p, a: Math.round(r.sum / r.n), n: r.n })).sort((x, y) => x.a - y.a).slice(0, 8);
+  $('.kpis', v).insertAdjacentHTML('afterend', `<div class="card"><h3>📆 Esta semana</h3>
+    <div class="kpis" style="margin:6px 0 0"><div class="kpi"><span>XP</span><b>${a.xp}${delta(a.xp, b.xp)}</b></div><div class="kpi"><span>Minutos</span><b>${a.min}${delta(a.min, b.min)}</b></div><div class="kpi"><span>Intentos de voz</span><b>${a.n}${delta(a.n, b.n)}</b></div><div class="kpi"><span>Días activos</span><b>${a.act}/7</b></div></div>
+    <div class="small muted">Promedio de voz: ${a.avg == null ? '—' : a.avg + '%'} (semana anterior: ${b.avg == null ? '—' : b.avg + '%'}) · 🧊 Protectores de racha: ${S.freezes || 0}</div>
+    <div class="week" style="margin-bottom:22px">${days.map(d => `<div style="height:${Math.max(3, d.xp / mx * 100)}%" title="${d.xp} XP"><span>${d.l}</span></div>`).join('')}</div></div>
+    ${phs.length ? `<div class="card"><h3>🔬 Fonemas más débiles (Azure)</h3><div class="chips">${phs.map(p => `<span class="ph ${colorOf(p.a / 100)}" style="font-size:16px;padding:4px 8px" title="${p.n} intentos">/${esc(p.p)}/ · ${p.a}</span>`).join('')}</div><div class="small muted">${esc(PH_TIPS[phs[0].p] || '')}</div></div>` : ''}`);
+  const last = v.lastElementChild;
+  last.insertAdjacentHTML('beforebegin', `<div class="card"><h3>🏅 Insignias (${Object.keys(S.badges).length}/${BADGES.length})</h3><div class="badges">${BADGES.map(b => `<div class="badge ${S.badges[b.id] ? '' : 'off'}" title="${esc(b.d)}"><span class="i">${b.i}</span>${esc(b.t)}<div class="small muted" style="font-weight:600">${esc(b.d)}</div></div>`).join('')}</div></div>`);
+};
+const _recordSpeech = recordSpeech;
+recordSpeech = function (soundId, result) { if (result && result.engine === 'azure') { S.ph = S.ph || {}; (result.words || []).forEach(w => (w.ph || []).forEach(p => { const r = S.ph[p.p] || (S.ph[p.p] = { n: 0, sum: 0 }); r.n++; r.sum += p.s; })); } _recordSpeech(soundId, result); };
+
+/* =================== RACHA: modal con protectores =================== */
+$('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p>
+  <div class="tipbox">🧊 <b>Protectores de racha: ${S.freezes || 0}/2</b><br><span class="small">Si un día no practicas, un protector mantiene tu racha. Ganas uno cada 7 días seguidos, o puedes canjear uno por 100 XP.</span></div>
+  <div class="row"><button class="btn ghost block" data-buy ${(S.freezes || 0) >= 2 || S.xp < 100 ? 'disabled' : ''}>Canjear (100 XP)</button><button class="btn primary block" data-x>¡Vamos!</button></div>`,
+  (el, c) => { $('[data-x]', el).onclick = c; $('[data-buy]', el).onclick = () => { S.xp -= 100; S.freezes = (S.freezes || 0) + 1; save(); c(); render(); toast('🧊 ¡Protector de racha listo!'); }; });
+
+/* =================== CONVERSACIÓN CON IA: texto + VOZ EN VIVO =================== */
+const LIVE = { on: false, state: 'idle', level: 0, provider: null, ws: null, pc: null, mic: null, cur: {}, t0: 0, userTurns: 0, sendText: null };
+const LIVE_LABEL = { idle: 'Listo para hablar', connecting: 'Conectando…', listening: 'Te escucho… habla cuando quieras', speaking: 'Tuki está hablando (puedes interrumpir)', error: 'No se pudo conectar' };
+const GEMINI_LIVE_MODELS = ['gemini-3.1-flash-live-preview', 'gemini-2.5-flash-native-audio-preview-12-2025', 'gemini-2.5-flash-native-audio-preview-09-2025', 'gemini-live-2.5-flash-preview'];
+function currentProvider() { const s = S.settings; if (s.chatProvider === 'openai' && s.openaiKey) return 'openai'; if (s.geminiKey) return 'gemini'; return s.openaiKey ? 'openai' : null; }
+function liveSystem() {
+  return `You are "Tuki", a friendly, patient English conversation tutor for a Spanish-speaking learner from Colombia (beginner/intermediate level). This is a live VOICE conversation. Roleplay: you are ${SCENARIOS[CHAT.scen]}.
+Rules: Speak ONLY in clear, simple English at a slightly slow pace. Keep each turn short (1 to 3 sentences) and usually end with a question. If the learner makes a grammar, vocabulary or pronunciation mistake, first give a very brief spoken correction (for example: "Quick tip: we say 'I went', not 'I goed'." or "Try 'three' with your tongue between your teeth: three."), then continue the roleplay. If the learner is lost or speaks Spanish, give one short hint in Spanish and return to English. Be warm and encouraging.`;
+}
+function liveSet(st) { LIVE.state = st; const d = $('#ldot'), l = $('#lstate'); if (d) d.className = 'live-dot ' + st; if (l) l.textContent = LIVE_LABEL[st] || st; }
+function liveUI() { liveSet(LIVE.state); const b = $('#liveBtn'); if (b) { b.classList.toggle('on', LIVE.on); b.innerHTML = LIVE.on ? '⏹ Terminar conversación' : '🎙️ Hablar en vivo'; } }
+(function meterLoop() { const m = $('#lmeter'); if (m) m.style.width = (LIVE.on ? Math.min(100, LIVE.level * 400) : 0) + '%'; requestAnimationFrame(meterLoop); })();
+function liveAppend(role, text) {
+  if (!text) return; const idx = LIVE.cur[role];
+  if (idx != null && CHAT.hist[idx]) CHAT.hist[idx].text += text; else { CHAT.hist.push({ role, text, live: true }); LIVE.cur[role] = CHAT.hist.length - 1; if (role === 'user') LIVE.userTurns++; }
+  chatDraw();
+}
+function liveTurnDone() { LIVE.cur = {}; }
+const Player = {
+  ctx: null, t: 0, srcs: new Set(),
+  ensure() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); },
+  play(b64, rate = 24000) {
+    this.ensure(); const bin = atob(b64), n = bin.length >> 1; if (!n) return;
+    const buf = this.ctx.createBuffer(1, n, rate), ch = buf.getChannelData(0);
+    for (let i = 0; i < n; i++) { let v = bin.charCodeAt(2 * i) | (bin.charCodeAt(2 * i + 1) << 8); if (v >= 32768) v -= 65536; ch[i] = v / 32768; }
+    const s = this.ctx.createBufferSource(); s.buffer = buf; s.connect(this.ctx.destination);
+    this.t = Math.max(this.t, this.ctx.currentTime + 0.04); s.start(this.t); this.t += buf.duration; this.srcs.add(s);
+    s.onended = () => { this.srcs.delete(s); if (!this.srcs.size && LIVE.on) liveSet('listening'); };
+    liveSet('speaking');
+  },
+  stop() { this.srcs.forEach(s => { try { s.stop(); } catch (e) {} }); this.srcs.clear(); this.t = 0; },
+  close() { this.stop(); if (this.ctx) { this.ctx.close().catch(() => {}); this.ctx = null; } }
+};
+const WORKLET_SRC = `class P extends AudioWorkletProcessor{constructor(){super();this.b=new Float32Array(2048);this.n=0;}process(inp){const c=inp[0]&&inp[0][0];if(c){for(let i=0;i<c.length;i++){this.b[this.n++]=c[i];if(this.n===2048){this.port.postMessage(this.b.slice(0));this.n=0;}}}return true;}}registerProcessor('tuki-pcm',P);`;
+async function startMicStream(onChunk) {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+  const ctx = new (window.AudioContext || window.webkitAudioContext)(), src = ctx.createMediaStreamSource(stream), rs = new StreamResampler(ctx.sampleRate, 16000);
+  let pending = new Float32Array(0), node = null;
+  const handle = f32 => { let e = 0; for (let i = 0; i < f32.length; i++) e += f32[i] * f32[i]; LIVE.level = Math.sqrt(e / f32.length); const o = rs.push(f32); const all = new Float32Array(pending.length + o.length); all.set(pending); all.set(o, pending.length); pending = all; if (pending.length >= 1600) { onChunk(pending); pending = new Float32Array(0); } };
+  if (ctx.audioWorklet && window.AudioWorkletNode) { try { await ctx.audioWorklet.addModule(URL.createObjectURL(new Blob([WORKLET_SRC], { type: 'application/javascript' }))); node = new AudioWorkletNode(ctx, 'tuki-pcm'); node.port.onmessage = e => handle(e.data); } catch (e) { node = null; } }
+  if (!node) { node = ctx.createScriptProcessor(2048, 1, 1); node.onaudioprocess = e => handle(new Float32Array(e.inputBuffer.getChannelData(0))); }
+  const mute = ctx.createGain(); mute.gain.value = 0; src.connect(node); node.connect(mute); mute.connect(ctx.destination);
+  return { stream, stop() { try { src.disconnect(); node.disconnect(); } catch (e) {} stream.getTracks().forEach(t => t.stop()); ctx.close().catch(() => {}); } };
+}
+function liveErrES(e) {
+  const r = (e && (e.reason || e.message)) || '';
+  if (/api key|API_KEY|permission|unauthori|PERMISSION_DENIED/i.test(r)) return 'La clave de Gemini no es válida o no tiene acceso a Live.';
+  if (/quota|exceed|RESOURCE_EXHAUSTED|rate/i.test(r)) return 'Se alcanzó el límite gratuito de Gemini Live. Espera un rato o usa el chat de texto.';
+  if (/not found|not supported|unsupported|model/i.test(r)) return 'El modelo de voz en vivo no está disponible para tu clave.';
+  if (e && e.code === 1006) return 'No se pudo abrir la conexión (sin internet, red/antivirus que bloquea WebSockets, o clave inválida).';
+  return errES(e);
+}
+function connectGemini(model) {
+  return new Promise((resolve, reject) => {
+    let ok = false; const ws = new WebSocket('wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=' + encodeURIComponent(S.settings.geminiKey.trim()));
+    const to = setTimeout(() => { if (!ok) { try { ws.close(); } catch (e) {} const e = new Error('Tiempo de espera agotado al conectar con Gemini Live.'); e.friendly = e.message; reject(e); } }, 12000);
+    ws.onopen = () => ws.send(JSON.stringify({ setup: { model: 'models/' + model, generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: S.settings.liveVoice || 'Kore' } } } }, systemInstruction: { parts: [{ text: liveSystem() }] }, inputAudioTranscription: {}, outputAudioTranscription: {} } }));
+    ws.onmessage = async ev => {
+      let txt = ev.data; if (typeof txt !== 'string') txt = txt instanceof Blob ? await txt.text() : new TextDecoder().decode(txt);
+      let m; try { m = JSON.parse(txt); } catch (e) { return; }
+      if (m.setupComplete && !ok) { ok = true; clearTimeout(to); resolve(ws); return; }
+      if (ok) onGeminiMsg(m);
+    };
+    ws.onclose = ev => { clearTimeout(to); if (!ok) { const e = new Error(`Conexión cerrada (${ev.code}) ${ev.reason || ''}`); e.code = ev.code; e.reason = ev.reason || ''; e.fatal = /api key|permission|unauthori|quota|exceed/i.test(e.reason); reject(e); } else if (LIVE.ws === ws && LIVE.on) { CHAT.err = 'La sesión en vivo terminó' + (ev.reason ? ': ' + ev.reason : '') + '.'; stopLive(); } };
+  });
+}
+function onGeminiMsg(m) {
+  const sc = m.serverContent;
+  if (sc) {
+    if (sc.interrupted) { Player.stop(); liveSet('listening'); const i = LIVE.cur.model; if (i != null && CHAT.hist[i]) CHAT.hist[i].text += ' …'; }
+    ((sc.modelTurn && sc.modelTurn.parts) || []).forEach(p => { if (p.inlineData && /audio/.test(p.inlineData.mimeType || 'audio')) { const r = /rate=(\d+)/.exec(p.inlineData.mimeType || ''); Player.play(p.inlineData.data, r ? +r[1] : 24000); } });
+    if (sc.inputTranscription && sc.inputTranscription.text) liveAppend('user', sc.inputTranscription.text);
+    if (sc.outputTranscription && sc.outputTranscription.text) { if (LIVE.cur.user != null) LIVE.cur.user = null; liveAppend('model', sc.outputTranscription.text); }
+    if (sc.turnComplete) liveTurnDone();
+  }
+  if (m.goAway) toast('La sesión en vivo terminará pronto (límite de tiempo).', 3500);
+}
+async function startGeminiLive() {
+  const tried = [], cands = [S.settings.liveModel, ...GEMINI_LIVE_MODELS, ...(S.liveModels || [])].filter((x, i, a) => x && a.indexOf(x) === i);
+  let lastErr = null;
+  for (let pass = 0; pass < 2; pass++) {
+    for (const model of cands) {
+      if (tried.includes(model)) continue; tried.push(model);
+      try { const ws = await connectGemini(model); LIVE.ws = ws; LIVE.model = model; if (model !== S.settings.liveModel) { S.settings.liveModel = model; save(); } return; }
+      catch (e) { lastErr = e; if (e.fatal) throw e; }
+    }
+    if (pass === 0) { try { const found = await listLiveModels(); found.forEach(f => { if (!cands.includes(f)) cands.push(f); }); } catch (e) { break; } }
+  }
+  throw lastErr || new Error('Sin modelos Live disponibles');
+}
+async function listLiveModels() {
+  const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': S.settings.geminiKey.trim() } });
+  if (!r.ok) throw await httpErr(r);
+  const d = await r.json(); const ms = (d.models || []).filter(m => (m.supportedGenerationMethods || []).includes('bidiGenerateContent')).map(m => m.name.replace('models/', ''));
+  const pref = ms.filter(n => /live|native-audio/.test(n)); S.liveModels = pref.length ? pref : ms; save(); return S.liveModels;
+}
+async function startOpenAIRealtime() {
+  const s = S.settings, key = s.openaiKey.trim();
+  const r = await fetch('https://api.openai.com/v1/realtime/client_secrets', { method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ session: { type: 'realtime', model: s.realtimeModel || 'gpt-realtime', instructions: liveSystem(), audio: { input: { transcription: { model: 'gpt-4o-mini-transcribe', language: 'en' }, turn_detection: { type: 'server_vad' } }, output: { voice: s.openaiVoice || 'marin' } } } }) });
+  if (!r.ok) throw await httpErr(r);
+  const d = await r.json(), ek = d.value || (d.client_secret && d.client_secret.value); if (!ek) throw new Error('OpenAI no devolvió una clave temporal.');
+  const pc = new RTCPeerConnection(); LIVE.pc = pc;
+  const audioEl = new Audio(); audioEl.autoplay = true; LIVE.audioEl = audioEl; pc.ontrack = e => { audioEl.srcObject = e.streams[0]; };
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); LIVE.stream = stream;
+  pc.addTrack(stream.getTracks()[0], stream);
+  try { const ctx = new (window.AudioContext || window.webkitAudioContext)(), an = ctx.createAnalyser(); ctx.createMediaStreamSource(stream).connect(an); const buf = new Float32Array(an.fftSize); LIVE.anCtx = ctx; (function lv() { if (!LIVE.on || LIVE.anCtx !== ctx) return; an.getFloatTimeDomainData(buf); let e = 0; for (const x of buf) e += x * x; LIVE.level = Math.sqrt(e / buf.length); requestAnimationFrame(lv); })(); } catch (e) {}
+  const dc = pc.createDataChannel('oai-events'); LIVE.dc = dc;
+  dc.onmessage = e => { let ev; try { ev = JSON.parse(e.data); } catch (x) { return; } onOAIEvent(ev); };
+  dc.onopen = () => { dc.send(JSON.stringify({ type: 'conversation.item.create', item: { type: 'message', role: 'user', content: [{ type: 'input_text', text: '(Start the roleplay now with a short friendly greeting and a first question.)' }] } })); dc.send(JSON.stringify({ type: 'response.create' })); };
+  const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
+  const sdp = await fetch('https://api.openai.com/v1/realtime/calls', { method: 'POST', body: offer.sdp, headers: { Authorization: 'Bearer ' + ek, 'Content-Type': 'application/sdp' } });
+  if (!sdp.ok) throw await httpErr(sdp);
+  await pc.setRemoteDescription({ type: 'answer', sdp: await sdp.text() });
+  pc.onconnectionstatechange = () => { if (['failed', 'disconnected', 'closed'].includes(pc.connectionState) && LIVE.on) { CHAT.err = 'Se perdió la conexión con OpenAI Realtime.'; stopLive(); } };
+  LIVE.sendText = t => { CHAT.hist.push({ role: 'user', text: t, live: true }); chatDraw(); dc.send(JSON.stringify({ type: 'conversation.item.create', item: { type: 'message', role: 'user', content: [{ type: 'input_text', text: t }] } })); dc.send(JSON.stringify({ type: 'response.create' })); };
+}
+function onOAIEvent(ev) {
+  switch (ev.type) {
+    case 'input_audio_buffer.speech_started': liveSet('listening'); break;
+    case 'conversation.item.input_audio_transcription.completed': liveTurnDone(); liveAppend('user', ev.transcript || ''); liveTurnDone(); break;
+    case 'response.output_audio_transcript.delta': case 'response.audio_transcript.delta': liveAppend('model', ev.delta || ''); break;
+    case 'response.output_audio_transcript.done': case 'response.audio_transcript.done': liveTurnDone(); break;
+    case 'output_audio_buffer.started': case 'response.created': liveSet('speaking'); break;
+    case 'output_audio_buffer.stopped': case 'response.done': liveSet('listening'); break;
+    case 'error': CHAT.err = 'OpenAI Realtime: ' + ((ev.error && ev.error.message) || 'error'); chatDraw(); break;
+  }
+}
+async function startLive() {
+  const prov = currentProvider(); if (!prov) return toast('Configura una clave de IA en Ajustes.');
+  if (!navigator.onLine) return toast('Estás sin conexión: la voz en vivo necesita internet.');
+  if (!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)) return toast('Tu navegador no permite usar el micrófono aquí (se requiere https).');
+  stopAudio(); if ('speechSynthesis' in window) speechSynthesis.cancel();
+  LIVE.on = true; LIVE.provider = prov; LIVE.cur = {}; LIVE.userTurns = 0; LIVE.t0 = Date.now(); CHAT.err = null; liveSet('connecting'); liveUI(); chatDraw();
+  try {
+    if (prov === 'gemini') {
+      Player.ensure();
+      await startGeminiLive();
+      LIVE.mic = await startMicStream(f32 => { if (LIVE.ws && LIVE.ws.readyState === 1) LIVE.ws.send(JSON.stringify({ realtimeInput: { audio: { data: f32ToB64(f32), mimeType: 'audio/pcm;rate=16000' } } })); });
+      LIVE.sendText = t => { CHAT.hist.push({ role: 'user', text: t, live: true }); chatDraw(); LIVE.ws.send(JSON.stringify({ realtimeInput: { text: t } })); };
+      LIVE.ws.send(JSON.stringify({ realtimeInput: { text: '(Start the roleplay now: greet me briefly and ask the first question.)' } }));
+    } else await startOpenAIRealtime();
+    if (LIVE.on) liveSet('listening');
+  } catch (e) {
+    const msg = prov === 'gemini' ? liveErrES(e) : errES(e, 'OpenAI Realtime');
+    stopLive(true); liveSet('error');
+    CHAT.err = `No se pudo iniciar la voz en vivo: ${msg} Puedes seguir con el modo alternativo (texto o micrófono) aquí abajo.`; chatDraw();
+  }
+}
+function stopLive(silent) {
+  const had = LIVE.on && LIVE.userTurns > 0 && Date.now() - LIVE.t0 > 15000;
+  LIVE.on = false; LIVE.sendText = null;
+  try { LIVE.ws && LIVE.ws.close(); } catch (e) {} LIVE.ws = null;
+  try { LIVE.mic && LIVE.mic.stop(); } catch (e) {} LIVE.mic = null;
+  try { LIVE.dc && LIVE.dc.close(); LIVE.pc && LIVE.pc.close(); } catch (e) {} LIVE.pc = LIVE.dc = null;
+  try { LIVE.stream && LIVE.stream.getTracks().forEach(t => t.stop()); } catch (e) {} LIVE.stream = null;
+  try { LIVE.anCtx && LIVE.anCtx.close(); } catch (e) {} LIVE.anCtx = null;
+  if (LIVE.audioEl) { LIVE.audioEl.srcObject = null; LIVE.audioEl = null; }
+  Player.close(); LIVE.level = 0; LIVE.cur = {};
+  if (had) { S.lives = (S.lives || 0) + 1; S.chats = (S.chats || 0) + 1; addXP(5); }
+  if (!silent) liveSet('idle'); liveUI(); chatDraw();
+}
+const _go = go; go = function (tab) { if (LIVE.on && tab !== 'chat') stopLive(); _go(tab); };
+async function openaiChat() {
+  const s = S.settings, model = s.openaiModel || 'gpt-4o-mini';
+  const body = { model, messages: [{ role: 'system', content: chatSystem() }, ...CHAT.hist.map(m => ({ role: m.role === 'model' ? 'assistant' : 'user', content: m.text }))], max_completion_tokens: 600 };
+  if (!/^(o\d|gpt-5)/.test(model)) body.temperature = 0.7;
+  const res = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + s.openaiKey.trim(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) throw await httpErr(res);
+  const d = await res.json(); const t = (d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content || '').trim();
+  if (!t) throw new Error('Respuesta vacía de OpenAI.'); return t;
+}
+function chatDraw() {
+  const log = $('#log'); if (!log) return;
+  log.innerHTML = CHAT.hist.map(m => {
+    if (m.role === 'user') return m.hidden ? '' : `<div class="msg me">${m.live ? '🎙️ ' : ''}${esc(m.text)}${m.conf ? `<div class="small" style="opacity:.8">🎤 confianza ${Math.round(m.conf * 100)}%</div>` : ''}</div>`;
+    if (m.live) return `<div class="msg bot">${wordsHTML(m.text)}<button class="mini" data-say-n="${esc(m.text)}">🔊</button></div>`;
+    const p = parseTutor(m.text);
+    return `${p.fix && !/^[-—–]$/.test(p.fix) ? `<div class="msg fix">✏️ ${esc(p.fix)}</div>` : ''}${p.pron ? `<div class="msg fix" style="background:#f3e8ff;border-color:#e2cdfb;color:#3b2463">🗣️ ${esc(p.pron)}</div>` : ''}<div class="msg bot">${wordsHTML(p.reply)}<button class="mini" data-say-n="${esc(p.reply)}">🔊</button></div>`;
+  }).join('') + (!CHAT.hist.length && !CHAT.busy && !CHAT.err ? `<div class="empty small">${LIVE.on ? 'Habla cuando quieras: aquí verás lo que tú y Tuki dicen.' : 'Toca <b>«Hablar en vivo»</b> para conversar con tu voz, o escribe abajo. Toca <b>Nueva</b> para que Tuki empiece.'}</div>` : '') + (CHAT.busy ? '<div class="msg bot">…</div>' : '') + (CHAT.err ? `<div class="msg err">⚠️ ${esc(CHAT.err)}</div>` : '');
+  $$('[data-say-n]', log).forEach(b => b.onclick = () => speak(b.dataset.sayN));
+  log.scrollTop = log.scrollHeight;
+}
+async function chatSend(text, hidden = false, conf = 0) {
+  if (!text) return;
+  if (LIVE.on && LIVE.sendText) return LIVE.sendText(text);
+  if (CHAT.busy) return;
+  const prov = currentProvider(); CHAT.err = null; CHAT.busy = true;
+  CHAT.hist.push({ role: 'user', text, hidden, conf }); chatDraw();
+  try {
+    const out = prov === 'openai' ? await openaiChat() : await gemini(text);
+    CHAT.hist.push({ role: 'model', text: out }); CHAT.busy = false; S.chats = (S.chats || 0) + 1; addXP(1); chatDraw();
+    if (S.settings.autoplay) speak(parseTutor(out).reply);
+  } catch (e) {
+    CHAT.hist.pop(); CHAT.busy = false;
+    CHAT.err = (prov === 'openai' ? 'OpenAI' : 'Gemini') + ': ' + errES(e) + (prov === 'gemini' && e.status >= 500 ? ' Espera un minuto y vuelve a intentar, o prueba otro modelo en Ajustes.' : ''); chatDraw();
+  }
+}
+async function chatMic(btn) {
+  if (HAS_SR) { if (curRec) return stopRecognize(); btn.classList.add('rec'); try { const a = await recognize(); chatSend(a[0].t, false, a[0].c); } catch (err) { toast(SR_ERR[err] || err); } finally { btn.classList.remove('rec'); } return; }
+  if (!(azureReady() || S.settings.openaiKey)) return toast('Tu navegador no reconoce voz. Escribe, usa Chrome, o configura Azure/OpenAI.');
+  if (MicCap.active) return MicCap.stop();
+  btn.classList.add('rec');
+  try { const r = await MicCap.start({ maxMs: 15000 }); btn.classList.remove('rec'); const t = azureReady() ? await azureSTT(r.wav) : await openaiSTT(r.wav); chatSend(t); }
+  catch (e) { toast(errES(e), 4000); } finally { btn.classList.remove('rec'); }
+}
 VIEWS.chat = v => {
-  if (!S.settings.geminiKey) {
-    v.innerHTML = `<h2>Conversación con IA 💬</h2><div class="card"><p><b>Esta función es opcional.</b> Toda la app funciona sin ella.</p><p class="muted small">Para conversar por voz con un tutor que corrige tus errores (en español) y te señala palabras difíciles de pronunciar, pega una clave <b>gratuita</b> de Google Gemini en Ajustes. Se consigue en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> (el plan gratuito tiene límites de uso). La clave se guarda solo en este dispositivo.</p><button class="btn primary" id="toSet">Ir a Ajustes</button></div>
-      <div class="card"><h3>Mientras tanto…</h3><p class="muted small">Prueba las <b>Conversaciones reales</b> guiadas en las unidades 6 y 7: dices tu parte del diálogo y recibes puntaje.</p></div>`;
+  const s = S.settings, hasG = !!s.geminiKey, hasO = !!s.openaiKey, prov = currentProvider();
+  if (!prov) {
+    v.innerHTML = `<h2>Conversación con IA 💬</h2><div class="card"><p><b>Esta función es opcional.</b> Toda la app funciona sin ella.</p>
+      <p class="small">🎙️ <b>Voz a voz en vivo gratis</b> con <b>Gemini Live</b>: pega una clave gratuita de Google Gemini en Ajustes (<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>; el plan gratuito tiene límites).</p>
+      <p class="small">💳 Alternativa de pago: <b>OpenAI</b> (chat y voz en tiempo real) con tu propia clave.</p><p class="small muted">Las claves se guardan solo en este dispositivo.</p><button class="btn primary" id="toSet">Ir a Ajustes</button></div>
+      <div class="card"><h3>Mientras tanto…</h3><p class="muted small">Prueba las <b>Conversaciones reales</b> guiadas (unidades 6, 7 y 12): dices tu parte del diálogo y recibes puntaje.</p></div>`;
     $('#toSet').onclick = () => go('settings'); return;
   }
   v.innerHTML = `<h2>Conversación con IA 💬</h2>
-    <div class="row" style="margin-bottom:10px"><select class="field" id="scen">${Object.keys(SCENARIOS).map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${SCEN_ES[k]}</option>`).join('')}</select><button class="btn ghost sm" id="newc">Nueva</button></div>
-    <div class="card" style="padding:10px"><div class="chatlog" id="log"></div>
-    <div class="chatbar">${HAS_SR ? '<button class="iconbtn" id="cmic" title="Hablar">🎤</button>' : ''}<textarea id="cin" placeholder="Escribe o habla en inglés…" rows="1"></textarea><button class="iconbtn" id="csend" title="Enviar">➤</button></div>
-    ${HAS_SR ? '' : '<div class="small muted" style="margin-top:6px">Voz no disponible en este navegador; escribe tus mensajes (Chrome recomendado).</div>'}</div>
-    <p class="muted small">La IA puede equivocarse. Tus mensajes se envían a Google Gemini usando tu clave.</p>`;
-  const log = $('#log');
-  const draw = () => {
-    log.innerHTML = CHAT.hist.map((m, i) => {
-      if (m.role === 'user') return m.hidden ? '' : `<div class="msg me">${esc(m.text)}${m.conf ? `<div class="small" style="opacity:.8">🎤 confianza ${Math.round(m.conf * 100)}%</div>` : ''}</div>`;
-      const p = parseTutor(m.text);
-      return `${p.fix && p.fix !== '—' && p.fix !== '-' ? `<div class="msg fix">✏️ ${esc(p.fix)}</div>` : ''}${p.pron ? `<div class="msg fix" style="background:#f3e8ff;border-color:#e2cdfb">🗣️ ${esc(p.pron)}</div>` : ''}<div class="msg bot">${wordsHTML(p.reply)}<button class="mini" data-say-n="${esc(p.reply)}">🔊</button></div>`;
-    }).join('') + (CHAT.busy ? '<div class="msg bot">…</div>' : '') + (CHAT.err ? `<div class="msg err">⚠️ ${esc(CHAT.err)}</div>` : '');
-    $$('[data-say-n]', log).forEach(b => b.onclick = () => speak(b.dataset.sayN));
-    log.scrollTop = log.scrollHeight;
-  };
-  const send = async (text, hidden = false, conf = 0) => {
-    if (CHAT.busy || !text) return; CHAT.err = null; CHAT.busy = true;
-    CHAT.hist.push({ role: 'user', text, hidden, conf }); draw();
-    try { const out = await gemini(text); CHAT.hist.push({ role: 'model', text: out }); CHAT.busy = false; draw(); addXP(1); if (S.settings.autoplay) speak(parseTutor(out).reply); }
-    catch (e) { CHAT.hist.pop(); CHAT.busy = false; CHAT.err = 'Error con Gemini: ' + e.message + (/404|not found|50\d/i.test(e.message) ? ' — Google no respondió con ningún modelo. Espera un minuto y toca Reintentar, o prueba otro modelo en Ajustes (botón "Detectar modelos").' : /429|quota/i.test(e.message) ? ' — Límite gratuito alcanzado; espera un momento.' : /400|API key/i.test(e.message) ? ' — Revisa tu clave en Ajustes.' : ''); draw(); }
-  };
-  const start = () => { CHAT.hist = []; CHAT.err = null; draw(); send('(Start the roleplay now with a short friendly greeting and a first question.)', true); };
-  $('#scen').onchange = e => { CHAT.scen = e.target.value; start(); };
-  $('#newc').onclick = start;
-  const cin = $('#cin');
-  $('#csend').onclick = () => { const t = cin.value.trim(); cin.value = ''; send(t); };
+    <div class="provider"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
+    <div class="row" style="margin-bottom:10px"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${SCEN_ES[k]}</option>`).join('')}</select><button class="btn ghost sm" id="newc">Nueva</button></div>
+    <div class="card live"><div><span class="live-dot ${LIVE.state}" id="ldot"></span><b id="lstate">${LIVE_LABEL[LIVE.state]}</b></div><div class="meter" aria-hidden="true"><i id="lmeter"></i></div>
+      <button class="livebtn ${LIVE.on ? 'on' : ''}" id="liveBtn">${LIVE.on ? '⏹ Terminar conversación' : '🎙️ Hablar en vivo'}</button>
+      <div class="small muted">Voz a voz en tiempo real con <b>${prov === 'gemini' ? 'Gemini Live' : 'OpenAI Realtime'}</b>: habla normal, Tuki te responde con voz y corrige tus errores. Puedes interrumpirlo. Usa audífonos para evitar eco.</div></div>
+    <div class="card" style="padding:10px"><div class="chatlog" id="log" aria-live="polite"></div>
+      <div class="chatbar"><button class="iconbtn" id="cmic" title="Dictar (modo alternativo)">🎤</button><textarea id="cin" placeholder="Escribe en inglés (o usa 🎤)…" rows="1" aria-label="Mensaje"></textarea><button class="iconbtn" id="csend" title="Enviar">➤</button></div>
+      <div class="small muted" style="margin-top:6px">Modo alternativo: texto o dictado → respuesta con corrección escrita y voz.</div></div>
+    <p class="muted small">La IA puede equivocarse. Tu voz y mensajes se envían a ${prov === 'gemini' ? 'Google' : 'OpenAI'} usando tu clave, directamente desde este dispositivo.</p>`;
+  $$('[data-prov]', v).forEach(b => b.onclick = () => { if (b.disabled) return; if (LIVE.on) stopLive(); S.settings.chatProvider = b.dataset.prov; save(); CHAT.hist = []; VIEWS.chat(v); });
+  const startText = () => { CHAT.hist = []; CHAT.err = null; chatDraw(); chatSend('(Start the roleplay now with a short friendly greeting and a first question.)', true); };
+  $('#scen').onchange = e => { CHAT.scen = e.target.value; if (LIVE.on) stopLive(); startText(); };
+  $('#newc').onclick = () => { if (LIVE.on) stopLive(); startText(); };
+  $('#liveBtn').onclick = () => LIVE.on ? stopLive() : startLive();
+  const cin = $('#cin'); $('#csend').onclick = () => { const t = cin.value.trim(); cin.value = ''; chatSend(t); };
   cin.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#csend').click(); } };
-  const cm = $('#cmic'); if (cm) cm.onclick = async () => {
-    if (curRec) return stopRecognize();
-    cm.classList.add('rec');
-    try { const alts = await recognize(); send(alts[0].t, false, alts[0].c); } catch (err) { toast(SR_ERR[err] || err); } finally { cm.classList.remove('rec'); }
-  };
-  if (!CHAT.hist.length) start(); else draw();
+  $('#cmic').onclick = () => chatMic($('#cmic'));
+  chatDraw(); liveUI();
 };
 
-/* ---- Ajustes ---- */
+/* =================== AJUSTES =================== */
 VIEWS.settings = v => {
-  const s = S.settings;
+  const s = S.settings, opt = (arr, cur, lab) => arr.map(a => { const [val, l] = Array.isArray(a) ? a : [a, a]; return `<option value="${esc(val)}" ${String(cur) === String(val) ? 'selected' : ''}>${esc(lab ? lab(l) : l)}</option>`; }).join('');
+  const sw = (id, on, label, desc) => `<div class="set-row"><div><label for="${id}">${label}</label>${desc ? `<div class="desc">${desc}</div>` : ''}</div><label class="switch"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><span></span></label></div>`;
   v.innerHTML = `<h2>Ajustes ⚙️</h2>
-  <div class="card"><h3>Voz y audio</h3>
-    <div class="set-row"><div><label for="rate">Velocidad de la voz</label><div class="desc" id="rateV">${s.rate.toFixed(2)}×</div></div><div class="row"><input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="${s.rate}"><button class="spk" id="tRate">🔊</button></div></div>
-    <div class="set-row"><div><label for="voice">Voz en inglés</label><div class="desc">Depende de tu dispositivo</div></div><select class="field" id="voice" style="max-width:190px"><option value="">Automática (en-US)</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
-    <div class="set-row"><div><label>Reproducir audio automáticamente</label></div><label class="switch"><input type="checkbox" id="autoplay" ${s.autoplay ? 'checked' : ''}><span></span></label></div>
-    <div class="set-row"><div><label>Sonidos de efectos</label><div class="desc">Pitidos de acierto/error</div></div><label class="switch"><input type="checkbox" id="sound" ${s.sound ? 'checked' : ''}><span></span></label></div>
-    <div class="set-row"><div><label>Grabar mi voz en ejercicios</label><div class="desc">Para escucharte vs. el modelo. En algunos Android puede interferir con el reconocimiento: apágalo si falla.</div></div><label class="switch"><input type="checkbox" id="recordVoice" ${s.recordVoice ? 'checked' : ''}><span></span></label></div>
+  <div class="card"><h3>🔊 Voz y audio</h3>
+    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (requieren clave).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['device', 'Dispositivo (gratis)'], ['azure', 'Azure neural' + (azureReady() ? '' : ' (falta clave)')], ['openai', 'OpenAI TTS' + (s.openaiKey ? '' : ' (falta clave)')]], s.ttsEngine)}</select></div>
+    <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent" style="max-width:200px">${opt([['en-US', 'Estadounidense (en-US)'], ['en-GB', 'Británico (en-GB)']], s.accent)}</select></div>
+    <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice" style="max-width:200px"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+    <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice" style="max-width:200px">${opt(AZ_VOICES, s.azureVoice)}</select></div>
+    <div class="set-row"><div><label for="openaiVoice">Voz OpenAI</label><div class="desc">También se usa en la voz en vivo de OpenAI</div></div><select class="field" id="openaiVoice" style="max-width:200px">${opt(OA_VOICES, s.openaiVoice)}</select></div>
+    <div class="set-row"><div><label for="rate">Velocidad</label><div class="desc" id="rateV">${(+s.rate).toFixed(2)}×</div></div><div class="row"><input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="${s.rate}"><button class="spk" id="tRate" aria-label="Probar voz">🔊</button></div></div>
+    ${sw('autoplay', s.autoplay, 'Reproducir audio automáticamente')}${sw('sound', s.sound, 'Sonidos de efectos')}${sw('haptics', s.haptics, 'Vibración (móvil)', 'Vibra al acertar o fallar')}
+    ${sw('recordVoice', s.recordVoice, 'Grabar mi voz en ejercicios', 'Para escucharte y ver tu onda. En algunos Android puede interferir con el reconocimiento de Chrome.')}
   </div>
-  <div class="card"><h3>Aprendizaje</h3>
-    <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal" style="max-width:190px">${[[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']].map(g => `<option value="${g[0]}" ${+s.goal === g[0] ? 'selected' : ''}>${g[1]}</option>`).join('')}</select></div>
-    <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:190px">${[[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']].map(g => `<option value="${g[0]}" ${+s.threshold === g[0] ? 'selected' : ''}>${g[1]}</option>`).join('')}</select></div>
-    <div class="set-row"><div><label>Modo libre</label><div class="desc">Desbloquea todas las lecciones</div></div><label class="switch"><input type="checkbox" id="freeMode" ${s.freeMode ? 'checked' : ''}><span></span></label></div>
-    <div class="set-row"><div><label>Reconocimiento de voz</label><div class="desc">${HAS_SR ? 'Disponible ✅' : 'No disponible en este navegador ❌ — usa Chrome o Edge'}</div></div><button class="btn ghost sm" id="testMic" ${HAS_SR ? '' : 'disabled'}>Probar 🎤</button></div>
+  <div class="card"><h3>🔬 Evaluación avanzada con Azure <span class="pill">Opcional · pago por uso</span></h3>
+    <p class="small muted">Con una clave de <b>Azure AI Speech</b> ("Pronunciation Assessment") obtienes puntaje <b>fonema por fonema</b> con IPA, fluidez, integridad y prosodia, y consejos como "en think la /θ/ sonó como /t/". Funciona también en navegadores sin reconocimiento de voz. Azure tiene un nivel gratuito limitado (F0). La clave se guarda solo en este dispositivo y se envía únicamente a Microsoft.</p>
+    <input class="field" id="azKey" type="password" placeholder="Clave de Azure Speech" value="${esc(s.azureKey)}" autocomplete="off" aria-label="Clave de Azure">
+    <input class="field" id="azRegion" placeholder="Región (ej. eastus, westeurope, brazilsouth)" value="${esc(s.azureRegion)}" style="margin-top:8px" aria-label="Región de Azure" list="azRegions"><datalist id="azRegions">${['eastus', 'eastus2', 'westus', 'westus2', 'centralus', 'southcentralus', 'brazilsouth', 'canadacentral', 'westeurope', 'northeurope', 'uksouth', 'francecentral', 'southeastasia', 'japaneast', 'australiaeast', 'centralindia'].map(r => `<option value="${r}">`).join('')}</datalist>
+    <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="azSave">Guardar</button><button class="btn ghost sm" id="azTest">Probar conexión</button><button class="btn ghost sm" id="azDel">Borrar</button></div><div id="azMsg" class="small" style="margin-top:8px">${azureReady() ? '✅ Azure activo: los ejercicios de voz usan evaluación por fonemas.' : ''}</div>
   </div>
   <div class="card"><h3>🤖 Conversación con IA <span class="pill">Opcional</span></h3>
-    <p class="small muted">Pega una clave gratuita de Google Gemini (<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">obtener aquí</a>). Se guarda <b>solo en este navegador</b> (localStorage) y se envía únicamente a Google. No la compartas ni la uses en computadores públicos.</p>
-    <input class="field" id="gkey" type="password" placeholder="AIza…" value="${esc(s.geminiKey)}" autocomplete="off">
-    <div class="row" style="margin-top:8px"><input class="field" id="gmodel" placeholder="gemini-flash-latest" value="${esc(s.model)}" list="gmodels"><datalist id="gmodels"><option value="gemini-flash-latest"><option value="gemini-2.5-flash"><option value="gemini-2.5-flash-lite"></datalist></div>
+    <div class="set-row"><div><label for="chatProvider">Proveedor</label></div><select class="field" id="chatProvider" style="max-width:200px">${opt([['gemini', 'Gemini (gratis)'], ['openai', 'OpenAI (pago)']], s.chatProvider)}</select></div>
+    <h3 style="margin-top:10px;font-size:16px">✨ Google Gemini (gratis con límites)</h3>
+    <p class="small muted">Clave gratuita en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Se usa para el chat y para la <b>voz en vivo (Gemini Live)</b>.</p>
+    <input class="field" id="gkey" type="password" placeholder="AIza…" value="${esc(s.geminiKey)}" autocomplete="off" aria-label="Clave de Gemini">
+    <div class="row" style="margin-top:8px"><input class="field" id="gmodel" placeholder="Modelo de chat" value="${esc(s.model)}" list="gmodels" aria-label="Modelo de chat Gemini"><datalist id="gmodels"><option value="gemini-2.5-flash"><option value="gemini-2.5-flash-lite"><option value="gemini-flash-latest"></datalist></div>
+    <div class="row" style="margin-top:8px"><input class="field" id="lmodel" placeholder="Modelo de voz en vivo" value="${esc(s.liveModel)}" list="lmodels" aria-label="Modelo Gemini Live"><datalist id="lmodels">${[...GEMINI_LIVE_MODELS, ...(S.liveModels || [])].filter((x, i, a) => a.indexOf(x) === i).map(m => `<option value="${esc(m)}">`).join('')}</datalist><select class="field" id="lvoice" style="max-width:120px" aria-label="Voz Gemini Live">${opt(GEM_VOICES, s.liveVoice)}</select></div>
     <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="gsave">Guardar</button><button class="btn ghost sm" id="gdetect">Detectar modelos</button><button class="btn ghost sm" id="gdel">Borrar clave</button></div><div id="gmsg" class="small" style="margin-top:8px"></div>
+    <h3 style="margin-top:14px;font-size:16px">💳 OpenAI (pago)</h3>
+    <p class="small muted">Tu clave de <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>. ⚠️ Sin servidor propio, la clave se usa <b>directamente desde este dispositivo</b> (para la voz en vivo se genera una clave temporal con ella). Úsala solo en tu propio teléfono o computador, con límite de gasto configurado en OpenAI.</p>
+    <input class="field" id="okey" type="password" placeholder="sk-…" value="${esc(s.openaiKey)}" autocomplete="off" aria-label="Clave de OpenAI">
+    <div class="row" style="margin-top:8px"><input class="field" id="omodel" value="${esc(s.openaiModel)}" list="omodels" aria-label="Modelo de chat OpenAI"><datalist id="omodels"><option value="gpt-4o-mini"><option value="gpt-4.1-mini"><option value="gpt-4.1-nano"><option value="gpt-4o"></datalist><input class="field" id="rtmodel" value="${esc(s.realtimeModel)}" list="rtmodels" aria-label="Modelo Realtime"><datalist id="rtmodels"><option value="gpt-realtime"><option value="gpt-realtime-mini"></datalist></div>
+    <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="osave">Guardar</button><button class="btn ghost sm" id="otest">Probar conexión</button><button class="btn ghost sm" id="odel">Borrar clave</button></div><div id="omsg" class="small" style="margin-top:8px"></div>
   </div>
-  <div class="card"><h3>Datos</h3>
+  <div class="card"><h3>🎯 Aprendizaje</h3>
+    <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal" style="max-width:200px">${opt([[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']], s.goal)}</select></div>
+    <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:200px">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
+    ${sw('freeMode', s.freeMode, 'Modo libre', 'Desbloquea todas las lecciones')}
+    <div class="set-row"><div><label>Prueba de nivel</label><div class="desc">${S.placement && typeof S.placement === 'object' ? 'Última: ' + S.placement.date + ' · ' + S.placement.score : 'Aún no la has hecho'}</div></div><button class="btn ghost sm" id="replace">Hacer ahora</button></div>
+    <div class="set-row"><div><label>Reconocimiento de voz</label><div class="desc">${azureReady() ? 'Azure (fonemas) ✅' : HAS_SR ? 'Navegador (por palabras) ✅' : 'No disponible ❌ — usa Chrome/Edge o configura Azure'}</div></div><button class="btn ghost sm" id="testMic" ${canSpeak() ? '' : 'disabled'}>Probar 🎤</button></div>
+  </div>
+  <div class="card"><h3>⏰ Recordatorio diario</h3>
+    ${sw('remindOn', s.remindOn, 'Notificación local', 'Solo funciona si la app está abierta o en segundo plano')}
+    <div class="set-row"><div><label for="remindTime">Hora</label></div><input type="time" class="field" id="remindTime" value="${esc(s.remindTime)}" style="max-width:140px"></div>
+    <p class="small muted">Para un recordatorio 100% confiable (aunque cierres la app), agrega un evento diario a tu calendario:</p><button class="btn ghost sm" id="ics">📅 Agregar al calendario (.ics)</button>
+  </div>
+  <div class="card"><h3>🎨 Apariencia y accesibilidad</h3>
+    <div class="set-row"><div><label for="theme">Tema</label></div><select class="field" id="theme" style="max-width:200px">${opt([['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']], s.theme)}</select></div>
+    <div class="set-row"><div><label for="fontScale">Tamaño de letra</label></div><select class="field" id="fontScale" style="max-width:200px">${opt([[0.9, 'Pequeño'], [1, 'Normal'], [1.15, 'Grande'], [1.3, 'Muy grande']], s.fontScale)}</select></div>
+    ${sw('contrast', s.contrast, 'Alto contraste')}${sw('reduceMotion', s.reduceMotion, 'Reducir animaciones')}
+  </div>
+  <div class="card"><h3>💾 Datos</h3>
     <div class="row wrap"><button class="btn ghost sm" id="exp">⬇️ Exportar progreso</button><label class="btn ghost sm" style="margin:0">⬆️ Importar<input type="file" id="imp" accept="application/json" hidden></label></div>
-    <button class="btn red block" id="reset" style="margin-top:14px">Borrar todo mi progreso</button>
+    <p class="small muted">Las claves nunca se incluyen en la exportación.</p>
+    <button class="btn red block" id="reset" style="margin-top:8px">Borrar todo mi progreso</button>
   </div>
-  <p class="muted small" style="text-align:center">Tuki Speak · 100% gratis y sin servidor · tus datos quedan en este dispositivo.</p>`;
+  <p class="muted small" style="text-align:center">Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.</p>`;
   const set = (k, val) => { S.settings[k] = val; save(); };
+  const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
+  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice']].forEach(a => bindSel(...a));
+  ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
   $('#rate').oninput = e => { set('rate', +e.target.value); $('#rateV').textContent = (+e.target.value).toFixed(2) + '×'; };
   $('#tRate').onclick = () => speak('Hello! This is how fast I speak. Think, three, very, ship, sheep.');
-  $('#voice').onchange = e => { set('voice', e.target.value); speak('Hello, how are you?'); };
-  ['autoplay', 'sound', 'recordVoice', 'freeMode'].forEach(k => $('#' + k).onchange = e => set(k, e.target.checked));
-  $('#goal').onchange = e => set('goal', +e.target.value);
-  $('#threshold').onchange = e => set('threshold', +e.target.value);
-  $('#testMic').onclick = () => doMic($('#testMic'), alts => { toast('Escuché: «' + alts[0].t + '» (' + Math.round((alts[0].c || 0) * 100) + '%)', 4000); $('#testMic').innerHTML = 'Probar 🎤'; });
+  $('#replace').onclick = placementIntro;
+  $('#testMic').onclick = () => doMic($('#testMic'), (alts, url, az) => { toast(az ? `Azure: «${az.heard}» · ${az.pct}%` : 'Escuché: «' + alts[0].t + '» (' + Math.round((alts[0].c || 0) * 100) + '%)', 4000); $('#testMic').innerHTML = 'Probar 🎤'; }, azureReady() ? 'Hello, how are you?' : undefined);
+  // Azure
+  const azMsg = $('#azMsg');
+  $('#azSave').onclick = () => { set('azureKey', $('#azKey').value.trim()); set('azureRegion', $('#azRegion').value.trim().toLowerCase()); window.__azOff = false; azMsg.textContent = azureReady() ? '✅ Guardado. Toca "Probar conexión".' : 'Faltan clave o región: Azure queda desactivado.'; };
+  $('#azDel').onclick = () => { set('azureKey', ''); $('#azKey').value = ''; if (s.ttsEngine === 'azure') set('ttsEngine', 'device'); azMsg.textContent = 'Clave de Azure borrada.'; };
+  $('#azTest').onclick = async () => {
+    const key = $('#azKey').value.trim(), reg = $('#azRegion').value.trim().toLowerCase(); if (!key || !reg) { azMsg.textContent = 'Escribe la clave y la región.'; return; }
+    azMsg.textContent = 'Probando…';
+    try { const r = await fetch(`https://${encodeURIComponent(reg)}.api.cognitive.microsoft.com/sts/v1.0/issueToken`, { method: 'POST', headers: { 'Ocp-Apim-Subscription-Key': key, 'Content-Type': 'application/x-www-form-urlencoded' } }); if (!r.ok) throw await httpErr(r); set('azureKey', key); set('azureRegion', reg); window.__azOff = false; azMsg.textContent = '✅ Conexión correcta con Azure (' + reg + '). La evaluación por fonemas está activa.'; }
+    catch (e) { azMsg.textContent = '❌ ' + errES(e, 'Azure') + (e.status === 401 ? ' Verifica que la región coincida con la de tu recurso.' : ''); }
+  };
+  // Gemini
   const gmsg = $('#gmsg');
-  $('#gsave').onclick = () => { set('geminiKey', $('#gkey').value.trim()); set('model', $('#gmodel').value.trim() || 'gemini-flash-latest'); CHAT.hist = []; gmsg.textContent = S.settings.geminiKey ? '✅ Guardado. Ve a la pestaña IA.' : 'Clave vacía: la IA queda desactivada.'; };
+  $('#gsave').onclick = () => { set('geminiKey', $('#gkey').value.trim()); set('model', $('#gmodel').value.trim() || 'gemini-2.5-flash'); set('liveModel', $('#lmodel').value.trim() || GEMINI_LIVE_MODELS[0]); CHAT.hist = []; gmsg.textContent = S.settings.geminiKey ? '✅ Guardado. Ve a la pestaña IA.' : 'Clave vacía: Gemini queda desactivado.'; };
   $('#gdel').onclick = () => { set('geminiKey', ''); $('#gkey').value = ''; gmsg.textContent = 'Clave borrada.'; };
   $('#gdetect').onclick = async () => {
     const key = $('#gkey').value.trim(); if (!key) { gmsg.textContent = 'Primero pega tu clave.'; return; }
     gmsg.textContent = 'Consultando modelos…';
     try {
-      const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + encodeURIComponent(key)); const d = await r.json();
-      if (!r.ok) throw new Error((d.error && d.error.message) || r.status);
-      const ms = (d.models || []).filter(m => (m.supportedGenerationMethods || []).includes('generateContent')).map(m => m.name.replace('models/', '')).filter(n => /flash/.test(n) && !/image|tts|audio|live|embedding/.test(n));
-      $('#gmodels').innerHTML = ms.map(m => `<option value="${esc(m)}">`).join('');
-      gmsg.innerHTML = ms.length ? '✅ Clave válida. Modelos disponibles: ' + ms.slice(0, 12).map(esc).join(', ') + '. Escribe o elige uno arriba y guarda.' : 'Clave válida, pero no se encontraron modelos "flash".';
-    } catch (e) { gmsg.textContent = '❌ ' + e.message; }
+      const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200', { headers: { 'x-goog-api-key': key } }); if (!r.ok) throw await httpErr(r);
+      const d = await r.json(), all = d.models || [];
+      const chat = all.filter(m => (m.supportedGenerationMethods || []).includes('generateContent')).map(m => m.name.replace('models/', '')).filter(n => /flash/.test(n) && !/image|tts|audio|live|embedding/.test(n));
+      const live = all.filter(m => (m.supportedGenerationMethods || []).includes('bidiGenerateContent')).map(m => m.name.replace('models/', ''));
+      S.liveModels = live.filter(n => /live|native-audio/.test(n)); if (!S.liveModels.length) S.liveModels = live; save();
+      $('#gmodels').innerHTML = chat.map(m => `<option value="${esc(m)}">`).join(''); $('#lmodels').innerHTML = S.liveModels.map(m => `<option value="${esc(m)}">`).join('');
+      gmsg.innerHTML = '✅ Clave válida.<br>Chat: ' + (chat.slice(0, 8).map(esc).join(', ') || '—') + '<br>Voz en vivo: ' + (S.liveModels.slice(0, 6).map(esc).join(', ') || '— (tu clave no lista modelos Live)');
+    } catch (e) { gmsg.textContent = '❌ ' + errES(e, 'Gemini'); }
   };
-  $('#exp').onclick = () => { const a = document.createElement('a'); const s2 = { ...S, settings: { ...S.settings, geminiKey: '' } }; a.href = URL.createObjectURL(new Blob([JSON.stringify(s2, null, 1)], { type: 'application/json' })); a.download = 'tuki-speak-progreso-' + dayKey() + '.json'; a.click(); };
-  $('#imp').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { const d = JSON.parse(t); if (!d || d.v !== 1) throw new Error('Archivo no válido'); const key = S.settings.geminiKey; S = d; S.settings = { ...DEFAULT_SETTINGS, ...d.settings, geminiKey: key }; save(); load(); toast('Progreso importado ✅'); render(); }).catch(err => toast('Error: ' + err.message)); };
-  $('#reset').onclick = () => confirmBox('¿Borrar todo tu progreso?', 'Se eliminarán XP, racha, lecciones, puntajes y tarjetas. Tus ajustes (y la clave de IA) se conservan. Esta acción no se puede deshacer.', 'Sí, borrar todo', () => { const keep = S.settings; S = freshState(); S.settings = keep; save(); CHAT.hist = []; toast('Progreso borrado.'); go('learn'); }, true);
+  // OpenAI
+  const omsg = $('#omsg');
+  $('#osave').onclick = () => { set('openaiKey', $('#okey').value.trim()); set('openaiModel', $('#omodel').value.trim() || 'gpt-4o-mini'); set('realtimeModel', $('#rtmodel').value.trim() || 'gpt-realtime'); omsg.textContent = S.settings.openaiKey ? '✅ Guardado.' : 'Clave vacía: OpenAI queda desactivado.'; };
+  $('#odel').onclick = () => { set('openaiKey', ''); $('#okey').value = ''; if (s.ttsEngine === 'openai') set('ttsEngine', 'device'); if (s.chatProvider === 'openai') set('chatProvider', 'gemini'); omsg.textContent = 'Clave borrada.'; };
+  $('#otest').onclick = async () => { const key = $('#okey').value.trim(); if (!key) { omsg.textContent = 'Pega tu clave primero.'; return; } omsg.textContent = 'Probando…'; try { const r = await fetch('https://api.openai.com/v1/models', { headers: { Authorization: 'Bearer ' + key } }); if (!r.ok) throw await httpErr(r); set('openaiKey', key); omsg.textContent = '✅ Conexión correcta con OpenAI.'; } catch (e) { omsg.textContent = '❌ ' + errES(e, 'OpenAI'); } };
+  // recordatorios
+  $('#remindOn').onchange = async e => {
+    if (e.target.checked) {
+      if (!('Notification' in window)) { toast('Tu navegador no soporta notificaciones.'); e.target.checked = false; return; }
+      const p = await Notification.requestPermission(); if (p !== 'granted') { toast('Permiso de notificaciones denegado.'); e.target.checked = false; set('remindOn', false); return; }
+      set('remindOn', true); toast('⏰ Recordatorio activado a las ' + S.settings.remindTime);
+    } else set('remindOn', false);
+  };
+  $('#remindTime').onchange = e => set('remindTime', e.target.value || '19:00');
+  $('#ics').onclick = downloadICS;
+  // datos
+  $('#exp').onclick = () => { const a = document.createElement('a'); const s2 = { ...S, settings: { ...S.settings, geminiKey: '', openaiKey: '', azureKey: '' } }; a.href = URL.createObjectURL(new Blob([JSON.stringify(s2, null, 1)], { type: 'application/json' })); a.download = 'tuki-speak-progreso-' + dayKey() + '.json'; a.click(); };
+  $('#imp').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { const d = JSON.parse(t); if (!d || !(d.v === 1 || d.v === 2) || !d.settings) throw new Error('Archivo no válido'); const keys = { geminiKey: S.settings.geminiKey, openaiKey: S.settings.openaiKey, azureKey: S.settings.azureKey }; localStorage.setItem(KEY, JSON.stringify({ ...d, settings: { ...d.settings, ...keys } })); load(); save(); toast('Progreso importado ✅'); applyPrefs(); render(); }).catch(err => toast('Error: ' + err.message)); };
+  $('#reset').onclick = () => confirmBox('¿Borrar todo tu progreso?', 'Se eliminarán XP, racha, lecciones, puntajes, insignias y tarjetas. Tus ajustes y claves se conservan. Esta acción no se puede deshacer.', 'Sí, borrar todo', () => { const keep = S.settings; S = freshState(); S.settings = keep; S.placement = 'skipped'; save(); CHAT.hist = []; toast('Progreso borrado.'); go('learn'); }, true);
 };
 
+/* =================== RECORDATORIOS =================== */
+function downloadICS() {
+  const [h, m] = (S.settings.remindTime || '19:00').split(':'), d = new Date(), p = n => String(n).padStart(2, '0');
+  const start = `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}T${p(h)}${p(m)}00`, now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const url = location.href.split('#')[0];
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tuki Speak//ES', 'BEGIN:VEVENT', 'UID:tuki-speak-diario@' + location.host, 'DTSTAMP:' + now, 'DTSTART:' + start, 'DURATION:PT10M', 'RRULE:FREQ=DAILY', 'SUMMARY:Practicar inglés con Tuki Speak', 'DESCRIPTION:10 minutos de pronunciación: ' + url, 'URL:' + url, 'BEGIN:VALARM', 'TRIGGER:PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:Hora de practicar inglés 🦜', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'tuki-speak-recordatorio.ics'; a.click();
+}
+function checkReminder() {
+  const s = S.settings; if (!s.remindOn || !('Notification' in window) || Notification.permission !== 'granted') return;
+  const now = new Date(), [h, m] = (s.remindTime || '19:00').split(':').map(Number), k = dayKey();
+  if (S.lastRemind === k || now.getHours() * 60 + now.getMinutes() < h * 60 + m || todayRec().xp >= s.goal) return;
+  S.lastRemind = k; save();
+  const body = `¡Hora de practicar! Te faltan ${s.goal - todayRec().xp} XP hoy. 🔥 Racha: ${streakNow()}`;
+  (navigator.serviceWorker && navigator.serviceWorker.getRegistration ? navigator.serviceWorker.getRegistration() : Promise.resolve(null)).then(reg => { if (reg && reg.showNotification) reg.showNotification('Tuki Speak 🦜', { body, icon: 'icon-192.png', tag: 'tuki-remind' }); else new Notification('Tuki Speak 🦜', { body, icon: 'icon-192.png' }); }).catch(() => {});
+}
+
+/* =================== CONEXIÓN Y ACTUALIZACIONES =================== */
+function netBanner() {
+  let b = $('#netBanner');
+  if (navigator.onLine) { if (b) b.remove(); return; }
+  if (!b) { b = document.createElement('div'); b.id = 'netBanner'; b.className = 'banner net'; b.setAttribute('role', 'status'); document.body.appendChild(b); }
+  b.innerHTML = '📴 Sin conexión: lecciones, tarjetas y voz del dispositivo funcionan. El reconocimiento de Chrome, Azure y la IA necesitan internet.';
+}
+window.addEventListener('online', () => { netBanner(); toast('De nuevo en línea ✅'); });
+window.addEventListener('offline', netBanner);
+let UPDATE_REQ = false;
+function showUpdateBanner(worker) {
+  if ($('#updBanner')) return;
+  const b = document.createElement('div'); b.id = 'updBanner'; b.className = 'banner upd'; b.setAttribute('role', 'status');
+  b.innerHTML = '<span>✨ Hay una nueva versión de Tuki Speak.</span><button class="btn primary" id="updBtn">Actualizar</button>';
+  document.body.appendChild(b);
+  $('#updBtn').onclick = () => { UPDATE_REQ = true; b.querySelector('span').textContent = 'Actualizando…'; worker.postMessage('skipWaiting'); setTimeout(() => location.reload(), 3000); };
+}
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.addEventListener('load', async () => {
+  try {
+    const reg = await navigator.serviceWorker.register('sw.js');
+    if (reg.waiting && navigator.serviceWorker.controller) showUpdateBanner(reg.waiting);
+    reg.addEventListener('updatefound', () => { const w = reg.installing; if (w) w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdateBanner(w); }); });
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (UPDATE_REQ) location.reload(); });
+    setInterval(() => reg.update().catch(() => {}), 30 * 60e3);
+    window.__swReg = reg;
+  } catch (e) {}
+});
+
 /* =================== INICIO =================== */
-save(); render();
-setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); }, 60e3);
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
-// Gancho de pruebas (solo lectura del estado interno)
-window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, LESSONS, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice };
+applyPrefs(); save(); render(); netBanner();
+if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
+setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
+setTimeout(checkReminder, 5000);
+window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, version: APP_VERSION };
 </script>
+
 </body>
 </html>
