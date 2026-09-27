@@ -1,4 +1,4 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.4.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.5.0
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
 Sin backend. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
@@ -8,7 +8,14 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 ## Qué incluye
 - **12 unidades / 36 lecciones**: vocales, consonantes, TH, finales, terminaciones, entonación, conversaciones reales, habla conectada (linking, reducciones, flap-t), números/fechas/horas, phrasal verbs, falsos amigos, small talk y entrevista avanzada.
 - **Prueba de nivel** al primer uso (10 preguntas con oído y voz, se puede saltar o repetir en Ajustes).
-- **Plan de hoy** (~10 min): sonidos débiles + tarjetas pendientes + pares mínimos.
+- **Plan de hoy** (~10 min): sonidos débiles + tarjetas pendientes + pares mínimos + una frase de «Traduce y completa».
+- ✍️ **Traduce y completa** (nuevo en v2.5, en Aprender y Práctica): lees una frase en español con la parte clave en **verde** y escribes el inglés en huecos azules dentro de la frase, que crecen mientras escribes.
+  - **Banco sin conexión de 155 frases** (Básico 35 · Intermedio 45 · Intermedio alto 43 · Avanzado 32): expresiones informales, phrasal verbs, falsos amigos (actually, embarrassed, assist, library, realize…), preposiciones, errores típicos (make/do, say/tell, since/for, «I have 20 years») y frases del día a día. Cada frase trae su contexto (p. ej. «Contexto: en el trabajo»).
+  - **Retroalimentación inteligente**: si escribes una respuesta válida pero no la buscada o un error típico, una burbuja coral te explica en español por qué (p. ej. «"Crazy" es válido, pero piensa en algo más informal.»). Detecta errores de ortografía pequeños. Con una clave de IA, las respuestas desconocidas se evalúan con Gemini/OpenAI (correcta / válida pero distinta / incorrecta); sin clave, recibes una pista.
+  - Tuki lee la burbuja en voz alta en español (Azure `es-CO-SalomeNeural` si está configurado; si no, la voz del dispositivo) y se puede silenciar. Hay 🔊 y 🐢 para la frase en inglés y 🎤 para decirla.
+  - Pistas: la primera muestra una ayuda y la segunda la primera letra (+5 XP en vez de +10). «Ver respuesta» no da XP y la frase vuelve más tarde en la ronda.
+  - Los errores van a tus tarjetas, sin duplicados y con la frase de ejemplo. Si fallas una frase varias veces, pasa a *Mis palabras difíciles*. Cada frase guarda tu dominio, y las dominadas salen menos. Verás tus estadísticas en Progreso y ganarás 2 insignias nuevas.
+  - ✨ **Más frases con IA** (opcional): genera frases nuevas a tu nivel con el mismo formato. Si la IA falla, se usa el banco.
 - **Diccionario/Frases** con búsqueda (inglés o español), audio normal/lento, ➕ a tarjetas y 🎙️ practicar.
 - Diagramas de boca (SVG), onda y curva de entonación de tu voz vs. el modelo.
 - **Conversación con IA**
@@ -57,5 +64,5 @@ GitHub Pages, Netlify Drop, Vercel o Cloudflare Pages: sube `index.html`, `manif
 - Los recordatorios del navegador solo se muestran si la app está abierta o en segundo plano; el `.ics` es la opción confiable.
 - El lector de QR integrado requiere `BarcodeDetector` (Chrome/Edge en Android, algunos navegadores de escritorio); si no existe, escanea con la cámara del teléfono o pega el código.
 - La sincronización al cerrar la app es de mejor esfuerzo (el navegador puede cortarla); usa «Sincronizar ahora» antes de cambiar de dispositivo.
-- Resúmenes, entrevista y reto necesitan una clave de IA (Gemini gratis u OpenAI).
+- Resúmenes, entrevista y reto necesitan una clave de IA (Gemini gratis u OpenAI). «Traduce y completa» funciona sin clave con su banco de frases; la IA solo agrega explicaciones para respuestas que no están en el banco y frases nuevas.
 - La curva de entonación del modelo solo se dibuja con voces en la nube (el audio de la voz del dispositivo no se puede capturar).
