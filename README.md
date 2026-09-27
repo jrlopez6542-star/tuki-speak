@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.9.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.9.1
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
 Sin backend propio (la cuenta opcional usa Firebase en el plan gratuito Spark). Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.9.1
+- Se quitó la sección **«Uso del plan gratis»** de Ajustes (tablas de Vercel Hobby y Firebase Spark, contadores locales de lecturas/escrituras y botones «Ver uso en Vercel/Firebase»), junto con su código. La sincronización sigue igual y no se borra ningún dato guardado.
 
 ## Novedades v2.9.0
 - 🗣️ **Voz de Tuki** (Ajustes, justo debajo de «Voz y audio»): eliges la voz de Tuki por idioma (pestañas **Español (explicaciones)** e **Inglés (frases)**), con **▶ Escuchar** en cada voz. El ejemplo en español es «Hola, soy Tuki. Vamos a practicar inglés juntos, paso a paso.» y en inglés «Hi, I'm Tuki. Let's practice English together, step by step.». Respeta la **Velocidad de Tuki** (por defecto «Lenta»). Solo suena un ejemplo a la vez; el botón cambia a «⏹ Detener».
@@ -18,12 +21,12 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 - **Sincronización en la nube** con Firebase **Spark** (gratis): Auth + Cloud Firestore *lite* (sin listeners en tiempo real). El SDK se carga desde gstatic solo al abrir la cuenta o si ya iniciaste sesión; sin él la app funciona igual y sin conexión.
   - Documentos: `users/{uid}` (meta + `keysEnc`), `users/{uid}/data/progress` (progreso comprimido, `TK1` = deflate + base64url) y `users/{uid}/data/settings` (ajustes sin claves).
   - Primer inicio: sube lo local o lo **combina** (misma fusión sin pérdidas de «Combinar»). En otro dispositivo: descarga y combina. Si los datos locales son de **otra cuenta**, pregunta antes de mezclar.
-  - Escrituras con retardo: como máximo una cada 45 s mientras usas la app, más al ocultar la pestaña y con «Sincronizar ahora». Contadores de lecturas/escrituras de hoy en «Uso del plan gratis».
+  - Escrituras con retardo: como máximo una cada 45 s mientras usas la app, más al ocultar la pestaña y con «Sincronizar ahora».
 - **Claves de API cifradas** (Gemini, Azure clave + región, OpenAI) con una **frase de seguridad** (mín. 10 caracteres): PBKDF2-SHA256 con 310.000 iteraciones y sal aleatoria de 16 bytes → AES-GCM 256 con IV aleatorio de 12 bytes. En la nube solo se guarda `{v, alg, salt, iv, ct, iter}`. La frase nunca se guarda ni se envía. Opciones: cambiar frase (re-cifra), olvidé mi frase (borra `keysEnc`) y «Bloquear claves con la frase en este dispositivo» (solo guarda la versión cifrada localmente; pide la frase una vez por sesión).
 - **Validación de datos** importados (nube, QR, Gist, archivo y enlace `#import=`): esquema, tipos, límites de tamaño y bloqueo de `__proto__`/`constructor`/`prototype`. Las claves nunca van en QR, Gist ni registros.
 - **Cabeceras de seguridad**: `vercel.json` con CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options: DENY` / `frame-ancestors 'none'`, `Cross-Origin-Opener-Policy: same-origin-allow-popups` y HSTS. En GitHub Pages va la misma CSP como `<meta>` (sin `frame-ancestors`, que no funciona en meta). Los scripts en línea van con hash SHA-256; `style-src` necesita `'unsafe-inline'` (hay muchos atributos `style`). **Después de cambiar `index.html` ejecuta `python3 tools/build_csp.py`** para recalcular los hashes.
 - **Reglas de Firestore** en `firestore.rules` (cada usuario solo su documento, sin consultas de lista, campos/tipos/tamaños validados), más `firebase.json` y `firestore.indexes.json`. Se publican en la consola de Firebase (Firestore → Reglas). Pruebas con el emulador: `npx firebase emulators:exec --only firestore "node tests/rules.test.mjs"` (requiere Java, `firebase-tools`, `firebase` y `@firebase/rules-unit-testing`).
-- **Uso del plan gratis** en Ajustes: límites de Vercel Hobby (verificados el 27 sep 2026) y de Firebase Spark, con enlaces al uso en Vercel y en Firebase.
+- ~~Uso del plan gratis~~ (quitado en v2.9.1).
 
 ## Qué incluye
 - **12 unidades / 36 lecciones**: vocales, consonantes, TH, finales, terminaciones, entonación, conversaciones reales, habla conectada (linking, reducciones, flap-t), números/fechas/horas, phrasal verbs, falsos amigos, small talk y entrevista avanzada.
