@@ -1,4 +1,4 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.6.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis, sin servidor) · v2.7.0
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
 Sin backend. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
@@ -34,6 +34,20 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 - Voces naturales opcionales: Azure neural (en-US/en-GB) u OpenAI TTS; si fallan, se usa la voz del dispositivo.
 - Insignias, estadísticas semanales, protector de racha, modo oscuro, tamaño de letra, alto contraste, reducir animaciones, vibración.
 - Recordatorio diario (notificación local o evento de calendario `.ics`), aviso sin conexión, aviso de nueva versión.
+
+### Novedades v2.7.0: Práctica diaria
+
+- Nueva tarjeta **🌅 Práctica diaria · 3–5 min** arriba en Aprender, justo debajo de la meta diaria. Son 3 ejercicios cortos de nivel A1–A2 que combinan escuchar y hablar, con indicador de progreso 1/3 · 2/3 · 3/3:
+  1. **👂 Escuchar:** Tuki lee una frase (🔊 normal, 🐢 lento, puedes repetirla). Eliges su significado o la frase que oíste entre 4 opciones y luego la repites en voz alta. La pronunciación se califica con el reconocimiento de voz, o con Azure si está configurado, y cada palabra se colorea en verde, amarillo o rojo.
+  2. **🗣️ Hablar:** Tuki hace una pregunta sencilla ("Where do you live?"). Con 🇪🇸 ves la traducción y la escuchas. Luego respondes en voz alta.
+     - Con clave de IA (Gemini u OpenAI): recibes una corrección breve en español y una versión mejorada para escuchar.
+     - Sin clave: se revisa que la respuesta tenga palabras clave de la pregunta y una longitud mínima, y ves una respuesta modelo para escuchar y repetir.
+  3. **🔀 Mixto:** primero demuestras que entendiste la pregunta (opción rápida) y después la respondes.
+- **Contenido:** un banco de 36 frases, 32 preguntas y 32 preguntas mixtas. Rota cada día según la fecha y no repite lo que viste en los últimos 10 días.
+- **Recompensas:** completar la rutina da +15 XP (+5 si la repites el mismo día), cuenta para la racha y recupera una vida. La tarjeta muestra ✅ «Vuelve mañana» y un botón Repetir. Hay una insignia 🌅 «Rutina de 7 días».
+- **Repaso:** las frases que fallas o pronuncias mal pasan a tus tarjetas y a «Mis palabras difíciles».
+- **Sin micrófono:** si no hay reconocimiento de voz, puedes escribir la respuesta.
+- **Datos:** respeta la velocidad de Tuki y la voz en español. La migración conserva todos tus datos y la sincronización entre dispositivos fusiona los días hechos.
 
 ### Novedades v2.6.0: Traduce y completa por voz
 - Nuevo selector **⌨️ Escribir / 🎙️ Hablar** en la hoja de inicio y en la tarjeta. Se guarda en Ajustes, y Hablar viene activado si el navegador tiene reconocimiento de voz.

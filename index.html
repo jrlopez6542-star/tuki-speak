@@ -448,6 +448,54 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 #tcAz .ph{font-size:13px;padding:2px 6px;margin:2px 2px 0 0;display:inline-block}
 [data-theme=dark] .tc-voice[data-state=speaking]{border-color:#2a6f99}
 @media (prefers-reduced-motion: reduce){.tc-mic.on{animation:none}}
+/* v2.7 Práctica diaria */
+.pd-home{border:2px solid #ffc800;background:linear-gradient(135deg,#fff8e1,#fff);box-shadow:0 4px 0 #ffc800}
+.pd-home.done{border-color:var(--g);box-shadow:0 4px 0 var(--g);background:linear-gradient(135deg,#eaffd9,#fff)}
+.pd-home h3{font-size:19px}
+.pd-streak{font-weight:900;color:#c97a00;background:#fff1c2;border-radius:999px;padding:6px 10px;white-space:nowrap}
+.pd-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 12px}
+.pd-chips span{font-size:13px;font-weight:800;border:2px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--card);color:var(--ink)}
+.pd-go{font-size:18px;min-height:54px}
+.pd-steps{display:flex;align-items:center;gap:6px;margin:4px 0 10px;flex-wrap:wrap}
+.pd-steps span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:900;border:2px solid var(--line);color:var(--mute);background:var(--card)}
+.pd-steps span.cur{border-color:var(--b);color:#fff;background:var(--b)}
+.pd-steps span.done{border-color:var(--g);color:#fff;background:var(--g)}
+.pd-steps i{width:16px;height:3px;background:var(--line);border-radius:2px}
+.pd-steps b{margin-left:6px;font-size:15px;color:var(--ink)}
+.pd-card{border:2px solid var(--line);border-radius:18px;padding:16px;margin:8px 0 12px;background:var(--card);display:flex;flex-direction:column;align-items:center;gap:10px}
+.pd-card .listen-row{justify-content:center}
+.pd-bigq{font-size:24px;font-weight:900;text-align:center;color:var(--ink);line-height:1.25}
+.pd-es{font-size:18px;font-weight:700;color:var(--b-d);text-align:center}
+.pd-q{font-weight:900;font-size:17px;margin:12px 0 8px;color:var(--ink)}
+.pd-opts{display:flex;flex-direction:column;gap:10px}
+.pd-opt{text-align:left;font-size:17px;min-height:54px}
+.opt.right{border-color:var(--g);background:#d7ffb8;color:var(--g-d);box-shadow:0 3px 0 var(--g)}
+.opt.wrong{border-color:var(--r);background:#ffdfe0;color:var(--r);box-shadow:0 3px 0 var(--r)}
+.pd-fb{border-radius:14px;padding:12px;margin:12px 0 8px;font-weight:700;line-height:1.4}
+.pd-fb.ok{background:#d7ffb8;color:#3c7d00}
+.pd-fb.fix{background:#fff1c2;color:#8a5a00}
+.pd-fb.off{background:#ffe4e4;color:#b3261e}
+.pd-fb .mini{margin-left:4px}
+.pd-ans{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.pd-mic.big{min-height:64px;font-size:18px}
+.pd-type{display:flex;flex-direction:column;gap:8px}
+.pd-heard{margin-top:8px;color:var(--ink)}
+.pd-model{border:2px dashed var(--line);border-radius:16px;padding:12px;margin-top:8px;display:flex;flex-direction:column;gap:8px}
+.pd-model b{font-size:18px}
+.pd-rep .target{font-size:20px;margin:6px 0}
+.pd-res{margin-top:6px}
+.lfoot #pdSkip{min-width:90px}
+[data-theme=dark] .pd-home{background:linear-gradient(135deg,#2e2710,var(--card));border-color:#b38f00;box-shadow:0 4px 0 #b38f00}
+[data-theme=dark] .pd-home.done{background:linear-gradient(135deg,#17300c,var(--card));border-color:var(--g-d);box-shadow:0 4px 0 var(--g-d)}
+[data-theme=dark] .pd-streak{background:#3a2e08;color:#ffc94d}
+[data-theme=dark] .pd-es{color:#8fd6ff}
+[data-theme=dark] .opt.right{background:#1f3d0f;color:#a6f07a}
+[data-theme=dark] .opt.wrong{background:#431b1b;color:#ff9b9b}
+[data-theme=dark] .pd-fb.ok{background:#1f3d0f;color:#a6f07a}
+[data-theme=dark] .pd-fb.fix{background:#3a2e08;color:#ffd666}
+[data-theme=dark] .pd-fb.off{background:#431b1b;color:#ffabab}
+@media (max-width:400px){.pd-bigq{font-size:21px}.pd-home h3{font-size:17px}}
+
 </style>
 </head>
 <body>
@@ -1730,7 +1778,7 @@ function parseTutor(t) {
 </script>
 <script>
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.6.0';
+const APP_VERSION = '2.7.0';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
@@ -4036,13 +4084,298 @@ Object.assign(window, { tcExtract, tcExtractAll });
 
 </script>
 <script>
+/* =================== v2.7 PRÁCTICA DIARIA =================== */
+/* =================== v2.7: PRÁCTICA DIARIA (banco A1–A2) =================== */
+const PD_LISTEN = [
+  ['l01', 'Nice to meet you.', 'Mucho gusto.'], ['l02', 'See you tomorrow.', 'Nos vemos mañana.'], ['l03', 'How much is it?', '¿Cuánto cuesta?'],
+  ['l04', 'I am very tired today.', 'Estoy muy cansado hoy.'], ['l05', 'Can you help me, please?', '¿Me puedes ayudar, por favor?'], ['l06', 'Where is the bathroom?', '¿Dónde está el baño?'],
+  ['l07', "I don't understand.", 'No entiendo.'], ['l08', 'Can you repeat that, please?', '¿Puedes repetir eso, por favor?'], ['l09', "It's cold outside.", 'Hace frío afuera.'],
+  ['l10', "I'm hungry.", 'Tengo hambre.'], ['l11', 'Have a nice day!', '¡Que tengas un buen día!'], ['l12', 'What time is it?', '¿Qué hora es?'],
+  ['l13', 'I live with my family.', 'Vivo con mi familia.'], ['l14', 'I work from home.', 'Trabajo desde casa.'], ['l15', "Let's go!", '¡Vamos!'],
+  ['l16', 'I like coffee with milk.', 'Me gusta el café con leche.'], ['l17', 'The bus is late.', 'El bus está retrasado.'], ['l18', 'I need some water.', 'Necesito un poco de agua.'],
+  ['l19', 'Thank you so much.', 'Muchas gracias.'], ['l20', "You're welcome.", 'De nada.'], ['l21', 'Excuse me.', 'Disculpe.'],
+  ['l22', 'I am learning English.', 'Estoy aprendiendo inglés.'], ['l23', 'Speak more slowly, please.', 'Habla más despacio, por favor.'], ['l24', 'My phone is dead.', 'Mi teléfono está descargado.'],
+  ['l25', "I'll call you later.", 'Te llamo más tarde.'], ['l26', 'The food is delicious.', 'La comida está deliciosa.'], ['l27', "I'm sorry, I'm late.", 'Perdón, llegué tarde.'],
+  ['l28', 'Good morning, everyone.', 'Buenos días a todos.'], ['l29', 'Close the door, please.', 'Cierra la puerta, por favor.'], ['l30', 'It is my birthday today.', 'Hoy es mi cumpleaños.'],
+  ['l31', 'I have two brothers.', 'Tengo dos hermanos.'], ['l32', 'The store opens at nine.', 'La tienda abre a las nueve.'], ['l33', 'Turn left at the corner.', 'Gira a la izquierda en la esquina.'],
+  ['l34', 'I feel much better.', 'Me siento mucho mejor.'], ['l35', 'We are ready.', 'Estamos listos.'], ['l36', 'Wait a minute, please.', 'Espera un minuto, por favor.']
+].map(([id, en, es]) => ({ id, en, es }));
+const pdQ = ([id, q, es, kw, model, modelEs, min]) => ({ id, q, es, kw, model, modelEs, min: min || 2 });
+const PD_SPEAK = [
+  ['s01', "What's your name?", '¿Cómo te llamas?', ['name', 'i am', 'call', 'is'], 'My name is Jonatan.', 'Me llamo Jonatan.'],
+  ['s02', 'Where do you live?', '¿Dónde vives?', ['live', 'in', 'from', 'city', 'colombia', 'bogota'], 'I live in Bogotá, Colombia.', 'Vivo en Bogotá, Colombia.'],
+  ['s03', 'What do you like to eat?', '¿Qué te gusta comer?', ['like', 'eat', 'love', 'food', 'rice', 'chicken', 'pizza', 'fruit'], 'I like to eat rice and chicken.', 'Me gusta comer arroz con pollo.'],
+  ['s04', 'How old are you?', '¿Cuántos años tienes?', ['years', 'old', 'am', 'twenty', 'thirty', 'forty', 'fifty'], 'I am thirty years old.', 'Tengo treinta años.'],
+  ['s05', 'What do you do?', '¿A qué te dedicas?', ['work', 'am', 'job', 'engineer', 'teacher', 'student', 'developer'], 'I work as an engineer.', 'Trabajo como ingeniero.'],
+  ['s06', 'Do you have any brothers or sisters?', '¿Tienes hermanos o hermanas?', ['brother', 'sister', 'have', 'no', 'yes', 'one', 'two'], 'Yes, I have one brother and one sister.', 'Sí, tengo un hermano y una hermana.'],
+  ['s07', 'What is your favorite color?', '¿Cuál es tu color favorito?', ['color', 'blue', 'red', 'green', 'black', 'white', 'yellow', 'favorite'], 'My favorite color is blue.', 'Mi color favorito es el azul.'],
+  ['s08', 'What time do you wake up?', '¿A qué hora te despiertas?', ['wake', 'up', 'at', 'clock', 'six', 'seven', 'five', 'eight'], 'I wake up at six in the morning.', 'Me despierto a las seis de la mañana.'],
+  ['s09', 'Do you like music?', '¿Te gusta la música?', ['like', 'music', 'love', 'listen', 'yes', 'no', 'rock', 'salsa'], 'Yes, I love music. I listen to salsa.', 'Sí, me encanta la música. Escucho salsa.'],
+  ['s10', 'What did you do yesterday?', '¿Qué hiciste ayer?', ['yesterday', 'went', 'worked', 'watched', 'played', 'did', 'stayed', 'was'], 'Yesterday I worked and then I watched a movie.', 'Ayer trabajé y luego vi una película.'],
+  ['s11', 'What is the weather like today?', '¿Cómo está el clima hoy?', ['sunny', 'rainy', 'cold', 'hot', 'weather', 'it is', 'cloudy', 'raining'], "It's sunny but a little cold.", 'Está soleado pero un poco frío.'],
+  ['s12', 'Do you have a pet?', '¿Tienes una mascota?', ['dog', 'cat', 'pet', 'have', 'no', 'yes'], 'Yes, I have a dog. His name is Max.', 'Sí, tengo un perro. Se llama Max.'],
+  ['s13', 'What do you do on weekends?', '¿Qué haces los fines de semana?', ['weekend', 'weekends', 'play', 'visit', 'watch', 'go', 'rest', 'family'], 'On weekends I visit my family.', 'Los fines de semana visito a mi familia.'],
+  ['s14', 'How are you today?', '¿Cómo estás hoy?', ['fine', 'good', 'great', 'tired', 'ok', 'okay', 'well', 'happy', 'am'], "I'm fine, thank you. And you?", 'Estoy bien, gracias. ¿Y tú?'],
+  ['s15', 'Why are you learning English?', '¿Por qué estás aprendiendo inglés?', ['work', 'job', 'travel', 'because', 'want', 'need', 'learn'], 'Because I need English for my job.', 'Porque necesito inglés para mi trabajo.'],
+  ['s16', 'What is your favorite food?', '¿Cuál es tu comida favorita?', ['favorite', 'food', 'pizza', 'rice', 'soup', 'chicken', 'bandeja', 'is'], 'My favorite food is chicken soup.', 'Mi comida favorita es la sopa de pollo.'],
+  ['s17', 'How do you go to work?', '¿Cómo vas al trabajo?', ['bus', 'car', 'walk', 'bike', 'go', 'by', 'take', 'home'], 'I go to work by bus.', 'Voy al trabajo en bus.'],
+  ['s18', 'What sports do you like?', '¿Qué deportes te gustan?', ['soccer', 'football', 'like', 'play', 'tennis', 'basketball', 'swim', 'run'], 'I like soccer. I play on Sundays.', 'Me gusta el fútbol. Juego los domingos.'],
+  ['s19', 'Where are you from?', '¿De dónde eres?', ['from', 'colombia', 'am', 'born', 'city'], "I'm from Colombia.", 'Soy de Colombia.'],
+  ['s20', 'What are you doing now?', '¿Qué estás haciendo ahora?', ['am', 'studying', 'practicing', 'learning', 'working', 'doing', 'now'], "I'm practicing English with Tuki.", 'Estoy practicando inglés con Tuki.'],
+  ['s21', 'Do you drink coffee?', '¿Tomas café?', ['coffee', 'drink', 'yes', 'no', 'tea', 'morning', 'every'], 'Yes, I drink coffee every morning.', 'Sí, tomo café todas las mañanas.'],
+  ['s22', 'What is your best friend like?', '¿Cómo es tu mejor amigo?', ['friend', 'is', 'funny', 'nice', 'kind', 'tall', 'smart'], 'My best friend is funny and kind.', 'Mi mejor amigo es divertido y amable.'],
+  ['s23', 'What do you usually eat for breakfast?', '¿Qué desayunas normalmente?', ['eat', 'breakfast', 'eggs', 'bread', 'coffee', 'arepa', 'fruit'], 'I usually eat eggs and an arepa.', 'Normalmente como huevos y una arepa.'],
+  ['s24', 'Where do you want to travel?', '¿A dónde quieres viajar?', ['want', 'travel', 'go', 'to', 'visit', 'london', 'new york', 'europe', 'canada'], 'I want to travel to Canada.', 'Quiero viajar a Canadá.'],
+  ['s25', 'What time do you go to bed?', '¿A qué hora te acuestas?', ['bed', 'go', 'at', 'sleep', 'ten', 'eleven', 'twelve', 'nine'], 'I go to bed at eleven.', 'Me acuesto a las once.'],
+  ['s26', 'Do you like to cook?', '¿Te gusta cocinar?', ['cook', 'like', 'yes', 'no', 'love', 'kitchen', 'food'], 'Yes, I like to cook on Sundays.', 'Sí, me gusta cocinar los domingos.'],
+  ['s27', 'What is your job like?', '¿Cómo es tu trabajo?', ['job', 'is', 'work', 'interesting', 'hard', 'busy', 'fun', 'boring'], 'My job is interesting but busy.', 'Mi trabajo es interesante pero ocupado.'],
+  ['s28', 'Who do you live with?', '¿Con quién vives?', ['live', 'with', 'alone', 'family', 'wife', 'husband', 'parents', 'friend'], 'I live with my wife and my son.', 'Vivo con mi esposa y mi hijo.'],
+  ['s29', 'What movies do you like?', '¿Qué películas te gustan?', ['movies', 'like', 'action', 'comedy', 'love', 'watch', 'films'], 'I like action movies and comedies.', 'Me gustan las películas de acción y las comedias.'],
+  ['s30', 'What is your city like?', '¿Cómo es tu ciudad?', ['city', 'is', 'big', 'small', 'beautiful', 'cold', 'busy', 'nice'], 'My city is big and a little cold.', 'Mi ciudad es grande y un poco fría.'],
+  ['s31', 'What did you eat today?', '¿Qué comiste hoy?', ['ate', 'had', 'eat', 'today', 'rice', 'chicken', 'eggs', 'breakfast', 'lunch'], 'Today I had eggs for breakfast.', 'Hoy comí huevos al desayuno.'],
+  ['s32', 'Can you swim?', '¿Sabes nadar?', ['can', 'swim', 'yes', 'no', "can't", 'cannot', 'little'], 'Yes, I can swim, but not very well.', 'Sí, sé nadar, pero no muy bien.']
+].map(pdQ);
+const PD_MIXED = [
+  ['m01', 'Can you tell me your phone number?', '¿Me puedes decir tu número de teléfono?', ['number', 'is', 'three', 'one', 'zero', 'phone', 'sure'], 'Sure. My number is three one zero, five five five, one two three four.', 'Claro. Mi número es 310 555 1234.'],
+  ['m02', 'Would you like some coffee?', '¿Quieres un poco de café?', ['yes', 'no', 'please', 'thanks', 'thank', 'would', 'like', 'love'], 'Yes, please. With milk, thank you.', 'Sí, por favor. Con leche, gracias.'],
+  ['m03', 'Excuse me, where is the station?', 'Disculpe, ¿dónde está la estación?', ['straight', 'left', 'right', 'there', 'near', 'street', 'corner', 'sorry', 'know'], "Go straight and turn left. It's near the park.", 'Siga derecho y gire a la izquierda. Está cerca del parque.'],
+  ['m04', 'What are you going to do tonight?', '¿Qué vas a hacer esta noche?', ['going', 'to', 'tonight', 'watch', 'rest', 'sleep', 'cook', 'study', 'will'], "I'm going to watch a movie at home.", 'Voy a ver una película en casa.'],
+  ['m05', 'Can I sit here?', '¿Me puedo sentar aquí?', ['yes', 'sure', 'of course', 'sorry', 'no', 'please', 'taken'], 'Sure, go ahead.', 'Claro, adelante.'],
+  ['m06', 'How was your day?', '¿Cómo estuvo tu día?', ['good', 'great', 'bad', 'busy', 'tired', 'was', 'fine', 'long'], 'It was good, but very busy.', 'Estuvo bien, pero muy ocupado.'],
+  ['m07', 'Are you ready to order?', '¿Está listo para ordenar?', ['yes', 'like', 'want', 'please', 'have', 'would', 'minute', 'no'], "Yes, I'd like a chicken sandwich, please.", 'Sí, quisiera un sándwich de pollo, por favor.'],
+  ['m08', 'Do you want to go to the movies on Saturday?', '¿Quieres ir al cine el sábado?', ['yes', 'no', 'sure', 'love', 'sorry', 'can', "can't", 'time', 'great'], 'Yes, I would love to! What time?', '¡Sí, me encantaría! ¿A qué hora?'],
+  ['m09', 'What is your email address?', '¿Cuál es tu correo electrónico?', ['at', 'gmail', 'dot', 'com', 'email', 'is', 'hotmail'], 'It is jonatan at gmail dot com.', 'Es jonatan arroba gmail punto com.'],
+  ['m10', 'Could you speak more slowly, please?', '¿Podrías hablar más despacio, por favor?', ['sure', 'yes', 'sorry', 'of course', 'okay', 'slowly', 'no problem'], 'Sure, no problem. Is this better?', 'Claro, no hay problema. ¿Así está mejor?'],
+  ['m11', 'How much is this shirt?', '¿Cuánto cuesta esta camisa?', ['dollars', 'is', 'thousand', 'pesos', 'costs', 'twenty', 'thirty', 'price'], 'It is twenty dollars.', 'Cuesta veinte dólares.'],
+  ['m12', 'What would you like to drink?', '¿Qué te gustaría tomar?', ['water', 'juice', 'coffee', 'soda', 'like', 'please', 'beer', 'tea'], "I'd like an orange juice, please.", 'Quisiera un jugo de naranja, por favor.'],
+  ['m13', 'Is this your bag?', '¿Esta es tu bolsa?', ['yes', 'no', 'mine', 'is', 'not', 'thank', 'thanks'], "Yes, it's mine. Thank you!", 'Sí, es mía. ¡Gracias!'],
+  ['m14', 'Can you help me with this box?', '¿Me ayudas con esta caja?', ['sure', 'yes', 'of course', 'help', 'okay', 'problem', 'sorry'], 'Of course. Where do you want it?', 'Claro. ¿Dónde la quieres?'],
+  ['m15', 'Do you know a good restaurant near here?', '¿Conoces un buen restaurante cerca de aquí?', ['yes', 'no', 'there', 'is', 'near', 'street', 'good', 'know', 'sorry'], "Yes, there is a good Italian restaurant on this street.", 'Sí, hay un buen restaurante italiano en esta calle.'],
+  ['m16', 'When is your birthday?', '¿Cuándo es tu cumpleaños?', ['birthday', 'is', 'in', 'on', 'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'], 'My birthday is on May tenth.', 'Mi cumpleaños es el diez de mayo.'],
+  ['m17', 'What time does the meeting start?', '¿A qué hora empieza la reunión?', ['at', 'starts', 'start', 'nine', 'ten', 'two', 'three', 'clock', 'half'], 'It starts at nine thirty.', 'Empieza a las nueve y media.'],
+  ['m18', 'How long have you studied English?', '¿Hace cuánto estudias inglés?', ['years', 'months', 'for', 'since', 'weeks', 'studied', 'long', 'one', 'two'], "I've studied English for two years.", 'Estudio inglés hace dos años.'],
+  ['m19', 'Can you open the window, please?', '¿Puedes abrir la ventana, por favor?', ['sure', 'yes', 'of course', 'okay', 'no problem', 'open'], 'Sure, no problem.', 'Claro, no hay problema.'],
+  ['m20', 'What is your favorite day of the week?', '¿Cuál es tu día favorito de la semana?', ['saturday', 'sunday', 'friday', 'monday', 'favorite', 'is', 'because'], 'My favorite day is Saturday because I rest.', 'Mi día favorito es el sábado porque descanso.'],
+  ['m21', 'Do you need a bag?', '¿Necesita una bolsa?', ['yes', 'no', 'please', 'thanks', 'thank', 'need', 'fine'], 'No, thank you. I have one.', 'No, gracias. Tengo una.'],
+  ['m22', 'Where did you go on vacation?', '¿A dónde fuiste de vacaciones?', ['went', 'to', 'vacation', 'beach', 'cartagena', 'visited', 'stayed', 'home'], 'I went to Cartagena with my family.', 'Fui a Cartagena con mi familia.'],
+  ['m23', 'Is it far from here?', '¿Queda lejos de aquí?', ['no', 'yes', 'far', 'near', 'close', 'minutes', 'walk', 'about'], "No, it's about ten minutes walking.", 'No, queda a unos diez minutos caminando.'],
+  ['m24', 'What do you need?', '¿Qué necesitas?', ['need', 'want', 'some', 'water', 'help', 'nothing', 'please'], 'I need some help with my computer.', 'Necesito ayuda con mi computador.'],
+  ['m25', 'Are you busy right now?', '¿Estás ocupado ahora mismo?', ['yes', 'no', 'busy', 'free', 'little', 'minute', 'bit'], 'A little, but I have a minute.', 'Un poco, pero tengo un minuto.'],
+  ['m26', 'How do you spell your last name?', '¿Cómo se escribe tu apellido?', ['r', 'u', 'i', 'z', 'is', 'spell', 'letter'], 'R-U-I-Z. Ruiz.', 'R-U-I-Z. Ruiz.'],
+  ['m27', 'Can we meet tomorrow at ten?', '¿Nos podemos ver mañana a las diez?', ['yes', 'no', 'sure', 'fine', 'perfect', 'sorry', 'can', "can't", 'okay', 'better'], 'Yes, ten is perfect for me.', 'Sí, a las diez me queda perfecto.'],
+  ['m28', 'What did you have for lunch?', '¿Qué almorzaste?', ['had', 'ate', 'rice', 'chicken', 'soup', 'salad', 'for', 'lunch'], 'I had rice, chicken and salad.', 'Almorcé arroz, pollo y ensalada.'],
+  ['m29', 'Do you prefer tea or coffee?', '¿Prefieres té o café?', ['tea', 'coffee', 'prefer', 'like', 'both', 'better'], 'I prefer coffee, especially in the morning.', 'Prefiero el café, sobre todo en la mañana.'],
+  ['m30', 'Where can I buy a ticket?', '¿Dónde puedo comprar un boleto?', ['there', 'at', 'office', 'online', 'machine', 'counter', 'can', 'window'], 'You can buy it at the ticket office over there.', 'Lo puedes comprar en la taquilla de allá.'],
+  ['m31', 'Did you sleep well?', '¿Dormiste bien?', ['yes', 'no', 'slept', 'well', 'bad', 'not', 'great', 'tired'], 'Yes, I slept very well, thanks.', 'Sí, dormí muy bien, gracias.'],
+  ['m32', 'What are your plans for the weekend?', '¿Qué planes tienes para el fin de semana?', ['going', 'to', 'weekend', 'visit', 'rest', 'plan', 'will', 'want'], "I'm going to visit my parents.", 'Voy a visitar a mis papás.']
+].map(pdQ);
+
+/* ---- estado y rotación ---- */
+function ensure27() { if (!S.pd || typeof S.pd !== 'object') S.pd = {}; if (!S.pd.days || typeof S.pd.days !== 'object') S.pd.days = {}; if (!Array.isArray(S.pd.recent)) S.pd.recent = []; S.pd.best = +S.pd.best || 0; }
+ensure27();
+const _render27 = render; render = function () { ensure27(); _render27(); };
+const _fresh27 = freshState; freshState = function () { return { ..._fresh27(), pd: { days: {}, recent: [], best: 0 } }; };
+const _merge27 = mergeStates;
+mergeStates = function (a, b) {
+  const o = _merge27(a, b), pa = a.pd || {}, pb = b.pd || {}, days = { ...(pb.days || {}) };
+  for (const k in (pa.days || {})) days[k] = days[k] && (days[k].n || 0) > (pa.days[k].n || 0) ? days[k] : pa.days[k];
+  const rec = new Map(); [...(pa.recent || []), ...(pb.recent || [])].forEach(r => r && r.d && rec.set(r.d + '|' + (r.ids || []).join(','), r));
+  o.pd = { days, recent: [...rec.values()].sort((x, y) => x.d < y.d ? -1 : 1).slice(-40), best: Math.max(+pa.best || 0, +pb.best || 0) };
+  return o;
+};
+const pdDayNum = key => Math.floor(new Date(key + 'T12:00:00').getTime() / DAY);
+function pdRecentIds(key) { const n = pdDayNum(key); return new Set((S.pd.recent || []).filter(r => r.d !== key && n - pdDayNum(r.d) <= 10 && n - pdDayNum(r.d) > 0).flatMap(r => r.ids || [])); }
+function pdPick(list, key, salt, extra = 0) {
+  const recent = pdRecentIds(key), N = list.length, start = (numHash(key + '|' + salt) + extra * 7) % N;
+  for (let k = 0; k < N; k++) { const it = list[(start + k) % N]; if (!recent.has(it.id)) return it; }
+  return list[start];
+}
+function pdItems(key = dayKey()) {
+  const rep = (S.pd.days[key] && S.pd.days[key].n) || 0;
+  return { l: pdPick(PD_LISTEN, key, 'l', rep), s: pdPick(PD_SPEAK, key, 's', rep), m: pdPick(PD_MIXED, key, 'm', rep) };
+}
+function pdStreak() { let n = 0; const d = new Date(); for (;;) { const k = dayKey(d); if (!(S.pd.days[k] && S.pd.days[k].done)) { if (n === 0 && k === dayKey()) { d.setDate(d.getDate() - 1); continue; } break; } n++; d.setDate(d.getDate() - 1); } return n; }
+const pdMul = () => chatMul();
+const pdSay = (t, slow, onend) => speak(t, !!slow, onend || null, undefined, pdMul());
+const pdSayEs = (t, onend) => speak(t, false, onend || null, 'es', pdMul());
+function pdCard(en, es) { const kind = /\s/.test(en.trim()) ? 'frase' : 'palabra', pre = kind === 'frase' ? 's:' : 'w:', key = pre + en.trim().toLowerCase(); if (S.deck[key] || S.deck[pre + en.trim()]) return false; addToDeck([{ key, en: en.trim(), es, kind, lesson: null }]); S.deck[key].src = 'pd'; if (L && L.pd) L.pd.cards++; save(); return true; }
+function pdHardFrom(r) { const low = (r && r.words || []).filter(w => w.s < 0.6).map(w => ({ word: w.tok.replace(/[.,!?;:"¿¡]/g, ''), note_es: 'Práctica diaria: pronunciación ' + Math.round(w.s * 100) + '%' })).filter(w => w.word.length > 1); if (low.length) { flagHard(low, 'diaria'); if (L && L.pd) L.pd.hard += low.length; } return low.length; }
+/* ---- inicio ---- */
+function startPD() {
+  const key = dayKey(), it = pdItems(key);
+  closeWordPop();
+  startLesson(null, 'pd', [{ kind: 'pdl', item: it.l, l: LESSONS[0], step: 1 }, { kind: 'pds', item: it.s, l: LESSONS[0], step: 2 }, { kind: 'pdm', item: it.m, l: LESSONS[0], step: 3 }], 'Práctica diaria');
+  if (L) L.pd = { key, ids: [it.l.id, it.s.id, it.m.id], scores: [], cards: 0, hard: 0, miss: 0 };
+}
+const PD_STEPS = { 1: '👂 Escuchar', 2: '🗣️ Hablar', 3: '🔀 Mixto' };
+const pdHead = (ex, title) => `<div class="pd-steps" aria-label="Paso ${ex.step} de 3">${[1, 2, 3].map(i => `<span class="${i < ex.step ? 'done' : i === ex.step ? 'cur' : ''}">${i < ex.step ? '✓' : i}</span>`).join('<i></i>')}<b>${ex.step}/3 · ${PD_STEPS[ex.step]}</b></div><div class="ex-title">${title}</div>`;
+const pdListenRow = t => `<div class="listen-row"><button class="spk big" data-pd-say="${esc(t)}" aria-label="Escuchar">🔊</button><button class="spk slow" data-pd-slow="${esc(t)}" aria-label="Lento">🐢</button></div>`;
+function pdBind(root) {
+  $$('[data-pd-say]', root).forEach(b => b.onclick = () => pdSay(b.dataset.pdSay));
+  $$('[data-pd-slow]', root).forEach(b => b.onclick = () => pdSay(b.dataset.pdSlow, true));
+  $$('[data-pd-es]', root).forEach(b => b.onclick = () => { const box = $('#' + b.dataset.pdEs); if (box) { box.classList.remove('hidden'); pdSayEs(box.dataset.es || box.textContent); } b.remove(); });
+  $$('[data-pd-saye]', root).forEach(b => b.onclick = () => pdSayEs(b.dataset.pdSaye));
+}
+function pdOptions(body, opts, correct, onDone) {
+  const box = $('.pd-opts', body);
+  box.innerHTML = opts.map((o, i) => `<button class="opt pd-opt" data-i="${i}">${esc(o)}</button>`).join('');
+  $$('.pd-opt', box).forEach(b => b.onclick = () => {
+    const i = +b.dataset.i, ok = i === correct;
+    $$('.pd-opt', box).forEach(x => { x.disabled = true; if (+x.dataset.i === correct) x.classList.add('right'); });
+    if (!ok) b.classList.add('wrong'); beep(ok ? 'ok' : 'bad'); onDone(ok);
+  });
+}
+const pdOthers = (list, it, n, f) => shuffle(list.filter(x => x.id !== it.id && f(x) !== f(it))).slice(0, n).map(f);
+/* Micrófono: frase modelo (con puntaje) o respuesta libre (solo texto reconocido) */
+async function pdListenFree(btn) {
+  if (HAS_SR) { btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando… responde en inglés'; try { const alts = await recognize(); return alts[0].t; } finally { btn.classList.remove('rec'); btn.innerHTML = '🎤 Responder otra vez'; } }
+  if (azureReady()) { btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando (Azure)…'; try { const rec = await MicCap.start({ maxMs: 12000 }); btn.innerHTML = '⏳ Transcribiendo…'; return await azureSTT(rec.wav); } finally { btn.classList.remove('rec'); btn.innerHTML = '🎤 Responder otra vez'; } }
+  throw 'unsupported';
+}
+function pdRepeatBlock(target, id) { return `<div class="pd-rep" id="${id}"><div class="target" data-tgt>${wordsHTML(target)}</div>${canSpeak() ? `<button class="mic pd-mic" data-rep>🎤 Repite en voz alta</button>` : '<div class="small muted">Sin reconocimiento de voz: escucha el modelo y repítelo en voz alta para practicar.</div>'}<div class="pd-res small" data-res></div></div>`; }
+function pdBindRepeat(root, target, onScore) {
+  const b = $('[data-rep]', root); if (!b) return;
+  b.onclick = () => doMic(b, (alts, url, az) => {
+    const r = az || scoreSpeech(target, alts); $('[data-tgt]', root).innerHTML = wordsHTML(target, r.words);
+    const pass = r.pct >= S.settings.threshold;
+    $('[data-res]', root).innerHTML = `<b style="color:${pass ? 'var(--g-d)' : r.pct >= 50 ? 'var(--o-d)' : 'var(--r)'}">${r.pct}%</b> · escuché «${esc(r.heard || '')}» · 🟢 bien · 🟡 dudoso · 🔴 repetir${az ? ' · 🔬 Azure' : ''}`;
+    recordSpeech('pd', r); onScore && onScore(r, pass);
+  }, target);
+}
+/* Evaluación de respuestas libres */
+const PD_PLACES = ['live', 'bogota', 'bogotá', 'medellin', 'medellín', 'cali', 'barranquilla', 'cartagena', 'bucaramanga', 'pereira', 'manizales', 'cucuta', 'cúcuta', 'ibague', 'ibagué', 'santa marta', 'city', 'town', 'country', 'spain', 'mexico', 'usa'];
+function pdKeywordEval(it, text) {
+  const kws = it.kw.includes('colombia') ? it.kw.concat(PD_PLACES) : it.kw;
+  const toks = normText(text), j = ' ' + toks.join(' ') + ' ', hit = kws.some(k => { const n = normText(k).join(' '); return n && j.includes(' ' + n + ' '); });
+  if (!toks.length) return { k: 'empty', msg: 'No escuché una respuesta. Intenta de nuevo.' };
+  if (toks.length < it.min) return { k: 'short', msg: 'Buen intento. Intenta responder con una frase completa, por ejemplo empezando con «I…» o «My…».' };
+  if (!hit) return { k: 'off', msg: 'Mmm, parece que tu respuesta no contesta la pregunta. La pregunta era: «' + it.es + '». Escucha la respuesta modelo.' };
+  return { k: 'ok', msg: pick(['¡Bien! Tu respuesta tiene sentido. 👏', '¡Muy bien! Te entendí. 👏', '¡Excelente! Respondiste la pregunta. 👏']) + ' Escucha una respuesta modelo y repítela.' };
+}
+async function pdEvaluate(it, text) {
+  if (currentProvider()) {
+    try {
+      const lv = chatLevel(), d = await aiJSON(`You are Tuki, a kind English teacher for a Spanish-speaking beginner from Colombia (CEFR ${lv === 'A2' ? 'A1-A2' : lv}). The learner answered a simple spoken question. The answer may come from speech-to-text, so ignore punctuation and capitalization.
+Return ONLY JSON: {"relevant":true|false,"correct":true|false,"feedback_es":"...","better":"..."}
+- relevant: the answer responds to the question.
+- correct: no important grammar or vocabulary mistakes.
+- feedback_es: very simple Latin American Spanish with "tú", max 30 words, encouraging; mention the main mistake if any.
+- better: a short natural corrected or improved English answer based on what the learner wanted to say (max 14 words, A1-A2 words).`, `Question: "${it.q}"\nLearner's answer: "${String(text).trim()}"`, 1200);
+      return { k: d.relevant === false ? 'off' : d.correct === false ? 'fix' : 'ok', msg: String(d.feedback_es || '').slice(0, 300) || '¡Buen intento!', better: String(d.better || '').trim().slice(0, 160) || it.model, ai: true };
+    } catch (e) { const r = pdKeywordEval(it, text); r.aiErr = errES(e); return r; }
+  }
+  return pdKeywordEval(it, text);
+}
+function pdAnswerArea(prefix) {
+  return `<div class="pd-ans">${canSpeak() ? `<button class="mic pd-mic big" id="${prefix}Mic">🎤 Toca y responde en inglés</button>` : '<div class="notice small">🎙️ Sin reconocimiento de voz en este navegador: escribe tu respuesta.</div>'}
+    <button class="btn ghost sm" id="${prefix}TypeBtn" ${canSpeak() ? '' : 'hidden'}>⌨️ Prefiero escribir</button>
+    <div class="pd-type ${canSpeak() ? 'hidden' : ''}" id="${prefix}Type"><textarea class="inp" id="${prefix}Tin" rows="2" placeholder="Escribe tu respuesta en inglés…" autocapitalize="sentences" spellcheck="false"></textarea><button class="btn blue block" id="${prefix}Send">Enviar respuesta</button></div>
+    <div id="${prefix}Out" aria-live="polite"></div></div>`;
+}
+function pdBindAnswer(ex, prefix, onDone) {
+  const it = ex.item, out = $('#' + prefix + 'Out');
+  const handle = async text => {
+    ex.answered = (ex.answered || 0) + 1;
+    out.innerHTML = `<div class="pd-heard">Tu respuesta: «<b>${esc(text)}</b>»</div><div class="spinner"></div>`;
+    const r = await pdEvaluate(it, text); if (!L || L.cur !== ex) return;
+    const good = r.k === 'ok', model = r.better && r.k !== 'ok' ? r.better : it.model;
+    if (!good) { ex.miss = true; if (r.better) pdCard(r.better, it.modelEs && r.better === it.model ? it.modelEs : 'Respuesta mejorada: ' + it.es); }
+    out.innerHTML = `<div class="pd-heard">Tu respuesta: «<b>${esc(text)}</b>»</div>
+      <div class="pd-fb ${good ? 'ok' : r.k === 'fix' ? 'fix' : 'off'}">${good ? '✅' : r.k === 'fix' ? '✏️' : '💡'} ${esc(r.msg)} <button class="mini" data-pd-saye="${esc(r.msg)}" aria-label="Escuchar en español">🔈</button>${r.aiErr ? `<div class="small muted">(Sin IA ahora: ${esc(r.aiErr)})</div>` : ''}</div>
+      <div class="pd-model"><div class="small muted">${r.ai && r.k !== 'ok' ? '✨ Versión mejorada' : '⭐ Respuesta modelo'}</div><div class="row" style="gap:8px;align-items:center"><button class="spk" data-pd-say="${esc(model)}">🔊</button><button class="spk slow" data-pd-slow="${esc(model)}">🐢</button><b>${esc(model)}</b></div>${!r.ai || model === it.model ? `<div class="small muted">${esc(it.modelEs)}</div>` : ''}${pdRepeatBlock(model, prefix + 'Rep')}</div>`;
+    pdBind(out); pdBindRepeat($('#' + prefix + 'Rep'), model, (sc) => { pdHardFrom(sc); ex.rep = sc.pct; });
+    onDone(r);
+  };
+  const mic = $('#' + prefix + 'Mic');
+  if (mic) mic.onclick = async () => { if (curRec) return stopRecognize(); if (MicCap.active) return MicCap.stop(); speechSynthesis && speechSynthesis.cancel(); try { const t = await pdListenFree(mic); if (t) handle(t); } catch (err) { toast(SR_ERR[err] || (typeof err === 'string' ? 'Error de voz: ' + err : errES(err)), 3500); if (err === 'not-allowed' || err === 'service-not-allowed' || err === 'unsupported' || err === 'audio-capture') { $('#' + prefix + 'Type').classList.remove('hidden'); } } };
+  const tb = $('#' + prefix + 'TypeBtn'); if (tb) tb.onclick = () => { $('#' + prefix + 'Type').classList.remove('hidden'); tb.remove(); $('#' + prefix + 'Tin').focus(); };
+  $('#' + prefix + 'Send').onclick = () => { const t = $('#' + prefix + 'Tin').value.trim(); if (t) handle(t); else toast('Escribe tu respuesta primero.'); };
+}
+function pdFoot(ex, enabled, label = 'Continuar') { setFoot(`<button class="btn ghost" id="pdSkip">Saltar</button><button class="btn primary" id="primaryBtn" ${enabled ? '' : 'disabled'}>${label}</button>`); $('#pdSkip').onclick = () => { ex.skipped = true; pdNext(ex); }; $('#primaryBtn').onclick = () => pdNext(ex); }
+function pdNext(ex) { L.pd.scores.push(ex.rep ?? null); if (ex.miss) L.pd.miss++; L.done++; nextEx(); }
+/* 1) Escuchar */
+RENDER.pdl = (ex, body) => {
+  const it = ex.item, en = pdDayNum(dayKey()) % 2 === 1;
+  const opts = shuffle([en ? it.en : it.es, ...pdOthers(PD_LISTEN, it, 3, x => en ? x.en : x.es)]), correct = opts.indexOf(en ? it.en : it.es);
+  body.innerHTML = `${pdHead(ex, 'Escucha a Tuki')}<div class="pd-card">${pdListenRow(it.en)}<div class="small muted" style="text-align:center">Puedes escucharla las veces que quieras.</div></div>
+    <div class="pd-q">${en ? '¿Qué frase escuchaste?' : '¿Qué significa?'}</div><div class="pd-opts"></div><div id="pdLRep"></div>`;
+  pdBind(body); pdFoot(ex, false);
+  pdOptions(body, opts, correct, ok => {
+    if (!ok) { ex.miss = true; pdCard(it.en, it.es); }
+    $('#pdLRep').innerHTML = `<div class="pd-fb ${ok ? 'ok' : 'off'}">${ok ? '✅ ¡Correcto!' : '❌ Era: <b>' + esc(en ? it.en : it.es) + '</b>'} <span class="muted">«${esc(it.en)}» = ${esc(it.es)}</span></div><div class="pd-q">Ahora repítela en voz alta</div>${pdRepeatBlock(it.en, 'pdLR')}`;
+    pdBindRepeat($('#pdLR'), it.en, (r, pass) => { ex.rep = Math.max(ex.rep || 0, r.pct); if (!pass) { pdCard(it.en, it.es); } pdHardFrom(r); $('#primaryBtn').disabled = false; });
+    $('#primaryBtn').disabled = false; setTimeout(() => { const e = $('#pdLRep'); e && e.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 50);
+  });
+  setTimeout(() => { if (L && L.cur === ex) pdSay(it.en); }, 350);
+};
+/* 2) Hablar */
+RENDER.pds = (ex, body) => {
+  const it = ex.item;
+  body.innerHTML = `${pdHead(ex, 'Responde a Tuki')}<div class="pd-card pd-qcard"><div class="pd-bigq">${esc(it.q)}</div>${pdListenRow(it.q)}<button class="btn ghost sm" data-pd-es="pdEs">🇪🇸 Ver en español</button><div class="pd-es hidden" id="pdEs" data-es="${esc(it.es)}">🇪🇸 ${esc(it.es)}</div></div>${pdAnswerArea('pdS')}`;
+  pdBind(body); pdFoot(ex, false);
+  pdBindAnswer(ex, 'pdS', () => { $('#primaryBtn').disabled = false; });
+  setTimeout(() => { if (L && L.cur === ex) pdSay(it.q); }, 350);
+};
+/* 3) Mixto: entender + responder */
+RENDER.pdm = (ex, body) => {
+  const it = ex.item, opts = shuffle([it.es, ...pdOthers(PD_MIXED, it, 2, x => x.es)]), correct = opts.indexOf(it.es);
+  body.innerHTML = `${pdHead(ex, 'Entiende y responde')}<div class="pd-card">${pdListenRow(it.q)}<div class="small muted" style="text-align:center">Escucha sin leer. ¿Qué te dice Tuki?</div></div><div class="pd-opts"></div><div id="pdM2"></div>`;
+  pdBind(body); pdFoot(ex, false);
+  pdOptions(body, opts, correct, ok => {
+    if (!ok) { ex.miss = true; pdCard(it.q, it.es); }
+    $('#pdM2').innerHTML = `<div class="pd-fb ${ok ? 'ok' : 'off'}">${ok ? '✅ ¡Entendiste!' : '❌ Tuki dijo: <b>' + esc(it.es) + '</b>'}</div><div class="pd-card pd-qcard"><div class="pd-bigq">${esc(it.q)}</div><div class="small muted">${esc(it.es)}</div></div><div class="pd-q">Ahora respóndele en voz alta</div>${pdAnswerArea('pdM')}`;
+    pdBind($('#pdM2')); pdBindAnswer(ex, 'pdM', () => { $('#primaryBtn').disabled = false; });
+    setTimeout(() => { const e = $('#pdM2'); e && e.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 50);
+  });
+  setTimeout(() => { if (L && L.cur === ex) pdSay(it.q); }, 350);
+};
+/* ---- fin ---- */
+function pdFinish() {
+  const p = L.pd, key = p.key, secs = Math.round((Date.now() - L.start) / 1000), first = !(S.pd.days[key] && S.pd.days[key].done);
+  const xp = first ? 15 : 5, sc = p.scores.filter(x => x != null);
+  const d = S.pd.days[key] || { n: 0 }; d.done = 1; d.n = (d.n || 0) + 1; d.ts = Date.now(); d.xp = (d.xp || 0) + xp; if (sc.length) d.pron = Math.round(avg(sc)); S.pd.days[key] = d;
+  S.pd.recent.push({ d: key, ids: p.ids }); S.pd.recent = S.pd.recent.slice(-40);
+  S.sessions++; todayRec().sec = (todayRec().sec || 0) + secs;
+  refreshHearts(); let extra = ''; if (S.hearts < MAX_HEARTS) { S.hearts++; extra = '<p class="muted">❤️ ¡Recuperaste una vida!</p>'; }
+  const up = addXP(xp), st = pdStreak(); S.pd.best = Math.max(S.pd.best || 0, st); save(); beep('done');
+  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div><h1>¡Práctica diaria completa!</h1><div class="muted">Escuchaste y hablaste en inglés hoy 🎧🗣️</div>
+    <div class="scards"><div class="scard" style="border-color:var(--o)"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)">+${xp}</div></div>
+    <div class="scard" style="border-color:var(--g)"><div class="t" style="background:var(--g)">Pronunciación</div><div class="v" style="color:var(--g-d)">${sc.length ? Math.round(avg(sc)) + '%' : '—'}</div></div>
+    <div class="scard" style="border-color:#ff9f1c"><div class="t" style="background:#ff9f1c">Racha diaria</div><div class="v" style="color:#c97a00">🔥 ${st}</div></div>
+    <div class="scard" style="border-color:#8b5cf6"><div class="t" style="background:#8b5cf6">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div></div>
+    ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}${first ? '' : '<p class="small muted">Repetición: +5 XP (el bono de +15 es una vez al día).</p>'}
+    ${p.cards || p.hard ? `<p class="small muted">🃏 ${p.cards} tarjeta(s) nueva(s) · 🎯 ${p.hard} palabra(s) para practicar en «Mis palabras difíciles».</p>` : ''}${extra}
+    <p class="small">Vuelve mañana para mantener tu racha de práctica diaria.</p>
+    <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button></div>`;
+  $('#primaryBtn').onclick = closeLesson; confetti(); checkBadges();
+}
+const _finish27 = finishLesson; finishLesson = function () { if (L && L.mode === 'pd') return pdFinish(); return _finish27(); };
+/* ---- tarjeta en Aprender ---- */
+function pdCardHTML() {
+  const done = S.pd.days[dayKey()] && S.pd.days[dayKey()].done, st = pdStreak();
+  return `<div class="card pd-home ${done ? 'done' : ''}" id="pdCard"><div class="row between" style="align-items:flex-start"><div><h3 style="margin:0">${done ? '✅' : '🌅'} Práctica diaria · 3–5 min</h3><div class="small muted">${done ? '¡Hecha hoy! Vuelve mañana.' : 'Escucha y habla con 3 ejercicios cortos.'}</div></div><div class="pd-streak" title="Días seguidos">🔥 ${st}</div></div>
+    <div class="pd-chips"><span>👂 Escuchar</span><span>🗣️ Hablar</span><span>🔀 Mixto</span></div>
+    <button class="btn ${done ? 'ghost' : 'primary'} block pd-go" id="pdGo">${done ? '🔁 Repetir' : '▶️ Empezar'}</button></div>`;
+}
+const _learn27 = VIEWS.learn;
+VIEWS.learn = v => {
+  _learn27(v);
+  const g = $('.card.goal', v);
+  if (g) g.insertAdjacentHTML('afterend', pdCardHTML()); else v.insertAdjacentHTML('afterbegin', pdCardHTML());
+  $('#pdGo', v).onclick = startPD;
+};
+BADGES.push({ id: 'pd7', i: '🌅', t: 'Rutina de 7 días', d: 'Haz la Práctica diaria 7 días seguidos', c: () => S.pd && (Math.max(S.pd.best || 0, pdStreak()) >= 7) });
+Object.assign(window, { startPD });
+
+</script>
+<script>
 /* =================== INICIO =================== */
 applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp && !/#import=/.test(location.hash)) setTimeout(placementIntro, 300);
 setTimeout(checkImportHash, 200); setTimeout(autoSyncOnOpen, 1500);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, encodeState, decodeState, mergeStates, importFromCode, openTransfer, openScanner, gistSync, gistCfg, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, encodeState, decodeState, mergeStates, importFromCode, openTransfer, openScanner, gistSync, gistCfg, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, version: APP_VERSION };
 </script>
 
 </body>
