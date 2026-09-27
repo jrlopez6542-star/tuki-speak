@@ -317,6 +317,18 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 [data-theme=dark] .msg.fix.ok{background:#12382a;border-color:#1f6b47;color:#bff0d3}
 [data-theme=dark] .msg.help{background:#13283d;border-color:#28507a;color:#d6e9ff}
 [data-theme=dark] .msg.practice{background:var(--card);color:var(--ink)}
+/* v2.3: velocidad, palabras tocables, traducción */
+.chatsel .field.sp{flex:0 0 118px}
+.tw{cursor:pointer;border-radius:4px;padding:0 1px;-webkit-tap-highlight-color:transparent}
+.tw:hover,.tw:active{background:rgba(31,164,99,.18)}
+.msgacts{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.msgacts .mini{font-size:12px;padding:3px 8px}
+.trbox{margin-top:6px;padding:6px 8px;border-radius:10px;background:#eef6ff;color:#16395c;font-size:14px}
+[data-theme=dark] .trbox{background:#13283d;color:#d6e9ff}
+.wordpop{position:fixed;z-index:96;background:#fff;color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:fade .15s}
+.wordpop .wp-w{font-size:19px}.wordpop .wp-ipa{color:var(--b);font-weight:700;font-size:15px}.wordpop .wp-es{font-size:16px;font-weight:700;margin-top:4px}
+[data-theme=dark] .wordpop{background:var(--card);border-color:#3b4d5e}
+.msgacts .mini,.wordpop .mini{border:1.5px solid var(--line);border-radius:999px;background:transparent;color:var(--ink);padding:3px 9px;font-size:13px;font-weight:700;line-height:1.3}
+.wordpop .mini{font-size:15px}
 
 </style>
 </head>
@@ -1585,7 +1597,7 @@ function parseTutor(t) {
 </script>
 <script>
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.2.0';
+const APP_VERSION = '2.3.0';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
@@ -1635,8 +1647,9 @@ async function openaiTTS(text, rate, tl) {
   if (!res.ok) throw await httpErr(res);
   return await res.blob();
 }
-async function cloudTTSBlob(text, slow, tl) {
-  const s = S.settings, rate = tl === 'es' ? 1 : slow ? Math.max(0.5, s.rate * 0.65) : s.rate;
+const ttsRate = (slow, tl, mul = 1) => { const s = S.settings, base = tl === 'es' ? 1 : s.rate; return Math.max(0.5, Math.min(1.5, (slow ? Math.max(0.5, base * 0.65) : base) * mul)); };
+async function cloudTTSBlob(text, slow, tl, mul = 1) {
+  const s = S.settings, rate = ttsRate(slow, tl, mul);
   const k = [s.ttsEngine, tl === 'es' ? 'es' : '', s.ttsEngine === 'azure' ? s.azureVoice : s.openaiVoice + (s.accent || ''), rate.toFixed(2), text].join('|');
   if (TTS.cache.has(k)) return TTS.cache.get(k);
   const url = location.origin + '/__tts/' + hashStr(k); let blob = null;
@@ -1652,26 +1665,34 @@ function pickEsVoice() {
   const sc = v => { const l = v.lang.replace('_', '-').toLowerCase(), i = ES_PREF.indexOf(l); return (i < 0 ? 0 : 50 - i * 8) + (/natural|neural|online|premium|enhanced|google/i.test(v.name) ? 20 : 0) + (v.localService === false ? 2 : 0); };
   return vs.sort((a, b) => sc(b) - sc(a))[0] || null;
 }
-function deviceSpeakEs(text, onend) {
+function deviceSpeakEn(text, rate, onend) {
+  if (!('speechSynthesis' in window)) return onend && onend();
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text), v = pickVoice(); u.lang = 'en-US'; if (v) u.voice = v; u.rate = rate;
+  if (onend) { u.onend = onend; u.onerror = onend; }
+  speechSynthesis.speak(u);
+}
+function deviceSpeakEs(text, onend, rate = 1) {
   if (!('speechSynthesis' in window)) return onend && onend();
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text), v = pickEsVoice();
-  u.lang = v ? v.lang : 'es-CO'; if (v) u.voice = v; u.rate = 1;
+  u.lang = v ? v.lang : 'es-CO'; if (v) u.voice = v; u.rate = rate;
   if (onend) { u.onend = onend; u.onerror = onend; }
   window.__lastEsUtter = { text, lang: u.lang, voice: v && v.name };
   speechSynthesis.speak(u);
 }
-function speakSeq(parts, i = 0) { const p = parts[i]; if (!p) return; speak(p.t, false, () => speakSeq(parts, i + 1), p.lang); }
-speak = function (text, slow = false, onend, tl) {
+function speakSeq(parts, i = 0, mul = 1) { const p = parts[i]; if (!p) return; speak(p.t, false, () => speakSeq(parts, i + 1, mul), p.lang, mul); }
+speak = function (text, slow = false, onend, tl, mul = 1) {
   stopAudio();
-  if (tl === 'es') {
+  if (tl === 'es' || mul !== 1) {
+    const dev = () => tl === 'es' ? deviceSpeakEs(text, onend, ttsRate(slow, 'es', mul)) : deviceSpeakEn(text, ttsRate(slow, undefined, mul), onend);
     if (cloudTTSReady() && navigator.onLine !== false) {
       const my = TTS.seq; if ('speechSynthesis' in window) speechSynthesis.cancel();
-      cloudTTSBlob(text, false, 'es').then(blob => { if (my !== TTS.seq) return; const a = new Audio(URL.createObjectURL(blob)); TTS.audio = a; a.onended = () => { onend && onend(); }; a.play().catch(() => deviceSpeakEs(text, onend)); })
-        .catch(() => { if (my === TTS.seq) deviceSpeakEs(text, onend); });
+      cloudTTSBlob(text, slow, tl, mul).then(blob => { if (my !== TTS.seq) return; const a = new Audio(URL.createObjectURL(blob)); TTS.audio = a; a.onended = () => { onend && onend(); }; a.play().catch(dev); })
+        .catch(() => { if (my === TTS.seq) dev(); });
       return;
     }
-    return deviceSpeakEs(text, onend);
+    return dev();
   }
   if (cloudTTSReady() && navigator.onLine !== false) {
     const my = TTS.seq; if ('speechSynthesis' in window) speechSynthesis.cancel();
@@ -2134,6 +2155,19 @@ function langRules(voice) {
   if (m === 'bi') return `LANGUAGE MODE: BILINGUAL (English conversation + Spanish explanations). The conversation and roleplay stay in English. After EACH learner turn that has a mistake, give the correction as the corrected English sentence, then a short explanation IN SPANISH (1-2 sentences, Latin American Spanish, use "tú") of why it is wrong${voice ? ' — say this explanation out loud in Spanish, then switch back to English' : ''}. If the learner asks something in Spanish, asks what a word or phrase means, or seems lost, answer briefly in Spanish. Then ALWAYS continue the conversation in English and end with a question in English. Keep the Spanish parts short; English must remain the main language.${lv === 'A2' ? ' The learner is a beginner: Spanish explanations are especially welcome, but keep the English very simple.' : lv === 'C1' ? ' The learner is advanced: keep Spanish to the minimum needed for the explanation.' : ''}`;
   return `LANGUAGE MODE: MORE SPANISH (Spanish-led lesson). Explain and chat mainly in Spanish (Latin American Spanish, use "tú"), like a friendly teacher, while doing the roleplay. In each turn introduce one or two short English phrases related to the situation (adapted to the learner's level) and ask the learner to repeat them or to answer in English. When the learner makes a mistake in English, give the correct English form and explain why in Spanish. Praise every attempt.${voice ? ' Speak the Spanish parts in natural Spanish and say the English phrases with clear, slightly slower English pronunciation, pausing before and after them.' : ''}${lv === 'C1' || lv === 'B2' ? ' Since the learner is at a higher level, use longer and more natural English phrases and encourage full English answers.' : ''}`;
 }
+/* ---- Velocidad de Tuki ---- */
+const TUTOR_SPEEDS = { vslow: { label: '🐢🐢 Muy lenta', name: 'Muy lenta', mul: 0.7, rt: 0.7, words: 8 }, slow: { label: '🐢 Lenta', name: 'Lenta', mul: 0.85, rt: 0.85, words: 12 }, normal: { label: '▶️ Normal', name: 'Normal', mul: 1, rt: 1, words: 0 } };
+const tutorSpeed = () => TUTOR_SPEEDS[S.settings.tutorSpeed] ? S.settings.tutorSpeed : 'slow';
+const chatMul = () => TUTOR_SPEEDS[tutorSpeed()].mul;
+function speedRules(voice) {
+  const k = tutorSpeed(), w = TUTOR_SPEEDS[k].words;
+  if (k === 'normal') return `PACE: NORMAL. ${voice ? 'Speak at a natural pace, clearly.' : 'Write naturally.'} Still prefer clear sentences and explain any idiom or slang you use.`;
+  return `PACE: ${k === 'vslow' ? 'VERY SLOW' : 'SLOW'} (the learner said you were too fast and used words they did not know). This overrides any longer length from the level rules:
+${voice ? `- Speak ${k === 'vslow' ? 'VERY slowly' : 'slowly'} and clearly, articulating every word, with a clear pause after each sentence${k === 'vslow' ? ' and short pauses between phrases' : ''}. Never rush. No reduced forms like "gonna", "wanna", "kinda".\n` : ''}- Use short sentences: maximum about ${w} words per sentence${k === 'vslow' ? ', and at most 2 sentences per turn' : ', and at most 3 sentences per turn'}.
+- Only ONE idea or question per turn.
+- Use common, simple words. Avoid idioms, slang and phrasal verbs unless you are explaining them; if you use a less common word, explain it briefly${tutorLang() === 'en' ? ' in simple English' : ' in Spanish'}.`;
+}
+const HELP_COMMANDS = `LEARNER HELP COMMANDS: If the learner says "slower please", "more slowly", "más despacio", "más lento", "repeat", "again", "repite", "otra vez" or "no entiendo", repeat your last message more slowly, with simpler words and shorter sentences, then wait. If the learner asks "what does X mean?", "what is X?" or "¿qué significa X?", explain X briefly in Spanish with one very simple English example, then continue the conversation.`;
 chatSystem = function () {
   const k = chatLevel(), L0 = LEVELS[k], m = tutorLang(), ex = m === 'en' ? 'IN SIMPLE ENGLISH' : 'IN SPANISH';
   return `You are "Tuki", a patient, friendly English pronunciation and conversation tutor for a Spanish-speaking learner from Colombia (CEFR level ${k === 'A2' ? 'A1-A2' : k}). Roleplay: you are ${SCENARIOS[CHAT.scen]}.
@@ -2146,7 +2180,9 @@ PRONUNCIACION: <${m === 'en' ? 'in simple English' : 'in Spanish'}: 1-2 words fr
 REPLY: <${m === 'es' ? 'mainly IN SPANISH: continue the roleplay as a friendly teacher, introduce the English phrase(s) to practice in "double quotes", and ask the learner to repeat it or answer in English. Max 3 short sentences.' : `your answer IN ENGLISH adapted to the learner's level (${L0.length}), staying in the roleplay and ending with a question in English.`}>
 PRACTICA: <${m === 'es' ? 'ONE short English phrase (only English) for the learner to repeat or use in the answer.' : '"—"'}>
 ${levelRules(false)}
-${langRules(false)}`;
+${langRules(false)}
+${speedRules(false)}
+${HELP_COMMANDS}`;
 };
 parseTutor = function (t) {
   const LAB = 'CORRECCI[OÓ]N|EXPLICACI[OÓ]N|AYUDA|PRONUNCIACI[OÓ]N|REPLY|PR[AÁ]CTICA';
@@ -2171,7 +2207,9 @@ function liveSystem() {
   return `You are "Tuki", a friendly, patient English conversation tutor for a Spanish-speaking learner from Colombia. This is a live VOICE conversation. Roleplay: you are ${SCENARIOS[CHAT.scen]}.
 ${core}
 ${levelRules(true)}
-${langRules(true)}`;
+${langRules(true)}
+${speedRules(true)}
+${HELP_COMMANDS}`;
 }
 function liveSet(st) { LIVE.state = st; const d = $('#ldot'), l = $('#lstate'); if (d) d.className = 'live-dot ' + st; if (l) l.textContent = LIVE_LABEL[st] || st; }
 function liveUI() { liveSet(LIVE.state); const b = $('#liveBtn'); if (b) { b.classList.toggle('on', LIVE.on); b.innerHTML = LIVE.on ? '⏹ Terminar conversación' : '🎙️ Hablar en vivo'; } }
@@ -2263,7 +2301,7 @@ async function listLiveModels() {
 async function startOpenAIRealtime() {
   const s = S.settings, key = s.openaiKey.trim();
   const r = await fetch('https://api.openai.com/v1/realtime/client_secrets', { method: 'POST', headers: { Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ session: { type: 'realtime', model: s.realtimeModel || 'gpt-realtime', instructions: liveSystem(), audio: { input: { transcription: tutorLang() === 'en' ? { model: 'gpt-4o-mini-transcribe', language: 'en' } : { model: 'gpt-4o-mini-transcribe' }, turn_detection: { type: 'server_vad' } }, output: { voice: s.openaiVoice || 'marin' } } } }) });
+    body: JSON.stringify({ session: { type: 'realtime', model: s.realtimeModel || 'gpt-realtime', instructions: liveSystem(), audio: { input: { transcription: tutorLang() === 'en' ? { model: 'gpt-4o-mini-transcribe', language: 'en' } : { model: 'gpt-4o-mini-transcribe' }, turn_detection: { type: 'server_vad' } }, output: { voice: s.openaiVoice || 'marin', speed: TUTOR_SPEEDS[tutorSpeed()].rt } } } }) });
   if (!r.ok) throw await httpErr(r);
   const d = await r.json(), ek = d.value || (d.client_secret && d.client_secret.value); if (!ek) throw new Error('OpenAI no devolvió una clave temporal.');
   const pc = new RTCPeerConnection(); LIVE.pc = pc;
@@ -2337,19 +2375,117 @@ async function openaiChat() {
   if (!t) throw new Error('Respuesta vacía de OpenAI.'); return t;
 }
 function resetChat() { CHAT.gen = (CHAT.gen || 0) + 1; CHAT.busy = false; CHAT.hist = []; CHAT.err = null; }
-function chatDraw() {
-  const log = $('#log'); if (!log) return;
-  log.innerHTML = CHAT.hist.map(m => {
-    if (m.role === 'user') return m.hidden ? '' : `<div class="msg me">${m.live ? '🎙️ ' : ''}${esc(m.text)}${m.conf ? `<div class="small" style="opacity:.8">🎤 confianza ${Math.round(m.conf * 100)}%</div>` : ''}</div>`;
-    if (m.live) return `<div class="msg bot">${wordsHTML(m.text)}<button class="mini" data-say-n="${esc(m.text)}">🔊</button></div>`;
-    const p = parseTutor(m.text), esMode = tutorLang() === 'es', exLang = tutorLang() === 'en' ? 'en' : 'es';
-    const fixHTML = p.fix ? (isPerfect(p.fix) ? `<div class="msg fix ok">✅ ¡Perfecto! Tu frase fue correcta.</div>` : `<div class="msg fix"><div class="fx-lab">✏️ Corrección (EN)</div><div class="fx-en">${esc(p.fix)} <button class="mini" data-say-n="${esc(p.fix)}" data-lang="en" title="Escuchar la frase correcta">🔊</button></div>${p.expl ? `<div class="fx-lab" style="margin-top:6px">💡 ${exLang === 'es' ? 'Explicación (ES)' : 'Why (EN)'}</div><div class="fx-es">${esc(p.expl)}</div>` : ''}</div>`) : (p.expl ? `<div class="msg fix"><div class="fx-lab">💡 ${exLang === 'es' ? 'Explicación (ES)' : 'Why (EN)'}</div><div class="fx-es">${esc(p.expl)}</div></div>` : '');
-    return `${fixHTML}${p.help ? `<div class="msg help">🇨🇴 ${esc(p.help)} <button class="mini" data-say-n="${esc(p.help)}" data-lang="es">🔊</button></div>` : ''}${p.pron ? `<div class="msg fix pron">🗣️ ${esc(p.pron)}</div>` : ''}<div class="msg bot">${esMode ? esc(p.reply) : wordsHTML(p.reply)}<button class="mini" data-say-n="${esc(p.reply)}" data-lang="${esMode ? 'es' : 'en'}">🔊</button></div>${p.practice ? `<div class="msg practice"><div class="fx-lab">🎯 Practica en inglés</div><div class="fx-en">${wordsHTML(p.practice)}</div><div class="row" style="gap:6px;margin-top:6px"><button class="mini" data-say-n="${esc(p.practice)}" data-lang="en">🔊</button><button class="mini" data-say-slow="${esc(p.practice)}">🐢</button></div></div>` : ''}`;
-  }).join('') + (!CHAT.hist.length && !CHAT.busy && !CHAT.err ? `<div class="empty small">${LIVE.on ? 'Habla cuando quieras: aquí verás lo que tú y Tuki dicen.' : 'Toca <b>«Hablar en vivo»</b> (abajo) para conversar con tu voz, o escribe. Toca <b>Nueva</b> para que Tuki empiece.<br><span class="muted">Nivel: ' + LEVELS[chatLevel()].label + ' · Tutor: ' + TUTOR_LANGS[tutorLang()].name + '. La IA puede equivocarse; tu voz y mensajes se envían a ' + (currentProvider() === 'openai' ? 'OpenAI' : 'Google') + ' con tu clave. Usa audífonos para evitar eco.</span>'}</div>` : '') + (CHAT.busy ? '<div class="msg bot">…</div>' : '') + (CHAT.err ? `<div class="msg err">⚠️ ${esc(CHAT.err)}</div>` : '');
-  $$('[data-say-n]', log).forEach(b => b.onclick = () => speak(b.dataset.sayN, false, null, b.dataset.lang === 'es' ? 'es' : undefined));
-  $$('[data-say-slow]', log).forEach(b => b.onclick = () => speak(b.dataset.saySlow, true));
-  log.scrollTop = log.scrollHeight;
+/* Palabras tocables (ayuda de vocabulario) */
+function tapWords(text) { return esc(text).replace(/[A-Za-z][A-Za-z'’]*(?:-[A-Za-z]+)*/g, w => `<span class="tw" data-tw="${w}">${w}</span>`); }
+function msgActs(i, text, lang) {
+  return `<div class="msgacts"><button class="mini" data-say-n="${esc(text)}" data-lang="${lang}" title="Escuchar">🔊</button><button class="mini" data-slow-i="${i}" title="Repetir lento">🔁 Lento</button>${lang === 'es' ? '' : `<button class="mini" data-tr-i="${i}" title="Traducir al español">🇪🇸 Traducir</button>`}</div>`;
 }
+const trHTML = m => m.trOpen ? `<div class="trbox">${m.trText ? '🇪🇸 ' + esc(m.trText) : m.trErr ? '⚠️ ' + esc(m.trErr) : '🇪🇸 Traduciendo…'}</div>` : '';
+function msgText(m) { return m.live ? m.text : parseTutor(m.text).reply; }
+function chatDraw(keepScroll) {
+  const log = $('#log'); if (!log) return;
+  const st = log.scrollTop;
+  log.innerHTML = CHAT.hist.map((m, i) => {
+    if (m.role === 'user') return m.hidden ? '' : `<div class="msg me">${m.live ? '🎙️ ' : ''}${esc(m.text)}${m.conf ? `<div class="small" style="opacity:.8">🎤 confianza ${Math.round(m.conf * 100)}%</div>` : ''}</div>`;
+    if (m.live) return `<div class="msg bot"><div class="mtext">${tapWords(m.text)}</div>${trHTML(m)}${msgActs(i, m.text, 'en')}</div>`;
+    const p = parseTutor(m.text), esMode = tutorLang() === 'es', exLang = tutorLang() === 'en' ? 'en' : 'es';
+    const fixHTML = p.fix ? (isPerfect(p.fix) ? `<div class="msg fix ok">✅ ¡Perfecto! Tu frase fue correcta.</div>` : `<div class="msg fix"><div class="fx-lab">✏️ Corrección (EN)</div><div class="fx-en">${tapWords(p.fix)} <button class="mini" data-say-n="${esc(p.fix)}" data-lang="en" title="Escuchar la frase correcta">🔊</button></div>${p.expl ? `<div class="fx-lab" style="margin-top:6px">💡 ${exLang === 'es' ? 'Explicación (ES)' : 'Why (EN)'}</div><div class="fx-es">${exLang === 'es' ? esc(p.expl) : tapWords(p.expl)}</div>` : ''}</div>`) : (p.expl ? `<div class="msg fix"><div class="fx-lab">💡 ${exLang === 'es' ? 'Explicación (ES)' : 'Why (EN)'}</div><div class="fx-es">${esc(p.expl)}</div></div>` : '');
+    return `${fixHTML}${p.help ? `<div class="msg help">🇨🇴 ${esc(p.help)} <button class="mini" data-say-n="${esc(p.help)}" data-lang="es">🔊</button></div>` : ''}${p.pron ? `<div class="msg fix pron">🗣️ ${esc(p.pron)}</div>` : ''}<div class="msg bot"><div class="mtext">${esMode ? esc(p.reply).replace(/(["“])([^"”]+)(["”])/g, (x, a, q, c) => a + tapWords(q) + c) : tapWords(p.reply)}</div>${trHTML(m)}${msgActs(i, p.reply, esMode ? 'es' : 'en')}</div>${p.practice ? `<div class="msg practice"><div class="fx-lab">🎯 Practica en inglés</div><div class="fx-en">${tapWords(p.practice)}</div><div class="row" style="gap:6px;margin-top:6px"><button class="mini" data-say-n="${esc(p.practice)}" data-lang="en">🔊</button><button class="mini" data-say-slow="${esc(p.practice)}">🐢</button></div></div>` : ''}`;
+  }).join('') + (!CHAT.hist.length && !CHAT.busy && !CHAT.err ? `<div class="empty small">${LIVE.on ? 'Habla cuando quieras: aquí verás lo que tú y Tuki dicen. Di «más despacio» o «¿qué significa…?» si lo necesitas.' : 'Toca <b>«Hablar en vivo»</b> (abajo) para conversar con tu voz, o escribe. Toca <b>Nueva</b> para que Tuki empiece.<br>Toca cualquier palabra en inglés para ver su significado.<br><span class="muted">Nivel: ' + LEVELS[chatLevel()].label + ' · Tutor: ' + TUTOR_LANGS[tutorLang()].name + ' · Velocidad: ' + TUTOR_SPEEDS[tutorSpeed()].name + '. La IA puede equivocarse; tu voz y mensajes se envían a ' + (currentProvider() === 'openai' ? 'OpenAI' : 'Google') + ' con tu clave. Usa audífonos para evitar eco.</span>'}</div>` : '') + (CHAT.busy ? '<div class="msg bot">…</div>' : '') + (CHAT.err ? `<div class="msg err">⚠️ ${esc(CHAT.err)}</div>` : '');
+  $$('[data-say-n]', log).forEach(b => b.onclick = () => speak(b.dataset.sayN, false, null, b.dataset.lang === 'es' ? 'es' : undefined, chatMul()));
+  $$('[data-say-slow]', log).forEach(b => b.onclick = () => speak(b.dataset.saySlow, true, null, undefined, chatMul()));
+  $$('[data-slow-i]', log).forEach(b => b.onclick = () => { const m = CHAT.hist[+b.dataset.slowI]; if (!m) return; const lang = !m.live && tutorLang() === 'es' ? 'es' : undefined; speak(msgText(m), true, null, lang, chatMul()); });
+  $$('[data-tr-i]', log).forEach(b => b.onclick = () => toggleTranslate(+b.dataset.trI));
+  $$('.tw', log).forEach(w => w.onclick = e => { e.stopPropagation(); const ctxEl = w.closest('.msg'); openWordPop(w.dataset.tw, ctxEl ? (ctxEl.querySelector('.mtext,.fx-en') || ctxEl).innerText : '', w); });
+  if (keepScroll) log.scrollTop = st; else log.scrollTop = log.scrollHeight;
+}
+/* IA rápida (traducciones) con caché local */
+const CACHE_KEYS = { w: 'tukiSpeak.wcache', t: 'tukiSpeak.tcache' };
+function cacheGet(k, id) { try { return (JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'))[id]; } catch (e) { return undefined; } }
+function cacheSet(k, id, v) { try { const o = JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'); o[id] = v; const ks = Object.keys(o); if (ks.length > 400) ks.slice(0, ks.length - 400).forEach(x => delete o[x]); localStorage.setItem(CACHE_KEYS[k], JSON.stringify(o)); } catch (e) {} }
+async function aiQuick(system, prompt) {
+  const prov = currentProvider(); if (!prov) { const e = new Error('Configura una clave de IA en Ajustes para traducir.'); e.friendly = e.message; throw e; }
+  if (prov === 'openai') {
+    const model = S.settings.openaiModel || 'gpt-4o-mini', body = { model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], max_completion_tokens: 300 };
+    const r = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + S.settings.openaiKey.trim(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!r.ok) throw await httpErr(r); const d = await r.json(); return ((d.choices && d.choices[0] && d.choices[0].message && d.choices[0].message.content) || '').trim();
+  }
+  const models = [S.settings.model || 'gemini-2.5-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest'].filter((m, i, a) => m && a.indexOf(m) === i);
+  let last;
+  for (const model of models) {
+    try {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': S.settings.geminiKey.trim() }, body: JSON.stringify({ systemInstruction: { parts: [{ text: system }] }, contents: [{ role: 'user', parts: [{ text: prompt }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 300 } }) });
+      if (!r.ok) { last = await httpErr(r); if (r.status >= 500 || r.status === 404 || r.status === 429) continue; throw last; }
+      const d = await r.json(); const t = ((d.candidates && d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || []).map(x => x.text || '').join('').trim();
+      if (t) return t;
+    } catch (e) { last = e; if (e.status && e.status < 500 && e.status !== 404 && e.status !== 429) break; }
+  }
+  throw last || new Error('Sin respuesta');
+}
+async function toggleTranslate(i) {
+  const m = CHAT.hist[i]; if (!m) return;
+  if (m.trOpen && (m.trText || m.trErr)) { m.trOpen = false; return chatDraw(true); }
+  m.trOpen = true; m.trErr = null; const text = msgText(m), id = hashStr(text);
+  const c = cacheGet('t', id); if (c) { m.trText = c; return chatDraw(true); }
+  chatDraw(true);
+  try {
+    const t = await aiQuick('You are a precise English-to-Spanish translator for a learner from Colombia. Translate the user text into natural Latin American Spanish. Output ONLY the translation, nothing else.', text);
+    m.trText = t.replace(/^["“]|["”]$/g, ''); cacheSet('t', id, m.trText);
+  } catch (e) { m.trErr = errES(e); }
+  chatDraw(true);
+}
+/* Popup de palabra */
+let DICT_WORDS = null;
+function dictLookup(w) {
+  DICT = DICT || buildDict();
+  if (!DICT_WORDS) { DICT_WORDS = new Map(); DICT.forEach(d => { const k = d.en.toLowerCase().replace(/[.,!?¿¡]/g, '').trim(); if (!DICT_WORDS.has(k)) DICT_WORDS.set(k, d); }); }
+  const lw = w.toLowerCase().replace(/’/g, "'"), cands = [lw, lw.replace(/'s$/, ''), lw.replace(/s$/, ''), lw.replace(/es$/, ''), lw.replace(/ed$/, ''), lw.replace(/ed$/, 'e'), lw.replace(/ing$/, ''), lw.replace(/ing$/, 'e'), lw.replace(/ies$/, 'y')];
+  for (const c of cands) { const d = DICT_WORDS.get(c); if (d) return d; }
+  return null;
+}
+function ipaLookup(w) { const lw = w.toLowerCase(); for (const l of LESSONS) { for (const x of (l.ex || [])) if (String(x[0]).toLowerCase() === lw && x[2] && /^\/.*\/$/.test(String(x[2]).trim())) return String(x[2]).trim(); } return ''; }
+function closeWordPop() { const p = $('#wordPop'); if (p) p.remove(); }
+async function openWordPop(word, context, anchor) {
+  closeWordPop();
+  const pop = document.createElement('div'); pop.id = 'wordPop'; pop.className = 'wordpop'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Significado de ' + word);
+  document.body.appendChild(pop);
+  const key = 'w:' + word.toLowerCase(), d = dictLookup(word), cid = word.toLowerCase() + '|' + hashStr(context || '');
+  const cached = cacheGet('w', cid);
+  let info = d ? { es: d.es, ipa: ipaLookup(word) || (cached && cached.ipa) || '', src: 'dict' } : (cached || null);
+  const draw = () => {
+    const inDeck = !!S.deck[key];
+    pop.innerHTML = `<div class="row between"><b class="wp-w">${esc(word)}</b><button class="mini" data-x aria-label="Cerrar">✕</button></div>
+      ${info && info.ipa ? `<div class="wp-ipa">${esc(info.ipa)}</div>` : ''}
+      <div class="wp-es">${info ? (info.err ? '⚠️ ' + esc(info.err) : '🇪🇸 ' + esc(info.es)) : '🇪🇸 Buscando significado…'}</div>
+      ${info && info.src === 'dict' ? '<div class="small muted">Del diccionario del curso</div>' : info && !info.err ? '<div class="small muted">Traducción de la IA (en contexto)</div>' : ''}
+      <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap"><button class="mini" data-p="n">🔊</button><button class="mini" data-p="s">🐢</button><button class="btn primary sm" data-add ${!info || info.err || inDeck ? 'disabled' : ''}>${inDeck ? '✓ En tus tarjetas' : '➕ Agregar a mis tarjetas'}</button></div>`;
+    $('[data-x]', pop).onclick = closeWordPop;
+    $('[data-p="n"]', pop).onclick = () => speak(word, false, null, undefined, chatMul());
+    $('[data-p="s"]', pop).onclick = () => speak(word, true);
+    $('[data-add]', pop).onclick = () => { if (!info || info.err) return; addToDeck([{ key, en: word.toLowerCase(), es: info.es, kind: 'palabra', lesson: d ? d.lesson : null }]); toast('🃏 «' + word + '» agregada a tus tarjetas'); draw(); };
+    place();
+  };
+  const place = () => {
+    const r = anchor.getBoundingClientRect(), pw = Math.min(300, innerWidth - 20), ph = pop.offsetHeight || 150;
+    let left = Math.max(10, Math.min(innerWidth - pw - 10, r.left + r.width / 2 - pw / 2)), top = r.top - ph - 8;
+    if (top < 60) top = r.bottom + 8;
+    pop.style.width = pw + 'px'; pop.style.left = left + 'px'; pop.style.top = top + 'px';
+  };
+  draw();
+  if (info && info.src === 'dict' && !info.ipa && currentProvider()) {
+    try { const t = await aiQuick('You give the US IPA pronunciation of English words. Answer ONLY with compact JSON: {"ipa":"/.../"}', `Word: "${word}"`); const m = t.match(/\{[\s\S]*\}/); const j = JSON.parse(m ? m[0] : t); if (j.ipa) { info.ipa = String(j.ipa).trim(); cacheSet('w', cid, { ...info }); if ($('#wordPop') === pop) draw(); } } catch (e) {}
+    return;
+  }
+  if (!info) {
+    try {
+      const t = await aiQuick('You are an English-Spanish dictionary for a learner from Colombia. Answer ONLY with compact JSON: {"es":"<short Spanish meaning of the word as used in the sentence, 1-5 words>","ipa":"<US IPA between slashes>"}', `Word: "${word}"\nSentence: "${context || word}"`);
+      const m = t.match(/\{[\s\S]*\}/); const j = JSON.parse(m ? m[0] : t);
+      info = { es: String(j.es || '').trim() || '—', ipa: String(j.ipa || '').trim(), src: 'ai' }; cacheSet('w', cid, info);
+    } catch (e) { info = { err: errES(e) }; }
+    if ($('#wordPop') === pop) draw();
+  }
+}
+document.addEventListener('click', e => { const p = $('#wordPop'); if (p && !p.contains(e.target) && !e.target.closest('.tw')) closeWordPop(); }, true);
 async function chatSend(text, hidden = false, conf = 0) {
   if (!text) return;
   if (LIVE.on && LIVE.sendText) return LIVE.sendText(text);
@@ -2360,7 +2496,7 @@ async function chatSend(text, hidden = false, conf = 0) {
     const out = prov === 'openai' ? await openaiChat() : await gemini(text);
     if (gen !== CHAT.gen) return;
     CHAT.hist.push({ role: 'model', text: out }); CHAT.busy = false; S.chats = (S.chats || 0) + 1; addXP(1); chatDraw();
-    if (S.settings.autoplay) speakSeq(tutorSpeechParts(parseTutor(out)));
+    if (S.settings.autoplay) speakSeq(tutorSpeechParts(parseTutor(out)), 0, chatMul());
   } catch (e) {
     if (gen !== CHAT.gen) return;
     CHAT.hist.pop(); CHAT.busy = false;
@@ -2388,7 +2524,7 @@ VIEWS.chat = v => {
   v.innerHTML = `<div class="chatscreen" id="chatscreen">
     <div class="chattop">
       <div class="provider"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
-      <div class="chatsel"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${SCEN_ES[k]}</option>`).join('')}</select><button class="btn ghost sm" id="newc" title="Nueva conversación">Nueva</button></div>
+      <div class="chatsel"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${SCEN_ES[k]}</option>`).join('')}</select><select class="field sp" id="tspeed" aria-label="Velocidad de Tuki" title="Velocidad de Tuki">${Object.keys(TUTOR_SPEEDS).map(k => `<option value="${k}" ${k === tutorSpeed() ? 'selected' : ''}>${TUTOR_SPEEDS[k].label}</option>`).join('')}</select><button class="btn ghost sm" id="newc" title="Nueva conversación">Nueva</button></div>
       <div class="chatsel"><select class="field" id="level" aria-label="Nivel de inglés" title="Nivel de inglés de la conversación">${LEVEL_KEYS.map(k => `<option value="${k}" ${k === lv ? 'selected' : ''}>${LEVELS[k].label}</option>`).join('')}</select><select class="field" id="tlang" aria-label="Idioma del tutor" title="Idioma del tutor">${Object.keys(TUTOR_LANGS).map(k => `<option value="${k}" ${k === tutorLang() ? 'selected' : ''}>${TUTOR_LANGS[k].label}</option>`).join('')}</select></div>
     </div>
     <div class="chatlog" id="log" aria-live="polite"></div>
@@ -2404,6 +2540,7 @@ VIEWS.chat = v => {
   $('#scen').onchange = e => { CHAT.scen = e.target.value; restart(LIVE.on ? '🔄 Nuevo escenario: reconectando la voz en vivo…' : '🔄 Nuevo escenario: conversación reiniciada'); };
   $('#level').onchange = e => { S.settings.chatLevel = e.target.value; save(); const n = LEVELS[e.target.value].label; restart(LIVE.on ? `🎚️ Nivel ${n}: reconectando la voz en vivo…` : `🎚️ Nivel ${n}` + (CHAT.hist.length ? ': conversación reiniciada' : '')); };
   $('#tlang').onchange = e => { S.settings.tutorLang = e.target.value; save(); const n = TUTOR_LANGS[e.target.value].name; restart(LIVE.on ? `🗣️ Idioma del tutor: ${n}. Reconectando la voz en vivo…` : `🗣️ Idioma del tutor: ${n}` + (CHAT.hist.length ? '. Conversación reiniciada' : '')); };
+  $('#tspeed').onchange = e => { S.settings.tutorSpeed = e.target.value; save(); const n = TUTOR_SPEEDS[e.target.value].name; if (LIVE.on) { toast(`🐢 Velocidad ${n}: reconectando la voz en vivo…`, 2600); stopLive(true); resetChat(); chatDraw(); startLive(); } else { toast(`🐢 Velocidad de Tuki: ${n}`); chatDraw(true); } };
   $('#newc').onclick = () => { if (LIVE.on) stopLive(); startText(); };
   $('#liveBtn').onclick = () => LIVE.on ? stopLive() : startLive();
   const cin = $('#cin'); $('#csend').onclick = () => { const t = cin.value.trim(); cin.value = ''; chatSend(t); };
@@ -2444,6 +2581,7 @@ VIEWS.settings = v => {
   <div class="card"><h3>🤖 Conversación con IA <span class="pill">Opcional</span></h3>
     <div class="set-row"><div><label for="chatProvider">Proveedor</label></div><select class="field" id="chatProvider" style="max-width:200px">${opt([['gemini', 'Gemini (gratis)'], ['openai', 'OpenAI (pago)']], s.chatProvider)}</select></div>
     <div class="set-row"><div><label for="chatLevel">Nivel de la conversación</label><div class="desc">Ajusta vocabulario, velocidad y correcciones del tutor</div></div><select class="field" id="chatLevel" style="max-width:200px">${opt(LEVEL_KEYS.map(k => [k, LEVELS[k].label]), chatLevel())}</select></div>
+    <div class="set-row"><div><label for="tutorSpeed">Velocidad de Tuki</label><div class="desc">Frases más cortas, pausas y voz más lenta</div></div><select class="field" id="tutorSpeed" style="max-width:200px">${opt(Object.keys(TUTOR_SPEEDS).map(k => [k, TUTOR_SPEEDS[k].label]), tutorSpeed())}</select></div>
     <div class="set-row"><div><label for="tutorLang">Idioma del tutor</label><div class="desc">Bilingüe: conversa en inglés y te explica las correcciones en español</div></div><select class="field" id="tutorLang" style="max-width:200px">${opt(Object.keys(TUTOR_LANGS).map(k => [k, TUTOR_LANGS[k].label]), tutorLang())}</select></div>
     <h3 style="margin-top:10px;font-size:16px">✨ Google Gemini (gratis con límites)</h3>
     <p class="small muted">Clave gratuita en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Se usa para el chat y para la <b>voz en vivo (Gemini Live)</b>.</p>
@@ -2482,7 +2620,7 @@ VIEWS.settings = v => {
   <p class="muted small" style="text-align:center">Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.</p>`;
   const set = (k, val) => { S.settings[k] = val; save(); };
   const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
-  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang']].forEach(a => bindSel(...a));
+  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
   ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
   $('#rate').oninput = e => { set('rate', +e.target.value); $('#rateV').textContent = (+e.target.value).toFixed(2) + '×'; };
   $('#tRate').onclick = () => speak('Hello! This is how fast I speak. Think, three, very, ship, sheep.');
@@ -2586,7 +2724,7 @@ applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem, chatSystem: () => chatSystem(), version: APP_VERSION };
+window.TUKI = { get S() { return S; }, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem, chatSystem: () => chatSystem(), version: APP_VERSION };
 </script>
 
 </body>
