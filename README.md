@@ -6,7 +6,7 @@ Sin backend. Todo funciona gratis y sin claves; los servicios de pago son **opci
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/
 
 ## Qué incluye
-- **12 unidades / 39+ lecciones**: vocales, consonantes, TH, finales, terminaciones, entonación, conversaciones reales, habla conectada (linking, reducciones, flap-t), números/fechas/horas, phrasal verbs, falsos amigos, small talk y entrevista avanzada.
+- **12 unidades / 36 lecciones**: vocales, consonantes, TH, finales, terminaciones, entonación, conversaciones reales, habla conectada (linking, reducciones, flap-t), números/fechas/horas, phrasal verbs, falsos amigos, small talk y entrevista avanzada.
 - **Prueba de nivel** al primer uso (10 preguntas con oído y voz, se puede saltar o repetir en Ajustes).
 - **Plan de hoy** (~10 min): sonidos débiles + tarjetas pendientes + pares mínimos.
 - **Diccionario/Frases** con búsqueda (inglés o español), audio normal/lento, ➕ a tarjetas y 🎙️ practicar.
