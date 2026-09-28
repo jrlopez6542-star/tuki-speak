@@ -2,7 +2,8 @@ rules_version = '2';
 
 // Tuki Speak: cada persona solo puede leer y escribir su propio documento.
 // Plan Spark: sin Cloud Functions ni Storage. Todo lo demás está denegado.
-// quota/*: contadores de las claves compartidas, escritos solo por la cuenta de servidor (v2.10).
+// quota/*: contadores de las claves compartidas, escritos solo por la cuenta de servidor (v2.10); solo el dueño los lee (v2.11).
+// profiles/*: perfil mínimo de cada cuenta (lo escribe cada quien, solo el dueño lo lee). feedback/*: comentarios (v2.11).
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -16,6 +17,44 @@ service cloud.firestore {
 
     function strMax(v, n) {
       return v is string && v.size() <= n;
+    }
+
+    // Dueño de la app (panel de administrador, v2.11)
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email == 'jrlopez6542@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    // Correo del token (cadena vacía si la cuenta no tiene correo)
+    function tokenEmail() {
+      return request.auth.token.get('email', '');
+    }
+
+    // profiles/{uid}: nombre, correo, método, primer ingreso, última actividad, versión y modo (claves propias o de Tuki)
+    function validProfile(d) {
+      return d.keys().hasOnly(['name', 'email', 'provider', 'firstSeen', 'lastActive', 'app', 'mode'])
+        && d.keys().hasAll(['name', 'email', 'provider', 'firstSeen', 'lastActive', 'app'])
+        && strMax(d.name, 100)
+        && d.email == tokenEmail()
+        && d.provider in ['google.com', 'password']
+        && d.firstSeen is timestamp
+        && d.lastActive == request.time
+        && strMax(d.app, 20)
+        && (!('mode' in d) || d.mode in ['own', 'shared']);
+    }
+
+    // feedback/{id}: estrellas 1–5 y texto de hasta 1000 caracteres, siempre con el uid y correo propios
+    function validFeedback(d) {
+      return d.keys().hasOnly(['uid', 'email', 'name', 'stars', 'text', 'version', 'createdAt'])
+        && d.keys().hasAll(['uid', 'email', 'name', 'stars', 'text', 'version', 'createdAt'])
+        && d.uid == request.auth.uid
+        && d.email == tokenEmail()
+        && strMax(d.name, 100)
+        && d.stars is int && d.stars >= 1 && d.stars <= 5
+        && strMax(d.text, 1000)
+        && strMax(d.version, 20)
+        && d.createdAt == request.time;
     }
 
     // keysEnc: null (sin claves) o el sobre AES-GCM {v, alg, salt, iv, ct, iter}
@@ -80,7 +119,7 @@ service cloud.firestore {
     }
 
     // v2.10 «claves compartidas»: contadores diarios de uso gratis (quota/{día}_{uid}).
-    // Solo los escribe la cuenta de servidor de la API de Vercel; nadie los puede leer ni borrar desde el navegador.
+    // Solo los escribe la cuenta de servidor de la API de Vercel; solo el dueño los lee (panel, v2.11); nadie los borra.
     match /quota/{docId} {
       allow create, update: if request.auth != null
         && request.auth.uid == 'R9hBV7CgH1geEUyZZT7wBkrIoE92'
@@ -90,7 +129,25 @@ service cloud.firestore {
         && (!('live' in request.resource.data) || request.resource.data.live is int)
         && (!('azure' in request.resource.data) || request.resource.data.azure is int)
         && request.resource.data.updatedAt is timestamp;
-      allow read, delete: if false;
+      allow read: if isOwner();
+      allow delete: if false;
+    }
+
+    // v2.11: perfil de cada cuenta. Cada quien crea/actualiza solo el suyo (firstSeen no cambia); solo el dueño lee y lista.
+    match /profiles/{uid} {
+      allow create: if signedInAs(uid) && validProfile(request.resource.data)
+        && request.resource.data.firstSeen == request.time;
+      allow update: if signedInAs(uid) && validProfile(request.resource.data)
+        && request.resource.data.firstSeen == resource.data.firstSeen;
+      allow read: if isOwner();
+      allow delete: if false;
+    }
+
+    // v2.11: comentarios. Cualquier cuenta crea con su propio uid; nadie los edita; solo el dueño lee, lista y borra.
+    match /feedback/{id} {
+      allow create: if request.auth != null && validFeedback(request.resource.data);
+      allow read, delete: if isOwner();
+      allow update: if false;
     }
 
     // Todo lo demás: denegado

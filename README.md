@@ -1,9 +1,15 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.10.1
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.11.0
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.11.0
+- **💬 Enviar comentarios** (Ajustes, debajo de Cuenta): 1 a 5 estrellas y un texto de hasta 1000 caracteres. Solo con sesión iniciada; como máximo un comentario cada 10 minutos. Se guarda en `feedback/{id}` (uid, correo, nombre, estrellas, texto, versión y fecha del servidor). Nadie puede leer, editar ni borrar comentarios ajenos.
+- **👑 Panel de administrador** (Ajustes): solo aparece para el dueño (jrlopez6542@gmail.com con correo verificado) y **las reglas de Firestore imponen el acceso**, no solo la interfaz. Muestra: totales (usuarios, activos hoy, calificación promedio); usuarios registrados (nombre, correo, método, primer ingreso, última actividad y versión); uso de las claves de Tuki por usuario (Gemini · Live · Azure, hoy y últimos 7 días, con totales; «claves propias» si usa sus claves), leído directamente de `quota/*`; y los comentarios, del más nuevo al más viejo.
+- **Perfiles** (`profiles/{uid}`): al iniciar sesión (y al abrir la app, así las cuentas existentes se registran solas) la app guarda nombre, correo, método, versión y si usa claves propias; la última actividad se actualiza como máximo una vez por hora. En Cuenta se avisa: «Al iniciar sesión, tu nombre, correo y uso se guardan para mejorar la app.»
+- **Cambio en `firestore.rules`** (hay que publicarlo en la consola de Firebase): `profiles` (cada quien crea/actualiza solo el suyo; solo el dueño lee), `feedback` (crear con el uid propio y campos validados; solo el dueño lee y borra) y `quota` (ahora el dueño puede leer). Mientras no se publiquen, la app sigue funcionando y muestra un mensaje amable.
 
 ## Novedades v2.10.1
 - Se quitó de Ajustes toda la tarjeta **«📲 Progreso en varios dispositivos»**: el código QR para pasar el progreso (mostrar/escanear, enlace `#import=` y pegar código) y la **sincronización automática con un Gist de GitHub**, con todo su código (incluida la librería de QR). Para usar Tuki en varios dispositivos inicia sesión en **Cuenta** (Google o correo): la sincronización con Firebase lo hace sola.
