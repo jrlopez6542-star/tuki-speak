@@ -1,9 +1,23 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.11.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.12.0
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.12.0
+- **🧠 Repetición Espaciada Inteligente (SRS / SM-2)**: Las palabras difíciles detectadas en lecciones o conversaciones se sincronizan automáticamente con el mazo de tarjetas (`S.deck`). Ahora en **Tarjetas** y en **Práctica** puedes ver cuántas tarjetas vencen hoy según el algoritmo SM-2, filtrar por estado («⏰ Para hoy», «🌱 Aprendiendo», «🏆 Dominadas») y repasar en el intervalo óptimo antes de olvidar.
+- **🎯 Misiones de Conversación por Escenarios de la Vida Real**: Nuevos escenarios conversacionales estructurados con metas concretas:
+  - ☕ **Pedir en cafetería** (Barista en Londres: pedir café con leche vegetal, azúcar/hielo, precio y pagar con tarjeta).
+  - 🏨 **Check-in en el hotel** (Recepción en Miami: dar nombre y pasaporte, pedir piso alto/tranquilo, hora de desayuno y Wi-Fi).
+  - 🛂 **Inmigración en el aeropuerto** (Oficial en JFK: motivo del viaje, duración de estancia, hospedaje).
+  - 🗺️ **Pedir direcciones** (Peatón en Chicago: preguntar por la estación, si es caminable y despedirse cordialmente).
+  Cada escenario muestra un checklist interactivo arriba del chat para que verifiques tus metas y ganes +15 XP al cumplirlas todas.
+- **🎙️ Modo Shadowing (Escucha, Imita y Graba)**: Nueva herramienta en **Práctica** para dominar el habla conectada y el ritmo natural en inglés (A1 a B2). Escucha frases de ejemplo a velocidad normal o lenta (0.75x) con etiquetas fonéticas visuales de enlace ("How's it", "going to → gonna", "slipped my mind"), graba tu intento al instante y recibe puntaje de similitud y entonación.
+- **👄 Guía Fonética y Bocas Anatómicas**: Diagramas SVG animados interactivos para corregir la posición de la lengua, labios y dientes en los sonidos más difíciles para hispanohablantes: /θ/ y /ð/ (think/this), /v/ vs /b/, la "R" inglesa /ɹ/, la "L" /l/, y /ʃ/ vs /tʃ/.
+- **📷 Práctica Multimodal («Describe la Foto / Objeto»)**: Sube o toma una foto con tu cámara para que Tuki analice los objetos de tu entorno, enseñe 5 palabras de vocabulario clave y proponga una pregunta conversacional en inglés para responder.
+- **✨ Micro-interacciones y Efectos Positivos**: Nuevos tonos sintetizados de alta fidelidad con `AudioContext` (`fanfare`, `streak`, `pop`) y animación de confetti dinámico en canvas para celebrar rachas y misiones sin dependencias externas.
+- **Service Worker**: Actualizado a `tuki-speak-v18` para actualización automática limpia de caché PWA.
 
 ## Novedades v2.11.0
 - **💬 Enviar comentarios** (Ajustes, debajo de Cuenta): 1 a 5 estrellas y un texto de hasta 1000 caracteres. Solo con sesión iniciada; como máximo un comentario cada 10 minutos. Se guarda en `feedback/{id}` (uid, correo, nombre, estrellas, texto, versión y fecha del servidor). Nadie puede leer, editar ni borrar comentarios ajenos.
