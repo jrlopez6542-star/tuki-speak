@@ -6,7 +6,15 @@ export class HttpError extends Error {
 export const originAllowed = o => !o || ALLOWED_ORIGINS.includes(o) || LOCAL_ORIGIN_RE.test(o);
 
 export function corsHeaders(origin) {
-  const h = { Vary: 'Origin', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' };
+  const h = {
+    Vary: 'Origin',
+    'Cache-Control': 'no-store, no-cache, must-revalidate',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'X-Permitted-Cross-Domain-Policies': 'none',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'"
+  };
   if (origin && originAllowed(origin)) Object.assign(h, {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -34,12 +42,13 @@ export async function run(req, handler) {
   }
 }
 function lower(h) { const o = {}; for (const [k, v] of Object.entries(h)) o[k.toLowerCase()] = Array.isArray(v) ? v[0] : v; return o; }
+const safeReviver = (k, v) => (k === '__proto__' || k === 'constructor' || k === 'prototype') ? undefined : v;
 function parseBody(b, headers) {
   if (b == null || b === '') return {};
   if (+headers['content-length'] > MAX_BODY_BYTES) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
   if (typeof b === 'string' || Buffer.isBuffer(b)) {
     const s = b.toString(); if (s.length > MAX_BODY_BYTES) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
-    try { return JSON.parse(s); } catch (e) { throw new HttpError(400, 'BAD_JSON', MSG.bad); }
+    try { return JSON.parse(s, safeReviver); } catch (e) { throw new HttpError(400, 'BAD_JSON', MSG.bad); }
   }
   if (typeof b !== 'object') throw new HttpError(400, 'BAD_JSON', MSG.bad);
   if (JSON.stringify(b).length > MAX_BODY_BYTES) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);

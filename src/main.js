@@ -645,7 +645,7 @@ function recordEar(soundId, ok) { const r = S.ear[soundId] || (S.ear[soundId] = 
 function soundAvg(id, n = 10) { const a = (S.snd[id] || []).slice(-n).map(x => x.s); return a.length ? Math.round(avg(a)) : null; }
 
 /* ---- repetición espaciada (SM-2) ---- */
-function addToDeck(items) { items.forEach(it => { if (!S.deck[it.key]) S.deck[it.key] = { en: it.en, es: it.es, kind: it.kind, lesson: it.lesson, ef: 2.5, int: 0, reps: 0, due: Date.now(), lapses: 0, added: Date.now() }; }); save(); }
+function addToDeck(items) { items.forEach(it => { if (!it || !it.key || BAD_KEYS.has(it.key)) return; if (!S.deck[it.key]) S.deck[it.key] = { en: String(it.en || '').slice(0, 400), es: String(it.es || '').slice(0, 400), kind: it.kind, lesson: it.lesson, ef: 2.5, int: 0, reps: 0, due: Date.now(), lapses: 0, added: Date.now() }; }); save(); }
 function sm2(card, q) {
   if (q < 3) { card.reps = 0; card.int = 0; card.lapses++; card.due = Date.now() + 60e3; }
   else { card.int = card.reps === 0 ? (q === 3 ? 1 : q === 5 ? 3 : 1) : card.reps === 1 ? (q === 3 ? 3 : 6) : Math.round(card.int * card.ef * (q === 3 ? 0.8 : q === 5 ? 1.3 : 1)); card.reps++; card.due = Date.now() + card.int * DAY; }
@@ -2276,7 +2276,9 @@ async function openWordPop(word, context, anchor) {
 }
 document.addEventListener('click', e => { const p = $('#wordPop'); if (p && !p.contains(e.target) && !e.target.closest('.tw')) closeWordPop(); }, true);
 async function chatSend(text, hidden = false, conf = 0) {
+  text = String(text || '').trim();
   if (!text) return;
+  if (text.length > 2000) return toast('El mensaje es demasiado largo (máximo 2000 caracteres).');
   if (LIVE.on && LIVE.sendText) return LIVE.sendText(text);
   if (CHAT.busy) return toast('Espera la respuesta de Tuki…');
   const prov = currentProvider(), gen = CHAT.gen = CHAT.gen || 0; CHAT.err = null; CHAT.busy = true;
@@ -3846,7 +3848,8 @@ Object.assign(window, { startPD });
 // =================== CHUNK ===================
 
 /* =================== v2.8 CUENTA, NUBE Y SEGURIDAD =================== */
-const lsGet = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+const safeReviver = (k, v) => (k === '__proto__' || k === 'constructor' || k === 'prototype') ? undefined : v;
+const lsGet = (k, d) => { try { const raw = localStorage.getItem(k); if (!raw) return d; const v = JSON.parse(raw, safeReviver); return v == null ? d : v; } catch (e) { return d; } };
 const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 /* ---- Validación de datos importados (archivo, nube) ---- */
 const BAD_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
@@ -4133,6 +4136,7 @@ async function fbSignOut(wipe, quiet) {
   clearTimeout(FB.timer); FB.timer = null;
   if (FB.U) await FB.U.signOut(FB.auth);
   KS.key = null; FB.dirty = false; FB.first = false;
+  AZT.tok = ''; AZT.region = ''; AZT.exp = 0; AZT.p = null;
   if (wipe) {
     [FB_OWNER, KEYS_LOCAL, CLOUD_META, 'tukiSpeak.gist'].forEach(k => localStorage.removeItem(k)); LOCKED = false;
     const f = freshState(); f.settings = { ...DEFAULT_SETTINGS, theme: S.settings.theme }; adoptState(f); toast('🧹 Datos de este dispositivo borrados.');
