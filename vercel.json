@@ -4,6 +4,9 @@
       "maxDuration": 60
     }
   },
+  "env": {
+    "LIMIT_AZURE": "300"
+  },
   "headers": [
     {
       "source": "/(.*)",

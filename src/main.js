@@ -1022,7 +1022,8 @@ VIEWS.learn = v => {
   if (!canSpeak()) html += `<div class="notice">⚠️ Este navegador no tiene reconocimiento de voz: podrás escuchar, grabarte y comparar, pero no recibir puntaje (o configura Azure en Ajustes). Para la experiencia completa usa <b>Google Chrome</b> (Android o computador) o Edge.</div>`;
   COURSE.forEach((u, ui) => {
     const done = u.lessons.filter(l => isDone(l.id)).length;
-    html += `<section class="unit"><div class="unit-head" style="background:${u.color}"><div><p>Unidad ${ui + 1} · ${done}/${u.lessons.length}</p><h3>${u.icon} ${esc(u.title)}</h3><p>${esc(u.desc)}</p></div><button class="guide" data-guide="${u.id}">📘 Guía</button></div><div class="path">`;
+    const prevUnitDone = ui === 0 || S.settings.freeMode || COURSE[ui - 1].lessons.every(l => isDone(l.id));
+    html += `<section class="unit ${!prevUnitDone ? 'unit-locked' : ''}"><div class="unit-head" style="background:${u.color}"><div><p>Unidad ${ui + 1} · ${done}/${u.lessons.length} ${!prevUnitDone ? '🔒' : ''}</p><h3>${u.icon} ${esc(u.title)}</h3><p>${esc(u.desc)}</p></div><button class="guide" data-guide="${u.id}">📘 Guía</button></div><div class="path">`;
     u.lessons.forEach((l, li) => {
       const unl = isUnlocked(l), dn = isDone(l.id), isCur = cur && cur.id === l.id;
       const off = [0, 48, 64, 48, 0, -48, -64, -48][(l.idx) % 8];
@@ -1040,15 +1041,83 @@ VIEWS.learn = v => {
   $$('[data-guide]', v).forEach(b => b.onclick = () => guideSheet(COURSE.find(u => u.id === b.dataset.guide)));
 };
 function lessonSheet(l) {
-  const unl = isUnlocked(l), d = S.done[l.id];
+  const unl = isUnlocked(l), d = S.done[l.id], cur = currentLesson();
+  if (!unl) {
+    modal(`<div style="text-align:center"><div style="font-size:54px">🔒</div>
+      <h2>Lección bloqueada</h2>
+      <p class="muted">Sigue el orden de la ruta (estilo Duolingo) para avanzar paso a paso y dominar tu pronunciación.</p>
+      ${cur ? `<div class="tipbox" style="margin:12px 0;text-align:left"><b>Lección actual:</b> ${cur.icon} ${esc(cur.title)} <span class="small muted">(${esc(cur.unit.title)})</span></div>` : ''}
+      <div class="row" style="margin-top:16px">
+        <button class="btn ghost block" data-x>Cerrar</button>
+        ${cur ? `<button class="btn primary block" data-cur>Ir a la lección actual 🚀</button>` : ''}
+      </div></div>`,
+      (el, close) => {
+        $('[data-x]', el).onclick = close;
+        const bc = $('[data-cur]', el);
+        if (bc) bc.onclick = () => { close(); if (cur) lessonSheet(cur); };
+      });
+    return;
+  }
   modal(`<div class="row"><div style="font-size:40px">${l.icon}</div><div><div class="muted small">${esc(l.unit.title)} · Lección ${l.li + 1}</div><h2 style="margin:0">${esc(l.title)}</h2>${!l.type ? `<div class="ipa">/${esc(l.sound)}/</div>` : ''}</div></div>
     <div class="tipbox small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</div>${mouthPanelHTML(l.id, true)}
     ${d && d.placed && !d.times ? '<p class="small muted">✅ Aprobada en la prueba de nivel</p>' : d ? `<p class="small muted">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : ''}
-    ${unl ? `<button class="btn primary block" data-go>${d ? 'Repetir lección' : 'Empezar lección'} (+10 XP)</button>${d ? '<button class="btn ghost block" style="margin-top:10px" data-drill>🎯 Práctica de este sonido</button>' : ''}` : `<div class="notice">🔒 Completa la lección anterior para desbloquear esta (o activa el modo libre en Ajustes).</div>`}`,
+    <button class="btn primary block" data-go>${d ? 'Repetir lección' : 'Empezar lección'} (+10 XP)</button>${d ? '<button class="btn ghost block" style="margin-top:10px" data-drill>🎯 Práctica de este sonido</button>' : ''}`,
     (el, close) => { const g = $('[data-go]', el); if (g) g.onclick = () => { close(); startLesson(l); }; const dr = $('[data-drill]', el); if (dr) dr.onclick = () => { close(); startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); }; });
 }
 function guideSheet(u) {
   modal(`<h2>📘 ${esc(u.title)}</h2>${u.lessons.map(l => `<div class="tipbox"><b>${l.icon} ${esc(l.title)}</b> ${!l.type ? `<span class="ipa">/${esc(l.sound)}/</span>` : ''}<p class="small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>${l.mouth ? `<p class="small"><b>👄</b> ${esc(l.mouth)}</p>` : ''}</div>`).join('')}<button class="btn primary block" data-x>Cerrar</button>`, (el, c) => $('[data-x]', el).onclick = c);
+}
+
+/* ---- Reglas de desbloqueo progresivo de práctica (estilo Duolingo) ---- */
+const UNLOCK_RULES = {
+  // Prácticas básicas
+  pairs: { reqLessons: 0, title: 'Pares mínimos rápidos', unit: 'Básico' },
+  weak: { reqLessons: 0, title: 'Repaso de sonidos débiles', unit: 'Básico' },
+  studio: { reqLessons: 0, title: 'Estudio: grabar y comparar', unit: 'Básico' },
+  words: { reqLessons: 1, title: 'Palabras para repetir', unit: 'Unidad 1' },
+  // Desbloqueos por unidad
+  tc: { reqLessons: 3, title: 'Traduce y completa', unit: 'Unidad 1' },
+  srs: { reqLessons: 3, title: 'Repaso Inteligente (SRS)', unit: 'Unidad 1' },
+  mouth: { reqLessons: 6, title: 'Guía Fonética y Bocas', unit: 'Unidad 2' },
+  shadow: { reqLessons: 6, title: 'Modo Shadowing', unit: 'Unidad 2' },
+  missions: { reqLessons: 9, title: 'Misiones de Conversación Real', unit: 'Unidad 3' },
+  handsfree: { reqLessons: 9, title: 'Modo Manos Libres', unit: 'Unidad 3' },
+  photo: { reqLessons: 13, title: 'Describe la Foto / Objeto', unit: 'Unidad 4' },
+  chat: { reqLessons: 13, title: 'Conversación con IA', unit: 'Unidad 4' }
+};
+
+function isFeatureUnlocked(id) {
+  if (S.settings.freeMode) return true;
+  const rule = UNLOCK_RULES[id];
+  if (!rule) return true;
+  const doneCount = Object.keys(S.done).filter(k => isDone(k)).length;
+  return doneCount >= rule.reqLessons;
+}
+
+function showLockedFeatureModal(id) {
+  const rule = UNLOCK_RULES[id] || { reqLessons: 3, title: 'Esta práctica', unit: 'Modo Aprender' };
+  const doneCount = Object.keys(S.done).filter(k => isDone(k)).length;
+  const needed = Math.max(0, rule.reqLessons - doneCount);
+  const cur = currentLesson();
+  modal(`<div style="text-align:center"><div style="font-size:54px">🔒</div>
+    <h2>Práctica bloqueada</h2>
+    <p class="muted">Para desbloquear <b>${esc(rule.title)}</b>, avanza en el <b>Modo Aprender</b> como en Duolingo.</p>
+    <div class="tipbox" style="margin:12px 0;text-align:left">
+      <div><b>Requisito:</b> Completar ${rule.reqLessons} lecciones (te faltan <b>${needed}</b>).</div>
+      <div class="small muted" style="margin-top:4px">Se desbloquea al avanzar por la <b>${rule.unit}</b>.</div>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn ghost block" data-x>Entendido</button>
+      <button class="btn primary block" data-go-learn>Ir a Aprender 🚀</button>
+    </div></div>`,
+    (el, close) => {
+      $('[data-x]', el).onclick = close;
+      $('[data-go-learn]', el).onclick = () => {
+        close();
+        go('learn');
+        if (cur) setTimeout(() => lessonSheet(cur), 200);
+      };
+    });
 }
 
 /* ---- Práctica ---- */
@@ -1063,10 +1132,23 @@ VIEWS.practice = v => {
     ['studio', '🎙️', '#e3f8ec', 'Estudio: grabar y comparar', 'Grábate y escúchate junto al modelo nativo. Escribe cualquier frase.'],
     ['chat', '💬', '#e8f0ff', 'Conversación con IA (opcional)', S.settings.geminiKey || gemShared() ? 'Roleplay por voz con tutor que corrige.' : 'Requiere una clave gratuita de Gemini en Ajustes.']
   ];
-  v.innerHTML = `<h2>Práctica 🎤</h2><p class="muted small">Practicar no quita vidas y te da XP.${anyDone ? '' : ' Consejo: completa la primera lección para desbloquear más material.'}</p>
-    ${cards.map(c => `<button class="card pcard" data-p="${c[0]}"><div class="em" style="background:${c[2]}">${c[1]}</div><div><h3 style="margin:0 0 2px">${c[3]}</h3><div class="muted small">${c[4]}</div></div></button>`).join('')}`;
+  v.innerHTML = `<h2>Práctica 🎤</h2><p class="muted small">Practicar no quita vidas y te da XP.${anyDone ? '' : ' Completa lecciones en Aprender para desbloquear más modos estilo Duolingo.'}</p>
+    ${cards.map(c => {
+      const unl = isFeatureUnlocked(c[0]);
+      return `<button class="card pcard ${!unl ? 'locked-card' : ''}" data-p="${c[0]}">
+        <div class="em" style="background:${c[2]}">${unl ? c[1] : '🔒'}</div>
+        <div style="flex:1">
+          <div class="row between">
+            <h3 style="margin:0 0 2px">${c[3]}</h3>
+            ${!unl ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
+          </div>
+          <div class="muted small">${c[4]}</div>
+        </div>
+      </button>`;
+    }).join('')}`;
   $$('[data-p]', v).forEach(b => b.onclick = () => {
     const k = b.dataset.p;
+    if (!isFeatureUnlocked(k)) return showLockedFeatureModal(k);
     if (k === 'studio') return go('studio');
     if (k === 'chat') return go('chat');
     const q = buildPractice(k);
@@ -1532,9 +1614,18 @@ async function azureMic(btn, onResult, target) {
     const az = await azureAssess(target, rec.wav);
     onResult(az.alts, url, az);
   } catch (e) {
-    const auth = e.status === 401 || e.status === 403 || e instanceof TypeError || !!(e.shared && e.fatal);
-    toast('Azure: ' + errES(e) + (auth && HAS_SR ? ' Usaré el reconocimiento del navegador por ahora.' : ''), 5000);
+    const isLimit = e.status === 429 || (e.detail && /limit|cuota/i.test(e.detail)) || (e.message && /429/i.test(e.message));
+    const auth = e.status === 401 || e.status === 403 || isLimit || e instanceof TypeError || !!(e.shared && e.fatal);
     if (auth && HAS_SR) window.__azOff = true;
+    if (isLimit) {
+      toast('🎙️ Límite diario de Azure alcanzado. Cambiando automáticamente al micrófono del navegador para que sigas aprendiendo.', 4000);
+    } else {
+      toast('Azure: ' + errES(e) + (auth && HAS_SR ? ' Usaré el reconocimiento del navegador por ahora.' : ''), 4000);
+    }
+    if (auth && HAS_SR) {
+      btn.classList.remove('rec');
+      return doMic(btn, onResult, target);
+    }
   } finally { btn.classList.remove('rec'); btn.innerHTML = '🎤 Toca para hablar de nuevo'; }
 }
 function scoreBar(label, v) { if (v == null) return ''; const c = v >= 80 ? 'var(--g)' : v >= 60 ? 'var(--o)' : 'var(--r)'; return `<div class="az-bar">${label} · ${Math.round(v)}<div class="tr"><i style="width:${v}%;background:${c}"></i></div></div>`; }
@@ -2408,7 +2499,7 @@ VIEWS.settings = v => {
   <div class="card"><h3>🎯 Aprendizaje</h3>
     <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal" style="max-width:200px">${opt([[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']], s.goal)}</select></div>
     <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:200px">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
-    ${sw('freeMode', s.freeMode, 'Modo libre', 'Desbloquea todas las lecciones')}
+    ${sw('freeMode', s.freeMode, 'Modo libre (desbloquear todo)', 'Desactiva el orden secuencial tipo Duolingo y desbloquea todas las lecciones y prácticas')}
     <div class="set-row"><div><label>Prueba de nivel</label><div class="desc">${S.placement && typeof S.placement === 'object' ? 'Última: ' + S.placement.date + ' · ' + S.placement.score : 'Aún no la has hecho'}</div></div><button class="btn ghost sm" id="replace">Hacer ahora</button></div>
     <div class="set-row"><div><label>Reconocimiento de voz</label><div class="desc">${azureReady() ? 'Azure (fonemas) ✅' : HAS_SR ? 'Navegador (por palabras) ✅' : 'No disponible ❌ — usa Chrome/Edge o configura Azure'}</div></div><button class="btn ghost sm" id="testMic" ${canSpeak() ? '' : 'disabled'}>Probar 🎤</button></div>
   </div>
@@ -3300,8 +3391,21 @@ const _practice25 = VIEWS.practice;
 VIEWS.practice = v => {
   _practice25(v);
   const h2 = $('h2', v).nextElementSibling;
-  h2.insertAdjacentHTML('afterend', `<button class="card pcard" id="tcPractice"><div class="em" style="background:#dcf1ff">✍️</div><div><h3 style="margin:0 0 2px">Traduce y completa</h3><div class="muted small">${TC_SESSION} frases · ${esc(TC_LV[tcLevel()])} · ${tcMasteredCount()} dominadas · pistas y explicaciones en español</div></div></button>`);
-  $('#tcPractice', v).onclick = tcSetup;
+  const unl = isFeatureUnlocked('tc');
+  h2.insertAdjacentHTML('afterend', `<button class="card pcard ${!unl ? 'locked-card' : ''}" id="tcPractice">
+    <div class="em" style="background:#dcf1ff">${unl ? '✍️' : '🔒'}</div>
+    <div style="flex:1">
+      <div class="row between">
+        <h3 style="margin:0 0 2px">Traduce y completa</h3>
+        ${!unl ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
+      </div>
+      <div class="muted small">${TC_SESSION} frases · ${esc(TC_LV[tcLevel()])} · ${tcMasteredCount()} dominadas · pistas y explicaciones en español</div>
+    </div>
+  </button>`);
+  $('#tcPractice', v).onclick = () => {
+    if (!isFeatureUnlocked('tc')) return showLockedFeatureModal('tc');
+    tcSetup();
+  };
 };
 const _buildPlan25 = buildPlan;
 buildPlan = function () { const base = _buildPlan25(); if (!base.length) return base; const it = tcPick(1, tcLevel())[0]; return it ? [...base.slice(0, 9), tcEx(it)] : base; };
@@ -3468,7 +3572,7 @@ async function tcListen(ex) {
     if (g !== V.gen || !L || L.cur !== ex) return;
     const code = typeof err === 'string' ? err : (err && (err.name === 'NotAllowedError' || err.name === 'NotFoundError') ? err.name : null);
     if (code && TC_SR_ES[code]) return tcVoiceFallback(code);
-    if (err && typeof err === 'object' && azureReady() && (err.status === 401 || err.status === 403 || err instanceof TypeError || (err.shared && err.fatal)) && HAS_SR) { window.__azOff = true; toast('Azure no respondió (' + errES(err) + '). Uso el reconocimiento del navegador.', 4000); return tcListen(ex); }
+    if (err && typeof err === 'object' && azureReady() && (err.status === 401 || err.status === 403 || err.status === 429 || err instanceof TypeError || (err.shared && err.fatal)) && HAS_SR) { window.__azOff = true; toast('Azure no respondió (' + errES(err) + '). Uso el reconocimiento del navegador.', 4000); return tcListen(ex); }
     if (code === 'aborted') return tcVState('idle');
     V.fails++;
     if (V.fails <= 2 && (code === 'no-speech' || !code)) { tcVState('speaking'); tcSpeakEs(code === 'no-speech' ? 'No te escuché. Inténtalo otra vez.' : 'No te entendí. Inténtalo otra vez.', () => { if (tcOk(g, ex)) tcListen(ex); }); }
@@ -5457,12 +5561,15 @@ VIEWS.practice = function (v) {
   syncHardWordsToDeck();
   const st = srsStats();
   
-  const srsHtml = `<button class="card pcard" id="srsCard" style="margin-top:10px">
-    <div class="em" style="background:#fff3d6">🧠</div>
+  const unlSrs = isFeatureUnlocked('srs'), unlHf = isFeatureUnlocked('handsfree'), unlMi = isFeatureUnlocked('missions');
+  const unlSh = isFeatureUnlocked('shadow'), unlMo = isFeatureUnlocked('mouth'), unlPh = isFeatureUnlocked('photo');
+
+  const srsHtml = `<button class="card pcard ${!unlSrs ? 'locked-card' : ''}" id="srsCard" style="margin-top:10px">
+    <div class="em" style="background:#fff3d6">${unlSrs ? '🧠' : '🔒'}</div>
     <div style="flex:1">
       <div class="row between">
         <h3 style="margin:0 0 2px">Repaso Inteligente (SRS)</h3>
-        <span class="srs-pill due">${st.due} hoy</span>
+        ${unlSrs ? `<span class="srs-pill due">${st.due} hoy</span>` : '<span class="lock-pill">🔒 Bloqueado</span>'}
       </div>
       <div class="srs-stats">
         <span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span>
@@ -5471,38 +5578,53 @@ VIEWS.practice = function (v) {
       <div class="muted small">Algoritmo SM-2 · repasa en el momento exacto antes de olvidar</div>
     </div>
   </button>
-  <button class="card pcard" id="handsFreeCard" style="margin-top:10px">
-    <div class="em" style="background:#e0f2fe">🎧</div>
-    <div>
-      <h3 style="margin:0 0 2px">Modo Manos Libres</h3>
+  <button class="card pcard ${!unlHf ? 'locked-card' : ''}" id="handsFreeCard" style="margin-top:10px">
+    <div class="em" style="background:#e0f2fe">${unlHf ? '🎧' : '🔒'}</div>
+    <div style="flex:1">
+      <div class="row between">
+        <h3 style="margin:0 0 2px">Modo Manos Libres</h3>
+        ${!unlHf ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
+      </div>
       <div class="muted small">Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla</div>
     </div>
   </button>
-  <button class="card pcard" id="missionsCard" style="margin-top:10px">
-    <div class="em" style="background:#fef3c7">🎯</div>
-    <div>
-      <h3 style="margin:0 0 2px">Misiones de Conversación Real</h3>
+  <button class="card pcard ${!unlMi ? 'locked-card' : ''}" id="missionsCard" style="margin-top:10px">
+    <div class="em" style="background:#fef3c7">${unlMi ? '🎯' : '🔒'}</div>
+    <div style="flex:1">
+      <div class="row between">
+        <h3 style="margin:0 0 2px">Misiones de Conversación Real</h3>
+        ${!unlMi ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
+      </div>
       <div class="muted small">8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)</div>
     </div>
   </button>
-  <button class="card pcard" id="shadowCard" style="margin-top:10px">
-    <div class="em" style="background:#e8f4fd">🎙️</div>
-    <div>
-      <h3 style="margin:0 0 2px">Modo Shadowing</h3>
+  <button class="card pcard ${!unlSh ? 'locked-card' : ''}" id="shadowCard" style="margin-top:10px">
+    <div class="em" style="background:#e8f4fd">${unlSh ? '🎙️' : '🔒'}</div>
+    <div style="flex:1">
+      <div class="row between">
+        <h3 style="margin:0 0 2px">Modo Shadowing</h3>
+        ${!unlSh ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
+      </div>
       <div class="muted small">Escucha e imita frases con entonación nativa y habla conectada</div>
     </div>
   </button>
-  <button class="card pcard" id="mouthCard" style="margin-top:10px">
-    <div class="em" style="background:#f3fbf7">👄</div>
-    <div>
-      <h3 style="margin:0 0 2px">Guía Fonética y Bocas</h3>
+  <button class="card pcard ${!unlMo ? 'locked-card' : ''}" id="mouthCard" style="margin-top:10px">
+    <div class="em" style="background:#f3fbf7">${unlMo ? '👄' : '🔒'}</div>
+    <div style="flex:1">
+      <div class="row between">
+        <h3 style="margin:0 0 2px">Guía Fonética y Bocas</h3>
+        ${!unlMo ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
+      </div>
       <div class="muted small">Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)</div>
     </div>
   </button>
-  <button class="card pcard" id="photoCard" style="margin-top:10px">
-    <div class="em" style="background:#fdf2f8">📷</div>
-    <div>
-      <h3 style="margin:0 0 2px">Describe la Foto / Objeto</h3>
+  <button class="card pcard ${!unlPh ? 'locked-card' : ''}" id="photoCard" style="margin-top:10px">
+    <div class="em" style="background:#fdf2f8">${unlPh ? '📷' : '🔒'}</div>
+    <div style="flex:1">
+      <div class="row between">
+        <h3 style="margin:0 0 2px">Describe la Foto / Objeto</h3>
+        ${!unlPh ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
+      </div>
       <div class="muted small">Práctica multimodal con tu cámara o fotos para ganar vocabulario</div>
     </div>
   </button>`;
@@ -5511,12 +5633,12 @@ VIEWS.practice = function (v) {
   if (tc) tc.insertAdjacentHTML('afterend', srsHtml);
   else v.insertAdjacentHTML('beforeend', srsHtml);
 
-  const bSrs = $('#srsCard', v); if (bSrs) bSrs.onclick = startReview;
-  const bHf = $('#handsFreeCard', v); if (bHf) bHf.onclick = openHandsFreeModal;
-  const bMi = $('#missionsCard', v); if (bMi) bMi.onclick = openMissionsModal;
-  const bSh = $('#shadowCard', v); if (bSh) bSh.onclick = openShadowingModal;
-  const bMo = $('#mouthCard', v); if (bMo) bMo.onclick = openMouthSelector;
-  const bPh = $('#photoCard', v); if (bPh) bPh.onclick = openPhotoPractice;
+  const bSrs = $('#srsCard', v); if (bSrs) bSrs.onclick = () => { if (!isFeatureUnlocked('srs')) return showLockedFeatureModal('srs'); startReview(); };
+  const bHf = $('#handsFreeCard', v); if (bHf) bHf.onclick = () => { if (!isFeatureUnlocked('handsfree')) return showLockedFeatureModal('handsfree'); openHandsFreeModal(); };
+  const bMi = $('#missionsCard', v); if (bMi) bMi.onclick = () => { if (!isFeatureUnlocked('missions')) return showLockedFeatureModal('missions'); openMissionsModal(); };
+  const bSh = $('#shadowCard', v); if (bSh) bSh.onclick = () => { if (!isFeatureUnlocked('shadow')) return showLockedFeatureModal('shadow'); openShadowingModal(); };
+  const bMo = $('#mouthCard', v); if (bMo) bMo.onclick = () => { if (!isFeatureUnlocked('mouth')) return showLockedFeatureModal('mouth'); openMouthSelector(); };
+  const bPh = $('#photoCard', v); if (bPh) bPh.onclick = () => { if (!isFeatureUnlocked('photo')) return showLockedFeatureModal('photo'); openPhotoPractice(); };
 };
 
 const _chatView211 = VIEWS.chat;
