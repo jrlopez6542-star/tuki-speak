@@ -1,9 +1,14 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.12.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.13.0
 
 App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.13.0
+- **🎙️ Voz de alta fidelidad (Azure Neural) predeterminada en práctica**: Ahora todos los ejercicios de práctica (pares mínimos, shadowing, lecciones, repaso SRS, tarjetas) utilizan automáticamente las voces neurales de Azure (`en-US-JennyNeural` para inglés y `es-CO-SalomeNeural` para explicaciones en español) de forma predeterminada cuando inicias sesión con tu cuenta de Tuki. Si estás sin conexión o sin sesión, Tuki recurre automáticamente a las mejores voces del dispositivo sin interrumpir tu práctica.
+- **⚡ Acceso rápido a IA y Voces de Estudio**: Tarjeta de bienvenida y botón directo de «Continuar con Google» en el chat de IA y en la configuración de «Voz de Tuki» para activar al instante la IA y las voces neurales gratuitas sin tener que configurar claves manuales.
+- **🔄 Service Worker v19**: Actualización del sistema de caché offline PWA a `tuki-speak-v19` con detección y activación automática del banner de actualización para todos los usuarios.
 
 ## Novedades v2.12.0
 - **🧠 Repetición Espaciada Inteligente (SRS / SM-2)**: Las palabras difíciles detectadas en lecciones o conversaciones se sincronizan automáticamente con el mazo de tarjetas (`S.deck`). Ahora en **Tarjetas** y en **Práctica** puedes ver cuántas tarjetas vencen hoy según el algoritmo SM-2, filtrar por estado («⏰ Para hoy», «🌱 Aprendiendo», «🏆 Dominadas») y repasar en el intervalo óptimo antes de olvidar.

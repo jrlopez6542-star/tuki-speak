@@ -1264,7 +1264,7 @@ function parseTutor(t) {
 // =================== CHUNK ===================
 
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.12.0';
+const APP_VERSION = '2.13.0';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
