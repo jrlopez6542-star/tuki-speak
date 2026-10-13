@@ -463,27 +463,60 @@ const dayKey = (d = new Date()) => d.getFullYear() + '-' + String(d.getMonth() +
 const dayDiff = (a, b) => Math.round((new Date(b + 'T12:00') - new Date(a + 'T12:00')) / 864e5);
 const DAY = 864e5, HEART_MS = 30 * 60e3, MAX_HEARTS = 5;
 function renderTukiSVG(skin, opts = {}) {
-  const sk = skin || (typeof S !== 'undefined' && S && S.tukiSkin) || { hat: 'none', outfit: 'none' };
-  const h = sk.hat || 'none', o = sk.outfit || 'none';
+  const sk = skin || (typeof S !== 'undefined' && S && S.tukiSkin) || { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic' };
+  const h = sk.hat || 'none', o = sk.outfit || 'none', hand = sk.hand || 'none', pl = sk.plumage || 'classic';
   const size = opts.size ? `width="${opts.size}" height="${opts.size}" ` : '';
+
+  const colors = {
+    classic: { body: '#1f2a33', chest: '#fff4d6', wing: '#1fa463', beakTop: '#ff9f1c', beakBot: '#e5484d', aura: '' },
+    gold: { body: '#92400e', chest: '#fef08a', wing: '#f59e0b', beakTop: '#fbbf24', beakBot: '#d97706', aura: '<circle cx="50" cy="50" r="48" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.45"/>' },
+    neon: { body: '#1e1b4b', chest: '#38bdf8', wing: '#ec4899', beakTop: '#a855f7', beakBot: '#06b6d4', aura: '<circle cx="50" cy="50" r="48" fill="none" stroke="#38bdf8" stroke-width="1.5" opacity="0.35"/>' },
+    fire: { body: '#7f1d1d', chest: '#fed7aa', wing: '#f97316', beakTop: '#ef4444', beakBot: '#c2410c', aura: '' },
+    ice: { body: '#0f172a', chest: '#e0f2fe', wing: '#38bdf8', beakTop: '#7dd3fc', beakBot: '#0284c7', aura: '' }
+  }[pl] || { body: '#1f2a33', chest: '#fff4d6', wing: '#1fa463', beakTop: '#ff9f1c', beakBot: '#e5484d', aura: '' };
+
   const capeBehind = o === 'cape' ? '<path d="M25 54 Q8 62 3 86 Q18 83 28 72 Z" fill="#dc2626"/><path d="M24 54 Q10 65 6 86" stroke="#991b1b" stroke-width="1.5" fill="none"/>' : '';
+
   const outfitLayer = {
     bowtie: '<polygon points="33,56 43,60 33,64" fill="#dc2626"/><polygon points="53,56 43,60 53,64" fill="#dc2626"/><circle cx="43" cy="60" r="3" fill="#991b1b"/>',
     scarf: '<rect x="26" y="55" width="34" height="10" rx="4" fill="#0284c7"/><line x1="32" y1="55" x2="32" y2="65" stroke="#bae6fd" stroke-width="2"/><line x1="42" y1="55" x2="42" y2="65" stroke="#bae6fd" stroke-width="2"/><line x1="52" y1="55" x2="52" y2="65" stroke="#bae6fd" stroke-width="2"/><path d="M48 62 L48 78 L40 78 L40 62 Z" fill="#0369a1"/><line x1="40" y1="74" x2="48" y2="74" stroke="#bae6fd" stroke-width="2"/>',
     hawaiian: '<circle cx="28" cy="58" r="3.5" fill="#ec4899"/><circle cx="34" cy="62" r="3.5" fill="#f59e0b"/><circle cx="42" cy="64" r="3.5" fill="#eab308"/><circle cx="50" cy="62" r="3.5" fill="#06b6d4"/><circle cx="56" cy="58" r="3.5" fill="#a855f7"/>',
     cape: '<circle cx="28" cy="56" r="3.5" fill="#f59e0b"/>',
-    medal: '<path d="M36 55 L43 68 L50 55" stroke="#dc2626" stroke-width="3" fill="none"/><circle cx="43" cy="72" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>'
+    medal: '<path d="M36 55 L43 68 L50 55" stroke="#dc2626" stroke-width="3" fill="none"/><circle cx="43" cy="72" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>',
+    ruana: '<polygon points="20,54 62,54 66,78 44,84 16,76" fill="#78350f" stroke="#451a03" stroke-width="1.5"/><line x1="24" y1="62" x2="60" y2="62" stroke="#fef3c7" stroke-width="2"/><line x1="22" y1="70" x2="62" y2="70" stroke="#fde68a" stroke-width="2"/><polygon points="41,54 44,64 47,54" fill="#fff4d6"/>',
+    jersey: '<path d="M26 56 Q44 54 60 56 L58 76 Q44 80 26 76 Z" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/><path d="M26 70 Q44 73 58 70 L58 73 Q44 76 26 73 Z" fill="#1d4ed8"/><path d="M26 73 Q44 76 58 73 L58 76 Q44 79 26 76 Z" fill="#dc2626"/><polygon points="41,56 44,61 47,56" fill="#1d4ed8"/>',
+    astronaut: '<path d="M24 55 Q44 52 62 55 L60 80 Q44 84 24 80 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><rect x="30" y="55" width="28" height="5" rx="2" fill="#0284c7"/><circle cx="36" cy="67" r="4" fill="#ef4444"/><circle cx="48" cy="67" r="4" fill="#3b82f6"/><line x1="28" y1="74" x2="56" y2="74" stroke="#64748b" stroke-width="2"/>',
+    jacket: '<path d="M23 54 L44 58 L63 54 L60 78 L44 82 L24 78 Z" fill="#0f172a" stroke="#334155" stroke-width="2"/><polygon points="32,55 44,68 36,68" fill="#e2e8f0"/><polygon points="56,55 44,68 52,68" fill="#e2e8f0"/><line x1="44" y1="68" x2="44" y2="82" stroke="#94a3b8" stroke-width="2"/>',
+    lab: '<path d="M24 54 Q44 52 62 54 L61 82 Q44 86 24 82 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/><polygon points="34,54 44,65 38,65" fill="#3b82f6"/><polygon points="54,54 44,65 50,65" fill="#3b82f6"/><circle cx="44" cy="70" r="1.5" fill="#64748b"/><circle cx="44" cy="76" r="1.5" fill="#64748b"/>',
+    vest: '<path d="M24 55 Q44 53 62 55 L60 80 Q44 84 24 80 Z" fill="#65a30d" stroke="#4d7c0f" stroke-width="1.5"/><rect x="28" y="62" width="10" height="9" rx="1.5" fill="#4d7c0f"/><rect x="48" y="62" width="10" height="9" rx="1.5" fill="#4d7c0f"/>'
   }[o] || '';
+
   const hatLayer = {
     cap: '<path d="M22 35 C23 20 54 20 56 34 Z" fill="#2563eb"/><path d="M42 33 C56 32 68 36 70 40 C56 42 44 38 42 33 Z" fill="#1d4ed8"/><circle cx="39" cy="22" r="2.5" fill="#f59e0b"/>',
     glasses: '<path d="M26 36 Q38 31 52 36 L52 45 Q38 49 26 45 Z" fill="#0f172a" stroke="#475569" stroke-width="1.5"/><line x1="28" y1="39" x2="48" y2="43" stroke="#fff" stroke-width="1.2" opacity="0.6"/><path d="M52 38 Q58 37 62 40" stroke="#0f172a" stroke-width="2" fill="none"/>',
     grad: '<polygon points="16,24 38,15 62,24 38,32" fill="#111827" stroke="#1f2937" stroke-width="1"/><path d="M38 24 Q48 27 52 38" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="38" cy="24" r="3" fill="#f59e0b"/><circle cx="52" cy="38" r="2.5" fill="#f59e0b"/>',
     wizard: '<ellipse cx="38" cy="31" rx="22" ry="5.5" fill="#3b0764"/><path d="M23 30 Q34 6 56 10 Q45 20 53 30 Z" fill="#581c87"/><circle cx="38" cy="19" r="2.5" fill="#fbbf24"/><circle cx="46" cy="16" r="1.5" fill="#fde047"/>',
     crown: '<polygon points="23,32 20,17 29,25 39,12 49,25 58,17 55,32" fill="#f59e0b" stroke="#b45309" stroke-width="1.5"/><circle cx="39" cy="18" r="2.2" fill="#ef4444"/><circle cx="28" cy="26" r="1.8" fill="#10b981"/><circle cx="50" cy="26" r="1.8" fill="#3b82f6"/>',
-    party: '<polygon points="26,32 40,8 54,32" fill="#ec4899"/><path d="M29 26 L51 26" stroke="#fbbf24" stroke-width="2.5"/><path d="M34 18 L46 18" stroke="#38bdf8" stroke-width="2.5"/><circle cx="40" cy="7" r="3.5" fill="#facc15"/>'
+    party: '<polygon points="26,32 40,8 54,32" fill="#ec4899"/><path d="M29 26 L51 26" stroke="#fbbf24" stroke-width="2.5"/><path d="M34 18 L46 18" stroke="#38bdf8" stroke-width="2.5"/><circle cx="40" cy="7" r="3.5" fill="#facc15"/>',
+    vueltiao: '<ellipse cx="40" cy="30" rx="27" ry="7" fill="#fef3c7" stroke="#1f2937" stroke-width="2"/><path d="M16 30 Q40 28 64 30" stroke="#1f2937" stroke-width="2" fill="none"/><path d="M25 29 Q30 14 55 17 Q54 28 55 29 Z" fill="#fffbeb" stroke="#1f2937" stroke-width="1.5"/><line x1="28" y1="24" x2="52" y2="24" stroke="#1f2937" stroke-width="2"/><circle cx="40" cy="16" r="2.5" fill="#1f2937"/>',
+    chef: '<rect x="25" y="27" width="30" height="6" rx="2" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/><path d="M23 27 C20 18 30 10 38 10 C46 8 56 12 56 20 C60 22 58 27 55 27 Z" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/><line x1="33" y1="27" x2="33" y2="15" stroke="#e2e8f0" stroke-width="1"/><line x1="43" y1="27" x2="43" y2="15" stroke="#e2e8f0" stroke-width="1"/>',
+    headphones: '<path d="M22 40 C18 16 58 14 58 38" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><rect x="18" y="34" width="7" height="13" rx="3.5" fill="#1d4ed8" stroke="#93c5fd" stroke-width="1"/><rect x="54" y="33" width="7" height="13" rx="3.5" fill="#1d4ed8" stroke="#93c5fd" stroke-width="1"/><path d="M22 45 Q32 50 42 48" stroke="#3b82f6" stroke-width="2" fill="none"/><circle cx="43" cy="48" r="2" fill="#ef4444"/>',
+    beret: '<ellipse cx="38" cy="25" rx="20" ry="7" fill="#dc2626" transform="rotate(-10 38 25)"/><circle cx="37" cy="18" r="2" fill="#991b1b"/>',
+    flower: '<circle cx="23" cy="28" r="4" fill="#ec4899"/><circle cx="31" cy="24" r="4.5" fill="#fbbf24"/><circle cx="40" cy="22" r="4.5" fill="#38bdf8"/><circle cx="49" cy="24" r="4" fill="#a855f7"/><circle cx="56" cy="28" r="3.5" fill="#f43f5e"/><circle cx="31" cy="24" r="1.5" fill="#fff"/><circle cx="40" cy="22" r="1.5" fill="#fff"/>',
+    vr: '<rect x="24" y="33" width="30" height="13" rx="4" fill="#090d16" stroke="#06b6d4" stroke-width="2"/><line x1="27" y1="39" x2="51" y2="39" stroke="#22d3ee" stroke-width="2"/><circle cx="28" cy="39" r="1.5" fill="#38bdf8"/><path d="M54 39 Q58 38 62 40" stroke="#06b6d4" stroke-width="2" fill="none"/>',
+    cowboy: '<path d="M14 32 Q26 26 40 28 Q54 26 66 32 Q54 35 40 33 Q26 35 14 32 Z" fill="#92400e" stroke="#78350f" stroke-width="1.5"/><path d="M27 28 Q32 14 41 18 Q50 14 53 28 Z" fill="#b45309" stroke="#78350f" stroke-width="1.5"/><rect x="28" y="26" width="25" height="3" fill="#78350f"/>'
   }[h] || '';
 
-  return `<svg ${size}viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${capeBehind}<ellipse cx="46" cy="58" rx="30" ry="34" fill="#1f2a33"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="#fff4d6"/><path d="M20 60 C10 70 14 84 24 86" fill="#1fa463"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/>${outfitLayer}<circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.5" fill="#1f2a33"/><circle cx="44" cy="38" r="1.8" fill="#fff"/><path d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="#ff9f1c"/><path d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="#e5484d"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/>${hatLayer}</svg>`;
+  const handLayer = {
+    mic: '<path d="M12 60 L18 72" stroke="#475569" stroke-width="3" stroke-linecap="round"/><rect x="9" y="52" width="7" height="10" rx="3.5" fill="#f59e0b" stroke="#d97706" stroke-width="1"/><line x1="10" y1="56" x2="15" y2="56" stroke="#fff" stroke-width="1"/>',
+    coffee: '<rect x="7" y="64" width="12" height="10" rx="2" fill="#dc2626"/><path d="M7 68 C3 68 3 72 7 72" stroke="#dc2626" stroke-width="1.5" fill="none"/><path d="M10 60 Q12 56 10 52 M14 60 Q16 56 14 52" stroke="#94a3b8" stroke-width="1.2" fill="none"/>',
+    book: '<rect x="5" y="60" width="15" height="18" rx="2" fill="#1d4ed8" stroke="#1e40af" stroke-width="1"/><line x1="7" y1="60" x2="7" y2="78" stroke="#f8fafc" stroke-width="2"/><text x="9" y="72" font-size="7" font-weight="bold" fill="#fff">EN</text>',
+    flag: '<line x1="7" y1="42" x2="7" y2="78" stroke="#64748b" stroke-width="2" stroke-linecap="round"/><rect x="7" y="44" width="16" height="6" fill="#facc15"/><rect x="7" y="50" width="16" height="3" fill="#1d4ed8"/><rect x="7" y="53" width="16" height="3" fill="#dc2626"/>',
+    wand: '<line x1="6" y1="74" x2="15" y2="52" stroke="#4c1d95" stroke-width="2.5" stroke-linecap="round"/><polygon points="15,48 17,52 21,52 18,55 19,59 15,56 11,59 12,55 9,52 13,52" fill="#facc15"/>',
+    trophy: '<path d="M5 60 Q5 72 11 72 Q17 72 17 60 Z" fill="#f59e0b" stroke="#d97706" stroke-width="1"/><path d="M3 62 C1 66 5 68 7 68 M19 62 C21 66 17 68 15 68" stroke="#d97706" stroke-width="1.2" fill="none"/><rect x="9" y="72" width="4" height="5" fill="#d97706"/><rect x="7" y="77" width="8" height="3" rx="1" fill="#78350f"/>'
+  }[hand] || '';
+
+  return `<svg ${size}viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${colors.aura}${capeBehind}<ellipse cx="46" cy="58" rx="30" ry="34" fill="${colors.body}"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="${colors.chest}"/><path d="M20 60 C10 70 14 84 24 86" fill="${colors.wing}"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/>${outfitLayer}${handLayer}<circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.5" fill="#1f2a33"/><circle cx="44" cy="38" r="1.8" fill="#fff"/><path d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="${colors.beakTop}"/><path d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="${colors.beakBot}"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/>${hatLayer}</svg>`;
 }
 let MASCOT = renderTukiSVG();
 function updateMascot() {
@@ -496,7 +529,7 @@ const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, thr
   accent: 'en-US', ttsEngine: 'auto', azureKey: '', azureRegion: '', azureVoice: 'en-US-JennyNeural', openaiKey: '', openaiModel: 'gpt-4o-mini', openaiVoice: 'marin', openaiTtsModel: 'gpt-4o-mini-tts', realtimeModel: 'gpt-realtime', chatProvider: 'gemini', liveModel: 'gemini-3.1-flash-live-preview', liveVoice: 'Kore',
   tukiVoiceEs: '', tukiVoiceEn: '', theme: 'auto', fontScale: 1, contrast: false, reduceMotion: false, haptics: true, remindOn: false, remindTime: '19:00' };
 function freshState() {
-  return { v: 2, badges: {}, freezes: 0, coins: 50, quests: {}, chests: { dailyClaimed: null }, tukiSkin: { hat: 'none', outfit: 'none', owned: ['hat:none', 'outfit:none'] }, placement: null, plans: {}, reviewed: 0, chats: 0, lives: 0, ph: {}, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
+  return { v: 2, badges: {}, freezes: 0, coins: 50, quests: {}, chests: { dailyClaimed: null }, tukiSkin: { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] }, placement: null, plans: {}, reviewed: 0, chats: 0, lives: 0, ph: {}, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
 }
 let S;
 function load() {
@@ -508,7 +541,12 @@ function load() {
   if (raw && oldV < 2) { try { localStorage.setItem(KEY + '.backup-v1', raw); } catch (e) {} }
   for (const k in f) if (S[k] === undefined || S[k] === null && k !== 'placement' && k !== 'lastDay') S[k] = f[k];
   if (S.coins === undefined) S.coins = 50;
-  if (!S.tukiSkin) S.tukiSkin = { hat: 'none', outfit: 'none', owned: ['hat:none', 'outfit:none'] };
+  if (!S.tukiSkin) S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] };
+  if (!S.tukiSkin.hand) S.tukiSkin.hand = 'none';
+  if (!S.tukiSkin.plumage) S.tukiSkin.plumage = 'classic';
+  if (!Array.isArray(S.tukiSkin.owned)) S.tukiSkin.owned = ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'];
+  if (!S.tukiSkin.owned.includes('hand:none')) S.tukiSkin.owned.push('hand:none');
+  if (!S.tukiSkin.owned.includes('plumage:classic')) S.tukiSkin.owned.push('plumage:classic');
   if (!S.chests) S.chests = { dailyClaimed: null };
   if (!S.quests) S.quests = {};
   S.settings = { ...DEFAULT_SETTINGS, ...S.settings };
@@ -5958,15 +5996,21 @@ function tukiChirp() {
   } catch (e) {}
 }
 
-const TUKI_QUOTES = [
-  { en: "Consistency is key! Every minute counts.", es: "¡La constancia es la clave! Cada minuto cuenta." },
-  { en: "You're speaking clearer every single day!", es: "¡Estás hablando más claro cada día!" },
-  { en: "Practice makes progress! Don't stop now.", es: "¡La práctica hace al maestro! No te detengas." },
-  { en: "I love my outfit! Looking sharp today.", es: "¡Me encanta mi estilo! Se ve genial hoy." },
-  { en: "Mistakes are proof you are trying!", es: "¡Los errores son prueba de que lo estás intentando!" },
-  { en: "Connect your words smoothly, like music!", es: "¡Conecta las palabras con ritmo, como música!" },
-  { en: "You got this! ¡Vamos por esa racha!", es: "¡Tú puedes! ¡Vamos por esa racha!" }
+const TUKI_QUOTES_ES = [
+  "¡De una! Recuerda: ¡cada minuto de práctica suma para tu fluidez!",
+  "¡Estás hablando más claro cada día! ¡Sigue así!",
+  "¡La práctica hace al maestro! No le tengas miedo a equivocarte.",
+  "¡Me encanta mi estilo! ¡Gracias por vestirme tan bacano!",
+  "¡Pronuncia con calma y ritmo! La música del inglés está en conectar las palabras.",
+  "¡Tú tienes todo el potencial! ¡Vamos a romperla hoy!",
+  "¡Oído atento y lengua suelta! Si imitas la entonación, sonarás mucho más natural.",
+  "¡Qué berraquera! Cada lección completada te acerca más a tus metas.",
+  "¡No pares ahora! Mantener la racha diaria es el secreto del éxito.",
+  "¡Paso a paso, parcero! Si practicas 5 minutos hoy, tu futuro te lo agradecerá.",
+  "¡Excelente vibra! Recuerda tomar agüita y vocalizar bien clarito.",
+  "¡Gana monedas y pásate por mi armario a ver qué más me estrenas!"
 ];
+const TUKI_QUOTES = TUKI_QUOTES_ES.map(q => ({ es: q, en: q }));
 
 function interactWithTuki(el) {
   const m = el ? ($('.brand-mascot-wrap', el) || $('.mascot', el) || el) : null;
@@ -5977,37 +6021,70 @@ function interactWithTuki(el) {
     setTimeout(() => m.classList.remove('tuki-wiggle'), 650);
   }
   tukiChirp();
-  const q = pick(TUKI_QUOTES);
+  const phrase = pick(TUKI_QUOTES_ES);
   if (S.settings.sound && !L) {
-    speak(q.en, false);
+    try {
+      deviceSpeakEs(phrase, null, 1.05);
+    } catch (e) {
+      console.warn('Tuki speech error', e);
+    }
   }
-  toast(`🦜 Tuki: "${q.en}" (${q.es})`, 3600);
+  toast(`🦜 Tuki: "${phrase}"`, 3800);
 }
 
 // =================== TIENDA Y ARMARIO DE TUKI ===================
 const TUKI_SHOP_ITEMS = [
-  // Sombreros y cabeza
+  // --- 🧢 Sombreros y Cabeza (14 ítems) ---
   { id: 'hat:none', type: 'hat', key: 'none', name: 'Plumas naturales', icon: '🪶', price: 0, desc: 'Look clásico y ligero.' },
+  { id: 'hat:vueltiao', type: 'hat', key: 'vueltiao', name: 'Sombrero Vueltiao', icon: '🇨🇴', price: 50, desc: 'Orgullo colombiano tejido en caña flecha.' },
   { id: 'hat:cap', type: 'hat', key: 'cap', name: 'Gorra deportiva', icon: '🧢', price: 40, desc: 'Estilo urbano para salir a practicar.' },
+  { id: 'hat:headphones', type: 'hat', key: 'headphones', name: 'Audífonos DJ / Gamer', icon: '🎧', price: 65, desc: 'Para escuchar la mejor pronunciación.' },
   { id: 'hat:glasses', type: 'hat', key: 'glasses', name: 'Gafas oscuras', icon: '🕶️', price: 60, desc: 'Toda la onda para pronunciar con estilo.' },
+  { id: 'hat:chef', type: 'hat', key: 'chef', name: 'Gorro de chef', icon: '👨‍🍳', price: 70, desc: 'Cocinando la mejor fluidez paso a paso.' },
+  { id: 'hat:beret', type: 'hat', key: 'beret', name: 'Boina de artista', icon: '🎨', price: 60, desc: 'Para amantes del arte y los idiomas.' },
   { id: 'hat:grad', type: 'hat', key: 'grad', name: 'Birrete de graduación', icon: '🎓', price: 75, desc: 'Para cuando apruebas lecciones con honores.' },
-  { id: 'hat:wizard', type: 'hat', key: 'wizard', name: 'Sombrero de mago', icon: '🧙', price: 90, desc: 'Hechizos de fluidez y magia fonética.' },
-  { id: 'hat:crown', type: 'hat', key: 'crown', name: 'Corona real dorada', icon: '👑', price: 120, desc: 'El rey de la pronunciación.' },
+  { id: 'hat:cowboy', type: 'hat', key: 'cowboy', name: 'Sombrero vaquero', icon: '🤠', price: 80, desc: 'Estilo western para aventureros.' },
+  { id: 'hat:flower', type: 'hat', key: 'flower', name: 'Corona de flores', icon: '🌸', price: 85, desc: 'Vibra primaveral fresca y colorida.' },
+  { id: 'hat:vr', type: 'hat', key: 'vr', name: 'Visor VR Cyberpunk', icon: '🥽', price: 95, desc: 'Inmersión futurista en alta tecnología.' },
   { id: 'hat:party', type: 'hat', key: 'party', name: 'Gorro fiestero', icon: '🥳', price: 50, desc: '¡Celebra cada logro y racha!' },
+  { id: 'hat:wizard', type: 'hat', key: 'wizard', name: 'Sombrero de mago', icon: '🧙', price: 90, desc: 'Hechizos de fluidez y magia fonética.' },
+  { id: 'hat:crown', type: 'hat', key: 'crown', name: 'Corona real dorada', icon: '👑', price: 120, desc: 'El rey absoluto de la pronunciación.' },
 
-  // Ropa y cuerpo
+  // --- 👔 Ropa y Atuendos (12 ítems) ---
   { id: 'outfit:none', type: 'outfit', key: 'none', name: 'Sin ropa', icon: '🦜', price: 0, desc: 'Al natural, listo para volar.' },
+  { id: 'outfit:ruana', type: 'outfit', key: 'ruana', name: 'Ruana tradicional', icon: '🇨🇴', price: 55, desc: 'Calientita de Boyacá para el frío.' },
+  { id: 'outfit:jersey', type: 'outfit', key: 'jersey', name: 'Camiseta tricolor', icon: '⚽', price: 65, desc: '¡Con toda la pasión por aprender!' },
   { id: 'outfit:bowtie', type: 'outfit', key: 'bowtie', name: 'Corbatín elegante', icon: '👔', price: 45, desc: 'Para entrevistas y reuniones de trabajo.' },
+  { id: 'outfit:jacket', type: 'outfit', key: 'jacket', name: 'Chaqueta de cuero', icon: '🎸', price: 80, desc: 'Vibra rockstar rebelde y segura.' },
+  { id: 'outfit:astronaut', type: 'outfit', key: 'astronaut', name: 'Traje de astronauta', icon: '🚀', price: 130, desc: '¡Lleva tu inglés hasta las estrellas!' },
+  { id: 'outfit:lab', type: 'outfit', key: 'lab', name: 'Bata de laboratorio', icon: '🧪', price: 85, desc: 'Ciencia exacta aplicada a los fonemas.' },
+  { id: 'outfit:vest', type: 'outfit', key: 'vest', name: 'Chaleco de safari', icon: '🦺', price: 75, desc: 'Explorando nuevos acentos por el mundo.' },
   { id: 'outfit:scarf', type: 'outfit', key: 'scarf', name: 'Bufanda abrigada', icon: '🧣', price: 55, desc: 'Para cuidar la voz al vocalizar.' },
   { id: 'outfit:hawaiian', type: 'outfit', key: 'hawaiian', name: 'Collar hawaiano', icon: '🌺', price: 70, desc: 'Vibra tropical relajada.' },
-  { id: 'outfit:cape', type: 'outfit', key: 'cape', name: 'Capa de superhéroe', icon: '🦸', price: 95, desc: 'Habla inglés sin miedo a nada.' },
-  { id: 'outfit:medal', type: 'outfit', key: 'medal', name: 'Medalla de campeón', icon: '🥇', price: 110, desc: 'Premio al esfuerzo y perseverancia.' }
+  { id: 'outfit:cape', type: 'outfit', key: 'cape', name: 'Capa de héroe', icon: '🦸', price: 95, desc: 'Habla inglés sin miedo a nada.' },
+  { id: 'outfit:medal', type: 'outfit', key: 'medal', name: 'Medalla de oro', icon: '🥇', price: 110, desc: 'Premio al esfuerzo y perseverancia.' },
+
+  // --- 🪄 Accesorios en Mano (7 ítems) ---
+  { id: 'hand:none', type: 'hand', key: 'none', name: 'Alas libres', icon: '🪶', price: 0, desc: 'Alas despejadas para volar.' },
+  { id: 'hand:mic', type: 'hand', key: 'mic', name: 'Micrófono dorado', icon: '🎤', price: 60, desc: 'Para que tu voz se escuche brillante.' },
+  { id: 'hand:coffee', type: 'hand', key: 'coffee', name: 'Tinto colombiano', icon: '☕', price: 45, desc: 'El mejor café para activar las neuronas.' },
+  { id: 'hand:book', type: 'hand', key: 'book', name: 'Diccionario EN', icon: '📖', price: 50, desc: 'Sabiduría y vocabulario infinito.' },
+  { id: 'hand:flag', type: 'hand', key: 'flag', name: 'Bandera tricolor', icon: '🇨🇴', price: 40, desc: 'Llevando la bandera a todos los países.' },
+  { id: 'hand:wand', type: 'hand', key: 'wand', name: 'Varita mágica', icon: '✨', price: 90, desc: 'Fluidez instantánea con un toque de magia.' },
+  { id: 'hand:trophy', type: 'hand', key: 'trophy', name: 'Trofeo de campeón', icon: '🏆', price: 120, desc: '¡El máximo galardón al esfuerzo diario!' },
+
+  // --- 🎨 Plumaje y Colores (5 ítems) ---
+  { id: 'plumage:classic', type: 'plumage', key: 'classic', name: 'Plumaje Clásico', icon: '🦜', price: 0, desc: 'El tucán tradicional verde y negro.' },
+  { id: 'plumage:gold', type: 'plumage', key: 'gold', name: 'Dorado Mítico', icon: '🌟', price: 150, desc: 'Aura radiante con plumaje de oro puro.' },
+  { id: 'plumage:neon', type: 'plumage', key: 'neon', name: 'Cyberpunk Neón', icon: '🌌', price: 140, desc: 'Colores eléctricos futuristas y aura cyan.' },
+  { id: 'plumage:fire', type: 'plumage', key: 'fire', name: 'Fénix de Fuego', icon: '🔥', price: 160, desc: 'Energía ardiente y plumaje carmesí.' },
+  { id: 'plumage:ice', type: 'plumage', key: 'ice', name: 'Ártico Glacial', icon: '❄️', price: 140, desc: 'Plumas celestes cristalinas como el hielo.' }
 ];
 
 let shopActiveTab = 'hat';
 
 function openTukiShopModal() {
-  const skin = S.tukiSkin || (S.tukiSkin = { hat: 'none', outfit: 'none', owned: ['hat:none', 'outfit:none'] });
+  const skin = S.tukiSkin || (S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] });
   let previewSkin = { ...skin };
 
   const buildModalContent = () => {
@@ -6017,12 +6094,14 @@ function openTukiShopModal() {
       
       <div class="tuki-shop-preview">
         <div class="mascot-wrap" id="shopPreviewMascot" title="¡Toca para interactuar!">${renderTukiSVG(previewSkin)}</div>
-        <div class="tuki-speech" id="shopSpeech">¡Prueba atuendos y sombreros! Tienes 🪙 <b>${S.coins || 0}</b> monedas.</div>
+        <div class="tuki-speech" id="shopSpeech">¡Prueba atuendos, sombreros y colores! Tienes 🪙 <b>${S.coins || 0}</b> monedas.</div>
       </div>
 
       <div class="shop-tabs">
-        <button class="shop-tab ${shopActiveTab === 'hat' ? 'active' : ''}" data-stab="hat">🧢 Sombreros (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hat').length})</button>
-        <button class="shop-tab ${shopActiveTab === 'outfit' ? 'active' : ''}" data-stab="outfit">👔 Ropa y Atuendos (${TUKI_SHOP_ITEMS.filter(i=>i.type==='outfit').length})</button>
+        <button class="shop-tab ${shopActiveTab === 'hat' ? 'active' : ''}" data-stab="hat">🧢 Cabeza (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hat').length})</button>
+        <button class="shop-tab ${shopActiveTab === 'outfit' ? 'active' : ''}" data-stab="outfit">👔 Ropa (${TUKI_SHOP_ITEMS.filter(i=>i.type==='outfit').length})</button>
+        <button class="shop-tab ${shopActiveTab === 'hand' ? 'active' : ''}" data-stab="hand">🪄 En Mano (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hand').length})</button>
+        <button class="shop-tab ${shopActiveTab === 'plumage' ? 'active' : ''}" data-stab="plumage">🎨 Plumaje (${TUKI_SHOP_ITEMS.filter(i=>i.type==='plumage').length})</button>
       </div>
 
       <div class="shop-grid">
