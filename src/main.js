@@ -535,7 +535,7 @@ const Rec = {
   mr: null, stream: null, chunks: [], url: null,
   async start() {
     if (!this.supported) throw new Error('unsupported');
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
     this.chunks = []; this.mr = new MediaRecorder(this.stream);
     this.mr.ondataavailable = e => { if (e.data && e.data.size) this.chunks.push(e.data); };
     this.mr.start();
@@ -1453,12 +1453,15 @@ const MicCap = {
   async start({ maxMs = 10000, vad = true, onLevel } = {}) {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const src = ctx.createMediaStreamSource(stream), proc = ctx.createScriptProcessor(4096, 1, 1), mute = ctx.createGain(); mute.gain.value = 0;
+    const src = ctx.createMediaStreamSource(stream);
+    const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 85; hp.Q.value = 0.7;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 7500; lp.Q.value = 0.7;
+    const proc = ctx.createScriptProcessor(4096, 1, 1), mute = ctx.createGain(); mute.gain.value = 0;
     const chunks = []; let spoke = false, silent = 0; const t0 = performance.now();
     return new Promise(resolve => {
       const finish = () => {
         if (!this.active) return; this.active = null;
-        try { proc.disconnect(); src.disconnect(); } catch (e) {} stream.getTracks().forEach(t => t.stop());
+        try { proc.disconnect(); lp.disconnect(); hp.disconnect(); src.disconnect(); } catch (e) {} stream.getTracks().forEach(t => t.stop());
         const rate = ctx.sampleRate; ctx.close().catch(() => {});
         let len = 0; chunks.forEach(c => len += c.length); const all = new Float32Array(len); let o = 0; chunks.forEach(c => { all.set(c, o); o += c.length; });
         const s16 = resample(all, rate, 16000); resolve({ samples: s16, wav: encodeWAV(s16, 16000), spoke });
@@ -1470,7 +1473,7 @@ const MicCap = {
         const ms = d.length / ctx.sampleRate * 1000; if (rms > 0.015) { spoke = true; silent = 0; } else if (spoke) silent += ms;
         if ((vad && spoke && silent > 1300) || performance.now() - t0 > maxMs) finish();
       };
-      src.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
+      src.connect(hp); hp.connect(lp); lp.connect(proc); proc.connect(mute); mute.connect(ctx.destination);
     });
   },
   stop() { this.active && this.active.stop(); }
