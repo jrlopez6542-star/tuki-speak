@@ -418,7 +418,7 @@ const MASCOT = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ar
 /* =================== ESTADO / PERSISTENCIA =================== */
 const KEY = 'tukiSpeak.v1';
 const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, geminiKey: '', model: 'gemini-2.5-flash',
-  accent: 'en-US', ttsEngine: 'device', azureKey: '', azureRegion: '', azureVoice: 'en-US-JennyNeural', openaiKey: '', openaiModel: 'gpt-4o-mini', openaiVoice: 'marin', openaiTtsModel: 'gpt-4o-mini-tts', realtimeModel: 'gpt-realtime', chatProvider: 'gemini', liveModel: 'gemini-3.1-flash-live-preview', liveVoice: 'Kore',
+  accent: 'en-US', ttsEngine: 'auto', azureKey: '', azureRegion: '', azureVoice: 'en-US-JennyNeural', openaiKey: '', openaiModel: 'gpt-4o-mini', openaiVoice: 'marin', openaiTtsModel: 'gpt-4o-mini-tts', realtimeModel: 'gpt-realtime', chatProvider: 'gemini', liveModel: 'gemini-3.1-flash-live-preview', liveVoice: 'Kore',
   tukiVoiceEs: '', tukiVoiceEn: '', theme: 'auto', fontScale: 1, contrast: false, reduceMotion: false, haptics: true, remindOn: false, remindTime: '19:00' };
 function freshState() {
   return { v: 2, badges: {}, freezes: 0, placement: null, plans: {}, reviewed: 0, chats: 0, lives: 0, ph: {}, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
@@ -433,6 +433,7 @@ function load() {
   if (raw && oldV < 2) { try { localStorage.setItem(KEY + '.backup-v1', raw); } catch (e) {} }
   for (const k in f) if (S[k] === undefined || S[k] === null && k !== 'placement' && k !== 'lastDay') S[k] = f[k];
   S.settings = { ...DEFAULT_SETTINGS, ...S.settings };
+  if (S.settings.ttsEngine === 'device' && !S.settings.__ttsDeviceExplicit) S.settings.ttsEngine = 'auto';
   if (oldV < 2) { S.v = 2; if (raw && (Object.keys(S.done || {}).length || S.xp)) S.placement = S.placement || 'legacy'; }
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { console.warn('save failed', e); } }
@@ -1343,7 +1344,10 @@ function ttsEngineFor(tl) {
   const s = S.settings, p = tvPref(tl);
   if (p.startsWith('az:') && AZ_NAME_RE.test(p.slice(3))) return azureReady() ? 'azure' : 'device';
   if (p.startsWith('dev:')) return 'device';
-  return s.ttsEngine === 'azure' && azureReady() ? 'azure' : s.ttsEngine === 'openai' && s.openaiKey ? 'openai' : 'device';
+  if (s.ttsEngine === 'openai' && s.openaiKey) return 'openai';
+  if (s.ttsEngine === 'device') return 'device';
+  if (s.ttsEngine === 'azure') return azureReady() ? 'azure' : 'device';
+  return azureReady() ? 'azure' : 'device';
 }
 function azVoiceFor(tl) {
   const s = S.settings, p = tvPref(tl);
@@ -2363,7 +2367,7 @@ VIEWS.settings = v => {
   const azStatus = azureReady() ? ' (activo)' : (fbSignedIn() ? ' (falta clave)' : ' (inicia sesión)');
   v.innerHTML = `<h2>Ajustes ⚙️</h2>
   <div class="card"><h3>🔊 Voz y audio</h3>
-    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['device', 'Dispositivo (gratis)'], ['azure', 'Azure neural' + azStatus], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine)}</select></div>
+    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['auto', 'Automática' + (azureReady() ? ' (Azure neural)' : ' (Dispositivo)')], ['azure', 'Azure neural' + azStatus], ['device', 'Dispositivo (sin internet)'], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine || 'auto')}</select></div>
     <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent" style="max-width:200px">${opt([['en-US', 'Estadounidense (en-US)'], ['en-GB', 'Británico (en-GB)']], s.accent)}</select></div>
     <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice" style="max-width:200px"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
     <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice" style="max-width:200px">${opt(AZ_VOICES, s.azureVoice)}</select></div>
@@ -2427,7 +2431,7 @@ VIEWS.settings = v => {
   </div>
   <p class="muted small" style="text-align:center">Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.</p>`;
   const set = (k, val) => { S.settings[k] = val; save(); };
-  const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
+  const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { if (k === 'ttsEngine') S.settings.__ttsDeviceExplicit = (ev.target.value === 'device'); set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
   [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
   ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
   $('#rate').oninput = e => { set('rate', +e.target.value); $('#rateV').textContent = (+e.target.value).toFixed(2) + '×'; };
@@ -4409,7 +4413,8 @@ function tvRenderBody() {
   const missing = cur.startsWith('dev:') && !dev.some(r => r.id === cur) ? `<p class="small tvhint">📱 La voz «${esc(cur.slice(4))}» no está en este dispositivo: Tuki usa la mejor voz disponible.</p>` : '';
   const devSec = `<h4 class="tvh">📱 Voces de tu teléfono (gratis, sin clave)</h4>${missing}` + (dev.length ? dev.map(r => tvRowHTML(r, TV.rows.indexOf(r), cur, false)).join('')
     : `<p class="small muted">Tu ${'speechSynthesis' in window ? 'teléfono aún no muestra voces en ' + (tl === 'es' ? 'español' : 'inglés') + '. Si acabas de abrir la app, espera un momento; en Android puedes instalar voces en Ajustes › Texto a voz.' : 'navegador no tiene voces instaladas.'}</p>`);
-  box.innerHTML = `<div class="tvrow ${cur ? '' : 'sel'}" data-id=""><label class="tvl"><input type="radio" name="tvSel" value="0" ${cur ? '' : 'checked'}><span class="tvn"><b>Automática</b><small>${tl === 'es' ? 'Usa «Voz del modelo» o la mejor voz en español del teléfono' : 'Usa «Voz del modelo» y «Voz del dispositivo» de arriba'}</small></span></label></div>
+  const autoDesc = tl === 'es' ? (ready ? 'Voz neural Salomé (colombiana) activa' : 'Mejor voz en español del teléfono') : (ready ? 'Voz neural Jenny (alta calidad) activa' : 'Voz en inglés del teléfono');
+  box.innerHTML = `<div class="tvrow ${cur ? '' : 'sel'}" data-id=""><label class="tvl"><input type="radio" name="tvSel" value="0" ${cur ? '' : 'checked'}><span class="tvn"><b>Automática</b><small>${autoDesc}</small></span></label></div>
     <h4 class="tvh">☁️ Voces Azure ${azShared() ? '(gratis con tu cuenta)' : (azOwn() ? '(con tu clave)' : '')}</h4>
     ${ready ? live : (
       !fbSignedIn() ? `<div class="tvhint" style="background:var(--card-hover, rgba(0,0,0,0.03));padding:12px;border-radius:12px;border:1px solid var(--border, rgba(0,0,0,0.08));margin-bottom:10px">
