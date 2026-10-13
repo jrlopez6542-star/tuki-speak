@@ -1205,8 +1205,8 @@ function nextCard() {
 }
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
-const SCENARIOS = { free: 'a friendly casual chat about the learner\'s day, hobbies and plans', restaurant: 'a waiter at a restaurant in New York; the learner is the customer', airport: 'an airline check-in agent at the airport; the learner is a passenger', interview: 'a job interviewer for a customer service position; the learner is the candidate', shopping: 'a shop assistant in a clothing store; the learner is the customer', doctor: 'a receptionist at a doctor\'s office; the learner wants an appointment' };
-const SCEN_ES = { free: 'Charla libre', restaurant: 'Restaurante', airport: 'Aeropuerto', interview: 'Entrevista de trabajo', shopping: 'Tienda de ropa', doctor: 'Cita médica' };
+const SCENARIOS = { free: 'a friendly casual chat about the learner\'s day, hobbies and plans', restaurant: 'a waiter at a restaurant in New York; the learner is the customer', airport: 'an airline check-in agent at the airport; the learner is a passenger' };
+const SCEN_ES = { free: 'Charla libre', restaurant: 'Restaurante', airport: 'Aeropuerto' };
 let CHAT = { scen: 'free', hist: [], busy: false };
 function chatSystem() {
   return `You are "Tuki", a patient, friendly English pronunciation and conversation tutor for a Spanish-speaking learner from Colombia (beginner/intermediate level). Roleplay: you are ${SCENARIOS[CHAT.scen]}.
@@ -1258,7 +1258,7 @@ function parseTutor(t) {
 
 
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.13.0';
+const APP_VERSION = '2.14.0';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
@@ -2325,7 +2325,7 @@ VIEWS.chat = v => {
   v.innerHTML = `<div class="chatscreen" id="chatscreen">
     <div class="chattop">
       <div class="provider"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
-      <div class="chatsel"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${SCEN_ES[k]}</option>`).join('')}</select><select class="field sp" id="tspeed" aria-label="Velocidad de Tuki" title="Velocidad de Tuki">${Object.keys(TUTOR_SPEEDS).map(k => `<option value="${k}" ${k === tutorSpeed() ? 'selected' : ''}>${TUTOR_SPEEDS[k].label}</option>`).join('')}</select><button class="btn ghost sm" id="newc" title="Nueva conversación">Nueva</button></div>
+      <div class="chatsel"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).filter(k => k !== 'interview' && k !== 'shopping').map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${SCEN_ES[k]}</option>`).join('')}</select><select class="field sp" id="tspeed" aria-label="Velocidad de Tuki" title="Velocidad de Tuki">${Object.keys(TUTOR_SPEEDS).map(k => `<option value="${k}" ${k === tutorSpeed() ? 'selected' : ''}>${TUTOR_SPEEDS[k].label}</option>`).join('')}</select><button class="btn ghost sm" id="newc" title="Nueva conversación">Nueva</button></div>
       <div class="chatsel"><select class="field" id="level" aria-label="Nivel de inglés" title="Nivel de inglés de la conversación">${LEVEL_KEYS.map(k => `<option value="${k}" ${k === lv ? 'selected' : ''}>${LEVELS[k].label}</option>`).join('')}</select><select class="field" id="tlang" aria-label="Idioma del tutor" title="Idioma del tutor">${Object.keys(TUTOR_LANGS).map(k => `<option value="${k}" ${k === tutorLang() ? 'selected' : ''}>${TUTOR_LANGS[k].label}</option>`).join('')}</select></div>
     </div>
     <div class="chatlog" id="log" aria-live="polite"></div>
@@ -4640,6 +4640,42 @@ const MISSION_SCENARIOS = {
       'Preguntar si queda a distancia caminable o es mejor autobús/taxi',
       'Agradecer cordialmente y despedirte'
     ]
+  },
+  doctor: {
+    desc: 'a triage nurse or doctor at an urgent care clinic in Boston. The learner is a patient describing symptoms. Keep it empathetic and professional.',
+    es: '🩺 Consulta médica',
+    goals: [
+      'Describir tus síntomas principales (dolor de cabeza, fiebre, dolor de garganta o tos)',
+      'Responder si tienes alergias a medicamentos o si tomas algo actualmente',
+      'Preguntar la dosis de la medicina recetada y si necesitas reposo'
+    ]
+  },
+  job_interview: {
+    desc: 'an HR hiring manager at an international tech company in Austin. The learner is a job candidate. Keep it professional, encouraging and structured.',
+    es: '💼 Entrevista de trabajo',
+    goals: [
+      'Presentarte profesionalmente y resumir tu experiencia laboral',
+      'Hablar de tu mayor fortaleza y cómo resuelves problemas bajo presión',
+      'Preguntar sobre el equipo de trabajo y los siguientes pasos'
+    ]
+  },
+  supermarket: {
+    desc: 'a friendly grocery store employee at a supermarket in Toronto. The learner is a shopper asking for assistance.',
+    es: '🛒 En el supermercado',
+    goals: [
+      'Preguntar amablemente en qué pasillo encontrar un producto (leche, pan, café)',
+      'Consultar si tienen descuentos u ofertas con tarjeta de cliente',
+      'Pedir una bolsa biodegradable y solicitar el recibo'
+    ]
+  },
+  taxi_uber: {
+    desc: 'a friendly rideshare/taxi driver in New York City. The learner is a passenger on the way to their destination.',
+    es: '🚕 En el taxi o Uber',
+    goals: [
+      'Confirmar el destino y pedir amablemente ajustar el aire acondicionado o música',
+      'Preguntar cuál es la ruta más rápida para evitar el tráfico',
+      'Pedir que se detenga con cuidado en la esquina o entrada y agradecer'
+    ]
   }
 };
 
@@ -4648,6 +4684,15 @@ Object.entries(MISSION_SCENARIOS).forEach(([k, s]) => {
   SCEN_ES[k] = s.es;
 });
 
+// Alias retrocompatibles
+SCENARIOS.interview = MISSION_SCENARIOS.job_interview.desc;
+SCEN_ES.interview = MISSION_SCENARIOS.job_interview.es;
+MISSION_SCENARIOS.interview = MISSION_SCENARIOS.job_interview;
+
+SCENARIOS.shopping = MISSION_SCENARIOS.supermarket.desc;
+SCEN_ES.shopping = MISSION_SCENARIOS.supermarket.es;
+MISSION_SCENARIOS.shopping = MISSION_SCENARIOS.supermarket;
+
 function missionGoalsHTML(scenKey) {
   const m = MISSION_SCENARIOS[scenKey];
   if (!m) return '';
@@ -4655,8 +4700,8 @@ function missionGoalsHTML(scenKey) {
   const doneCount = st.filter(Boolean).length;
   return `<div class="mission-box" id="missionBox">
     <div class="row between" style="margin-bottom:6px">
-      <b>🎯 Objetivos de la misión (${doneCount}/${m.goals.length})</b>
-      <span class="small muted">${doneCount === m.goals.length ? '✅ ¡Cumplida!' : 'En progreso'}</span>
+      <b id="missionGoalTitle">🎯 Objetivos de la misión (${doneCount}/${m.goals.length})</b>
+      <span class="small muted" id="missionStatus">${doneCount === m.goals.length ? '✅ ¡Cumplida!' : 'En progreso'}</span>
     </div>
     ${m.goals.map((g, i) => `<label class="mission-item">
       <input type="checkbox" data-mi="${i}" ${st[i] ? 'checked' : ''}>
@@ -4668,6 +4713,7 @@ function missionGoalsHTML(scenKey) {
 function bindMissionGoals(root) {
   const box = $('#missionBox', root || document);
   if (!box) return;
+  const m = MISSION_SCENARIOS[CHAT.scen];
   $$('[data-mi]', box).forEach(cb => {
     cb.onchange = e => {
       const idx = +cb.dataset.mi;
@@ -4675,7 +4721,13 @@ function bindMissionGoals(root) {
       st[idx] = cb.checked;
       S.missions[CHAT.scen] = st;
       save();
-      if (st.every(Boolean)) {
+      const doneCount = st.filter(Boolean).length;
+      const allDone = m && doneCount === m.goals.length;
+      const statEl = $('#missionStatus', box);
+      const titleEl = $('#missionGoalTitle', box);
+      if (statEl) statEl.textContent = allDone ? '✅ ¡Cumplida!' : 'En progreso';
+      if (titleEl && m) titleEl.textContent = `🎯 Objetivos de la misión (${doneCount}/${m.goals.length})`;
+      if (allDone) {
         beep('fanfare');
         canvasConfetti();
         addXP(15);
@@ -4689,6 +4741,47 @@ function bindMissionGoals(root) {
         label.style.opacity = cb.checked ? '.7' : '1';
       }
     };
+  });
+}
+
+function openMissionsModal() {
+  const validKeys = [
+    'coffee', 'hotel', 'airport_in', 'directions',
+    'doctor', 'job_interview', 'supermarket', 'taxi_uber'
+  ];
+  const missions = (S.missions = S.missions || {});
+  modal(`<h2>🎯 Misiones de Conversación Real</h2>
+    <p class="muted small">Roleplay guiado en inglés con Tuki. Practica situaciones cotidianas con objetivos interactivos paso a paso:</p>
+    <div class="wlist" style="margin-top:10px">
+      ${validKeys.map(k => {
+        const m = MISSION_SCENARIOS[k];
+        if (!m) return '';
+        const st = missions[k] || [false, false, false];
+        const done = st.filter(Boolean).length;
+        const allDone = done === m.goals.length;
+        return `<div class="card pcard" style="padding:12px;margin-bottom:8px;align-items:flex-start">
+          <div style="flex:1">
+            <div class="row between">
+              <h3 style="margin:0 0 4px">${esc(m.es)}</h3>
+              <span class="pill ${allDone ? 'ok' : 'blue'}">${allDone ? '✅ Cumplida' : `${done}/${m.goals.length}`}</span>
+            </div>
+            <ul style="margin:6px 0 10px 18px;padding:0;font-size:12px;color:var(--mute);line-height:1.4">
+              ${m.goals.map(g => `<li>${esc(g)}</li>`).join('')}
+            </ul>
+            <button class="btn primary sm" data-start-mission="${k}">Iniciar misión 🚀</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <button class="btn ghost block" data-x style="margin-top:10px">Cerrar</button>`, (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $$('[data-start-mission]', el).forEach(btn => {
+      btn.onclick = () => {
+        const k = btn.dataset.startMission;
+        close();
+        enterMode(k);
+      };
+    });
   });
 }
 
@@ -4759,7 +4852,307 @@ function openShadowingModal() {
   });
 }
 
-// 4. GUÍA VISUAL Y TIPS ANATÓMICOS EN ERRORES FONÉTICOS (SVG MOUTHS)
+// 4. MODO MANOS LIBRES / AUDIO CONTINUO (LISTEN & REPEAT EN BUCLE)
+const HANDS_FREE_BANK = [
+  { id: 'hf1', cat: 'daily', en: "Could you please speak a little slower?", es: "¿Podrías hablar un poco más despacio, por favor?" },
+  { id: 'hf2', cat: 'social', en: "How's everything going with your project?", es: "¿Cómo va todo con tu proyecto?" },
+  { id: 'hf3', cat: 'restaurant', en: "I'd like to order a large coffee with almond milk.", es: "Me gustaría pedir un café grande con leche de almendras." },
+  { id: 'hf4', cat: 'travel', en: "How long does it take to get to the airport by train?", es: "¿Cuánto tiempo toma llegar al aeropuerto en tren?" },
+  { id: 'hf5', cat: 'work', en: "Let me know if you need any help with that task.", es: "Avísame si necesitas alguna ayuda con esa tarea." },
+  { id: 'hf6', cat: 'daily', en: "Excuse me, where is the nearest pharmacy around here?", es: "Disculpe, ¿dónde está la farmacia más cercana por aquí?" },
+  { id: 'hf7', cat: 'restaurant', en: "What do you recommend from today's special menu?", es: "¿Qué recomiendas del menú especial de hoy?" },
+  { id: 'hf8', cat: 'social', en: "I didn't quite catch your name, could you repeat it?", es: "No alcancé a captar tu nombre, ¿podrías repetirlo?" },
+  { id: 'hf9', cat: 'daily', en: "Could you say that one more time for me, please?", es: "¿Podrías decir eso una vez más para mí, por favor?" },
+  { id: 'hf10', cat: 'work', en: "I completely agree with the points you just made.", es: "Estoy completamente de acuerdo con los puntos que acabas de mencionar." },
+  { id: 'hf11', cat: 'shopping', en: "Do you have this jacket in a smaller size?", es: "¿Tienen esta chaqueta en una talla más pequeña?" },
+  { id: 'hf12', cat: 'health', en: "I've had a bad headache since this morning.", es: "He tenido un fuerte dolor de cabeza desde esta mañana." },
+  { id: 'hf13', cat: 'work', en: "Can we reschedule our sync for tomorrow morning?", es: "¿Podemos reprogramar nuestra reunión para mañana por la mañana?" },
+  { id: 'hf14', cat: 'travel', en: "Excuse me, does this bus stop at Central Station?", es: "Disculpe, ¿este autobús para en la Estación Central?" },
+  { id: 'hf15', cat: 'social', en: "That sounds like a fantastic idea to me!", es: "¡Eso me suena como una idea fantástica!" },
+  { id: 'hf16', cat: 'daily', en: "Take your time, there is no rush whatsoever.", es: "Tómate tu tiempo, no hay ningún apuro en absoluto." },
+  { id: 'hf17', cat: 'restaurant', en: "Could we please get the check when you have a chance?", es: "¿Podrías traernos la cuenta cuando tengas un momento, por favor?" },
+  { id: 'hf18', cat: 'social', en: "It was really nice meeting you today.", es: "Fue un gran gusto conocerte hoy." },
+  { id: 'hf19', cat: 'work', en: "Could you send me the details via email later?", es: "¿Podrías enviarme los detalles por correo más tarde?" },
+  { id: 'hf20', cat: 'travel', en: "Could you drop me off at the next corner, please?", es: "¿Podrías dejarme en la siguiente esquina, por favor?" },
+  { id: 'hf21', cat: 'social', en: "I'm really looking forward to seeing you this weekend.", es: "Tengo muchas ganas de verte este fin de semana." },
+  { id: 'hf22', cat: 'shopping', en: "Is there any discount if I pay with cash today?", es: "¿Hay algún descuento si pago en efectivo hoy?" },
+  { id: 'hf23', cat: 'daily', en: "Could you give me a hand with these heavy boxes?", es: "¿Podrías darme una mano con estas cajas pesadas?" },
+  { id: 'hf24', cat: 'work', en: "Thanks a lot for pointing that out, I appreciate it.", es: "Muchas gracias por señalar eso, te lo agradezco." },
+  { id: 'hf25', cat: 'social', en: "Have a wonderful rest of your day!", es: "¡Que tengas un maravilloso resto del día!" }
+];
+
+let hfIndex = 0;
+let hfPlaying = false;
+let hfActive = false;
+let hfTimer = null;
+let hfInterval = null;
+let hfWakeLock = null;
+let hfCompleted = 0;
+let hfSpeed = 1.0;
+let hfPause = 4;
+let hfSource = 'daily';
+
+function getHfList() {
+  if (hfSource === 'shadow') return SHADOW_BANK;
+  if (hfSource === 'srs') {
+    const deckItems = Object.values(S.deck || {}).filter(c => c.en && c.es);
+    if (deckItems.length) return deckItems;
+  }
+  return HANDS_FREE_BANK;
+}
+
+function openHandsFreeModal() {
+  hfActive = true;
+  hfPlaying = false;
+  hfCompleted = 0;
+  if (hfTimer) clearTimeout(hfTimer);
+  if (hfInterval) clearInterval(hfInterval);
+  stopAudio();
+
+  const list = getHfList();
+  const item = list[hfIndex % list.length] || HANDS_FREE_BANK[0];
+  const srsCount = Object.values(S.deck || {}).filter(c => c.en && c.es).length;
+
+  modal(`<h2>🎧 Modo Manos Libres</h2>
+    <p class="muted small">Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla. Ideal para caminar, cocinar, viajar o entrenar.</p>
+
+    <div class="row between small" style="margin-bottom:8px">
+      <select class="field sm" id="hfSourceSelect" style="max-width:180px">
+        <option value="daily" ${hfSource === 'daily' ? 'selected' : ''}>Cotidianas (${HANDS_FREE_BANK.length})</option>
+        <option value="shadow" ${hfSource === 'shadow' ? 'selected' : ''}>Shadowing (${SHADOW_BANK.length})</option>
+        ${srsCount ? `<option value="srs" ${hfSource === 'srs' ? 'selected' : ''}>Tarjetas SRS (${srsCount})</option>` : ''}
+      </select>
+      <span class="muted" id="hfCounter">${(hfIndex % list.length) + 1} de ${list.length}</span>
+    </div>
+
+    <div class="handsfree-container" id="hfBox">
+      <div class="handsfree-status phase-paused" id="hfStatusBadge">
+        <span>⏸ Listo para iniciar</span>
+      </div>
+
+      <div class="handsfree-phrase-en" id="hfEnText">
+        ${esc(item.en)}
+      </div>
+
+      <div class="handsfree-phrase-es" id="hfEsText">
+        ${esc(item.es)}
+      </div>
+
+      <div class="handsfree-meter">
+        <div class="handsfree-meter-fill" id="hfMeterFill"></div>
+      </div>
+    </div>
+
+    <div class="row between" style="margin-top:8px">
+      <div class="row" style="gap:6px">
+        <button class="chip ${hfSpeed === 1.0 ? 'active' : ''}" id="hfSpd1">1.0x</button>
+        <button class="chip ${hfSpeed === 0.8 ? 'active' : ''}" id="hfSpdSlow">0.8x 🐢</button>
+      </div>
+      <div class="row" style="gap:6px">
+        <span class="small muted">Pausa:</span>
+        <button class="chip ${hfPause === 3 ? 'active' : ''}" data-p="3">3s</button>
+        <button class="chip ${hfPause === 4 ? 'active' : ''}" data-p="4">4s</button>
+        <button class="chip ${hfPause === 6 ? 'active' : ''}" data-p="6">6s</button>
+      </div>
+    </div>
+
+    <div class="handsfree-controls">
+      <button class="iconbtn" id="hfPrev" title="Anterior" style="font-size:20px;width:48px;height:48px">⏮</button>
+      <button class="btn primary big-play" id="hfTogglePlay">
+        <span id="hfPlayIcon">▶</span>
+      </button>
+      <button class="iconbtn" id="hfNext" title="Siguiente" style="font-size:20px;width:48px;height:48px">⏭</button>
+    </div>
+
+    <div class="row between small" style="margin-top:12px">
+      <span class="pill" id="hfCompletedPill">🏆 ${hfCompleted} completadas</span>
+      <button class="btn ghost sm" data-x>Cerrar</button>
+    </div>`, (el, close) => {
+
+    async function reqWake() {
+      try { if ('wakeLock' in navigator && !hfWakeLock) hfWakeLock = await navigator.wakeLock.request('screen'); } catch(e){}
+    }
+    function relWake() {
+      try { if (hfWakeLock) { hfWakeLock.release(); hfWakeLock = null; } } catch(e){}
+    }
+
+    function updateCardUI(cur) {
+      const enEl = $('#hfEnText', el);
+      const esEl = $('#hfEsText', el);
+      const cntEl = $('#hfCounter', el);
+      const l = getHfList();
+      if (enEl) enEl.textContent = cur.en;
+      if (esEl) {
+        esEl.textContent = cur.es;
+        esEl.classList.remove('highlight');
+      }
+      if (cntEl) cntEl.textContent = `${(hfIndex % l.length) + 1} de ${l.length}`;
+    }
+
+    function setBadge(text, phaseClass) {
+      const badge = $('#hfStatusBadge', el);
+      if (!badge) return;
+      badge.className = `handsfree-status ${phaseClass}`;
+      badge.innerHTML = `<span>${text}</span>`;
+    }
+
+    function setMeter(pct) {
+      const fill = $('#hfMeterFill', el);
+      if (fill) fill.style.width = `${Math.min(100, Math.max(0, pct))}%`;
+    }
+
+    function stepEn() {
+      if (!hfActive || !hfPlaying) return;
+      if (hfTimer) clearTimeout(hfTimer);
+      if (hfInterval) clearInterval(hfInterval);
+      setMeter(0);
+
+      const l = getHfList();
+      const cur = l[hfIndex % l.length];
+      updateCardUI(cur);
+      setBadge('🔊 1. Escucha en inglés…', 'phase-en');
+
+      speak(cur.en, hfSpeed < 1, () => {
+        if (!hfActive || !hfPlaying) return;
+        stepRepeat(cur);
+      }, 'en', hfSpeed);
+    }
+
+    function stepRepeat(cur) {
+      if (!hfActive || !hfPlaying) return;
+      setBadge(`🗣️ 2. Tu turno: repite en voz alta (${hfPause}s)`, 'phase-repeat');
+
+      const totalMs = hfPause * 1000;
+      const start = Date.now();
+      if (hfInterval) clearInterval(hfInterval);
+      hfInterval = setInterval(() => {
+        if (!hfActive || !hfPlaying) { clearInterval(hfInterval); return; }
+        const elapsed = Date.now() - start;
+        const pct = (elapsed / totalMs) * 100;
+        setMeter(pct);
+        if (elapsed >= totalMs) {
+          clearInterval(hfInterval);
+          stepEs(cur);
+        }
+      }, 80);
+    }
+
+    function stepEs(cur) {
+      if (!hfActive || !hfPlaying) return;
+      setMeter(100);
+      setBadge('💬 3. Significado en español', 'phase-es');
+      const esEl = $('#hfEsText', el);
+      if (esEl) esEl.classList.add('highlight');
+
+      speak(cur.es, false, () => {
+        if (!hfActive || !hfPlaying) return;
+        hfCompleted++;
+        const pill = $('#hfCompletedPill', el);
+        if (pill) pill.textContent = `🏆 ${hfCompleted} completadas`;
+
+        if (hfCompleted > 0 && hfCompleted % 5 === 0) {
+          addXP(5);
+          toast('🎧 ¡Excelente constancia! +5 XP completados', 2600);
+          beep('fanfare');
+        }
+
+        setBadge('⏭ Siguiente frase…', 'phase-en');
+        if (hfTimer) clearTimeout(hfTimer);
+        hfTimer = setTimeout(() => {
+          if (!hfActive || !hfPlaying) return;
+          const l = getHfList();
+          hfIndex = (hfIndex + 1) % l.length;
+          stepEn();
+        }, 1200);
+      }, 'es');
+    }
+
+    function togglePlay() {
+      hfPlaying = !hfPlaying;
+      const icon = $('#hfPlayIcon', el);
+      if (hfPlaying) {
+        if (icon) icon.textContent = '⏸';
+        reqWake();
+        stepEn();
+      } else {
+        if (icon) icon.textContent = '▶';
+        if (hfTimer) clearTimeout(hfTimer);
+        if (hfInterval) clearInterval(hfInterval);
+        stopAudio();
+        setMeter(0);
+        setBadge('⏸ En pausa · Pulsa reproducir para continuar', 'phase-paused');
+        relWake();
+      }
+    }
+
+    $('#hfTogglePlay', el).onclick = togglePlay;
+
+    $('#hfPrev', el).onclick = () => {
+      const l = getHfList();
+      hfIndex = (hfIndex - 1 + l.length) % l.length;
+      if (hfPlaying) {
+        stepEn();
+      } else {
+        updateCardUI(l[hfIndex]);
+      }
+    };
+
+    $('#hfNext', el).onclick = () => {
+      const l = getHfList();
+      hfIndex = (hfIndex + 1) % l.length;
+      if (hfPlaying) {
+        stepEn();
+      } else {
+        updateCardUI(l[hfIndex]);
+      }
+    };
+
+    $('#hfSourceSelect', el).onchange = e => {
+      hfSource = e.target.value;
+      hfIndex = 0;
+      const l = getHfList();
+      updateCardUI(l[0]);
+      if (hfPlaying) stepEn();
+    };
+
+    $('#hfSpd1', el).onclick = () => {
+      hfSpeed = 1.0;
+      $('#hfSpd1', el).classList.add('active');
+      $('#hfSpdSlow', el).classList.remove('active');
+    };
+    $('#hfSpdSlow', el).onclick = () => {
+      hfSpeed = 0.8;
+      $('#hfSpdSlow', el).classList.add('active');
+      $('#hfSpd1', el).classList.remove('active');
+    };
+
+    $$('[data-p]', el).forEach(btn => {
+      btn.onclick = () => {
+        $$('[data-p]', el).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        hfPause = +btn.dataset.p || 4;
+      };
+    });
+
+    const handleClose = () => {
+      hfActive = false;
+      hfPlaying = false;
+      if (hfTimer) clearTimeout(hfTimer);
+      if (hfInterval) clearInterval(hfInterval);
+      stopAudio();
+      relWake();
+      close();
+    };
+
+    $('[data-x]', el).onclick = handleClose;
+
+    setTimeout(() => {
+      if (hfActive && !hfPlaying) togglePlay();
+    }, 400);
+  });
+}
+
+// 5. GUÍA VISUAL Y TIPS ANATÓMICOS EN ERRORES FONÉTICOS (SVG MOUTHS)
 const MOUTH_GUIDES = {
   'th': {
     title: 'Sonido /θ/ (think, three) y /ð/ (this, they)',
@@ -5078,6 +5471,20 @@ VIEWS.practice = function (v) {
       <div class="muted small">Algoritmo SM-2 · repasa en el momento exacto antes de olvidar</div>
     </div>
   </button>
+  <button class="card pcard" id="handsFreeCard" style="margin-top:10px">
+    <div class="em" style="background:#e0f2fe">🎧</div>
+    <div>
+      <h3 style="margin:0 0 2px">Modo Manos Libres</h3>
+      <div class="muted small">Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla</div>
+    </div>
+  </button>
+  <button class="card pcard" id="missionsCard" style="margin-top:10px">
+    <div class="em" style="background:#fef3c7">🎯</div>
+    <div>
+      <h3 style="margin:0 0 2px">Misiones de Conversación Real</h3>
+      <div class="muted small">8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)</div>
+    </div>
+  </button>
   <button class="card pcard" id="shadowCard" style="margin-top:10px">
     <div class="em" style="background:#e8f4fd">🎙️</div>
     <div>
@@ -5105,6 +5512,8 @@ VIEWS.practice = function (v) {
   else v.insertAdjacentHTML('beforeend', srsHtml);
 
   const bSrs = $('#srsCard', v); if (bSrs) bSrs.onclick = startReview;
+  const bHf = $('#handsFreeCard', v); if (bHf) bHf.onclick = openHandsFreeModal;
+  const bMi = $('#missionsCard', v); if (bMi) bMi.onclick = openMissionsModal;
   const bSh = $('#shadowCard', v); if (bSh) bSh.onclick = openShadowingModal;
   const bMo = $('#mouthCard', v); if (bMo) bMo.onclick = openMouthSelector;
   const bPh = $('#photoCard', v); if (bPh) bPh.onclick = openPhotoPractice;
@@ -5112,13 +5521,26 @@ VIEWS.practice = function (v) {
 
 const _chatView211 = VIEWS.chat;
 VIEWS.chat = function (v) {
+  if (CHAT.scen === 'interview') CHAT.scen = 'job_interview';
+  if (CHAT.scen === 'shopping') CHAT.scen = 'supermarket';
   _chatView211(v);
   const top = $('.chattop', v);
-  if (top && MISSION_SCENARIOS[CHAT.scen]) {
+  const updateMission = () => {
     const prev = $('#missionBox', v);
     if (prev) prev.remove();
-    top.insertAdjacentHTML('afterend', missionGoalsHTML(CHAT.scen));
-    bindMissionGoals(v);
+    if (top && MISSION_SCENARIOS[CHAT.scen]) {
+      top.insertAdjacentHTML('afterend', missionGoalsHTML(CHAT.scen));
+      bindMissionGoals(v);
+    }
+  };
+  updateMission();
+  const scenEl = $('#scen', v);
+  if (scenEl) {
+    const origCh = scenEl.onchange;
+    scenEl.onchange = e => {
+      if (origCh) origCh(e);
+      updateMission();
+    };
   }
 };
 
@@ -5262,4 +5684,4 @@ applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, version: APP_VERSION };
