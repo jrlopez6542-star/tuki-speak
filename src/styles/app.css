@@ -16,8 +16,13 @@ input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
 .stats{display:flex;gap:6px}
 .stat{display:flex;align-items:center;gap:4px;font-weight:800;padding:6px 8px;border-radius:12px;background:none;border:0}
 .stat:hover{background:#f1f4f6}
-.stat.fire{color:var(--o)} .stat.xp{color:var(--b)} .stat.heart{color:var(--r)}
+.stat.fire{color:var(--o)} .stat.xp{color:var(--b)} .stat.heart{color:var(--r)} .stat.coins{color:#d97706}
 .stat.off{color:#b8c1c9;filter:grayscale(1)}
+.brand{cursor:pointer;user-select:none}
+.brand-mascot-wrap{display:inline-flex;align-items:center;justify-content:center;transition:transform .2s ease}
+.brand:hover .brand-mascot-wrap{transform:rotate(-6deg) scale(1.08)}
+.tuki-wiggle{animation:tukiWiggle .6s cubic-bezier(.36,.07,.19,.97) both}
+@keyframes tukiWiggle{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-12deg) scale(1.12)}40%{transform:rotate(10deg) scale(1.12)}60%{transform:rotate(-8deg) scale(1.08)}80%{transform:rotate(6deg) scale(1.04)}}
 main{flex:1;padding:14px 14px 96px}
 /* tab bar */
 .tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;z-index:20;display:flex;justify-content:space-around;background:#fff;border-top:2px solid var(--line);padding:6px 4px;padding-bottom:calc(6px + env(safe-area-inset-bottom))}
@@ -587,3 +592,54 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .pron-hint{display:block;font-size:13px;font-weight:700;color:var(--o-d);margin-top:2px}
 .phonetic-guide-box{background:#f0fdf4;border:1.5px dashed #86efac;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:13px}
 [data-theme=dark] .phonetic-guide-box{background:#0e2918;border-color:#15803d}
+
+/* =================== TIENDA Y ARMARIO DE TUKI =================== */
+.tuki-shop-preview{display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#f0fdf4 0%,#dcfce7 100%);border-radius:20px;padding:16px;margin-bottom:14px;border:2px solid #bbf7d0;position:relative}
+[data-theme=dark] .tuki-shop-preview{background:linear-gradient(180deg,#142c1f 0%,#0e1f16 100%);border-color:#166534}
+.tuki-shop-preview .mascot-wrap{width:130px;height:130px;cursor:pointer;transition:transform .2s ease}
+.tuki-shop-preview .mascot-wrap:hover{transform:scale(1.06)}
+.tuki-shop-preview .tuki-speech{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700;margin-top:10px;text-align:center;max-width:280px;box-shadow:var(--sh)}
+.shop-tabs{display:flex;gap:6px;margin-bottom:12px;background:var(--line);padding:3px;border-radius:12px}
+.shop-tab{flex:1;border:0;background:transparent;padding:7px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;color:var(--mute);transition:all .15s}
+.shop-tab.active{background:var(--card);color:var(--ink);box-shadow:0 2px 4px rgba(0,0,0,.08)}
+.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-height:280px;overflow-y:auto;padding:2px}
+.shop-card{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;transition:all .15s ease}
+.shop-card:hover{transform:translateY(-2px);border-color:var(--b)}
+.shop-card.equipped{border-color:var(--g);background:#f0fdf4}
+[data-theme=dark] .shop-card.equipped{background:#0f2b1d;border-color:#22c55e}
+.shop-card .icon{font-size:28px}
+.shop-card .name{font-weight:800;font-size:13px;line-height:1.2}
+.shop-card .price{font-size:12px;font-weight:800;color:#d97706}
+.shop-btn{width:100%;padding:6px 8px;font-size:12px;border-radius:10px;font-weight:800;margin-top:auto}
+
+/* =================== MODO CARACOL 🐌 Y SÍLABAS =================== */
+.spk.snail{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
+.spk.snail:hover{background:#fde68a}
+[data-theme=dark] .spk.snail{background:#3a2d0b;color:#fef08a;border-color:#713f12}
+.syllable-pills{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:6px 0}
+.syllable-pill{background:#f1f5f9;border:1.5px solid #cbd5e1;padding:4px 10px;border-radius:999px;font-weight:800;font-size:14px;color:var(--ink);letter-spacing:1px}
+.syllable-pill.active{background:#fef3c7;border-color:#f59e0b;color:#b45309;transform:scale(1.1)}
+[data-theme=dark] .syllable-pill{background:#1e293b;border-color:#334155;color:#f8fafc}
+
+/* =================== COFRES Y RETOS DIARIOS =================== */
+.chest-card{background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);border:2px solid #fcd34d;border-radius:18px;padding:14px;margin-bottom:14px;position:relative;overflow:hidden}
+[data-theme=dark] .chest-card{background:linear-gradient(135deg,#362608 0%,#241904 100%);border-color:#78350f}
+.chest-glow{animation:chestPulse 2s infinite ease-in-out}
+@keyframes chestPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.quest-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:12px;background:var(--card);border:1.5px solid var(--line);margin-top:6px}
+.quest-bar{height:6px;border-radius:999px;background:var(--line);overflow:hidden;flex:1;margin-top:4px}
+.quest-bar-fill{height:100%;background:var(--g);border-radius:999px}
+
+/* =================== GUÍA DE VIAJE Y SUPERVIVENCIA =================== */
+.travel-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px}
+.travel-tab{white-space:nowrap;padding:6px 12px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-size:12px;font-weight:800;cursor:pointer}
+.travel-tab.active{background:var(--b);color:#fff;border-color:var(--b-d)}
+.travel-item{border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--card);margin-bottom:8px}
+.travel-phon{color:var(--o-d);font-size:12px;font-weight:700;margin-top:2px}
+
+/* =================== SIMULADOR DE ENTREVISTA LABORAL =================== */
+.interview-modal{display:flex;flex-direction:column;gap:12px}
+.rubric-box{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:12px;margin-top:8px}
+.rubric-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:13px}
+.rubric-meter{flex:1;height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin:0 8px}
+.rubric-meter-fill{height:100%;border-radius:999px;background:var(--g)}

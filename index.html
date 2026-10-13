@@ -13,19 +13,20 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tuki Speak">
-<meta name="app-version" content="2.14.0">
+<meta name="app-version" content="2.15.0">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="stylesheet" href="/src/styles/app.css">
 <script>
-const APP_VERSION = '2.14.0'; // Backward compatibility for old SW
+const APP_VERSION = '2.15.0'; // Backward compatibility for old SW
 if (window.top !== window.self) { try { window.top.location = window.self.location; } catch (e) { document.documentElement.style.display = 'none'; } }
 </script>
 </head>
 <body>
 <div id="app">
   <header class="topbar">
-    <div class="brand" id="brand"></div>
+    <div class="brand" id="brand" title="¡Toca a Tuki!"></div>
     <div class="stats">
+      <button class="stat coins" id="stCoins" title="Monedas de Tuki (Tienda)">🪙 0</button>
       <button class="stat fire" id="stStreak" title="Racha"></button>
       <button class="stat xp" id="stXp" title="XP"></button>
       <button class="stat heart" id="stHearts" title="Vidas"></button>

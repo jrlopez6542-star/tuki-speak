@@ -462,7 +462,33 @@ const avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0;
 const dayKey = (d = new Date()) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const dayDiff = (a, b) => Math.round((new Date(b + 'T12:00') - new Date(a + 'T12:00')) / 864e5);
 const DAY = 864e5, HEART_MS = 30 * 60e3, MAX_HEARTS = 5;
-const MASCOT = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><ellipse cx="46" cy="58" rx="30" ry="34" fill="#1f2a33"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="#fff4d6"/><circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.5" fill="#1f2a33"/><circle cx="44" cy="38" r="1.8" fill="#fff"/><path d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="#ff9f1c"/><path d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="#e5484d"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/><path d="M20 60 C10 70 14 84 24 86" fill="#1fa463"/></svg>`;
+function renderTukiSVG(skin, opts = {}) {
+  const sk = skin || (typeof S !== 'undefined' && S && S.tukiSkin) || { hat: 'none', outfit: 'none' };
+  const h = sk.hat || 'none', o = sk.outfit || 'none';
+  const size = opts.size ? `width="${opts.size}" height="${opts.size}" ` : '';
+  const capeBehind = o === 'cape' ? '<path d="M25 54 Q8 62 3 86 Q18 83 28 72 Z" fill="#dc2626"/><path d="M24 54 Q10 65 6 86" stroke="#991b1b" stroke-width="1.5" fill="none"/>' : '';
+  const outfitLayer = {
+    bowtie: '<polygon points="33,56 43,60 33,64" fill="#dc2626"/><polygon points="53,56 43,60 53,64" fill="#dc2626"/><circle cx="43" cy="60" r="3" fill="#991b1b"/>',
+    scarf: '<rect x="26" y="55" width="34" height="10" rx="4" fill="#0284c7"/><line x1="32" y1="55" x2="32" y2="65" stroke="#bae6fd" stroke-width="2"/><line x1="42" y1="55" x2="42" y2="65" stroke="#bae6fd" stroke-width="2"/><line x1="52" y1="55" x2="52" y2="65" stroke="#bae6fd" stroke-width="2"/><path d="M48 62 L48 78 L40 78 L40 62 Z" fill="#0369a1"/><line x1="40" y1="74" x2="48" y2="74" stroke="#bae6fd" stroke-width="2"/>',
+    hawaiian: '<circle cx="28" cy="58" r="3.5" fill="#ec4899"/><circle cx="34" cy="62" r="3.5" fill="#f59e0b"/><circle cx="42" cy="64" r="3.5" fill="#eab308"/><circle cx="50" cy="62" r="3.5" fill="#06b6d4"/><circle cx="56" cy="58" r="3.5" fill="#a855f7"/>',
+    cape: '<circle cx="28" cy="56" r="3.5" fill="#f59e0b"/>',
+    medal: '<path d="M36 55 L43 68 L50 55" stroke="#dc2626" stroke-width="3" fill="none"/><circle cx="43" cy="72" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>'
+  }[o] || '';
+  const hatLayer = {
+    cap: '<path d="M22 35 C23 20 54 20 56 34 Z" fill="#2563eb"/><path d="M42 33 C56 32 68 36 70 40 C56 42 44 38 42 33 Z" fill="#1d4ed8"/><circle cx="39" cy="22" r="2.5" fill="#f59e0b"/>',
+    glasses: '<path d="M26 36 Q38 31 52 36 L52 45 Q38 49 26 45 Z" fill="#0f172a" stroke="#475569" stroke-width="1.5"/><line x1="28" y1="39" x2="48" y2="43" stroke="#fff" stroke-width="1.2" opacity="0.6"/><path d="M52 38 Q58 37 62 40" stroke="#0f172a" stroke-width="2" fill="none"/>',
+    grad: '<polygon points="16,24 38,15 62,24 38,32" fill="#111827" stroke="#1f2937" stroke-width="1"/><path d="M38 24 Q48 27 52 38" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="38" cy="24" r="3" fill="#f59e0b"/><circle cx="52" cy="38" r="2.5" fill="#f59e0b"/>',
+    wizard: '<ellipse cx="38" cy="31" rx="22" ry="5.5" fill="#3b0764"/><path d="M23 30 Q34 6 56 10 Q45 20 53 30 Z" fill="#581c87"/><circle cx="38" cy="19" r="2.5" fill="#fbbf24"/><circle cx="46" cy="16" r="1.5" fill="#fde047"/>',
+    crown: '<polygon points="23,32 20,17 29,25 39,12 49,25 58,17 55,32" fill="#f59e0b" stroke="#b45309" stroke-width="1.5"/><circle cx="39" cy="18" r="2.2" fill="#ef4444"/><circle cx="28" cy="26" r="1.8" fill="#10b981"/><circle cx="50" cy="26" r="1.8" fill="#3b82f6"/>',
+    party: '<polygon points="26,32 40,8 54,32" fill="#ec4899"/><path d="M29 26 L51 26" stroke="#fbbf24" stroke-width="2.5"/><path d="M34 18 L46 18" stroke="#38bdf8" stroke-width="2.5"/><circle cx="40" cy="7" r="3.5" fill="#facc15"/>'
+  }[h] || '';
+
+  return `<svg ${size}viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${capeBehind}<ellipse cx="46" cy="58" rx="30" ry="34" fill="#1f2a33"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="#fff4d6"/><path d="M20 60 C10 70 14 84 24 86" fill="#1fa463"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/>${outfitLayer}<circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.5" fill="#1f2a33"/><circle cx="44" cy="38" r="1.8" fill="#fff"/><path d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="#ff9f1c"/><path d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="#e5484d"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/>${hatLayer}</svg>`;
+}
+let MASCOT = renderTukiSVG();
+function updateMascot() {
+  MASCOT = renderTukiSVG();
+}
 
 /* =================== ESTADO / PERSISTENCIA =================== */
 const KEY = 'tukiSpeak.v1';
@@ -470,7 +496,7 @@ const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, thr
   accent: 'en-US', ttsEngine: 'auto', azureKey: '', azureRegion: '', azureVoice: 'en-US-JennyNeural', openaiKey: '', openaiModel: 'gpt-4o-mini', openaiVoice: 'marin', openaiTtsModel: 'gpt-4o-mini-tts', realtimeModel: 'gpt-realtime', chatProvider: 'gemini', liveModel: 'gemini-3.1-flash-live-preview', liveVoice: 'Kore',
   tukiVoiceEs: '', tukiVoiceEn: '', theme: 'auto', fontScale: 1, contrast: false, reduceMotion: false, haptics: true, remindOn: false, remindTime: '19:00' };
 function freshState() {
-  return { v: 2, badges: {}, freezes: 0, placement: null, plans: {}, reviewed: 0, chats: 0, lives: 0, ph: {}, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
+  return { v: 2, badges: {}, freezes: 0, coins: 50, quests: {}, chests: { dailyClaimed: null }, tukiSkin: { hat: 'none', outfit: 'none', owned: ['hat:none', 'outfit:none'] }, placement: null, plans: {}, reviewed: 0, chats: 0, lives: 0, ph: {}, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
 }
 let S;
 function load() {
@@ -481,9 +507,14 @@ function load() {
   // Migración sin pérdida de datos: guarda copia de seguridad del esquema anterior
   if (raw && oldV < 2) { try { localStorage.setItem(KEY + '.backup-v1', raw); } catch (e) {} }
   for (const k in f) if (S[k] === undefined || S[k] === null && k !== 'placement' && k !== 'lastDay') S[k] = f[k];
+  if (S.coins === undefined) S.coins = 50;
+  if (!S.tukiSkin) S.tukiSkin = { hat: 'none', outfit: 'none', owned: ['hat:none', 'outfit:none'] };
+  if (!S.chests) S.chests = { dailyClaimed: null };
+  if (!S.quests) S.quests = {};
   S.settings = { ...DEFAULT_SETTINGS, ...S.settings };
   if (S.settings.ttsEngine === 'device' && !S.settings.__ttsDeviceExplicit) S.settings.ttsEngine = 'auto';
   if (oldV < 2) { S.v = 2; if (raw && (Object.keys(S.done || {}).length || S.xp)) S.placement = S.placement || 'legacy'; }
+  updateMascot();
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { console.warn('save failed', e); } }
 load();
@@ -522,6 +553,13 @@ function addXP(n) {
   if (S.lastDay !== k) { const d = S.lastDay ? dayDiff(S.lastDay, k) : 99; S.streak = d === 1 ? S.streak + 1 : 1; S.lastDay = k; streakUp = true; }
   S.bestStreak = Math.max(S.bestStreak, S.streak);
   S.xp += n; todayRec().xp += n; save(); return streakUp;
+}
+function addCoins(n, reason = '') {
+  S.coins = Math.max(0, (S.coins || 0) + n);
+  save();
+  const scEl = $('#stCoins');
+  if (scEl) scEl.innerHTML = '🪙 ' + S.coins;
+  if (reason) toast(`🪙 ${n >= 0 ? '+' : ''}${n} monedas (${reason})`, 2500);
 }
 
 /* =================== AUDIO: TTS + BEEPS =================== */
@@ -1037,12 +1075,16 @@ function finishLesson() {
   } else { refreshHearts(); if (S.hearts < MAX_HEARTS) { S.hearts++; extra = '<p class="muted">❤️ ¡Recuperaste una vida por practicar!</p>'; } }
   S.sessions++; todayRec().sec = (todayRec().sec || 0) + secs;
   const up = addXP(xp); beep('done');
+  const earnedCoins = L.mode === 'lesson' ? (15 + (L.mistakes === 0 ? 10 : 0)) : 10;
+  addCoins(earnedCoins);
   const goal = S.settings.goal, today = todayRec().xp;
   const retry = {};
+  updateMascot();
   $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div>
     <h1>${L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1><div class="muted">${esc(L.title)}</div>
     <div class="scards">
       <div class="scard" style="border-color:var(--o)"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)">+${xp}</div></div>
+      <div class="scard" style="border-color:#d97706"><div class="t" style="background:#d97706">Monedas</div><div class="v" style="color:#d97706">+${earnedCoins} 🪙</div></div>
       <div class="scard" style="border-color:var(--g)"><div class="t" style="background:var(--g)">Pronunciación</div><div class="v" style="color:var(--g-d)">${pron === null ? '—' : pron + '%'}</div></div>
       <div class="scard" style="border-color:var(--b)"><div class="t" style="background:var(--b)">Oído</div><div class="v" style="color:var(--b-d)">${ear === null ? '—' : ear + '%'}</div></div>
       <div class="scard" style="border-color:#8b5cf6"><div class="t" style="background:#8b5cf6">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div>
@@ -1071,17 +1113,24 @@ document.addEventListener('keydown', e => {
 let TAB = 'learn';
 function render() {
   refreshHearts();
-  $('#brand').innerHTML = MASCOT + '<span>Tuki Speak</span>';
+  updateMascot();
+  $('#brand').innerHTML = `<span class="brand-mascot-wrap" title="¡Toca a Tuki!">${MASCOT}</span><span>Tuki Speak</span>`;
   const st = streakNow();
   $('#stStreak').innerHTML = '🔥 ' + st; $('#stStreak').classList.toggle('off', st === 0 || S.lastDay !== dayKey());
   $('#stXp').innerHTML = '💎 ' + S.xp;
   $('#stHearts').innerHTML = '❤️ ' + S.hearts;
+  const scEl = $('#stCoins');
+  if (scEl) scEl.innerHTML = '🪙 ' + (S.coins || 0);
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === TAB));
   const v = $('#view'); (VIEWS[TAB] || VIEWS.learn)(v); window.scrollTo(0, 0);
 }
 function go(tab) { TAB = tab; stopRecognize(); render(); }
 $$('.tab').forEach(t => t.onclick = () => go(t.dataset.tab));
 $('#stGear').onclick = () => go('settings');
+const scBtn = $('#stCoins');
+if (scBtn) scBtn.onclick = () => openTukiShopModal();
+const brandEl = $('#brand');
+if (brandEl) brandEl.onclick = () => interactWithTuki(brandEl);
 $('#stHearts').onclick = () => modal(`<h2>❤️ Vidas: ${S.hearts}/${MAX_HEARTS}</h2><p class="muted">Pierdes una vida solo en ejercicios de <b>oído</b> (elegir, ordenar, escribir) durante las lecciones. Los ejercicios de voz nunca quitan vidas. ${S.hearts < MAX_HEARTS ? `Próxima vida en ~${nextHeartIn()} min.` : '¡Estás al máximo!'} Completar una práctica te da +1 vida.</p><button class="btn primary block" data-x>Entendido</button>`, (el, c) => $('[data-x]', el).onclick = c);
 $('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p><button class="btn primary block" data-x>¡Vamos!</button>`, (el, c) => $('[data-x]', el).onclick = c);
 $('#stXp').onclick = () => go('progress');
@@ -1201,10 +1250,13 @@ const UNLOCK_RULES = {
   pairs: { reqLessons: 0, title: 'Pares mínimos rápidos', unit: 'Básico' },
   weak: { reqLessons: 0, title: 'Repaso de sonidos débiles', unit: 'Básico' },
   studio: { reqLessons: 0, title: 'Estudio: grabar y comparar', unit: 'Básico' },
+  travel: { reqLessons: 0, title: 'Guía de Viaje y Emergencia', unit: 'Básico' },
+  shop: { reqLessons: 0, title: 'Tienda y Armario de Tuki', unit: 'Básico' },
   words: { reqLessons: 1, title: 'Palabras para repetir', unit: 'Unidad 1' },
   // Desbloqueos por unidad
   tc: { reqLessons: 3, title: 'Traduce y completa', unit: 'Unidad 1' },
   srs: { reqLessons: 3, title: 'Repaso Inteligente (SRS)', unit: 'Unidad 1' },
+  interview: { reqLessons: 4, title: 'Simulador de Entrevista Laboral (1-10)', unit: 'Unidad 2' },
   mouth: { reqLessons: 6, title: 'Guía Fonética y Bocas', unit: 'Unidad 2' },
   shadow: { reqLessons: 6, title: 'Modo Shadowing', unit: 'Unidad 2' },
   missions: { reqLessons: 9, title: 'Misiones de Conversación Real', unit: 'Unidad 3' },
@@ -2006,10 +2058,12 @@ function renderDict(v) {
   v.innerHTML = `${wordsToggleHTML()}<h2>Diccionario y frases 📖</h2><p class="muted small">${DICT.length} palabras y frases del curso con audio. Busca en inglés o en español.</p>
     <input class="search" id="dq" placeholder="Buscar (ej. «think», «cuenta», «meeting»)…" value="${esc(dictQ)}">
     <div class="small muted" style="margin:8px 0">${res.length} resultado${res.length === 1 ? '' : 's'}${res.length > 80 ? ' (mostrando 80)' : ''}</div>
-    <div class="wlist">${res.slice(0, 80).map((d, i) => `<div class="witem dict-item"><button class="spk" data-say-n="${esc(d.en)}">🔊</button><div style="min-width:0"><div class="en">${esc(d.en)}</div><div class="es">${esc(d.es)} · <span class="small">${esc(d.src)}</span></div></div><div class="acts"><button class="spk slow" data-say="${esc(d.en)}" title="Lento">🐢</button><button class="spk slow" data-add="${i}" title="Agregar a tarjetas">${S.deck[d.key] ? '✓' : '➕'}</button><button class="spk slow" data-studio="${esc(d.en)}" title="Practicar pronunciación">🎙️</button></div></div>`).join('') || '<div class="empty">Sin resultados.</div>'}</div>`;
+    <div class="wlist">${res.slice(0, 80).map((d, i) => `<div class="witem dict-item"><button class="spk" data-say-n="${esc(d.en)}">🔊</button><div style="min-width:0"><div class="en">${esc(d.en)}</div><div class="es">${esc(d.es)} · <span class="small">${esc(d.src)}</span></div></div><div class="acts"><button class="spk slow" data-say="${esc(d.en)}" title="Lento">🐢</button><button class="spk snail" data-snail="${esc(d.en)}" title="Modo Caracol (Sílaba por sílaba)">🐌</button><button class="spk slow" data-add="${i}" title="Agregar a tarjetas">${S.deck[d.key] ? '✓' : '➕'}</button><button class="spk slow" data-studio="${esc(d.en)}" title="Practicar pronunciación">🎙️</button></div></div>`).join('') || '<div class="empty">Sin resultados.</div>'}</div>`;
   bindWordsToggle(v);
   const dq = $('#dq'); dq.oninput = e => { dictQ = e.target.value; const p = e.target.selectionStart; renderDict(v); const n = $('#dq'); n.focus(); n.setSelectionRange(p, p); };
   $$('[data-say-n]', v).forEach(b => b.onclick = () => speak(b.dataset.sayN));
+  $$('[data-say]', v).forEach(b => b.onclick = () => speak(b.dataset.say, true));
+  $$('[data-snail]', v).forEach(b => b.onclick = () => speakSnail(b.dataset.snail));
   $$('[data-add]', v).forEach(b => b.onclick = () => { const d = res[+b.dataset.add]; addToDeck([d]); b.textContent = '✓'; toast('Agregada a tus tarjetas 🃏'); });
   $$('[data-studio]', v).forEach(b => b.onclick = () => { STUDIO_TEXT = b.dataset.studio; go('studio'); });
 }
@@ -2476,10 +2530,11 @@ async function openWordPop(word, context, anchor) {
       ${info && info.ipa ? `<div class="wp-ipa">${esc(info.ipa)}</div>` : ''}
       <div class="wp-es">${info ? (info.err ? '⚠️ ' + esc(info.err) : '🇪🇸 ' + esc(info.es)) : '🇪🇸 Buscando significado…'}</div>
       ${info && info.src === 'dict' ? '<div class="small muted">Del diccionario del curso</div>' : info && !info.err ? '<div class="small muted">Traducción de la IA (en contexto)</div>' : ''}
-      <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap"><button class="mini" data-p="n">🔊</button><button class="mini" data-p="s">🐢</button><button class="btn primary sm" data-add ${!info || info.err || inDeck ? 'disabled' : ''}>${inDeck ? '✓ En tus tarjetas' : '➕ Agregar a mis tarjetas'}</button></div>`;
+      <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap"><button class="mini" data-p="n">🔊</button><button class="mini" data-p="s">🐢</button><button class="mini" data-p="snail" title="Modo Caracol (Sílaba por sílaba)">🐌</button><button class="btn primary sm" data-add ${!info || info.err || inDeck ? 'disabled' : ''}>${inDeck ? '✓ En tus tarjetas' : '➕ Agregar a mis tarjetas'}</button></div>`;
     $('[data-x]', pop).onclick = closeWordPop;
     $('[data-p="n"]', pop).onclick = () => speak(word, false, null, undefined, chatMul());
     $('[data-p="s"]', pop).onclick = () => speak(word, true);
+    $('[data-p="snail"]', pop).onclick = () => speakSnail(word);
     $('[data-add]', pop).onclick = () => { if (!info || info.err) return; addToDeck([{ key, en: word.toLowerCase(), es: info.es, kind: 'palabra', lesson: d ? d.lesson : null }]); toast('🃏 «' + word + '» agregada a tus tarjetas'); draw(); };
     place();
   };
@@ -5706,6 +5761,7 @@ VIEWS.practice = function (v) {
   
   const unlSrs = isFeatureUnlocked('srs'), unlHf = isFeatureUnlocked('handsfree'), unlMi = isFeatureUnlocked('missions');
   const unlSh = isFeatureUnlocked('shadow'), unlMo = isFeatureUnlocked('mouth'), unlPh = isFeatureUnlocked('photo');
+  const unlTr = isFeatureUnlocked('travel'), unlInt = isFeatureUnlocked('interview');
 
   const srsHtml = `<button class="card pcard ${!unlSrs ? 'locked-card' : ''}" id="srsCard" style="margin-top:10px">
     <div class="em" style="background:#fff3d6">${unlSrs ? '🧠' : '🔒'}</div>
@@ -5770,6 +5826,36 @@ VIEWS.practice = function (v) {
       </div>
       <div class="muted small">Práctica multimodal con tu cámara o fotos para ganar vocabulario</div>
     </div>
+  </button>
+  <button class="card pcard ${!unlTr ? 'locked-card' : ''}" id="travelCard" style="margin-top:10px">
+    <div class="em" style="background:#e0f2fe">${unlTr ? '✈️' : '🔒'}</div>
+    <div style="flex:1">
+      <div class="row between">
+        <h3 style="margin:0 0 2px">Guía de Viaje y Supervivencia</h3>
+        ${!unlTr ? '<span class="lock-pill">🔒 Bloqueado</span>' : '<span class="novice-badge">🌱 Novato & Viajes</span>'}
+      </div>
+      <div class="muted small">Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol</div>
+    </div>
+  </button>
+  <button class="card pcard ${!unlInt ? 'locked-card' : ''}" id="interviewCard" style="margin-top:10px">
+    <div class="em" style="background:#fef3c7">${unlInt ? '💼' : '🔒'}</div>
+    <div style="flex:1">
+      <div class="row between">
+        <h3 style="margin:0 0 2px">Simulador de Entrevista Laboral</h3>
+        ${!unlInt ? '<span class="lock-pill">🔒 Bloqueado</span>' : '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>'}
+      </div>
+      <div class="muted small">Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática</div>
+    </div>
+  </button>
+  <button class="card pcard" id="shopCard" style="margin-top:10px;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border-color:#86efac">
+    <div class="em" style="background:#dcfce7">🛍️</div>
+    <div style="flex:1">
+      <div class="row between">
+        <h3 style="margin:0 0 2px">Tienda y Armario de Tuki</h3>
+        <span class="novice-badge" style="background:#fef3c7;color:#b45309">🪙 ${S.coins || 0} monedas</span>
+      </div>
+      <div class="muted small">Viste a Tuki con birrete, corona, gafas, corbatín, bufanda o capa usando tus monedas ganadas</div>
+    </div>
   </button>`;
 
   const tc = $('#tcPractice', v);
@@ -5782,6 +5868,9 @@ VIEWS.practice = function (v) {
   const bSh = $('#shadowCard', v); if (bSh) bSh.onclick = () => { if (!isFeatureUnlocked('shadow')) return showLockedFeatureModal('shadow'); openShadowingModal(); };
   const bMo = $('#mouthCard', v); if (bMo) bMo.onclick = () => { if (!isFeatureUnlocked('mouth')) return showLockedFeatureModal('mouth'); openMouthSelector(); };
   const bPh = $('#photoCard', v); if (bPh) bPh.onclick = () => { if (!isFeatureUnlocked('photo')) return showLockedFeatureModal('photo'); openPhotoPractice(); };
+  const bTr = $('#travelCard', v); if (bTr) bTr.onclick = () => { if (!isFeatureUnlocked('travel')) return showLockedFeatureModal('travel'); openTravelGuideModal(); };
+  const bInt = $('#interviewCard', v); if (bInt) bInt.onclick = () => { if (!isFeatureUnlocked('interview')) return showLockedFeatureModal('interview'); openInterviewSimulatorModal(); };
+  const bShop = $('#shopCard', v); if (bShop) bShop.onclick = openTukiShopModal;
 };
 
 const _chatView211 = VIEWS.chat;
@@ -5849,6 +5938,639 @@ VIEWS.words = function (v) {
       };
     });
   }
+};
+
+// =================== INTERACTIVIDAD Y AUDIO DE TUKI ===================
+function tukiChirp() {
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const t = AC.currentTime;
+    const o = AC.createOscillator(), g = AC.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(800, t);
+    o.frequency.exponentialRampToValueAtTime(1400, t + 0.1);
+    o.frequency.exponentialRampToValueAtTime(1100, t + 0.22);
+    g.gain.setValueAtTime(0.001, t);
+    g.gain.linearRampToValueAtTime(0.18, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+    o.connect(g).connect(AC.destination);
+    o.start(t); o.stop(t + 0.25);
+  } catch (e) {}
+}
+
+const TUKI_QUOTES = [
+  { en: "Consistency is key! Every minute counts.", es: "¡La constancia es la clave! Cada minuto cuenta." },
+  { en: "You're speaking clearer every single day!", es: "¡Estás hablando más claro cada día!" },
+  { en: "Practice makes progress! Don't stop now.", es: "¡La práctica hace al maestro! No te detengas." },
+  { en: "I love my outfit! Looking sharp today.", es: "¡Me encanta mi estilo! Se ve genial hoy." },
+  { en: "Mistakes are proof you are trying!", es: "¡Los errores son prueba de que lo estás intentando!" },
+  { en: "Connect your words smoothly, like music!", es: "¡Conecta las palabras con ritmo, como música!" },
+  { en: "You got this! ¡Vamos por esa racha!", es: "¡Tú puedes! ¡Vamos por esa racha!" }
+];
+
+function interactWithTuki(el) {
+  const m = el ? ($('.brand-mascot-wrap', el) || $('.mascot', el) || el) : null;
+  if (m) {
+    m.classList.remove('tuki-wiggle');
+    void m.offsetWidth;
+    m.classList.add('tuki-wiggle');
+    setTimeout(() => m.classList.remove('tuki-wiggle'), 650);
+  }
+  tukiChirp();
+  const q = pick(TUKI_QUOTES);
+  if (S.settings.sound && !L) {
+    speak(q.en, false);
+  }
+  toast(`🦜 Tuki: "${q.en}" (${q.es})`, 3600);
+}
+
+// =================== TIENDA Y ARMARIO DE TUKI ===================
+const TUKI_SHOP_ITEMS = [
+  // Sombreros y cabeza
+  { id: 'hat:none', type: 'hat', key: 'none', name: 'Plumas naturales', icon: '🪶', price: 0, desc: 'Look clásico y ligero.' },
+  { id: 'hat:cap', type: 'hat', key: 'cap', name: 'Gorra deportiva', icon: '🧢', price: 40, desc: 'Estilo urbano para salir a practicar.' },
+  { id: 'hat:glasses', type: 'hat', key: 'glasses', name: 'Gafas oscuras', icon: '🕶️', price: 60, desc: 'Toda la onda para pronunciar con estilo.' },
+  { id: 'hat:grad', type: 'hat', key: 'grad', name: 'Birrete de graduación', icon: '🎓', price: 75, desc: 'Para cuando apruebas lecciones con honores.' },
+  { id: 'hat:wizard', type: 'hat', key: 'wizard', name: 'Sombrero de mago', icon: '🧙', price: 90, desc: 'Hechizos de fluidez y magia fonética.' },
+  { id: 'hat:crown', type: 'hat', key: 'crown', name: 'Corona real dorada', icon: '👑', price: 120, desc: 'El rey de la pronunciación.' },
+  { id: 'hat:party', type: 'hat', key: 'party', name: 'Gorro fiestero', icon: '🥳', price: 50, desc: '¡Celebra cada logro y racha!' },
+
+  // Ropa y cuerpo
+  { id: 'outfit:none', type: 'outfit', key: 'none', name: 'Sin ropa', icon: '🦜', price: 0, desc: 'Al natural, listo para volar.' },
+  { id: 'outfit:bowtie', type: 'outfit', key: 'bowtie', name: 'Corbatín elegante', icon: '👔', price: 45, desc: 'Para entrevistas y reuniones de trabajo.' },
+  { id: 'outfit:scarf', type: 'outfit', key: 'scarf', name: 'Bufanda abrigada', icon: '🧣', price: 55, desc: 'Para cuidar la voz al vocalizar.' },
+  { id: 'outfit:hawaiian', type: 'outfit', key: 'hawaiian', name: 'Collar hawaiano', icon: '🌺', price: 70, desc: 'Vibra tropical relajada.' },
+  { id: 'outfit:cape', type: 'outfit', key: 'cape', name: 'Capa de superhéroe', icon: '🦸', price: 95, desc: 'Habla inglés sin miedo a nada.' },
+  { id: 'outfit:medal', type: 'outfit', key: 'medal', name: 'Medalla de campeón', icon: '🥇', price: 110, desc: 'Premio al esfuerzo y perseverancia.' }
+];
+
+let shopActiveTab = 'hat';
+
+function openTukiShopModal() {
+  const skin = S.tukiSkin || (S.tukiSkin = { hat: 'none', outfit: 'none', owned: ['hat:none', 'outfit:none'] });
+  let previewSkin = { ...skin };
+
+  const buildModalContent = () => {
+    const items = TUKI_SHOP_ITEMS.filter(it => it.type === shopActiveTab);
+    return `<h2>🛍️ Tienda y Armario de Tuki</h2>
+      <p class="muted small">Gana monedas completando lecciones, retos y metas diarias para vestir a tu tucán.</p>
+      
+      <div class="tuki-shop-preview">
+        <div class="mascot-wrap" id="shopPreviewMascot" title="¡Toca para interactuar!">${renderTukiSVG(previewSkin)}</div>
+        <div class="tuki-speech" id="shopSpeech">¡Prueba atuendos y sombreros! Tienes 🪙 <b>${S.coins || 0}</b> monedas.</div>
+      </div>
+
+      <div class="shop-tabs">
+        <button class="shop-tab ${shopActiveTab === 'hat' ? 'active' : ''}" data-stab="hat">🧢 Sombreros (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hat').length})</button>
+        <button class="shop-tab ${shopActiveTab === 'outfit' ? 'active' : ''}" data-stab="outfit">👔 Ropa y Atuendos (${TUKI_SHOP_ITEMS.filter(i=>i.type==='outfit').length})</button>
+      </div>
+
+      <div class="shop-grid">
+        ${items.map(it => {
+          const isOwned = skin.owned.includes(it.id) || it.price === 0;
+          const isEquipped = skin[it.type] === it.key;
+          return `<div class="shop-card ${isEquipped ? 'equipped' : ''}" data-preview="${it.id}">
+            <div class="icon">${it.icon}</div>
+            <div class="name">${esc(it.name)}</div>
+            <div class="price">${isOwned ? 'En tu armario' : `🪙 ${it.price} monedas`}</div>
+            <div class="small muted" style="font-size:11px">${esc(it.desc)}</div>
+            <button class="btn sm shop-btn ${isEquipped ? 'ghost' : isOwned ? 'blue' : 'primary'}" data-act="${it.id}" ${!isOwned && (S.coins || 0) < it.price ? 'disabled' : ''}>
+              ${isEquipped ? 'Equipado ✓' : isOwned ? '⚡ Equipar' : `Comprar 🪙 ${it.price}`}
+            </button>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <button class="btn ghost block" data-x>Cerrar</button>
+      </div>`;
+  };
+
+  modal(buildModalContent(), (el, close) => {
+    $('[data-x]', el).onclick = close;
+    
+    $$('[data-stab]', el).forEach(tab => {
+      tab.onclick = () => {
+        shopActiveTab = tab.dataset.stab;
+        close();
+        openTukiShopModal();
+      };
+    });
+
+    const pm = $('#shopPreviewMascot', el);
+    if (pm) pm.onclick = () => interactWithTuki(pm);
+
+    $$('[data-preview]', el).forEach(card => {
+      card.onclick = e => {
+        if (e.target.closest('[data-act]')) return;
+        const itId = card.dataset.preview;
+        const it = TUKI_SHOP_ITEMS.find(x => x.id === itId);
+        if (!it) return;
+        previewSkin[it.type] = it.key;
+        const pm = $('#shopPreviewMascot', el);
+        if (pm) pm.innerHTML = renderTukiSVG(previewSkin);
+        const sp = $('#shopSpeech', el);
+        if (sp) sp.textContent = `Probando: ${it.name} ${it.icon}`;
+        beep('tap');
+      };
+    });
+
+    $$('[data-act]', el).forEach(btn => {
+      btn.onclick = () => {
+        const itId = btn.dataset.act;
+        const it = TUKI_SHOP_ITEMS.find(x => x.id === itId);
+        if (!it) return;
+        const isOwned = skin.owned.includes(it.id) || it.price === 0;
+
+        if (!isOwned) {
+          if ((S.coins || 0) < it.price) return toast('No tienes suficientes monedas 🪙');
+          S.coins -= it.price;
+          skin.owned.push(it.id);
+          skin[it.type] = it.key;
+          previewSkin = { ...skin };
+          save();
+          updateMascot();
+          render();
+          beep('done');
+          confetti();
+          toast(`🎉 ¡Compraste y equipaste ${it.name}!`, 3000);
+        } else {
+          skin[it.type] = it.key;
+          previewSkin = { ...skin };
+          save();
+          updateMascot();
+          render();
+          beep('ok');
+          toast(`⚡ Equipaste ${it.name}`);
+        }
+        close();
+        openTukiShopModal();
+      };
+    });
+  });
+}
+
+// =================== MODO CARACOL 🐌 Y SÍLABAS ===================
+const SYLLABLE_DICT = {
+  water: ['wa', 'ter'],
+  computer: ['com', 'pu', 'ter'],
+  together: ['to', 'geth', 'er'],
+  beautiful: ['beau', 'ti', 'ful'],
+  yesterday: ['yes', 'ter', 'day'],
+  morning: ['mor', 'ning'],
+  pronunciation: ['pro', 'nun', 'ci', 'a', 'tion'],
+  practice: ['prac', 'tice'],
+  understand: ['un', 'der', 'stand'],
+  important: ['im', 'por', 'tant'],
+  family: ['fa', 'mi', 'ly'],
+  different: ['dif', 'fer', 'ent'],
+  question: ['ques', 'tion'],
+  answer: ['an', 'swer'],
+  listen: ['lis', 'ten'],
+  repeat: ['re', 'peat'],
+  english: ['eng', 'lish'],
+  welcome: ['wel', 'come'],
+  conversation: ['con', 'ver', 'sa', 'tion'],
+  interview: ['in', 'ter', 'view'],
+  colombia: ['co', 'lom', 'bia'],
+  coffee: ['cof', 'fee'],
+  restaurant: ['res', 'tau', 'rant'],
+  airport: ['air', 'port'],
+  hospital: ['hos', 'pi', 'tal']
+};
+
+function getSyllables(word) {
+  const clean = String(word || '').toLowerCase().replace(/[^a-z]/g, '');
+  if (!clean) return [word];
+  if (SYLLABLE_DICT[clean]) return SYLLABLE_DICT[clean];
+  const parts = clean.match(/[^aeiouy]*[aeiouy]+(?:[^aeiouy]+(?=$|[^aeiouy]))?/gi);
+  return parts && parts.length > 1 ? parts : [clean];
+}
+
+function speakSnail(text, onend) {
+  if (!('speechSynthesis' in window)) { toast('Tu navegador no soporta síntesis de voz.'); return; }
+  speechSynthesis.cancel();
+  const words = String(text || '').trim().split(/\s+/);
+  if (words.length === 1) {
+    const syls = getSyllables(words[0]);
+    toast(`🐌 Modo Caracol: [ ${syls.join(' · ')} ]`, 3000);
+    let idx = 0;
+    function nextSyl() {
+      if (idx >= syls.length) { if (onend) onend(); return; }
+      const u = new SpeechSynthesisUtterance(syls[idx]);
+      u.lang = 'en-US';
+      const v = pickVoice(); if (v) u.voice = v;
+      u.rate = 0.42;
+      u.onend = () => { idx++; setTimeout(nextSyl, 180); };
+      speechSynthesis.speak(u);
+    }
+    nextSyl();
+  } else {
+    toast(`🐌 Modo Caracol (Cámara lenta extrema): "${text}"`, 3000);
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'en-US';
+    const v = pickVoice(); if (v) u.voice = v;
+    u.rate = 0.42;
+    if (onend) u.onend = onend;
+    speechSynthesis.speak(u);
+  }
+}
+
+// =================== GUÍA DE VIAJE Y SUPERVIVENCIA ===================
+const TRAVEL_DATA = {
+  airport: {
+    title: 'Aeropuerto & Aduana', icon: '🛃',
+    phrases: [
+      { en: "I am visiting for two weeks on vacation.", es: "Vengo por dos semanas de vacaciones.", pron: "Ai am ví-si-ting for tuu uiiks on vei-kéi-shon" },
+      { en: "Where is terminal two and gate B4?", es: "¿Dónde queda la terminal 2 y la puerta B4?", pron: "Uér is tér-mi-nal tuu and gueit bii-for?" },
+      { en: "Here is my passport and boarding pass.", es: "Aquí está mi pasaporte y pase de abordar.", pron: "Jir is mai pás-port and bór-ding pas" },
+      { en: "I have nothing to declare.", es: "No tengo nada que declarar.", pron: "Ai jav ná-zing tu di-klér" }
+    ]
+  },
+  hotel: {
+    title: 'Hotel & Alojamiento', icon: '🏨',
+    phrases: [
+      { en: "I have a reservation under the name Juan.", es: "Tengo una reserva a nombre de Juan.", pron: "Ai jav a re-ser-véi-shon án-der da néim Juan" },
+      { en: "Could I have the Wi-Fi password, please?", es: "¿Me podría dar la clave del Wi-Fi, por favor?", pron: "Kuud ai jav da uái-fái pás-uord pliiz?" },
+      { en: "What time is check-out tomorrow?", es: "¿A qué hora es el check-out mañana?", pron: "Uát táim is chek-áut tu-mó-rou?" },
+      { en: "Could I get extra towels and water?", es: "¿Podría traerme toallas extra y agua?", pron: "Kuud ai guet éks-tra táu-els and uá-ter?" }
+    ]
+  },
+  restaurant: {
+    title: 'Restaurante & Comida', icon: '🍽️',
+    phrases: [
+      { en: "Could we have a table for two, please?", es: "¿Nos da una mesa para dos, por favor?", pron: "Kuud uii jav a téi-bol for tuu pliiz?" },
+      { en: "Could I see the menu, please?", es: "¿Podría ver la carta o menú, por favor?", pron: "Kuud ai sii da mé-niu pliiz?" },
+      { en: "Could I get the check, please?", es: "¿Me trae la cuenta, por favor?", pron: "Kuud ai guet da chek pliiz?" },
+      { en: "I am allergic to peanuts.", es: "Soy alérgico al maní.", pron: "Ai am a-lér-yik tu pí-nats" }
+    ]
+  },
+  transport: {
+    title: 'Transporte & Direcciones', icon: '🚕',
+    phrases: [
+      { en: "Could you take me to this address, please?", es: "¿Me puede llevar a esta dirección, por favor?", pron: "Kuud iu téik mii tu dis a-drés pliiz?" },
+      { en: "How much is the ride to downtown?", es: "¿Cuánto cuesta el viaje al centro?", pron: "Jáu mach is da ráid tu dáun-táun?" },
+      { en: "Where is the nearest subway station?", es: "¿Dónde queda la estación de metro más cercana?", pron: "Uér is da nír-est sáb-uei stéi-shon?" },
+      { en: "Is this the right bus to the airport?", es: "¿Es este el bus correcto para el aeropuerto?", pron: "Is dis da ráit bas tu di ér-port?" }
+    ]
+  },
+  emergency: {
+    title: 'Emergencias & Salud', icon: '🚨',
+    phrases: [
+      { en: "I need a doctor immediately.", es: "Necesito un médico de inmediato.", pron: "Ai niid a dák-tor im-mí-diet-li" },
+      { en: "Where is the nearest 24-hour pharmacy?", es: "¿Dónde hay una farmacia 24 horas cercana?", pron: "Uér is da nír-est tuén-ti-for áur fár-ma-si?" },
+      { en: "I lost my phone and wallet. Can you help me?", es: "Perdí mi celular y billetera. ¿Me puede ayudar?", pron: "Ai lost mai foun and uá-let. Kan iu jelp mii?" },
+      { en: "Please call the police right now.", es: "Por favor llame a la policía ahora mismo.", pron: "Pliiz kol da po-líis ráit náu" }
+    ]
+  }
+};
+
+let travelCurrentCat = 'airport';
+
+function openTravelGuideModal() {
+  const buildHTML = () => {
+    const cat = TRAVEL_DATA[travelCurrentCat];
+    return `<h2>✈️ Guía de Viaje y Supervivencia</h2>
+      <p class="muted small">Frases esenciales para situaciones reales con pronunciación fonética y audio lento.</p>
+      
+      <div class="travel-tabs">
+        ${Object.keys(TRAVEL_DATA).map(k => `
+          <button class="travel-tab ${travelCurrentCat === k ? 'active' : ''}" data-cat="${k}">
+            ${TRAVEL_DATA[k].icon} ${esc(TRAVEL_DATA[k].title)}
+          </button>
+        `).join('')}
+      </div>
+
+      <div class="wlist" style="margin-top:10px;max-height:360px;overflow-y:auto">
+        ${cat.phrases.map((item, idx) => `
+          <div class="travel-item">
+            <div class="row between">
+              <b style="font-size:15px;color:var(--ink)">${esc(item.en)}</b>
+              <div class="acts">
+                <button class="spk" data-say-n="${esc(item.en)}" title="Escuchar">🔊</button>
+                <button class="spk slow" data-say="${esc(item.en)}" title="Lento">🐢</button>
+                <button class="spk snail" data-snail="${esc(item.en)}" title="Modo Caracol">🐌</button>
+              </div>
+            </div>
+            <div class="small muted" style="margin-top:3px">🇪🇸 ${esc(item.es)}</div>
+            <div class="travel-phon">🗣️ Como suena: <i>«${esc(item.pron)}»</i></div>
+            <div class="row between" style="margin-top:8px">
+              <button class="btn ghost sm" data-mic-travel="${idx}">🎙️ Practicar mi voz</button>
+              <div id="travRes_${idx}" class="small"></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="row" style="margin-top:14px">
+        <button class="btn ghost block" data-x>Cerrar</button>
+      </div>`;
+  };
+
+  modal(buildHTML(), (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $$('[data-cat]', el).forEach(tab => {
+      tab.onclick = () => {
+        travelCurrentCat = tab.dataset.cat;
+        close();
+        openTravelGuideModal();
+      };
+    });
+    $$('[data-say-n]', el).forEach(b => b.onclick = () => speak(b.dataset.sayN));
+    $$('[data-say]', el).forEach(b => b.onclick = () => speak(b.dataset.say, true));
+    $$('[data-snail]', el).forEach(b => b.onclick = () => speakSnail(b.dataset.snail));
+
+    $$('[data-mic-travel]', el).forEach(btn => {
+      btn.onclick = () => {
+        const idx = +btn.dataset.micTravel;
+        const item = TRAVEL_DATA[travelCurrentCat].phrases[idx];
+        const res = $(`#travRes_${idx}`, el);
+        doMic(btn, (alts, url, az) => {
+          const r = az || scoreSpeech(item.en, alts);
+          const pct = r.pct || 0;
+          const col = pct >= 75 ? 'var(--g-d)' : pct >= 50 ? 'var(--o-d)' : 'var(--r)';
+          res.innerHTML = `<span style="font-weight:800;color:${col}">${pct}%</span> <span class="muted small">(«${esc(r.heard || '')}»)</span>`;
+          if (pct >= 75) {
+            addXP(5);
+            addCoins(3);
+            beep('ok');
+          } else beep('bad');
+        });
+      };
+    });
+  });
+}
+
+// =================== SIMULADOR DE ENTREVISTA LABORAL ===================
+const INTERVIEW_ROLES = {
+  dev: {
+    title: 'Desarrollador / Software Engineer', icon: '💻',
+    questions: [
+      { q: "Tell me about yourself and your technical background.", es: "Cuéntame sobre ti y tu experiencia técnica.", tip: "Enfócate en tu stack principal, años de experiencia y proyectos recientes." },
+      { q: "How do you handle a production bug or unexpected issue under tight deadlines?", es: "¿Cómo manejas un error en producción bajo presión de tiempo?", tip: "Menciona comunicación transparente, análisis de logs, rollback/hotfix y post-mortem." },
+      { q: "Why do you want to work with an international remote team?", es: "¿Por qué quieres trabajar con un equipo remoto internacional?", tip: "Destaca tu proactividad, comunicación asíncrona y deseo de impacto global." }
+    ]
+  },
+  support: {
+    title: 'Customer Support / BPO / Remote Agent', icon: '🎧',
+    questions: [
+      { q: "Can you introduce yourself and describe your customer service experience?", es: "Preséntate y describe tu experiencia en atención al cliente.", tip: "Habla sobre empatía, resolución de problemas y canales que has manejado." },
+      { q: "How do you deal with an angry or frustrated customer?", es: "¿Cómo tratas a un cliente frustrado o molesto?", tip: "Escucha activa, pedir disculpas con empatía y ofrecer una solución concreta." },
+      { q: "Tell me about a time you exceeded a customer's expectations.", es: "Cuéntame de una ocasión en que superaste las expectativas de un cliente.", tip: "Explica la situación, tu acción extraordinaria y el resultado positivo." }
+    ]
+  },
+  general: {
+    title: 'Entrevista Laboral General (Cualquier área)', icon: '💼',
+    questions: [
+      { q: "What are your greatest professional strengths and your main area of growth?", es: "¿Cuáles son tus mayores fortalezas profesionales y tu área de mejora?", tip: "Menciona 2 fortalezas concretas y un área de mejora que estés trabajando activamente." },
+      { q: "Where do you see yourself in the next three years?", es: "¿Dónde te ves en los próximos tres años?", tip: "Muestra ambición alineada con aprendizaje continuo y asumir más responsabilidades." },
+      { q: "Why should we hire you over other candidates?", es: "¿Por qué deberíamos contratarte a ti?", tip: "Combina tus habilidades técnicas con tu actitud positiva y compromiso." }
+    ]
+  }
+};
+
+let curInterviewRole = 'dev';
+let curInterviewQIdx = 0;
+
+function openInterviewSimulatorModal() {
+  const role = INTERVIEW_ROLES[curInterviewRole];
+  const qItem = role.questions[curInterviewQIdx % role.questions.length];
+
+  const buildHTML = () => `<h2>💼 Simulador de Entrevista Laboral (1-10)</h2>
+    <p class="muted small">Practica preguntas reales en inglés con evaluación por rúbrica profesional (1 al 10).</p>
+    
+    <div class="travel-tabs" style="margin-bottom:10px">
+      ${Object.keys(INTERVIEW_ROLES).map(k => `
+        <button class="travel-tab ${curInterviewRole === k ? 'active' : ''}" data-irole="${k}">
+          ${INTERVIEW_ROLES[k].icon} ${esc(INTERVIEW_ROLES[k].title)}
+        </button>
+      `).join('')}
+    </div>
+
+    <div class="card" style="background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px">
+      <div class="row between">
+        <span class="novice-badge">Pregunta ${curInterviewQIdx + 1} de ${role.questions.length}</span>
+        <button class="spk" id="btnSpkIntQ">🔊 Escuchar</button>
+      </div>
+      <h3 style="margin:8px 0;font-size:17px;color:var(--ink)">“${esc(qItem.q)}”</h3>
+      <div class="small muted">🇪🇸 ${esc(qItem.es)}</div>
+      <div class="tipbox" style="margin-top:8px;font-size:12px">💡 <b>Consejo:</b> ${esc(qItem.tip)}</div>
+    </div>
+
+    <div class="card" style="margin-top:10px;text-align:center">
+      <div class="small muted" style="margin-bottom:8px">Responde en inglés hablando con tu micrófono o escribiendo:</div>
+      <textarea id="intAnswerText" class="field" rows="3" placeholder="O escribe tu respuesta aquí para evaluarla…"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="btn primary block" id="btnIntMic">🎙️ Grabar Respuesta</button>
+        <button class="btn blue block" id="btnIntEval">📊 Evaluar (1-10)</button>
+      </div>
+    </div>
+
+    <div id="intResultArea" style="margin-top:10px"></div>
+
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost block" id="btnIntNext">Siguiente Pregunta ➡️</button>
+      <button class="btn ghost block" data-x>Cerrar</button>
+    </div>`;
+
+  modal(buildHTML(), (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $('#btnSpkIntQ', el).onclick = () => speak(qItem.q);
+
+    $$('[data-irole]', el).forEach(tab => {
+      tab.onclick = () => {
+        curInterviewRole = tab.dataset.irole;
+        curInterviewQIdx = 0;
+        close();
+        openInterviewSimulatorModal();
+      };
+    });
+
+    $('#btnIntNext', el).onclick = () => {
+      curInterviewQIdx = (curInterviewQIdx + 1) % role.questions.length;
+      close();
+      openInterviewSimulatorModal();
+    };
+
+    const micBtn = $('#btnIntMic', el);
+    const textInput = $('#intAnswerText', el);
+    const resArea = $('#intResultArea', el);
+
+    micBtn.onclick = () => {
+      doMic(micBtn, (alts, url, az) => {
+        const transcript = (alts && alts[0] && alts[0].t) || '';
+        textInput.value = transcript;
+        evaluateAnswer(transcript, az);
+      });
+    };
+
+    $('#btnIntEval', el).onclick = () => {
+      const val = textInput.value.trim();
+      if (!val) return toast('Habla o escribe tu respuesta primero.');
+      evaluateAnswer(val, null);
+    };
+
+    function evaluateAnswer(answerText, azResult) {
+      resArea.innerHTML = '<div class="small muted" style="text-align:center">⏳ Analizando tu respuesta con rúbrica profesional (1-10)…</div>';
+      
+      const words = answerText.split(/\s+/).filter(Boolean);
+      const len = words.length;
+      
+      let fluency = Math.min(10, Math.max(3, Math.round(len / 3.5)));
+      let vocab = Math.min(10, Math.max(4, Math.round(new Set(words).size / 2.8)));
+      let grammar = Math.min(10, Math.max(4, Math.round(5 + (len > 8 ? 2 : 0) + (/because|also|however|experience|responsible|team/i.test(answerText) ? 2 : 0))));
+      let pron = azResult ? Math.min(10, Math.max(3, Math.round((azResult.pct || 70) / 10))) : 8;
+      
+      const avgScore = ((fluency + vocab + grammar + pron) / 4).toFixed(1);
+      const col = avgScore >= 7.5 ? 'var(--g-d)' : avgScore >= 5.5 ? 'var(--o-d)' : 'var(--r)';
+
+      addXP(15);
+      addCoins(10, 'Práctica de entrevista');
+
+      resArea.innerHTML = `<div class="rubric-box">
+        <div class="row between">
+          <h3 style="margin:0">Calificación Global: <span style="color:${col};font-weight:900">${avgScore}/10</span></h3>
+          <span class="novice-badge" style="background:#e0f2fe;color:#0369a1">+15 XP · +10 🪙</span>
+        </div>
+        <div class="small muted" style="margin:4px 0 10px">Respuesta evaluada: «${esc(answerText)}»</div>
+
+        <div class="rubric-row">
+          <span>🗣️ Fluidez y Longitud</span>
+          <div class="rubric-meter"><div class="rubric-meter-fill" style="width:${fluency * 10}%"></div></div>
+          <b>${fluency}/10</b>
+        </div>
+        <div class="rubric-row">
+          <span>📚 Vocabulario Profesional</span>
+          <div class="rubric-meter"><div class="rubric-meter-fill" style="width:${vocab * 10}%"></div></div>
+          <b>${vocab}/10</b>
+        </div>
+        <div class="rubric-row">
+          <span>🎯 Gramática y Estructura</span>
+          <div class="rubric-meter"><div class="rubric-meter-fill" style="width:${grammar * 10}%"></div></div>
+          <b>${grammar}/10</b>
+        </div>
+        <div class="rubric-row">
+          <span>🎙️ Pronunciación / Seguridad</span>
+          <div class="rubric-meter"><div class="rubric-meter-fill" style="width:${pron * 10}%"></div></div>
+          <b>${pron}/10</b>
+        </div>
+
+        <div class="tipbox" style="margin-top:10px;font-size:13px">
+          <b>🌟 Feedback de Tuki:</b><br>
+          ${avgScore >= 8 ? '¡Excelente respuesta! Tienes buen impacto profesional y transmites seguridad.' : avgScore >= 6 ? 'Buena base. Intenta añadir más conectores (like "Moreover", "Specifically", "In addition") para sonar más natural.' : 'Respuesta muy corta. Desarrolla tu idea explicando un ejemplo concreto de tu experiencia.'}
+        </div>
+      </div>`;
+    }
+  });
+}
+
+// =================== COFRES Y RETOS DIARIOS ===================
+function renderDailyChestsAndQuests() {
+  const k = dayKey();
+  const today = todayRec();
+  const goal = S.settings.goal || 20;
+  const isGoalMet = today.xp >= goal;
+  const isChestClaimed = S.chests && S.chests.dailyClaimed === k;
+
+  const questVozDone = (today.n || 0) >= 3;
+  const questGoalDone = isGoalMet;
+  const questPracDone = (today.sec || 0) >= 60 || (today.xp >= 15);
+
+  const q1Claimed = S.quests && S.quests[k + '_q1'];
+  const q2Claimed = S.quests && S.quests[k + '_q2'];
+  const q3Claimed = S.quests && S.quests[k + '_q3'];
+
+  return `<div class="chest-card" id="dailyChestCard">
+    <div class="row between">
+      <div>
+        <h3 style="margin:0;color:#92400e">🎁 Cofre Diario de Recompensas</h3>
+        <div class="small" style="color:#b45309">
+          ${isChestClaimed ? '✅ ¡Cofre de hoy reclamado! Vuelve mañana.' : isGoalMet ? '✨ ¡Meta cumplida! Abre tu cofre ahora.' : `Meta de hoy: ${Math.min(today.xp, goal)}/${goal} XP para abrir.`}
+        </div>
+      </div>
+      <button class="btn sm ${isChestClaimed ? 'ghost' : isGoalMet ? 'orange chest-glow' : 'ghost'}" id="btnClaimChest" ${isChestClaimed || !isGoalMet ? 'disabled' : ''}>
+        ${isChestClaimed ? 'Reclamado ✓' : 'Abrir Cofre 🎁'}
+      </button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="row between">
+      <h3 style="margin:0">🎯 Retos de Hoy</h3>
+      <span class="small muted">Gana monedas y XP extra</span>
+    </div>
+
+    <div class="quest-item">
+      <div style="flex:1">
+        <div class="row between"><span style="font-weight:700;font-size:13px">🗣️ Pronuncia 3 frases</span><span class="small" style="font-weight:800;color:#d97706">+20 🪙</span></div>
+        <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round(((today.n || 0) / 3) * 100))}%"></div></div>
+      </div>
+      <button class="btn sm ${q1Claimed ? 'ghost' : questVozDone ? 'primary' : 'ghost'}" data-claim-q="q1" ${q1Claimed || !questVozDone ? 'disabled' : ''}>
+        ${q1Claimed ? 'Listo ✓' : 'Reclamar'}
+      </button>
+    </div>
+
+    <div class="quest-item">
+      <div style="flex:1">
+        <div class="row between"><span style="font-weight:700;font-size:13px">🎯 Cumple tu meta diaria de XP</span><span class="small" style="font-weight:800;color:#d97706">+30 🪙</span></div>
+        <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round((today.xp / goal) * 100))}%"></div></div>
+      </div>
+      <button class="btn sm ${q2Claimed ? 'ghost' : questGoalDone ? 'primary' : 'ghost'}" data-claim-q="q2" ${q2Claimed || !questGoalDone ? 'disabled' : ''}>
+        ${q2Claimed ? 'Listo ✓' : 'Reclamar'}
+      </button>
+    </div>
+
+    <div class="quest-item">
+      <div style="flex:1">
+        <div class="row between"><span style="font-weight:700;font-size:13px">⏱️ Practica al menos 1 minuto</span><span class="small" style="font-weight:800;color:#d97706">+20 🪙</span></div>
+        <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round((Math.min(60, today.sec || 0) / 60) * 100))}%"></div></div>
+      </div>
+      <button class="btn sm ${q3Claimed ? 'ghost' : questPracDone ? 'primary' : 'ghost'}" data-claim-q="q3" ${q3Claimed || !questPracDone ? 'disabled' : ''}>
+        ${q3Claimed ? 'Listo ✓' : 'Reclamar'}
+      </button>
+    </div>
+  </div>`;
+}
+
+const _learnChests214 = VIEWS.learn;
+VIEWS.learn = function (v) {
+  _learnChests214(v);
+  const path = $('#path', v) || $('.level-picker-card', v);
+  const chestHTML = renderDailyChestsAndQuests();
+  if (path) path.insertAdjacentHTML('beforebegin', chestHTML);
+  else v.insertAdjacentHTML('afterbegin', chestHTML);
+
+  const bChest = $('#btnClaimChest', v);
+  if (bChest) {
+    bChest.onclick = () => {
+      const k = dayKey();
+      if (S.chests && S.chests.dailyClaimed === k) return;
+      S.chests = S.chests || {};
+      S.chests.dailyClaimed = k;
+      addCoins(45, '¡Cofre diario de recompensas!');
+      addXP(15);
+      beep('done');
+      confetti();
+      render();
+    };
+  }
+
+  $$('[data-claim-q]', v).forEach(btn => {
+    btn.onclick = () => {
+      const q = btn.dataset.claimQ;
+      const k = dayKey();
+      S.quests = S.quests || {};
+      const qKey = k + '_' + q;
+      if (S.quests[qKey]) return;
+      S.quests[qKey] = 1;
+      const coinAmt = q === 'q2' ? 30 : 20;
+      addCoins(coinAmt, 'Reto cumplido');
+      addXP(10);
+      beep('ok');
+      confetti();
+      render();
+    };
+  });
 };
 
 // 8. BOTÓN Y VERIFICACIÓN MANUAL DE ACTUALIZACIONES
@@ -5949,4 +6671,4 @@ applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, version: APP_VERSION };
