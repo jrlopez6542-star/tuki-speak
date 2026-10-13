@@ -2299,11 +2299,25 @@ async function chatMic(btn) {
 VIEWS.chat = v => {
   const s = S.settings, hasG = !!s.geminiKey || gemShared(), hasO = !!s.openaiKey, prov = currentProvider();
   if (!prov) {
-    v.innerHTML = `<h2>Conversación con IA 💬</h2><div class="card"><p><b>${noAIMsg()}</b></p><p><b>Esta función es opcional.</b> Toda la app funciona sin ella.</p>
-      <p class="small">🎙️ <b>Voz a voz en vivo gratis</b> con <b>Gemini Live</b>: pega una clave gratuita de Google Gemini en Ajustes (<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>; el plan gratuito tiene límites).</p>
-      <p class="small">💳 Alternativa de pago: <b>OpenAI</b> (chat y voz en tiempo real) con tu propia clave.</p><p class="small muted">Las claves se guardan solo en este dispositivo.</p><button class="btn primary" id="toSet">Ir a Ajustes</button></div>
-      <div class="card"><h3>Mientras tanto…</h3><p class="muted small">Prueba las <b>Conversaciones reales</b> guiadas (unidades 6, 7 y 12): dices tu parte del diálogo y recibes puntaje.</p></div>`;
-    $('#toSet').onclick = () => go('settings'); return;
+    v.innerHTML = `<h2>Conversación con IA 💬</h2>
+      <div class="card" style="text-align:center;padding:24px 16px">
+        <div style="font-size:38px;margin-bottom:8px">🦜💬</div>
+        <h3 style="margin:0 0 6px">Práctica de conversación con IA</h3>
+        <p class="small muted" style="margin:0 auto 16px;max-width:320px">
+          Habla en inglés con Tuki por voz en vivo (Gemini Live) o chat de texto. Inicia sesión para activar la IA gratis con el cupo diario de Tuki.
+        </p>
+        <button class="btn gbtn block" id="chatGoogle" style="margin-bottom:8px"><span class="g">G</span> Continuar con Google</button>
+        <button class="btn ghost block sm" id="toSet">Opciones de inicio de sesión y claves</button>
+      </div>
+      <div class="card"><h3>Mientras tanto…</h3><p class="muted small">Prueba las <b>Conversaciones reales</b> guiadas (unidades 6, 7 y 12): dices tu parte del diálogo y recibes puntaje sin necesidad de IA.</p></div>`;
+    const bg = $('#chatGoogle', v);
+    if (bg) bg.onclick = async () => {
+      bg.disabled = true;
+      try { await fbGoogle(); render(); }
+      catch (e) { toast(authErr(e)); }
+      finally { if (document.body.contains(bg)) bg.disabled = false; }
+    };
+    $('#toSet', v).onclick = () => go('settings'); return;
   }
   const lv = chatLevel();
   v.innerHTML = `<div class="chatscreen" id="chatscreen">
@@ -2346,9 +2360,10 @@ const _render = render; render = function () { const v = $('#view'); v.classList
 VIEWS.settings = v => {
   const s = S.settings, opt = (arr, cur, lab) => arr.map(a => { const [val, l] = Array.isArray(a) ? a : [a, a]; return `<option value="${esc(val)}" ${String(cur) === String(val) ? 'selected' : ''}>${esc(lab ? lab(l) : l)}</option>`; }).join('');
   const sw = (id, on, label, desc) => `<div class="set-row"><div><label for="${id}">${label}</label>${desc ? `<div class="desc">${desc}</div>` : ''}</div><label class="switch"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><span></span></label></div>`;
+  const azStatus = azureReady() ? ' (activo)' : (fbSignedIn() ? ' (falta clave)' : ' (inicia sesión)');
   v.innerHTML = `<h2>Ajustes ⚙️</h2>
   <div class="card"><h3>🔊 Voz y audio</h3>
-    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (requieren clave).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['device', 'Dispositivo (gratis)'], ['azure', 'Azure neural' + (azureReady() ? '' : ' (falta clave)')], ['openai', 'OpenAI TTS' + (s.openaiKey ? '' : ' (falta clave)')]], s.ttsEngine)}</select></div>
+    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['device', 'Dispositivo (gratis)'], ['azure', 'Azure neural' + azStatus], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine)}</select></div>
     <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent" style="max-width:200px">${opt([['en-US', 'Estadounidense (en-US)'], ['en-GB', 'Británico (en-GB)']], s.accent)}</select></div>
     <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice" style="max-width:200px"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
     <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice" style="max-width:200px">${opt(AZ_VOICES, s.azureVoice)}</select></div>
@@ -2357,14 +2372,21 @@ VIEWS.settings = v => {
     ${sw('autoplay', s.autoplay, 'Reproducir audio automáticamente')}${sw('sound', s.sound, 'Sonidos de efectos')}${sw('haptics', s.haptics, 'Vibración (móvil)', 'Vibra al acertar o fallar')}
     ${sw('recordVoice', s.recordVoice, 'Grabar mi voz en ejercicios', 'Para escucharte y ver tu onda. En algunos Android puede interferir con el reconocimiento de Chrome.')}
   </div>
-  <div class="card"><h3>🔬 Evaluación avanzada con Azure <span class="pill">Opcional · pago por uso</span></h3>
-    <p class="small muted">Con una clave de <b>Azure AI Speech</b> ("Pronunciation Assessment") obtienes puntaje <b>fonema por fonema</b> con IPA, fluidez, integridad y prosodia, y consejos como "en think la /θ/ sonó como /t/". Funciona también en navegadores sin reconocimiento de voz. Azure tiene un nivel gratuito limitado (F0). La clave se guarda solo en este dispositivo y se envía únicamente a Microsoft.</p>
-    <input class="field" id="azKey" type="password" placeholder="Clave de Azure Speech" value="${esc(s.azureKey)}" autocomplete="off" aria-label="Clave de Azure">
+  <div class="card"><h3>🔬 Evaluación avanzada con Azure <span class="pill">${azShared() ? 'Activo con tu cuenta' : (azOwn() ? 'Con tu clave' : 'Opcional')}</span></h3>
+    <p class="small muted">Con <b>Azure AI Speech</b> obtienes puntaje <b>fonema por fonema</b> con IPA, fluidez, integridad y prosodia, y consejos precisos de pronunciación. La clave se guarda solo en este dispositivo.</p>
+    ${azShared() ? '<p class="small" style="color:var(--g-d);font-weight:700">✅ Activo con tu cuenta de Tuki: evaluación fonema por fonema gratis con cupo diario.</p>' : ''}
+    ${!azureReady() && !fbSignedIn() ? '<div class="notice small" style="margin-bottom:10px">💡 <b>Usa la evaluación gratis:</b> Si inicias sesión con Google abajo en <b>Cuenta</b>, Tuki activará la evaluación por fonemas gratis sin que tengas que crear claves.</div>' : ''}
+    <input class="field" id="azKey" type="password" placeholder="Clave propia de Azure Speech (opcional)" value="${esc(s.azureKey)}" autocomplete="off" aria-label="Clave de Azure">
     <input class="field" id="azRegion" placeholder="Región (ej. eastus, westeurope, brazilsouth)" value="${esc(s.azureRegion)}" style="margin-top:8px" aria-label="Región de Azure" list="azRegions"><datalist id="azRegions">${['eastus', 'eastus2', 'westus', 'westus2', 'centralus', 'southcentralus', 'brazilsouth', 'canadacentral', 'westeurope', 'northeurope', 'uksouth', 'francecentral', 'southeastasia', 'japaneast', 'australiaeast', 'centralindia'].map(r => `<option value="${r}">`).join('')}</datalist>
-    <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="azSave">Guardar</button><button class="btn ghost sm" id="azTest">Probar conexión</button><button class="btn ghost sm" id="azDel">Borrar</button></div><div id="azMsg" class="small" style="margin-top:8px">${azureReady() ? '✅ Azure activo: los ejercicios de voz usan evaluación por fonemas.' : ''}</div>
+    <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="azSave">Guardar</button><button class="btn ghost sm" id="azTest">Probar conexión</button><button class="btn ghost sm" id="azDel">Borrar</button></div><div id="azMsg" class="small" style="margin-top:8px">${azShared() ? '✅ Usando la cuenta de Tuki (límite diario).' : (azOwn() ? '✅ Azure activo: los ejercicios de voz usan evaluación por fonemas.' : '')}</div>
   </div>
-  <div class="card"><h3>🤖 Conversación con IA <span class="pill">Opcional</span></h3>
+  <div class="card"><h3>🤖 Conversación con IA <span class="pill">${gemShared() ? 'Activo con tu cuenta' : (s.geminiKey || s.openaiKey ? 'Con tu clave' : 'Opcional')}</span></h3>
     <p class="small" id="aiMode">${esc(aiModeText())}</p>
+    ${!fbSignedIn() && !s.geminiKey && !s.openaiKey ? `<div class="tvhint" style="background:var(--card-hover, rgba(0,0,0,0.03));padding:12px;border-radius:12px;border:1px solid var(--border, rgba(0,0,0,0.08));margin-bottom:12px">
+      <div style="font-weight:700;margin-bottom:4px">✨ Usa la IA gratis sin configurar claves</div>
+      <div class="small muted" style="margin-bottom:8px">Inicia sesión con Google para tener acceso a Gemini y Gemini Live gratis con el cupo diario de Tuki.</div>
+      <button class="btn gbtn sm" id="aiLoginGoogle"><span class="g">G</span> Continuar con Google</button>
+    </div>` : ''}
     <div class="set-row"><div><label for="chatProvider">Proveedor</label></div><select class="field" id="chatProvider" style="max-width:200px">${opt([['gemini', 'Gemini (gratis)'], ['openai', 'OpenAI (pago)']], s.chatProvider)}</select></div>
     <div class="set-row"><div><label for="chatLevel">Nivel de la conversación</label><div class="desc">Ajusta vocabulario, velocidad y correcciones del tutor</div></div><select class="field" id="chatLevel" style="max-width:200px">${opt(LEVEL_KEYS.map(k => [k, LEVELS[k].label]), chatLevel())}</select></div>
     <div class="set-row"><div><label for="tutorSpeed">Velocidad de Tuki</label><div class="desc">Frases más cortas, pausas y voz más lenta</div></div><select class="field" id="tutorSpeed" style="max-width:200px">${opt(Object.keys(TUTOR_SPEEDS).map(k => [k, TUTOR_SPEEDS[k].label]), tutorSpeed())}</select></div>
@@ -2423,6 +2445,8 @@ VIEWS.settings = v => {
     catch (e) { azMsg.textContent = '❌ ' + errES(e, 'Azure') + (e.status === 401 ? ' Verifica que la región coincida con la de tu recurso.' : ''); }
   };
   // Gemini
+  const aiG = $('#aiLoginGoogle', v);
+  if (aiG) aiG.onclick = async () => { aiG.disabled = true; try { await fbGoogle(); render(); } catch (e) { toast(authErr(e)); } finally { if (document.body.contains(aiG)) aiG.disabled = false; } };
   const gmsg = $('#gmsg');
   $('#gsave').onclick = () => { set('geminiKey', $('#gkey').value.trim()); set('model', $('#gmodel').value.trim() || 'gemini-2.5-flash'); set('liveModel', $('#lmodel').value.trim() || GEMINI_LIVE_MODELS[0]); CHAT.hist = []; gmsg.textContent = S.settings.geminiKey ? '✅ Guardado. Ve a la pestaña IA.' : 'Clave vacía: Gemini queda desactivado.'; };
   $('#gdel').onclick = () => { set('geminiKey', ''); $('#gkey').value = ''; gmsg.textContent = 'Clave borrada.'; };
@@ -3982,6 +4006,7 @@ function fbOnUser(u) {
   if (u) { lsSet(FB_HINT, { uid: u.uid, email: FB.user.email }); if (prev !== u.uid) { FB.first = false; FB.remoteKeys = undefined; setTimeout(() => cloudFirstSync().catch(fbFail), 0); } }
   else { lsSet(FB_HINT, null); FB.remoteKeys = undefined; clearTimeout(FB.timer); FB.timer = null; }
   fbRefreshUI();
+  if (TAB === 'settings' || TAB === 'chat') render();
 }
 function fbFail(e) { FB.busy = false; FB.err = authErr(e); fbRefreshUI(); }
 const localHasData = () => !!(S.xp || Object.keys(S.done || {}).length || Object.keys(S.deck || {}).length || (S.sessions || 0) > 0);
@@ -4385,13 +4410,29 @@ function tvRenderBody() {
   const devSec = `<h4 class="tvh">📱 Voces de tu teléfono (gratis, sin clave)</h4>${missing}` + (dev.length ? dev.map(r => tvRowHTML(r, TV.rows.indexOf(r), cur, false)).join('')
     : `<p class="small muted">Tu ${'speechSynthesis' in window ? 'teléfono aún no muestra voces en ' + (tl === 'es' ? 'español' : 'inglés') + '. Si acabas de abrir la app, espera un momento; en Android puedes instalar voces en Ajustes › Texto a voz.' : 'navegador no tiene voces instaladas.'}</p>`);
   box.innerHTML = `<div class="tvrow ${cur ? '' : 'sel'}" data-id=""><label class="tvl"><input type="radio" name="tvSel" value="0" ${cur ? '' : 'checked'}><span class="tvn"><b>Automática</b><small>${tl === 'es' ? 'Usa «Voz del modelo» o la mejor voz en español del teléfono' : 'Usa «Voz del modelo» y «Voz del dispositivo» de arriba'}</small></span></label></div>
-    <h4 class="tvh">☁️ Voces Azure (gratis con tu clave)</h4>
-    ${ready ? live : '<p class="small tvhint">🔑 Para usarlas agrega tu clave y región gratis de Azure (plan F0) en «Evaluación avanzada con Azure». <button class="btn ghost sm" id="tvGoAz">Ir a la clave</button></p>'}
+    <h4 class="tvh">☁️ Voces Azure ${azShared() ? '(gratis con tu cuenta)' : (azOwn() ? '(con tu clave)' : '')}</h4>
+    ${ready ? live : (
+      !fbSignedIn() ? `<div class="tvhint" style="background:var(--card-hover, rgba(0,0,0,0.03));padding:12px;border-radius:12px;border:1px solid var(--border, rgba(0,0,0,0.08));margin-bottom:10px">
+        <div style="font-weight:700;margin-bottom:4px">✨ Desbloquea las voces naturales de Azure gratis</div>
+        <div class="small muted" style="margin-bottom:10px">Inicia sesión con tu cuenta de Google para usar gratis las voces humanas de alta calidad (Salomé colombiana, Jenny, etc.) con el cupo diario de Tuki.</div>
+        <div class="row wrap" style="gap:8px">
+          <button class="btn gbtn sm" id="tvLoginGoogle"><span class="g">G</span> Continuar con Google</button>
+          <button class="btn ghost sm" id="tvGoAz">Tengo mi propia clave</button>
+        </div>
+      </div>` : `<p class="small tvhint">🔑 Para usarlas agrega tu clave y región gratis de Azure (plan F0) en «Evaluación avanzada con Azure». <button class="btn ghost sm" id="tvGoAz">Ir a la clave</button></p>`
+    )}
     ${az.map(r => tvRowHTML(r, TV.rows.indexOf(r), cur, !ready)).join('')}
     ${devSec}`;
   $$('input[name=tvSel]', box).forEach(inp => inp.onchange = () => { const r = TV.rows[+inp.value]; if (r) tvSelect(r.id, tl); });
   $$('.tvplay', box).forEach(b => b.onclick = () => tvPlay(+b.dataset.play));
   const go = $('#tvGoAz', box); if (go) go.onclick = () => { const k = $('#azKey'); if (k) { k.scrollIntoView({ block: 'center', behavior: 'smooth' }); k.focus({ preventScroll: true }); } };
+  const bG = $('#tvLoginGoogle', box);
+  if (bG) bG.onclick = async () => {
+    bG.disabled = true;
+    try { await fbGoogle(); render(); }
+    catch (e) { toast(authErr(e)); }
+    finally { if (document.body.contains(bG)) bG.disabled = false; }
+  };
   tvBtns();
   if (ready) tvLoadLive();
 }
