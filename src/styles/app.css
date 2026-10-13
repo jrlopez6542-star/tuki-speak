@@ -571,3 +571,19 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .unit-locked .node.locked{opacity:.55;filter:grayscale(1)}
 .start-tip{animation:beaconPulse 1.4s infinite ease-in-out}
 @keyframes beaconPulse{0%,100%{transform:translate(-50%,-8px)}50%{transform:translate(-50%,-14px)}}
+
+/* Modo Novato vs Avanzado & Selector de Nivel */
+.level-picker-card{background:linear-gradient(135deg,#eef9f2 0%,#e0f2fe 100%);border:2px solid #bbf7d0;border-radius:18px;padding:14px;margin-bottom:14px}
+[data-theme=dark] .level-picker-card{background:linear-gradient(135deg,#12281e 0%,#0e263d 100%);border-color:#166534}
+.level-seg{display:flex;background:rgba(255,255,255,.7);padding:4px;border-radius:14px;gap:4px;margin-top:10px}
+[data-theme=dark] .level-seg{background:rgba(0,0,0,.35)}
+.level-seg-btn{flex:1;border:0;background:transparent;padding:8px 6px;border-radius:10px;font-size:12px;font-weight:800;color:var(--mute);cursor:pointer;transition:all .15s ease;display:flex;flex-direction:column;align-items:center;gap:2px}
+.level-seg-btn.active{background:var(--card);color:var(--g-d);box-shadow:0 2px 4px rgba(0,0,0,.08)}
+[data-theme=dark] .level-seg-btn.active{color:#86efac}
+.novice-badge{display:inline-flex;align-items:center;gap:4px;background:#dcfce7;color:#15803d;border:1px solid #86efac;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800}
+[data-theme=dark] .novice-badge{background:#0d351d;color:#86efac;border-color:#166534}
+.novice-tip-banner{background:#fef9c3;border:1.5px solid #fde047;border-radius:14px;padding:10px 14px;font-size:13px;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+[data-theme=dark] .novice-tip-banner{background:#3a320d;border-color:#854d0e;color:#fef08a}
+.pron-hint{display:block;font-size:13px;font-weight:700;color:var(--o-d);margin-top:2px}
+.phonetic-guide-box{background:#f0fdf4;border:1.5px dashed #86efac;border-radius:12px;padding:10px 12px;margin:8px 0;font-size:13px}
+[data-theme=dark] .phonetic-guide-box{background:#0e2918;border-color:#15803d}

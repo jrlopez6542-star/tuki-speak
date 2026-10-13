@@ -5,6 +5,37 @@ import './styles/app.css';
 // ex = palabras ejemplo [en, es], pairs = pares mínimos [palabraSonidoA, palabraSonidoB] (a = sonido objetivo/lado A),
 // pairLabels = etiqueta de cada lado, quiz = preguntas de oído, sents = frases [en, es]
 const COURSE = [
+{ id:'u0', title:'Primeros pasos: Frases esenciales', icon:'🌱', color:'#059669',
+  desc:'¡Desde cero absoluto! Saludos, cortesía y frases de supervivencia con pronunciación guiada.',
+  lessons:[
+  { id:'novice-greetings', sound:'saludos', title:'Saludos y despedidas', icon:'👋',
+    expl:'Aprende a saludar y despedirte con confianza. En inglés, la "H" de "Hello" y "Hi" suena como un suspiro suave (no como una "J" fuerte).',
+    mouth:'Para decir "Hello" y "Hi", deja salir un aire suave y cálido por la garganta como empañando un vidrio: "j-jelou".',
+    pairLabels:['H suave (inglés)','J fuerte (español)'],
+    ex:[['hello','hola'],['hi','hola (informal)'],['good morning','buenos días'],['goodbye','adiós'],['see you','nos vemos'],['bye','chao']],
+    quiz:[{q:'¿Cómo suena la «H» en «Hello»?',say:'hello',opts:['Como un suspiro suave','Como una J fuerte y raspada','Es muda como en español'],a:0},
+          {q:'¿Qué significa «Good morning»?',say:'good morning',opts:['Buenos días','Buenas noches','Buenas tardes'],a:0},
+          {q:'¿Cuál es la forma más casual de decir «adiós»?',say:'bye',opts:['Bye','Good morning','Hello'],a:0}],
+    sents:[['Hello, good morning!','¡Hola, buenos días!'],['Hi, see you later.','Hola, nos vemos luego.'],['Goodbye, have a nice day.','Adiós, ten un buen día.']] },
+  { id:'novice-courtesy', sound:'cortesía', title:'Palabras mágicas de cortesía', icon:'🙏',
+    expl:'Por favor, gracias y disculpas. En "Thank you", saca la puntita de la lengua entre los dientes para la TH. ¡Hará que suenes educado y natural!',
+    mouth:'En "please", sonríe y estira los labios ("pliiiz"). En "thank you", punta de la lengua entre los dientes y suelta aire.',
+    pairLabels:['Cortés','Directo'],
+    ex:[['please','por favor'],['thank you','gracias'],['thanks','gracias (casual)'],["you're welcome",'de nada'],['sorry','lo siento / perdón'],['excuse me','con permiso / disculpe']],
+    quiz:[{q:'¿Cómo dices «por favor»?',say:'please',opts:['Please','Sorry','Thanks'],a:0},
+          {q:'¿Cómo respondes cuando alguien te dice «thank you»?',say:"you're welcome",opts:["You're welcome (de nada)",'Please','Sorry'],a:0},
+          {q:'¿Qué dices para pedir permiso o llamar la atención?',say:'excuse me',opts:['Excuse me','Goodbye','Thanks'],a:0}],
+    sents:[['Yes, please.','Sí, por favor.'],['Thank you very much.','Muchas gracias.'],['Excuse me, sorry!','¡Con permiso, lo siento!']] },
+  { id:'novice-survival', sound:'supervivencia', title:'Frases de supervivencia', icon:'🆘',
+    expl:'Las frases salvavidas para cuando no entiendes: pedir que hablen más despacio, decir que estás aprendiendo y pedir ayuda.',
+    mouth:'Di despacio y con calma. No tengas miedo de decir "I don\'t understand", los hablantes nativos aprecian tu esfuerzo.',
+    pairLabels:['Supervivencia','Habla normal'],
+    ex:[['help','ayuda'],['slowly','despacio'],['understand','entender'],['english','inglés'],['repeat','repetir'],['speak','hablar']],
+    quiz:[{q:'Si alguien habla muy rápido, le dices:',say:'More slowly, please',opts:['More slowly, please (más despacio, por favor)','Thank you','Goodbye'],a:0},
+          {q:'¿Cómo dices «no entiendo»?',say:"I don't understand",opts:["I don't understand",'I speak English','You are welcome'],a:0},
+          {q:'¿Cómo pides ayuda con cortesía?',say:'Can you help me?',opts:['Can you help me? (¿Me ayudas?)','Excuse me','Bye'],a:0}],
+    sents:[['Can you speak slowly, please?','¿Puedes hablar despacio, por favor?'],["I don't understand English.","No entiendo inglés."],['Can you repeat that, please?','¿Puedes repetir eso, por favor?']] }
+  ]},
 { id:'u1', title:'Vocales que cambian el significado', icon:'🅰️', color:'#1fa463',
   desc:'El inglés tiene más vocales que el español. ¡Aquí está la diferencia entre ship y sheep!',
   lessons:[
@@ -377,6 +408,26 @@ COURSE.push(
            ['B',"I'd like to lead a team and keep growing in this industry.",'Me gustaría liderar un equipo y seguir creciendo en esta industria.'],
            ['A','What are your salary expectations?','¿Cuáles son tus expectativas salariales?'],
            ['B',"Based on my experience, I'm looking for a competitive salary within the market range.",'Según mi experiencia, busco un salario competitivo dentro del rango del mercado.']] }
+  ]},
+{ id:'u13', title:'Fluidez y debate avanzado (C1)', icon:'🚀', color:'#dc2626',
+  desc:'Matices, idioms nativos, persuasión y debate profesional de alto nivel.',
+  lessons:[
+  { id:'adv-idioms', type:'vocab', sound:'expresiones nativas', title:'Modismos y expresiones nativas', icon:'💡',
+    expl:'Los hablantes nativos usan constantemente "idioms" que no se pueden traducir palabra por palabra. Dominarlos te da fluidez natural.',
+    items:[['hit the nail on the head','dar en el clavo','You hit the nail on the head with that comment.','Diste en el clavo con ese comentario.'],
+           ['cut to the chase','ir al grano','Let\'s cut to the chase and discuss budget.','Vayamos al grano y discutamos el presupuesto.'],
+           ['burn the midnight oil','trasnochar trabajando','I had to burn the midnight oil to finish the report.','Tuve que trasnochar trabajando para terminar el informe.'],
+           ['take it with a grain of salt','tomar con pinzas','You should take online rumors with a grain of salt.','Deberías tomar los rumores de internet con pinzas.'],
+           ['a blessing in disguise','no hay mal que por bien no venga','Losing that job was a blessing in disguise.','Perder ese trabajo fue algo bueno a fin de cuentas.'],
+           ['play devil\'s advocate','hacer de abogado del diablo','Just to play devil\'s advocate, what if we fail?','Solo por hacer de abogado del diablo, ¿qué pasa si fallamos?']] },
+  { id:'c-debate', type:'dialog', sound:'debate', title:'Debate y negociación profesional', icon:'⚖️',
+    scene:'Reunión directiva donde se negocia una estrategia crítica. Tú eres B.',
+    lines:[['A','In my opinion, we should postpone the launch until next quarter.','En mi opinión, deberíamos posponer el lanzamiento hasta el próximo trimestre.'],
+           ['B','I see your point, but delaying it might give competitors the upper hand.','Entiendo tu punto, pero retrasarlo podría darle ventaja a los competidores.'],
+           ['A','What do you propose we do about the remaining technical issues?','¿Qué propones que hagamos respecto a los problemas técnicos pendientes?'],
+           ['B','We could launch a beta version and address feedback in real time.','Podríamos lanzar una versión beta y resolver comentarios en tiempo real.'],
+           ['A','That sounds reasonable. Can your team commit to that deadline?','Eso suena razonable. ¿Tu equipo puede comprometerse con esa fecha límite?'],
+           ['B','Absolutely. We have the resources ready to execute immediately.','Totalmente. Tenemos los recursos listos para ejecutar de inmediato.']] }
   ]}
 );
 // Las lecciones de vocabulario reutilizan ex/sents para tarjetas, diccionario y shadowing
@@ -415,7 +466,7 @@ const MASCOT = `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ar
 
 /* =================== ESTADO / PERSISTENCIA =================== */
 const KEY = 'tukiSpeak.v1';
-const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, geminiKey: '', model: 'gemini-2.5-flash',
+const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, learnerLevel: 'novice', geminiKey: '', model: 'gemini-2.5-flash',
   accent: 'en-US', ttsEngine: 'auto', azureKey: '', azureRegion: '', azureVoice: 'en-US-JennyNeural', openaiKey: '', openaiModel: 'gpt-4o-mini', openaiVoice: 'marin', openaiTtsModel: 'gpt-4o-mini-tts', realtimeModel: 'gpt-realtime', chatProvider: 'gemini', liveModel: 'gemini-3.1-flash-live-preview', liveVoice: 'Kore',
   tukiVoiceEs: '', tukiVoiceEn: '', theme: 'auto', fontScale: 1, contrast: false, reduceMotion: false, haptics: true, remindOn: false, remindTime: '19:00' };
 function freshState() {
@@ -665,10 +716,33 @@ function confirmBox(title, text, okLabel, onOk, danger) {
   modal(`<h2>${esc(title)}</h2><p class="muted">${esc(text)}</p><div class="row" style="margin-top:16px"><button class="btn ghost block" data-x>Cancelar</button><button class="btn ${danger ? 'red' : 'primary'} block" data-ok>${esc(okLabel)}</button></div>`,
     (el, close) => { $('[data-x]', el).onclick = close; $('[data-ok]', el).onclick = () => { close(); onOk(); }; });
 }
-/** Palabras tocables: cada palabra se puede escuchar lento. */
+/* ---- Guía fonética figurada en español para principiantes ---- */
+const SPANISH_PHONETICS = {
+  hello: 'jelóu', hi: 'jái', morning: 'mór-nin', goodbye: 'gud-bái', bye: 'bái',
+  please: 'plíiz', thank: 'zænk', you: 'iú', thanks: 'zænks', welcome: 'wél-kam',
+  sorry: 'sór-ri', excuse: 'ex-kiús', me: 'mí', help: 'jelp', slowly: 'slóu-li',
+  understand: 'an-der-stænd', repeat: 'ri-píit', speak: 'spíik', english: 'ín-glish',
+  yes: 'yés', no: 'nóu', water: 'uó-rer', coffee: 'kó-fi', tea: 'tíi',
+  good: 'gud', day: 'déi', night: 'náit', today: 'tu-déi', tomorrow: 'tu-mó-rou',
+  friend: 'frend', name: 'néim', love: 'lav', like: 'láik', want: 'uónt',
+  need: 'níid', have: 'jæv', live: 'liv', leave: 'líiv', ship: 'ship', sheep: 'shíip',
+  cat: 'kæt', cut: 'kat', best: 'best', vest: 'vest', think: 'zink', this: 'dis',
+  mother: 'má-der', brother: 'brá-der', school: 'skúul', street: 'stríit', worked: 'uerkt'
+};
+function getPhoneticHint(word) {
+  const clean = String(word || '').toLowerCase().replace(/[^a-z']/g, '');
+  return SPANISH_PHONETICS[clean] || '';
+}
+
+/** Palabras tocables: cada palabra se puede escuchar lento con guía fonética para novatos */
 function wordsHTML(text, words) {
   const toks = words ? words : text.split(/\s+/).filter(Boolean).map(tok => ({ tok }));
-  return toks.map(w => `<span class="wd ${w.c || ''}" data-say="${esc(w.tok.replace(/[.,!?;:"¿¡]/g, ''))}" title="Toca para escuchar lento">${esc(w.tok)}</span>`).join(' ');
+  const isNovice = (S && S.settings && S.settings.learnerLevel === 'novice');
+  return toks.map(w => {
+    const clean = w.tok.replace(/[.,!?;:"¿¡]/g, '');
+    const hint = isNovice ? getPhoneticHint(clean) : '';
+    return `<span class="wd-wrap" style="display:inline-flex;flex-direction:column;align-items:center;vertical-align:bottom;margin:0 2px"><span class="wd ${w.c || ''}" data-say="${esc(clean)}" title="Toca para escuchar lento">${esc(w.tok)}</span>${hint ? `<span class="pron-hint" style="font-size:10px;color:var(--o-d);line-height:1;margin-top:2px;font-weight:700">/${esc(hint)}/</span>` : ''}</span>`;
+  }).join(' ');
 }
 document.addEventListener('click', e => { const w = e.target.closest('[data-say]'); if (w && w.dataset.say) speak(w.dataset.say, true); });
 
@@ -1017,7 +1091,39 @@ const VIEWS = {};
 VIEWS.learn = v => {
   const goal = S.settings.goal, t = todayRec().xp, p = Math.min(100, Math.round(t / goal * 100)), cur = currentLesson();
   const due = dueCards().length;
-  let html = `<div class="card goal"><div class="ring" style="--p:${p}" data-t="${Math.min(t, goal)}/${goal}"></div><div style="flex:1"><h3>Meta diaria</h3><div class="muted small">${t >= goal ? '🎉 ¡Meta cumplida! Sigue si quieres.' : `Te faltan ${goal - t} XP hoy.`}</div>
+  const curLevel = S.settings.learnerLevel || 'novice';
+  let html = `<div class="level-picker-card">
+    <div class="row between">
+      <div>
+        <h3 style="margin:0">🎓 Tu nivel de aprendizaje</h3>
+        <div class="small muted">Personaliza la experiencia, frases y explicaciones</div>
+      </div>
+      <span class="novice-badge">${curLevel === 'novice' ? '🌱 Desde cero' : curLevel === 'intermediate' ? '⚡ Intermedio' : '🚀 Avanzado'}</span>
+    </div>
+    <div class="level-seg" id="levelSeg">
+      <button class="level-seg-btn ${curLevel === 'novice' ? 'active' : ''}" data-lvl="novice">
+        <span>🌱 Novato</span>
+        <span style="font-size:10px;font-weight:600">Desde cero</span>
+      </button>
+      <button class="level-seg-btn ${curLevel === 'intermediate' ? 'active' : ''}" data-lvl="intermediate">
+        <span>⚡ Intermedio</span>
+        <span style="font-size:10px;font-weight:600">Bases claras</span>
+      </button>
+      <button class="level-seg-btn ${curLevel === 'advanced' ? 'active' : ''}" data-lvl="advanced">
+        <span>🚀 Avanzado</span>
+        <span style="font-size:10px;font-weight:600">Fluidez total</span>
+      </button>
+    </div>
+  </div>`;
+
+  if (curLevel === 'novice') {
+    html += `<div class="novice-tip-banner">
+      <div style="font-size:26px">💡</div>
+      <div style="flex:1"><b>Modo Novato activo:</b> Incluye pronunciación figurada en español y ritmo pausado para que aprendas sin miedo. ¡Toca cualquier palabra para escucharla lento!</div>
+    </div>`;
+  }
+
+  html += `<div class="card goal"><div class="ring" style="--p:${p}" data-t="${Math.min(t, goal)}/${goal}"></div><div style="flex:1"><h3>Meta diaria</h3><div class="muted small">${t >= goal ? '🎉 ¡Meta cumplida! Sigue si quieres.' : `Te faltan ${goal - t} XP hoy.`}</div>
     ${due ? `<button class="btn blue sm" style="margin-top:8px" id="dueBtn">🃏 Repasar ${due} tarjeta${due > 1 ? 's' : ''}</button>` : ''}</div></div>`;
   if (!canSpeak()) html += `<div class="notice">⚠️ Este navegador no tiene reconocimiento de voz: podrás escuchar, grabarte y comparar, pero no recibir puntaje (o configura Azure en Ajustes). Para la experiencia completa usa <b>Google Chrome</b> (Android o computador) o Edge.</div>`;
   COURSE.forEach((u, ui) => {
@@ -1036,6 +1142,27 @@ VIEWS.learn = v => {
   });
   html += `<p class="muted small" style="text-align:center">¿Quieres saltar a otra lección? Activa el "modo libre" en ⚙️ Ajustes.</p>`;
   v.innerHTML = html;
+
+  $$('#levelSeg .level-seg-btn', v).forEach(btn => {
+    btn.onclick = () => {
+      const lvl = btn.dataset.lvl;
+      S.settings.learnerLevel = lvl;
+      if (lvl === 'novice') {
+        S.settings.rate = 0.8;
+        S.settings.chatLevel = 'A2';
+      } else if (lvl === 'intermediate') {
+        S.settings.rate = 0.9;
+        S.settings.chatLevel = 'B1';
+      } else {
+        S.settings.rate = 1.0;
+        S.settings.chatLevel = 'C1';
+      }
+      save();
+      toast(`Nivel cambiado a: ${lvl === 'novice' ? '🌱 Novato (Desde cero)' : lvl === 'intermediate' ? '⚡ Intermedio' : '🚀 Avanzado'}`);
+      render();
+    };
+  });
+
   const db = $('#dueBtn'); if (db) db.onclick = () => startReview();
   $$('[data-lesson]', v).forEach(b => b.onclick = () => lessonSheet(LESSON[b.dataset.lesson]));
   $$('[data-guide]', v).forEach(b => b.onclick = () => guideSheet(COURSE.find(u => u.id === b.dataset.guide)));
@@ -1721,7 +1848,10 @@ const MOUTHS = {
   's-endings': [{ t: 'alveolar', lips: 'spread', o: .1, v: 1, air: 1, cap: '/z/ final: vibra' }],
   'flap-t': [{ t: 'alveolar', lips: 'neutral', o: .3, v: 1, cap: 'Toque rápido de lengua (como "r" de "pero")' }],
   'teen-ty': [{ t: 'high-front', lips: 'spread', o: .1, v: 1, cap: '-teen: "iii" larga y fuerte' }, { t: 'alveolar', lips: 'neutral', o: .2, v: 1, cap: '-ty: final corto y suave' }],
-  dates: [{ t: 'dental', lips: 'neutral', o: .2, v: 0, air: 1, cap: 'fifth, twelfth: termina en /θ/' }]
+  dates: [{ t: 'dental', lips: 'neutral', o: .2, v: 0, air: 1, cap: 'fifth, twelfth: termina en /θ/' }],
+  'novice-greetings': [{ t: 'mid-central', lips: 'neutral', o: .4, v: 0, air: 1, cap: 'H suave: aire cálido por garganta' }, { t: 'high-front', lips: 'spread', o: .1, v: 1, cap: 'Hi: di "jái" sonriendo' }],
+  'novice-courtesy': [{ t: 'dental', lips: 'neutral', o: .2, v: 0, air: 1, cap: 'Thank: lengua entre los dientes' }, { t: 'high-front', lips: 'spread', o: .1, v: 1, cap: 'Please: alarga "plíiiz"' }],
+  'novice-survival': [{ t: 'mid-central', lips: 'neutral', o: .3, v: 1, cap: 'Habla despacio con calma y ritmo relajado' }]
 };
 function mouthPanelHTML(id, compact) { const m = MOUTHS[id]; if (!m) return ''; return `<div class="mouths" ${compact ? 'style="margin-top:4px"' : ''}>${m.map(c => `<div class="mouth">${mouthSVG(c)}</div>`).join('')}</div>`; }
 
@@ -1932,6 +2062,12 @@ const GEMINI_LIVE_MODELS = ['gemini-3.1-flash-live-preview', 'gemini-2.5-flash-n
 function currentProvider() { const s = S.settings; if (s.chatProvider === 'openai' && s.openaiKey) return 'openai'; if (s.geminiKey) return 'gemini'; if (s.openaiKey) return 'openai'; return gemShared() ? 'gemini' : null; }
 /* ---- Nivel de inglés para la conversación ---- */
 const LEVELS = {
+  A0: { label: 'Novato (Desde cero absoluto)', short: 'Novato',
+    vocab: 'Use ONLY the most fundamental words (greetings, numbers, yes/no, please, thank you). Always accompany words with Spanish translation when introducing new phrases.',
+    length: 'Extremely short: 1 short phrase or question (maximum 6 words).',
+    speed: 'Speak VERY SLOWLY, clearly articulating each syllable, with comfortable pauses.',
+    spanish: 'Speak predominantly in encouraging Latin American Spanish to guide the learner, teaching 1-2 words in English per turn.',
+    correct: 'Praise every effort enthusiastically. Correct gently with immediate Spanish pronunciation hints.' },
   A2: { label: 'Básico (A1-A2)', short: 'Básico',
     vocab: 'Use only very common, basic words (top 1000) and simple grammar: present simple, present continuous, simple past, "can", "going to". No idioms, no phrasal verbs except the most common ones.',
     length: 'Very short: 1-2 short sentences (max about 12 words each) per turn, then ONE simple question.',
@@ -1958,7 +2094,12 @@ const LEVELS = {
     correct: 'Correct even subtle mistakes (articles, prepositions, register, word choice) and offer more idiomatic or sophisticated alternatives; comment on intonation, stress or connected speech when relevant.' }
 };
 const LEVEL_KEYS = Object.keys(LEVELS);
-function defaultLevel() { const p = S.placement; if (p && typeof p === 'object' && p.start != null) return p.start <= 1 ? 'A2' : p.start <= 4 ? 'B1' : 'B2'; return 'B1'; }
+function defaultLevel() {
+  if (S.settings && S.settings.learnerLevel === 'novice') return 'A0';
+  if (S.settings && S.settings.learnerLevel === 'advanced') return 'C1';
+  const p = S.placement; if (p && typeof p === 'object' && p.start != null) return p.start <= 1 ? 'A2' : p.start <= 4 ? 'B1' : 'B2';
+  return 'A2';
+}
 const chatLevel = () => LEVELS[S.settings.chatLevel] ? S.settings.chatLevel : defaultLevel();
 function levelRules(voice) {
   const k = chatLevel(), L0 = LEVELS[k];
@@ -1972,6 +2113,7 @@ const TUTOR_LANGS = { en: { label: '🇺🇸 Solo inglés', name: 'Solo inglés'
 const tutorLang = () => TUTOR_LANGS[S.settings.tutorLang] ? S.settings.tutorLang : 'bi';
 function langRules(voice) {
   const m = tutorLang(), lv = chatLevel();
+  if (lv === 'A0') return `LANGUAGE MODE: ABSOLUTE BEGINNER (Novato desde cero). Explain in friendly Spanish (Latin American, use "tú") and teach 1 simple English phrase at a time. Provide phonetic approximation in Spanish (e.g. "se pronuncia /jelóu/"). Praise every effort!`;
   if (m === 'en') return `LANGUAGE MODE: ENGLISH ONLY. Speak and explain in English${lv === 'A2' ? ' (except the short Spanish hint allowed by the level rules)' : ''}. Explain corrections in simple English.`;
   if (m === 'bi') return `LANGUAGE MODE: BILINGUAL (English conversation + Spanish explanations). The conversation and roleplay stay in English. After EACH learner turn that has a mistake, give the correction as the corrected English sentence, then a short explanation IN SPANISH (1-2 sentences, Latin American Spanish, use "tú") of why it is wrong${voice ? ' — say this explanation out loud in Spanish, then switch back to English' : ''}. If the learner asks something in Spanish, asks what a word or phrase means, or seems lost, answer briefly in Spanish. Then ALWAYS continue the conversation in English and end with a question in English. Keep the Spanish parts short; English must remain the main language.${lv === 'A2' ? ' The learner is a beginner: Spanish explanations are especially welcome, but keep the English very simple.' : lv === 'C1' ? ' The learner is advanced: keep Spanish to the minimum needed for the explanation.' : ''}`;
   return `LANGUAGE MODE: MORE SPANISH (Spanish-led lesson). Explain and chat mainly in Spanish (Latin American Spanish, use "tú"), like a friendly teacher, while doing the roleplay. In each turn introduce one or two short English phrases related to the situation (adapted to the learner's level) and ask the learner to repeat them or to answer in English. When the learner makes a mistake in English, give the correct English form and explain why in Spanish. Praise every attempt.${voice ? ' Speak the Spanish parts in natural Spanish and say the English phrases with clear, slightly slower English pronunciation, pausing before and after them.' : ''}${lv === 'C1' || lv === 'B2' ? ' Since the learner is at a higher level, use longer and more natural English phrases and encourage full English answers.' : ''}`;
@@ -2497,6 +2639,7 @@ VIEWS.settings = v => {
     <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="osave">Guardar</button><button class="btn ghost sm" id="otest">Probar conexión</button><button class="btn ghost sm" id="odel">Borrar clave</button></div><div id="omsg" class="small" style="margin-top:8px"></div>
   </div>
   <div class="card"><h3>🎯 Aprendizaje</h3>
+    <div class="set-row"><div><label for="learnerLevel">Nivel de aprendizaje</label><div class="desc">Ajusta guía fonética, frases y velocidad</div></div><select class="field" id="learnerLevel" style="max-width:200px">${opt([['novice', '🌱 Novato (Desde cero)'], ['intermediate', '⚡ Intermedio'], ['advanced', '🚀 Avanzado']], s.learnerLevel || 'novice')}</select></div>
     <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal" style="max-width:200px">${opt([[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']], s.goal)}</select></div>
     <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:200px">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
     ${sw('freeMode', s.freeMode, 'Modo libre (desbloquear todo)', 'Desactiva el orden secuencial tipo Duolingo y desbloquea todas las lecciones y prácticas')}
@@ -2521,7 +2664,7 @@ VIEWS.settings = v => {
   <p class="muted small" style="text-align:center">Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.</p>`;
   const set = (k, val) => { S.settings[k] = val; save(); };
   const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { if (k === 'ttsEngine') S.settings.__ttsDeviceExplicit = (ev.target.value === 'device'); set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
-  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
+  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['learnerLevel', 'learnerLevel'], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
   ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
   $('#rate').oninput = e => { set('rate', +e.target.value); $('#rateV').textContent = (+e.target.value).toFixed(2) + '×'; };
   $('#tRate').onclick = () => speak('Hello! This is how fast I speak. Think, three, very, ship, sheep.');
