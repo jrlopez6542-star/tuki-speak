@@ -19,10 +19,36 @@ input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
 .stat.fire{color:var(--o)} .stat.xp{color:var(--b)} .stat.heart{color:var(--r)} .stat.coins{color:#d97706}
 .stat.off{color:#b8c1c9;filter:grayscale(1)}
 .brand{cursor:pointer;user-select:none}
-.brand-mascot-wrap{display:inline-flex;align-items:center;justify-content:center;transition:transform .2s ease}
+.brand-mascot-wrap{display:inline-flex;align-items:center;justify-content:center;transition:transform .2s ease;position:relative}
 .brand:hover .brand-mascot-wrap{transform:rotate(-6deg) scale(1.08)}
-.tuki-wiggle{animation:tukiWiggle .6s cubic-bezier(.36,.07,.19,.97) both}
-@keyframes tukiWiggle{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-12deg) scale(1.12)}40%{transform:rotate(10deg) scale(1.12)}60%{transform:rotate(-8deg) scale(1.08)}80%{transform:rotate(6deg) scale(1.04)}}
+
+/* ---- TUKI ANIMATIONS (TIPO DUOLINGO) ---- */
+.tuki-svg{display:block;width:100%;height:100%;overflow:visible;transform-origin:50% 85%;animation:tukiIdle 3.4s ease-in-out infinite}
+@keyframes tukiIdle{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-3.5px) rotate(1.2deg)}}
+
+.tuki-eye{transform-origin:40px 40px;animation:tukiBlink 3.8s ease-in-out infinite}
+@keyframes tukiBlink{0%,93%,97%,100%{transform:scaleY(1)}95%{transform:scaleY(0.08)}}
+
+.tuki-wing{transform-origin:22px 64px;transition:transform .25s ease}
+.tuki-wiggle .tuki-wing,.tuki-celebrate .tuki-wing{animation:tukiWingFlap .2s ease-in-out infinite alternate}
+@keyframes tukiWingFlap{from{transform:rotate(0deg)}to{transform:rotate(-24deg) scaleY(1.1)}}
+
+.tuki-talking .tuki-beak-bot{transform-origin:52px 46px;animation:tukiBeakTalk .18s ease-in-out infinite alternate}
+@keyframes tukiBeakTalk{from{transform:rotate(0deg)}to{transform:rotate(12deg)}}
+
+.tuki-wiggle{animation:tukiPopWiggle .65s cubic-bezier(.34,1.56,.64,1) both !important}
+@keyframes tukiPopWiggle{0%{transform:scale(1) rotate(0deg)}20%{transform:scale(1.2) rotate(-14deg)}40%{transform:scale(1.18) rotate(12deg)}60%{transform:scale(1.1) rotate(-8deg)}80%{transform:scale(1.05) rotate(4deg)}100%{transform:scale(1) rotate(0deg)}}
+
+.tuki-celebrate{animation:tukiCelebrate .85s cubic-bezier(.34,1.56,.64,1) both !important}
+@keyframes tukiCelebrate{0%{transform:scale(1) translateY(0)}25%{transform:scale(1.2,.85) translateY(4px)}45%{transform:scale(.9,1.22) translateY(-24px) rotate(-8deg)}65%{transform:scale(1.15,.92) translateY(-14px) rotate(6deg)}85%{transform:scale(.98,1.04) translateY(-2px) rotate(-2deg)}100%{transform:scale(1) translateY(0) rotate(0)}}
+
+.tuki-comfort{animation:tukiComfort .75s ease-in-out both !important}
+@keyframes tukiComfort{0%{transform:scale(1) rotate(0deg)}30%{transform:scale(.96) rotate(-12deg) translateY(2px)}60%{transform:scale(1.04) rotate(5deg) translateY(-2px)}80%{transform:scale(1) rotate(-2deg)}100%{transform:scale(1) rotate(0deg)}}
+
+.tuki-particle{position:absolute;pointer-events:none;font-size:16px;user-select:none;z-index:30;animation:tukiParticleFloat .85s ease-out forwards}
+@keyframes tukiParticleFloat{0%{opacity:1;transform:translate(0,0) scale(.5)}60%{opacity:1;transform:translate(var(--tx),var(--ty)) scale(1.3)}100%{opacity:0;transform:translate(calc(var(--tx)*1.3),calc(var(--ty) - 15px)) scale(.8)}}
+.mascot,.tuki-tutor-mascot,.mascot-wrap{position:relative}
+
 main{flex:1;padding:14px 14px 96px}
 /* tab bar */
 .tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;z-index:20;display:flex;justify-content:space-around;background:#fff;border-top:2px solid var(--line);padding:6px 4px;padding-bottom:calc(6px + env(safe-area-inset-bottom))}

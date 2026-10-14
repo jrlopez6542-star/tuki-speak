@@ -516,7 +516,7 @@ function renderTukiSVG(skin, opts = {}) {
     trophy: '<path d="M5 60 Q5 72 11 72 Q17 72 17 60 Z" fill="#f59e0b" stroke="#d97706" stroke-width="1"/><path d="M3 62 C1 66 5 68 7 68 M19 62 C21 66 17 68 15 68" stroke="#d97706" stroke-width="1.2" fill="none"/><rect x="9" y="72" width="4" height="5" fill="#d97706"/><rect x="7" y="77" width="8" height="3" rx="1" fill="#78350f"/>'
   }[hand] || '';
 
-  return `<svg ${size}viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${colors.aura}${capeBehind}<ellipse cx="46" cy="58" rx="30" ry="34" fill="${colors.body}"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="${colors.chest}"/><path d="M20 60 C10 70 14 84 24 86" fill="${colors.wing}"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/>${outfitLayer}${handLayer}<circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.5" fill="#1f2a33"/><circle cx="44" cy="38" r="1.8" fill="#fff"/><path d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="${colors.beakTop}"/><path d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="${colors.beakBot}"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/>${hatLayer}</svg>`;
+  return `<svg ${size}viewBox="0 0 100 100" class="tuki-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${colors.aura}${capeBehind}<g class="tuki-body-group"><ellipse cx="46" cy="58" rx="30" ry="34" fill="${colors.body}"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="${colors.chest}"/><path class="tuki-wing" d="M20 60 C10 70 14 84 24 86" fill="${colors.wing}"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/>${outfitLayer}${handLayer}</g><g class="tuki-head-group"><g class="tuki-eye"><circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.5" fill="#1f2a33"/><circle cx="44" cy="38" r="1.8" fill="#fff"/></g><g class="tuki-beak"><path class="tuki-beak-top" d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="${colors.beakTop}"/><path class="tuki-beak-bot" d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="${colors.beakBot}"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/></g>${hatLayer}</g></svg>`;
 }
 let MASCOT = renderTukiSVG();
 function updateMascot() {
@@ -901,6 +901,120 @@ function lessonShell() {
   return `<div class="lhead"><button class="xbtn" id="xLesson" aria-label="Salir">✕</button><div class="pbar"><i style="width:${pct}%"></i></div>${L.mode === 'lesson' ? `<div class="lhearts">❤️ ${S.hearts}</div>` : `<div class="lhearts" style="color:var(--b)">🎯</div>`}</div>
   <div class="lbody" id="lbody"></div><div class="lfoot" id="lfoot" aria-live="polite"></div>`;
 }
+// =================== INTERACTIVIDAD Y ANIMACIONES DE TUKI (TIPO DUOLINGO) ===================
+function spawnTukiParticles(parentEl, type = 'happy') {
+  if (!parentEl) return;
+  const rect = parentEl.getBoundingClientRect();
+  const w = rect.width || 70, h = rect.height || 70;
+  const icons = type === 'coin' ? ['🪙', '✨', '🪙', '🌟'] : type === 'love' ? ['❤️', '✨', '💖', '⭐'] : ['✨', '⭐', '🎶', '🦜', '💫', '🎉'];
+  for (let i = 0; i < 5; i++) {
+    const p = document.createElement('span');
+    p.className = 'tuki-particle';
+    p.textContent = pick(icons);
+    const x = (Math.random() - 0.5) * 56;
+    const y = (Math.random() - 0.5) * 20;
+    p.style.setProperty('--tx', `${x}px`);
+    p.style.setProperty('--ty', `${-35 - Math.random() * 35}px`);
+    p.style.left = `${w / 2}px`;
+    p.style.top = `${h / 2}px`;
+    parentEl.appendChild(p);
+    setTimeout(() => p.remove(), 900);
+  }
+}
+
+function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType = 'happy') {
+  const m = el ? ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || el) : null;
+  if (!m) return;
+  m.classList.remove('tuki-wiggle', 'tuki-celebrate', 'tuki-comfort');
+  void m.offsetWidth;
+  m.classList.add(animClass);
+  spawnTukiParticles(m, particleType);
+  setTimeout(() => m.classList.remove(animClass), 900);
+}
+
+function tukiChirp(mood = 'chirp') {
+  if (!S.settings.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const t = AC.currentTime;
+    if (mood === 'celebrate') {
+      const notes = [1046.5, 1318.5, 1567.98];
+      notes.forEach((freq, idx) => {
+        const o = AC.createOscillator(), g = AC.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(freq, t + idx * 0.08);
+        g.gain.setValueAtTime(0.001, t + idx * 0.08);
+        g.gain.linearRampToValueAtTime(0.18, t + idx * 0.08 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.08 + 0.12);
+        o.connect(g).connect(AC.destination);
+        o.start(t + idx * 0.08);
+        o.stop(t + idx * 0.08 + 0.13);
+      });
+    } else if (mood === 'comfort') {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = 'triangle';
+      o.frequency.setValueAtTime(440, t);
+      o.frequency.exponentialRampToValueAtTime(520, t + 0.15);
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.12, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.25);
+      o.connect(g).connect(AC.destination);
+      o.start(t); o.stop(t + 0.26);
+    } else {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(800, t);
+      o.frequency.exponentialRampToValueAtTime(1400, t + 0.09);
+      o.frequency.exponentialRampToValueAtTime(1100, t + 0.2);
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.18, t + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      o.connect(g).connect(AC.destination);
+      o.start(t); o.stop(t + 0.23);
+    }
+  } catch (e) {}
+}
+
+const TUKI_QUOTES_ES = [
+  "¡De una! Recuerda: ¡cada minuto de práctica suma para tu fluidez!",
+  "¡Estás hablando más claro cada día! ¡Sigue así!",
+  "¡La práctica hace al maestro! No le tengas miedo a equivocarte.",
+  "¡Me encanta mi estilo! ¡Gracias por vestirme tan bacano!",
+  "¡Pronuncia con calma y ritmo! La música del inglés está en conectar las palabras.",
+  "¡Tú tienes todo el potencial! ¡Vamos a romperla hoy!",
+  "¡Oído atento y lengua suelta! Si imitas la entonación, sonarás mucho más natural.",
+  "¡Qué berraquera! Cada lección completada te acerca más a tus metas.",
+  "¡No pares ahora! Mantener la racha diaria es el secreto del éxito.",
+  "¡Paso a paso, parcero! Si practicas 5 minutos hoy, tu futuro te lo agradecerá.",
+  "¡Excelente vibra! Recuerda tomar agüita y vocalizar bien clarito.",
+  "¡Gana monedas y pásate por mi armario a ver qué más me estrenas!"
+];
+const TUKI_QUOTES = TUKI_QUOTES_ES.map(q => ({ es: q, en: q }));
+
+function speakTukiEs(text, targetEl) {
+  if (!S.settings.sound) return;
+  const m = targetEl ? ($('.brand-mascot-wrap', targetEl) || $('.mascot', targetEl) || $('.tuki-tutor-mascot', targetEl) || targetEl) : null;
+  if (m) m.classList.add('tuki-talking');
+  try {
+    deviceSpeakEs(text, () => {
+      if (m) m.classList.remove('tuki-talking');
+    }, 1.05);
+  } catch (e) {
+    if (m) m.classList.remove('tuki-talking');
+  }
+}
+
+function interactWithTuki(el) {
+  const m = el ? ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || el) : null;
+  triggerTukiAnimation(m, 'tuki-wiggle', 'happy');
+  tukiChirp('chirp');
+  const phrase = pick(TUKI_QUOTES_ES);
+  if (!L) {
+    speakTukiEs(phrase, m);
+  }
+  toast(`🦜 Tuki: "${phrase}"`, 3800);
+}
+
 function tukiTutorBannerHTML(opts = {}) {
   const title = opts.title || 'Profe Tuki 🦜';
   const msg = opts.msg || '';
@@ -925,13 +1039,9 @@ function bindTukiTutorBanner(body) {
   if (b) b.onclick = () => {
     const txt = b.dataset.tukiTutorSay;
     if (txt) {
-      if (m) {
-        m.classList.remove('tuki-wiggle');
-        void m.offsetWidth;
-        m.classList.add('tuki-wiggle');
-        setTimeout(() => m.classList.remove('tuki-wiggle'), 650);
-      }
-      deviceSpeakEs(txt, null, 1.05);
+      triggerTukiAnimation(m, 'tuki-wiggle', 'happy');
+      tukiChirp('chirp');
+      speakTukiEs(txt, m);
     }
   };
 }
@@ -966,6 +1076,16 @@ const ENCOURAGE = [
 function feedback(ok, answerHTML, expl, sayText) {
   beep(ok ? 'ok' : 'bad');
   const coachNote = ok ? pick(PRAISE) : pick(ENCOURAGE);
+  const m = $('.tuki-tutor-mascot', $('#lbody')) || $('.mascot', $('#lbody'));
+  if (m) {
+    if (ok) {
+      triggerTukiAnimation(m, 'tuki-celebrate', 'happy');
+      tukiChirp('celebrate');
+    } else {
+      triggerTukiAnimation(m, 'tuki-comfort', 'happy');
+      tukiChirp('comfort');
+    }
+  }
   const f = setFoot(`<div class="fb"><h3>${ok ? '✅ ' + coachNote : '❌ ' + coachNote}</h3>${answerHTML ? `<div class="ans">${answerHTML}</div>` : ''}${expl ? `<div class="exp">${expl}</div>` : ''}</div>
     <div class="row">${sayText ? `<button class="spk" data-say-n="${esc(sayText)}" title="Escuchar">🔊</button>` : ''}<button class="btn primary" id="primaryBtn">Continuar</button></div>`, ok ? 'ok' : 'bad');
   const s = $('[data-say-n]', f); if (s) s.onclick = () => speak(sayText);
@@ -1193,6 +1313,16 @@ function onSpeechResult(ex, target, alts, url0, az) {
     ${compareHTML(target, url)}${extraResultHTML(r, target, url, ex)}</div>`;
   bindCompare(target, url, $('#res')); bindExtra($('#res'), r, target, url, ex);
   beep(pass ? 'ok' : 'bad');
+  const m = $('.tuki-tutor-mascot', $('#lbody')) || $('.mascot', $('#lbody'));
+  if (m) {
+    if (pass) {
+      triggerTukiAnimation(m, 'tuki-celebrate', 'happy');
+      tukiChirp('celebrate');
+    } else {
+      triggerTukiAnimation(m, 'tuki-comfort', 'happy');
+      tukiChirp('comfort');
+    }
+  }
   const speechTutorMsg = pass
     ? (r.pct >= 90 ? '🌟 Profe Tuki: ¡Excelente pronunciación!' : '✅ Profe Tuki: ¡Bien dicho!')
     : '🔁 Profe Tuki: ¡Casi! Sigue practicando';
@@ -6099,60 +6229,6 @@ VIEWS.words = function (v) {
   }
 };
 
-// =================== INTERACTIVIDAD Y AUDIO DE TUKI ===================
-function tukiChirp() {
-  try {
-    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
-    const t = AC.currentTime;
-    const o = AC.createOscillator(), g = AC.createGain();
-    o.type = 'sine';
-    o.frequency.setValueAtTime(800, t);
-    o.frequency.exponentialRampToValueAtTime(1400, t + 0.1);
-    o.frequency.exponentialRampToValueAtTime(1100, t + 0.22);
-    g.gain.setValueAtTime(0.001, t);
-    g.gain.linearRampToValueAtTime(0.18, t + 0.04);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
-    o.connect(g).connect(AC.destination);
-    o.start(t); o.stop(t + 0.25);
-  } catch (e) {}
-}
-
-const TUKI_QUOTES_ES = [
-  "¡De una! Recuerda: ¡cada minuto de práctica suma para tu fluidez!",
-  "¡Estás hablando más claro cada día! ¡Sigue así!",
-  "¡La práctica hace al maestro! No le tengas miedo a equivocarte.",
-  "¡Me encanta mi estilo! ¡Gracias por vestirme tan bacano!",
-  "¡Pronuncia con calma y ritmo! La música del inglés está en conectar las palabras.",
-  "¡Tú tienes todo el potencial! ¡Vamos a romperla hoy!",
-  "¡Oído atento y lengua suelta! Si imitas la entonación, sonarás mucho más natural.",
-  "¡Qué berraquera! Cada lección completada te acerca más a tus metas.",
-  "¡No pares ahora! Mantener la racha diaria es el secreto del éxito.",
-  "¡Paso a paso, parcero! Si practicas 5 minutos hoy, tu futuro te lo agradecerá.",
-  "¡Excelente vibra! Recuerda tomar agüita y vocalizar bien clarito.",
-  "¡Gana monedas y pásate por mi armario a ver qué más me estrenas!"
-];
-const TUKI_QUOTES = TUKI_QUOTES_ES.map(q => ({ es: q, en: q }));
-
-function interactWithTuki(el) {
-  const m = el ? ($('.brand-mascot-wrap', el) || $('.mascot', el) || el) : null;
-  if (m) {
-    m.classList.remove('tuki-wiggle');
-    void m.offsetWidth;
-    m.classList.add('tuki-wiggle');
-    setTimeout(() => m.classList.remove('tuki-wiggle'), 650);
-  }
-  tukiChirp();
-  const phrase = pick(TUKI_QUOTES_ES);
-  if (S.settings.sound && !L) {
-    try {
-      deviceSpeakEs(phrase, null, 1.05);
-    } catch (e) {
-      console.warn('Tuki speech error', e);
-    }
-  }
-  toast(`🦜 Tuki: "${phrase}"`, 3800);
-}
-
 // =================== TIENDA Y ARMARIO DE TUKI ===================
 const TUKI_SHOP_ITEMS = [
   // --- 🧢 Sombreros y Cabeza (14 ítems) ---
@@ -6871,4 +6947,4 @@ applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, spawnTukiParticles, speakTukiEs, tukiChirp, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, version: APP_VERSION };
