@@ -23,18 +23,42 @@ async function serverToken(f) {
 }
 export const _resetSession = () => { session = null; };
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function retryWithBackoff(fn, maxRetries = 2) {
+  let attempt = 0;
+  while (true) {
+    try {
+      return await fn();
+    } catch (err) {
+      attempt++;
+      const status = err && err.status;
+      const isTransient = (status >= 500 && status < 600) || status === 429 || (err && /network|timeout|econnreset|etimedout/i.test(err.message));
+      if (attempt > maxRetries || !isTransient) throw err;
+      const delay = Math.min(500, (60 * Math.pow(2, attempt - 1)) + Math.random() * 40);
+      await sleep(delay);
+    }
+  }
+}
+
 async function increment(f, uid, kind, by) {
   const doc = `projects/${PROJECT_ID}/databases/(default)/documents/quota/${dayKey()}_${uid}`;
   const body = { writes: [{ transform: { document: doc, fieldTransforms: [{ fieldPath: kind, increment: { integerValue: String(by) } }, { fieldPath: 'updatedAt', setToServerValue: 'REQUEST_TIME' }] } }] };
   const call = async tok => f(`${FS}:commit`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(body) });
-  let r = await call(await serverToken(f));
-  if (r.status === 401) { session = null; r = await call(await serverToken(f)); }
-  if (!r.ok) throw new Error('quota commit ' + r.status);
-  const d = await r.json();
-  const v = d.writeResults && d.writeResults[0] && d.writeResults[0].transformResults && d.writeResults[0].transformResults[0];
-  const n = v && parseInt(v.integerValue, 10);
-  if (!Number.isFinite(n)) throw new Error('quota result');
-  return n;
+  return retryWithBackoff(async () => {
+    let r = await call(await serverToken(f));
+    if (r.status === 401) { session = null; r = await call(await serverToken(f)); }
+    if (!r.ok) {
+      const err = new Error('quota commit ' + r.status);
+      err.status = r.status;
+      throw err;
+    }
+    const d = await r.json();
+    const v = d.writeResults && d.writeResults[0] && d.writeResults[0].transformResults && d.writeResults[0].transformResults[0];
+    const n = v && parseInt(v.integerValue, 10);
+    if (!Number.isFinite(n)) throw new Error('quota result');
+    return n;
+  });
 }
 
 // Suma 1 al contador del día; si pasa el límite, responde 429 con el mensaje en español. El dueño no tiene límite.

@@ -549,6 +549,7 @@ function load() {
   if (!S.tukiSkin.owned.includes('plumage:classic')) S.tukiSkin.owned.push('plumage:classic');
   if (!S.chests) S.chests = { dailyClaimed: null };
   if (!S.quests) S.quests = {};
+  if (!S.unitsDone) S.unitsDone = {};
   S.settings = { ...DEFAULT_SETTINGS, ...S.settings };
   if (S.settings.ttsEngine === 'device' && !S.settings.__ttsDeviceExplicit) S.settings.ttsEngine = 'auto';
   if (oldV < 2) { S.v = 2; if (raw && (Object.keys(S.done || {}).length || S.xp)) S.placement = S.placement || 'legacy'; }
@@ -660,6 +661,52 @@ function tukiFanfare() {
       o.start(noteTime);
       o.stop(noteTime + d + 0.03);
       if (idx < 5) t += d * 0.92;
+    });
+  } catch (e) {}
+}
+
+function tukiTrophyFanfare() {
+  if (!S.settings.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    // Gran fanfarria orquestal polifónica para trofeos y conquista de unidades
+    const notes = [
+      // Frase 1 (Llamado de metales)
+      [261.63, 0.12, 'triangle', 0.22, 0.00],
+      [392.00, 0.12, 'triangle', 0.22, 0.12],
+      [523.25, 0.15, 'triangle', 0.26, 0.24],
+      [523.25, 0.22, 'triangle', 0.28, 0.38],
+      // Frase 2 (Respuesta heroica)
+      [293.66, 0.12, 'triangle', 0.22, 0.65],
+      [440.00, 0.12, 'triangle', 0.24, 0.77],
+      [587.33, 0.15, 'triangle', 0.28, 0.89],
+      [587.33, 0.24, 'triangle', 0.30, 1.03],
+      // Frase 3 (Arpegio ascendente rápido)
+      [392.00, 0.08, 'sawtooth', 0.18, 1.30],
+      [493.88, 0.08, 'sawtooth', 0.20, 1.38],
+      [587.33, 0.08, 'sawtooth', 0.22, 1.46],
+      [783.99, 0.12, 'sawtooth', 0.26, 1.54],
+      // Acorde triunfal sostenido C Mayor con brillo Ka-ching
+      [261.63, 1.20, 'triangle', 0.30, 1.66],
+      [523.25, 1.20, 'triangle', 0.32, 1.66],
+      [659.25, 1.20, 'triangle', 0.28, 1.66],
+      [783.99, 1.20, 'sine',     0.28, 1.66],
+      [1046.50, 1.40, 'triangle', 0.32, 1.66],
+      [1318.51, 1.40, 'sine',     0.18, 1.66]
+    ];
+    const t0 = AC.currentTime + 0.04;
+    notes.forEach(([f, d, wave, vol, offset]) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = wave;
+      o.frequency.value = f;
+      const startT = t0 + offset;
+      g.gain.setValueAtTime(0.0001, startT);
+      g.gain.linearRampToValueAtTime(vol, startT + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, startT + d);
+      o.connect(g).connect(AC.destination);
+      o.start(startT);
+      o.stop(startT + d + 0.04);
     });
   } catch (e) {}
 }
@@ -1303,6 +1350,52 @@ RENDER.speak = RENDER.shadow = RENDER.dialog = RENDER.saypair = (ex, body) => {
   }
   if (S.settings.autoplay) setTimeout(() => speak(target, false, variant === 'shadow' ? () => setTimeout(() => L && L.cur === ex && speak(target, true), 400) : null), 350);
 };
+function createMicMeter(btn) {
+  let vu = $('#micVu');
+  if (vu) vu.remove();
+  if (btn && btn.parentElement) {
+    vu = document.createElement('div');
+    vu.id = 'micVu';
+    vu.className = 'mic-vu-wrap';
+    vu.innerHTML = `<div class="mic-vu-bar"><div class="mic-vu-fill low" id="micVuFill"></div></div>
+      <div class="mic-vu-status low" id="micVuStatus">
+        <span class="mic-vu-icon">🔉</span> <span class="mic-vu-text">Esperando voz… habla cerca del micrófono</span>
+      </div>`;
+    btn.parentElement.appendChild(vu);
+  }
+  let lastState = '';
+  return {
+    update(rms) {
+      if (!vu) return;
+      const fill = $('#micVuFill', vu), status = $('#micVuStatus', vu);
+      const text = $('.mic-vu-text', vu), icon = $('.mic-vu-icon', vu);
+      if (!fill || !status) return;
+      const pct = Math.min(100, Math.max(4, Math.round(rms * 420)));
+      fill.style.width = pct + '%';
+      let state = 'low', sText = 'Volumen bajo: acércate al micrófono', sIcon = '🔉';
+      if (rms >= 0.018 && rms <= 0.22) {
+        state = 'good'; sText = '¡Volumen óptimo! Te escucho con claridad'; sIcon = '🟢';
+      } else if (rms > 0.22) {
+        state = 'high'; sText = 'Demasiado volumen o ruido de fondo'; sIcon = '🔴';
+      }
+      if (state !== lastState) {
+        lastState = state;
+        fill.className = 'mic-vu-fill ' + state;
+        status.className = 'mic-vu-status ' + state;
+        if (text) text.textContent = sText;
+        if (icon) icon.textContent = sIcon;
+      }
+    },
+    destroy() {
+      if (vu) {
+        vu.style.opacity = '0';
+        vu.style.transition = 'opacity .2s ease';
+        setTimeout(() => { if (vu.parentElement) vu.remove(); }, 200);
+      }
+    }
+  };
+}
+
 async function doMic(btn, onResult, target) {
   if (curRec) { stopRecognize(); return; }
   if (MicCap.active) { MicCap.stop(); return; }
@@ -1310,11 +1403,41 @@ async function doMic(btn, onResult, target) {
   if (target && azureReady()) return azureMic(btn, onResult, target);
   if (!HAS_SR) { toast(SR_ERR.unsupported + ' Usa Chrome o configura Azure en Ajustes.', 4000); return; }
   btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando… habla ahora';
-  let recOn = false;
+  const micMeter = createMicMeter(btn);
+  let recOn = false, stream = null, anCtx = null, animId = null;
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+      anCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = anCtx.createMediaStreamSource(stream), an = anCtx.createAnalyser();
+      an.fftSize = 256; src.connect(an);
+      const buf = new Float32Array(an.fftSize);
+      const loop = () => {
+        if (!btn.classList.contains('rec')) return;
+        an.getFloatTimeDomainData(buf);
+        let s = 0; for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i];
+        micMeter.update(Math.sqrt(s / buf.length));
+        animId = requestAnimationFrame(loop);
+      };
+      loop();
+    } catch (e) {}
+  }
   if (S.settings.recordVoice && Rec.supported) { try { await Rec.start(); recOn = true; } catch (e) {} }
-  try { const alts = await recognize(); const url = recOn ? await Rec.stop() : null; onResult(alts, url); }
-  catch (err) { if (recOn) await Rec.stop(); toast(SR_ERR[err] || ('Error de voz: ' + err), 3500); }
-  finally { btn.classList.remove('rec'); btn.innerHTML = '🎤 Toca para hablar de nuevo'; }
+  try {
+    const alts = await recognize();
+    const url = recOn ? await Rec.stop() : null;
+    onResult(alts, url);
+  } catch (err) {
+    if (recOn) await Rec.stop();
+    toast(SR_ERR[err] || ('Error de voz: ' + err), 3500);
+  } finally {
+    if (animId) cancelAnimationFrame(animId);
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    if (anCtx) anCtx.close().catch(() => {});
+    micMeter.destroy();
+    btn.classList.remove('rec');
+    btn.innerHTML = '🎤 Toca para hablar de nuevo';
+  }
 }
 let recOnlyActive = false;
 async function recOnlyToggle(btn, onDone) {
@@ -1409,20 +1532,47 @@ function finishLesson() {
   const goal = S.settings.goal, today = todayRec().xp;
   updateMascot();
 
-  // Audio: Fanfarria de victoria alegre + chirps
-  tukiFanfare();
-  setTimeout(() => tukiChirp('celebrate'), 450);
+  let unitCompleted = false;
+  let unitTitle = '';
+  let unitIdx = 0;
+  if (L.mode === 'lesson' && L.l && L.l.unit) {
+    const u = L.l.unit;
+    const allDone = u.lessons.every(l => l.id === L.l.id || isDone(l.id));
+    if (allDone && (!S.unitsDone || !S.unitsDone[u.id])) {
+      unitCompleted = true;
+      unitTitle = u.title;
+      unitIdx = L.l.ui + 1;
+      S.unitsDone = S.unitsDone || {};
+      S.unitsDone[u.id] = Date.now();
+      save();
+      addCoins(50, '🏆 Trofeo de Unidad');
+      addXP(25);
+    }
+  }
 
-  // Confetti en oleadas tipo Duolingo
-  victoryConfetti(isPerfect ? 4 : 3);
+  // Audio: Fanfarria de trofeo o de lección + chirps
+  if (unitCompleted) {
+    tukiTrophyFanfare();
+    setTimeout(() => tukiChirp('celebrate'), 650);
+    victoryConfetti(5);
+  } else {
+    tukiFanfare();
+    setTimeout(() => tukiChirp('celebrate'), 450);
+    victoryConfetti(isPerfect ? 4 : 3);
+  }
 
   // Insignias ganadas en esta lección
   const badges = [];
+  if (unitCompleted) {
+    badges.push(`<div class="victory-badge trophy-badge">🏆 ¡UNIDAD ${unitIdx} CONQUISTADA: ${esc(unitTitle)}! (+50 🪙 Trofeo)</div>`);
+  }
   if (isPerfect) badges.push('<div class="victory-badge perfect-badge">⭐ ¡LECCIÓN PERFECTA! (+10 🪙 Extra)</div>');
   if (isGoldPron) badges.push(`<div class="victory-badge gold-badge">💎 ¡PRONUNCIACIÓN DE ORO (${pron}%)!</div>`);
   if (up) badges.push(`<div class="victory-badge streak-badge">🔥 ¡RACHA AUMENTADA! (${S.streak} ${S.streak === 1 ? 'día' : 'días'})</div>`);
 
-  const finishQuote = pick(isPerfect ? [
+  const finishQuote = unitCompleted
+    ? `¡IMPRESIONANTE! ¡Completaste toda la Unidad ${unitIdx}: ${unitTitle}! ¡Reclamaste tu trofeo y 50 monedas extra!`
+    : pick(isPerfect ? [
     '¡Increíble! ¡Lección perfecta sin un solo error! ¡Te ganaste 10 monedas extra!',
     '¡Impecable, campeón! ¡Ni un solo fallo! Estás volando con tu inglés.',
     '¡Qué bárbaro! Lección impecable. ¡Tuki está súper orgulloso de ti!'
@@ -1459,7 +1609,7 @@ function finishLesson() {
         <span class="victory-podium-star">🏆</span>
       </div>
     </div>
-    <h1>${isPerfect ? '¡Lección Perfecta!' : L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
+    <h1>${unitCompleted ? '🏆 ¡Unidad Conquistada!' : isPerfect ? '¡Lección Perfecta!' : L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
     ${badges.length ? `<div class="victory-badges">${badges.join('')}</div>` : ''}
     <div class="tuki-speech" style="margin:6px auto 12px;max-width:340px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700">
       🦜 <b>Profe Tuki:</b> «${finishQuote}»
@@ -1478,7 +1628,8 @@ function finishLesson() {
   const doCelebration = () => {
     if (fm) triggerTukiAnimation(fm, 'tuki-celebrate', 'coin');
     tukiChirp('celebrate');
-    victoryConfetti(1);
+    if (unitCompleted) tukiTrophyFanfare();
+    victoryConfetti(unitCompleted ? 3 : 1);
     speakTukiEs(finishQuote, fm);
   };
   if (fm) fm.onclick = doCelebration;
@@ -2184,14 +2335,20 @@ async function openaiSTT(wav) {
 let LAST_REC = null;
 async function azureMic(btn, onResult, target) {
   btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando (Azure)… toca para terminar';
+  const micMeter = createMicMeter(btn);
   try {
     const n = target.split(/\s+/).length;
-    const rec = await MicCap.start({ maxMs: Math.min(15000, 3500 + n * 700) });
+    const rec = await MicCap.start({
+      maxMs: Math.min(15000, 3500 + n * 700),
+      onLevel: rms => micMeter.update(rms)
+    });
+    micMeter.destroy();
     btn.classList.remove('rec'); btn.innerHTML = '⏳ Analizando pronunciación…';
     const url = URL.createObjectURL(rec.wav); Rec.url = url; LAST_REC = { url, samples: rec.samples };
     const az = await azureAssess(target, rec.wav);
     onResult(az.alts, url, az);
   } catch (e) {
+    micMeter.destroy();
     const isLimit = e.status === 429 || (e.detail && /limit|cuota/i.test(e.detail)) || (e.message && /429/i.test(e.message));
     const auth = e.status === 401 || e.status === 403 || isLimit || e instanceof TypeError || !!(e.shared && e.fatal);
     if (auth && HAS_SR) window.__azOff = true;
@@ -2204,7 +2361,11 @@ async function azureMic(btn, onResult, target) {
       btn.classList.remove('rec');
       return doMic(btn, onResult, target);
     }
-  } finally { btn.classList.remove('rec'); btn.innerHTML = '🎤 Toca para hablar de nuevo'; }
+  } finally {
+    micMeter.destroy();
+    btn.classList.remove('rec');
+    btn.innerHTML = '🎤 Toca para hablar de nuevo';
+  }
 }
 function scoreBar(label, v) { if (v == null) return ''; const c = v >= 80 ? 'var(--g)' : v >= 60 ? 'var(--o)' : 'var(--r)'; return `<div class="az-bar">${label} · ${Math.round(v)}<div class="tr"><i style="width:${v}%;background:${c}"></i></div></div>`; }
 function azurePanelHTML(r) {
@@ -7061,4 +7222,4 @@ applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, version: APP_VERSION };

@@ -699,3 +699,20 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 [data-theme=dark] .victory-badge.perfect-badge{background:linear-gradient(135deg,#422006 0%,#713f12 100%);color:#fef08a;border-color:#ca8a04}
 [data-theme=dark] .victory-badge.gold-badge{background:linear-gradient(135deg,#082f49 0%,#0369a1 100%);color:#bae6fd;border-color:#0284c7}
 [data-theme=dark] .celebrate-btn{background:#422006;border-color:#ca8a04;color:#fef08a}
+.victory-badge.trophy-badge{background:linear-gradient(135deg,#fef08a 0%,#f59e0b 50%,#b45309 100%);color:#451a03;border:2.5px solid #d97706;box-shadow:0 6px 18px rgba(245,158,11,.5);font-size:14px;padding:10px 18px}
+[data-theme=dark] .victory-badge.trophy-badge{background:linear-gradient(135deg,#78350f 0%,#d97706 100%);color:#fef08a;border-color:#f59e0b}
+
+/* Medidor de volumen / ruido en tiempo real */
+.mic-vu-wrap{margin-top:10px;display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;animation:fadeIn .2s ease}
+.mic-vu-bar{width:100%;max-width:320px;height:10px;background:var(--line);border-radius:999px;overflow:hidden;position:relative;display:flex;align-items:center;padding:1px}
+.mic-vu-fill{height:100%;width:0%;border-radius:999px;background:var(--g);transition:width .06s ease-out, background-color .15s ease}
+.mic-vu-fill.low{background:#f59e0b}
+.mic-vu-fill.good{background:#10b981}
+.mic-vu-fill.high{background:#ef4444}
+.mic-vu-status{font-size:12px;font-weight:800;display:flex;align-items:center;gap:6px;text-align:center}
+.mic-vu-status.low{color:#d97706}
+.mic-vu-status.good{color:#059669}
+.mic-vu-status.high{color:#dc2626}
+[data-theme=dark] .mic-vu-status.low{color:#fbbf24}
+[data-theme=dark] .mic-vu-status.good{color:#34d399}
+[data-theme=dark] .mic-vu-status.high{color:#f87171}
