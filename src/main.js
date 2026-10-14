@@ -1,4 +1,5 @@
 import './styles/app.css';
+import { TukiDB } from './tuki-db.js';
 
 /* =================== CONTENIDO DEL CURSO =================== */
 // Lecciones de pronunciación: expl = explicación, mouth = posición de boca/lengua,
@@ -2292,9 +2293,23 @@ async function cloudTTSBlob(text, slow, tl, mul = 1) {
   const s = S.settings, rate = ttsRate(slow, tl, mul), eng = ttsEngineFor(tl);
   const k = [eng, tl === 'es' ? 'es' : '', eng === 'azure' ? azVoiceFor(tl) : s.openaiVoice + (s.accent || ''), rate.toFixed(2), text].join('|');
   if (TTS.cache.has(k)) return TTS.cache.get(k);
-  const url = location.origin + '/__tts/' + hashStr(k); let blob = null;
-  try { const c = await caches.open('tuki-tts-v1'); const m = await c.match(url); if (m) blob = await m.blob(); } catch (e) {}
-  if (!blob) { blob = eng === 'azure' ? await azureTTS(text, rate, tl) : await openaiTTS(text, rate, tl); try { const c = await caches.open('tuki-tts-v1'); await c.put(url, new Response(blob, { headers: { 'Content-Type': blob.type || 'audio/mpeg' } })); } catch (e) {} }
+  let blob = null;
+  try {
+    const dbBlob = await TukiDB.get('audio', k);
+    if (dbBlob) blob = dbBlob;
+  } catch (e) {}
+  if (!blob) {
+    const url = location.origin + '/__tts/' + hashStr(k);
+    try { const c = await caches.open('tuki-tts-v1'); const m = await c.match(url); if (m) blob = await m.blob(); } catch (e) {}
+  }
+  if (!blob) {
+    blob = eng === 'azure' ? await azureTTS(text, rate, tl) : await openaiTTS(text, rate, tl);
+    const url = location.origin + '/__tts/' + hashStr(k);
+    try { const c = await caches.open('tuki-tts-v1'); await c.put(url, new Response(blob, { headers: { 'Content-Type': blob.type || 'audio/mpeg' } })); } catch (e) {}
+    try { await TukiDB.set('audio', k, blob); } catch (e) {}
+  } else {
+    try { TukiDB.set('audio', k, blob); } catch (e) {}
+  }
   TTS.cache.set(k, blob); return blob;
 }
 /* Voz en español del dispositivo (para explicaciones del tutor) */
@@ -2327,7 +2342,7 @@ speak = function (text, slow = false, onend, tl, mul = 1) {
   stopAudio();
   if (tl === 'es' || mul !== 1) {
     const dev = () => tl === 'es' ? deviceSpeakEs(text, onend, ttsRate(slow, 'es', mul)) : deviceSpeakEn(text, ttsRate(slow, undefined, mul), onend);
-    if (cloudTTSReady(tl) && navigator.onLine !== false) {
+    if (cloudTTSReady(tl)) {
       const my = TTS.seq; if ('speechSynthesis' in window) speechSynthesis.cancel();
       cloudTTSBlob(text, slow, tl, mul).then(blob => { if (my !== TTS.seq) return; const a = new Audio(URL.createObjectURL(blob)); TTS.audio = a; a.onended = () => { onend && onend(); }; a.play().catch(dev); })
         .catch(() => { if (my === TTS.seq) dev(); });
@@ -2335,13 +2350,13 @@ speak = function (text, slow = false, onend, tl, mul = 1) {
     }
     return dev();
   }
-  if (cloudTTSReady('en') && navigator.onLine !== false) {
+  if (cloudTTSReady('en')) {
     const my = TTS.seq; if ('speechSynthesis' in window) speechSynthesis.cancel();
     cloudTTSBlob(text, slow).then(blob => {
       if (my !== TTS.seq) return;
       const a = new Audio(URL.createObjectURL(blob)); TTS.audio = a; a.onended = () => { onend && onend(); };
       a.play().catch(() => _deviceSpeak(text, slow, onend));
-    }).catch(e => { if (!TTS.warned) { toast('Voz en la nube no disponible (' + errES(e) + '). Uso la voz del dispositivo.', 4500); TTS.warned = true; } if (my === TTS.seq) _deviceSpeak(text, slow, onend); });
+    }).catch(e => { if (navigator.onLine && !TTS.warned) { toast('Voz en la nube no disponible (' + errES(e) + '). Uso la voz del dispositivo.', 4500); TTS.warned = true; } if (my === TTS.seq) _deviceSpeak(text, slow, onend); });
     return;
   }
   _deviceSpeak(text, slow, onend);
@@ -3097,9 +3112,33 @@ function chatDraw(keepScroll) {
   if (keepScroll) log.scrollTop = st; else log.scrollTop = log.scrollHeight;
 }
 /* IA rápida (traducciones) con caché local */
+/* IA rápida (traducciones) con caché local y respaldo persistente en TukiDB */
 const CACHE_KEYS = { w: 'tukiSpeak.wcache', t: 'tukiSpeak.tcache' };
-function cacheGet(k, id) { try { return (JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'))[id]; } catch (e) { return undefined; } }
-function cacheSet(k, id, v) { try { const o = JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'); o[id] = v; const ks = Object.keys(o); if (ks.length > 400) ks.slice(0, ks.length - 400).forEach(x => delete o[x]); localStorage.setItem(CACHE_KEYS[k], JSON.stringify(o)); } catch (e) {} }
+const MEM_WCACHE = new Map();
+const MEM_TCACHE = new Map();
+function cacheGet(k, id) {
+  if (k === 'w' && MEM_WCACHE.has(id)) return MEM_WCACHE.get(id);
+  if (k === 't' && MEM_TCACHE.has(id)) return MEM_TCACHE.get(id);
+  try {
+    const v = (JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'))[id];
+    if (v) {
+      if (k === 'w') MEM_WCACHE.set(id, v);
+      if (k === 't') MEM_TCACHE.set(id, v);
+    }
+    return v;
+  } catch (e) { return undefined; }
+}
+function cacheSet(k, id, v) {
+  if (k === 'w') { MEM_WCACHE.set(id, v); TukiDB.set('words', id, v).catch(() => {}); }
+  if (k === 't') { MEM_TCACHE.set(id, v); TukiDB.set('kv', 'tr:' + id, v).catch(() => {}); }
+  try {
+    const o = JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}');
+    o[id] = v;
+    const ks = Object.keys(o);
+    if (ks.length > 400) ks.slice(0, ks.length - 400).forEach(x => delete o[x]);
+    localStorage.setItem(CACHE_KEYS[k], JSON.stringify(o));
+  } catch (e) {}
+}
 /* v2.5.1: llamadas únicas a la IA resistentes a saturación (503/429/500/UNAVAILABLE/high demand) */
 const AIQ = { budget: 25000, base: 700, good: null };
 const GEM_QUICK_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.0-flash-lite'];
@@ -3189,7 +3228,16 @@ async function openWordPop(word, context, anchor) {
   const pop = document.createElement('div'); pop.id = 'wordPop'; pop.className = 'wordpop'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Significado de ' + word);
   document.body.appendChild(pop);
   const key = 'w:' + word.toLowerCase(), d = dictLookup(word), cid = word.toLowerCase() + '|' + hashStr(context || '');
-  const cached = cacheGet('w', cid);
+  let cached = cacheGet('w', cid);
+  if (!cached) {
+    try {
+      const dbCached = await TukiDB.get('words', cid);
+      if (dbCached) {
+        cached = dbCached;
+        MEM_WCACHE.set(cid, dbCached);
+      }
+    } catch (e) {}
+  }
   let info = d ? { es: d.es, ipa: ipaLookup(word) || (cached && cached.ipa) || '', src: 'dict' } : (cached || null);
   const draw = () => {
     const inDeck = !!S.deck[key];
@@ -3977,8 +4025,15 @@ mergeStates = function (a, b) {
   o.tc = { items, ai: [...ai.values()].slice(-80) }; ['sessions', 'xp', 'ok', 'first'].forEach(k => o.tc[k] = Math.max(+ta[k] || 0, +tb[k] || 0));
   return o;
 };
+let TUKI_OFFLINE_TC = [];
 const tcNorm = s => normText(s).join(' ');
-const tcAll = () => TC_BANK.concat(S.tc.ai || []);
+const tcAll = () => {
+  const map = new Map();
+  TC_BANK.forEach(x => x && x.id && map.set(x.id, x));
+  (S.tc.ai || []).forEach(x => x && x.id && map.set(x.id, x));
+  TUKI_OFFLINE_TC.forEach(x => x && x.id && map.set(x.id, x));
+  return Array.from(map.values());
+};
 const tcById = id => tcAll().find(x => x.id === id) || null;
 const tcLevel = () => TC_LV[S.settings.tcLevel] ? S.settings.tcLevel : chatLevel();
 const tcCtx = it => it.ctxT || TC_CTX[it.ctx] || 'Contexto: conversación cotidiana';
@@ -4080,7 +4135,12 @@ Rules: exactly ${n} items; 1 or 2 blanks per item; the number of [..] in "es" an
   const d = await aiJSON(sys, `Create ${n} new items. Do not repeat these: ${avoid}`, 6000);
   const items = (Array.isArray(d.items) ? d.items : Array.isArray(d) ? d : []).map(x => tcValidate(x, lv)).filter(Boolean).slice(0, n);
   if (!items.length) throw new Error('La IA no devolvió frases válidas.');
-  S.tc.ai = [...S.tc.ai, ...items].slice(-80); save(); return items;
+  S.tc.ai = [...S.tc.ai, ...items].slice(-80); save();
+  for (const it of items) {
+    TukiDB.set('tc', it.id, it).catch(() => {});
+  }
+  TUKI_OFFLINE_TC = [...TUKI_OFFLINE_TC, ...items];
+  return items;
 }
 async function tcStartAI(btn) {
   const lv = tcLevel();
@@ -7339,6 +7399,83 @@ async function checkForAppUpdates(btn) {
   }
 }
 
+async function updateOfflineCardStats() {
+  try {
+    const stats = await TukiDB.getStats();
+    const kTc = $('#offKpiTc');
+    const kAudio = $('#offKpiAudio');
+    const kWords = $('#offKpiWords');
+    if (kTc) kTc.textContent = (stats.tc + stats.shadow) || '0';
+    if (kAudio) kAudio.textContent = stats.audio || '0';
+    if (kWords) kWords.textContent = stats.words || '0';
+  } catch (e) {}
+}
+
+async function runOfflinePreload(btn) {
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Precargando contenido…';
+  }
+  const statusEl = $('#offlineStatus');
+  const barEl = $('#offlineBar');
+  const fillEl = $('#offlineFill');
+  if (barEl) barEl.style.display = 'block';
+
+  try {
+    const saved = await TukiDB.preloadOfflinePack(TC_BANK, SHADOW_BANK, (curr, tot, desc) => {
+      const pct = Math.round((curr / tot) * 100);
+      if (fillEl) fillEl.style.width = pct + '%';
+      if (statusEl) statusEl.textContent = `Descargando (${pct}%): ${desc}`;
+    });
+
+    let dictWords = 0;
+    if (typeof COURSE !== 'undefined') {
+      for (const u of COURSE) {
+        for (const l of u.lessons) {
+          for (const ex of (l.ex || [])) {
+            const w = ex[0], es = ex[1];
+            if (w && es) {
+              const cid = w.toLowerCase() + '|';
+              await TukiDB.set('words', cid, { es, ipa: ex[2] || '', src: 'course_offline' });
+              dictWords++;
+            }
+          }
+        }
+      }
+    }
+
+    tukiFanfare();
+    canvasConfetti && canvasConfetti({ particleCount: 40, spread: 60 });
+    toast('✅ Modo offline listo: ' + saved + ' frases y ' + dictWords + ' palabras sincronizadas.');
+    if (statusEl) statusEl.textContent = '⚡ 100% optimizado para usar sin conexión a internet.';
+    updateOfflineCardStats();
+  } catch (e) {
+    toast('⚠️ Error al precargar: ' + errES(e));
+    if (statusEl) statusEl.textContent = 'Error durante la sincronización: ' + errES(e);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '📥 Sincronizar y precargar modo sin conexión';
+    }
+  }
+}
+
+async function clearOfflineAudio(btn) {
+  if (!confirm('¿Deseas vaciar la caché de audios locales guardados en tu dispositivo?')) return;
+  if (btn) btn.disabled = true;
+  try {
+    await TukiDB.clear('audio');
+    try { await caches.delete('tuki-tts-v1'); } catch (e) {}
+    TTS.cache.clear();
+    toast('🧹 Audios en caché eliminados.');
+    updateOfflineCardStats();
+  } catch (e) {
+    toast('Error: ' + errES(e));
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 const _settings212 = VIEWS.settings;
 VIEWS.settings = function (v) {
   _settings212(v);
@@ -7353,11 +7490,46 @@ VIEWS.settings = function (v) {
     </div>
     <div class="small muted" style="margin-top:6px" id="updStatus">Toca para comprobar si hay una nueva versión disponible e instalarla de inmediato.</div>
   </div>`;
-  if (dataCard) dataCard.insertAdjacentHTML('beforebegin', updHtml);
-  else v.insertAdjacentHTML('beforeend', updHtml);
+
+  const offHtml = `<div class="card offline-card" id="offlineCard" style="margin-top:14px">
+    <div class="row between">
+      <div>
+        <h3 style="margin:0 0 2px">📦 Modo Offline y Almacenamiento</h3>
+        <div class="small muted">Base de datos local <b>IndexedDB (TukiDB)</b></div>
+      </div>
+      <span class="pill ok" id="offlineBadge">⚡ Listo Offline</span>
+    </div>
+    <div class="offline-kpis">
+      <div class="offline-kpi"><span class="val" id="offKpiTc">—</span><span class="lbl">Frases offline</span></div>
+      <div class="offline-kpi"><span class="val" id="offKpiAudio">—</span><span class="lbl">Audios en caché</span></div>
+      <div class="offline-kpi"><span class="val" id="offKpiWords">—</span><span class="lbl">Palabras guardadas</span></div>
+    </div>
+    <div class="offline-progress-bar" id="offlineBar"><div class="offline-progress-fill" id="offlineFill"></div></div>
+    <div class="small muted" style="margin:6px 0 10px" id="offlineStatus">Estudia sin gastar datos y sin conexión a internet (avión, metro, zonas rurales).</div>
+    <div class="row" style="gap:8px;flex-wrap:wrap">
+      <button class="btn blue sm" id="btnOfflinePreload">📥 Sincronizar y precargar modo sin conexión</button>
+      <button class="btn ghost sm" id="btnOfflineClear">🧹 Liberar audios</button>
+    </div>
+  </div>`;
+
+  if (dataCard) {
+    dataCard.insertAdjacentHTML('beforebegin', offHtml);
+    dataCard.insertAdjacentHTML('beforebegin', updHtml);
+  } else {
+    v.insertAdjacentHTML('beforeend', offHtml);
+    v.insertAdjacentHTML('beforeend', updHtml);
+  }
 
   const bUpd = $('#btnCheckUpdate', v);
   if (bUpd) bUpd.onclick = () => checkForAppUpdates(bUpd);
+
+  const bOffPreload = $('#btnOfflinePreload', v);
+  if (bOffPreload) bOffPreload.onclick = () => runOfflinePreload(bOffPreload);
+
+  const bOffClear = $('#btnOfflineClear', v);
+  if (bOffClear) bOffClear.onclick = () => clearOfflineAudio(bOffClear);
+
+  updateOfflineCardStats();
 };
 
 
@@ -7370,4 +7542,18 @@ if ('serviceWorker' in navigator) {
     if (e.data && e.data.type === 'GOTO_PRACTICE') go('practice');
   });
 }
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, version: APP_VERSION };
+TukiDB.migrateFromLocalStorage(CACHE_KEYS).then(() => {
+  TukiDB.getAll('tc').then(items => {
+    if (Array.isArray(items) && items.length) {
+      const known = new Set(TC_BANK.map(x => x.id).concat((S.tc.ai || []).map(x => x.id)));
+      TUKI_OFFLINE_TC = items.filter(x => x && x.id && !known.has(x.id));
+    }
+  }).catch(() => {});
+  TukiDB.get('kv', 'offline_pack_synced_at').then(synced => {
+    if (!synced) {
+      TukiDB.preloadOfflinePack(TC_BANK, SHADOW_BANK).catch(() => {});
+    }
+  }).catch(() => {});
+}).catch(() => {});
+
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, TukiDB, updateOfflineCardStats, runOfflinePreload, version: APP_VERSION };
