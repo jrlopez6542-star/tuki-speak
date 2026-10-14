@@ -469,12 +469,70 @@ function renderTukiSVG(skin, opts = {}) {
   const size = opts.size ? `width="${opts.size}" height="${opts.size}" ` : '';
 
   const colors = {
-    classic: { body: '#1f2a33', chest: '#fff4d6', wing: '#1fa463', beakTop: '#ff9f1c', beakBot: '#e5484d', aura: '' },
-    gold: { body: '#92400e', chest: '#fef08a', wing: '#f59e0b', beakTop: '#fbbf24', beakBot: '#d97706', aura: '<circle cx="50" cy="50" r="48" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.45"/>' },
-    neon: { body: '#1e1b4b', chest: '#38bdf8', wing: '#ec4899', beakTop: '#a855f7', beakBot: '#06b6d4', aura: '<circle cx="50" cy="50" r="48" fill="none" stroke="#38bdf8" stroke-width="1.5" opacity="0.35"/>' },
-    fire: { body: '#7f1d1d', chest: '#fed7aa', wing: '#f97316', beakTop: '#ef4444', beakBot: '#c2410c', aura: '' },
-    ice: { body: '#0f172a', chest: '#e0f2fe', wing: '#38bdf8', beakTop: '#7dd3fc', beakBot: '#0284c7', aura: '' }
+    classic: {
+      body: '#1f2a33', chest: '#fff4d6', wing: '#1fa463', beakTop: '#ff9f1c', beakBot: '#e5484d',
+      aura: ''
+    },
+    gold: {
+      body: '#78350f', chest: '#fef08a', wing: '#f59e0b', beakTop: '#fbbf24', beakBot: '#d97706',
+      aura: '<circle cx="50" cy="50" r="47" fill="url(#tuki-gold-aura)"/><circle cx="50" cy="50" r="48" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="6 4" opacity="0.75" class="tuki-aura-spin"/><circle cx="50" cy="50" r="44" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3 6" opacity="0.5"/><path d="M50 2 L50 8 M47 5 L53 5 M6 50 L12 50 M9 47 L9 53 M94 50 L88 50 M91 47 L91 53" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/><text x="74" y="24" font-size="8" fill="#fbbf24" opacity="0.9">✦</text><text x="16" y="28" font-size="7" fill="#fde047" opacity="0.85">✦</text>'
+    },
+    neon: {
+      body: '#1e1b4b', chest: '#38bdf8', wing: '#ec4899', beakTop: '#a855f7', beakBot: '#06b6d4',
+      aura: '<circle cx="50" cy="50" r="47" fill="url(#tuki-neon-aura)"/><circle cx="50" cy="50" r="48" fill="none" stroke="#06b6d4" stroke-width="1.8" stroke-dasharray="8 4 2 4" opacity="0.8" class="tuki-aura-spin"/><circle cx="50" cy="50" r="44" fill="none" stroke="#ec4899" stroke-width="1.2" stroke-dasharray="4 8" opacity="0.6"/><path d="M10 50 L18 50 M82 50 L90 50 M50 8 L50 16" stroke="#38bdf8" stroke-width="1.5" opacity="0.8"/><text x="76" y="22" font-size="8" fill="#38bdf8" opacity="0.9">⚡</text><text x="14" y="24" font-size="7" fill="#ec4899" opacity="0.85">◆</text>'
+    },
+    fire: {
+      body: '#7f1d1d', chest: '#fed7aa', wing: '#f97316', beakTop: '#ef4444', beakBot: '#c2410c',
+      aura: '<circle cx="50" cy="50" r="47" fill="url(#tuki-fire-aura)"/><circle cx="50" cy="50" r="48" fill="none" stroke="#ef4444" stroke-width="1.6" stroke-dasharray="5 3" opacity="0.65" class="tuki-aura-pulse"/><path d="M18 52 Q14 36 24 24 Q22 36 30 32 Q26 18 38 12 Q36 26 48 20 Q44 34 56 28 Q66 18 64 36 Q74 28 78 44 Q84 38 82 56" fill="none" stroke="#f97316" stroke-width="1.6" opacity="0.55"/><circle cx="20" cy="30" r="1.5" fill="#f97316" opacity="0.75"/><circle cx="78" cy="34" r="1.8" fill="#ef4444" opacity="0.75"/><text x="76" y="22" font-size="8" fill="#ef4444" opacity="0.85">🔥</text><text x="14" y="26" font-size="7" fill="#f97316" opacity="0.85">✨</text>'
+    },
+    ice: {
+      body: '#0f172a', chest: '#e0f2fe', wing: '#38bdf8', beakTop: '#7dd3fc', beakBot: '#0284c7',
+      aura: '<circle cx="50" cy="50" r="47" fill="url(#tuki-ice-aura)"/><circle cx="50" cy="50" r="48" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-dasharray="6 6" opacity="0.75" class="tuki-aura-pulse"/><path d="M50 4 L50 14 M45 9 L55 9 M10 50 L20 50 M15 45 L15 55 M80 50 L90 50 M85 45 L85 55" stroke="#bae6fd" stroke-width="1.4" stroke-linecap="round" opacity="0.8"/><text x="76" y="22" font-size="8" fill="#7dd3fc" opacity="0.9">❄️</text><text x="14" y="26" font-size="7" fill="#e0f2fe" opacity="0.85">✧</text>'
+    }
   }[pl] || { body: '#1f2a33', chest: '#fff4d6', wing: '#1fa463', beakTop: '#ff9f1c', beakBot: '#e5484d', aura: '' };
+
+  const defs = `<defs>
+    <linearGradient id="tuki-bt-${pl}" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="30%" stop-color="${colors.beakTop}"/>
+      <stop offset="100%" stop-color="${colors.beakTop}" stop-opacity="0.92"/>
+    </linearGradient>
+    <linearGradient id="tuki-bb-${pl}" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="${colors.beakBot}"/>
+      <stop offset="100%" stop-color="#581c1c" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="tuki-crown-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="45%" stop-color="#f59e0b"/>
+      <stop offset="85%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#92400e"/>
+    </linearGradient>
+    <linearGradient id="tuki-vr-neon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <radialGradient id="tuki-gold-aura" cx="50%" cy="50%" r="50%">
+      <stop offset="55%" stop-color="#f59e0b" stop-opacity="0"/>
+      <stop offset="85%" stop-color="#fbbf24" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.6"/>
+    </radialGradient>
+    <radialGradient id="tuki-fire-aura" cx="50%" cy="50%" r="50%">
+      <stop offset="50%" stop-color="#ef4444" stop-opacity="0"/>
+      <stop offset="80%" stop-color="#f97316" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#ef4444" stop-opacity="0.55"/>
+    </radialGradient>
+    <radialGradient id="tuki-neon-aura" cx="50%" cy="50%" r="50%">
+      <stop offset="50%" stop-color="#06b6d4" stop-opacity="0"/>
+      <stop offset="80%" stop-color="#38bdf8" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#ec4899" stop-opacity="0.5"/>
+    </radialGradient>
+    <radialGradient id="tuki-ice-aura" cx="50%" cy="50%" r="50%">
+      <stop offset="50%" stop-color="#7dd3fc" stop-opacity="0"/>
+      <stop offset="80%" stop-color="#38bdf8" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#bae6fd" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>`;
 
   const capeBehind = o === 'cape' ? '<path d="M25 54 Q8 62 3 86 Q18 83 28 72 Z" fill="#dc2626"/><path d="M24 54 Q10 65 6 86" stroke="#991b1b" stroke-width="1.5" fill="none"/>' : '';
 
@@ -484,7 +542,7 @@ function renderTukiSVG(skin, opts = {}) {
     hawaiian: '<circle cx="28" cy="58" r="3.5" fill="#ec4899"/><circle cx="34" cy="62" r="3.5" fill="#f59e0b"/><circle cx="42" cy="64" r="3.5" fill="#eab308"/><circle cx="50" cy="62" r="3.5" fill="#06b6d4"/><circle cx="56" cy="58" r="3.5" fill="#a855f7"/>',
     cape: '<circle cx="28" cy="56" r="3.5" fill="#f59e0b"/>',
     medal: '<path d="M36 55 L43 68 L50 55" stroke="#dc2626" stroke-width="3" fill="none"/><circle cx="43" cy="72" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>',
-    ruana: '<polygon points="20,54 62,54 66,78 44,84 16,76" fill="#78350f" stroke="#451a03" stroke-width="1.5"/><line x1="24" y1="62" x2="60" y2="62" stroke="#fef3c7" stroke-width="2"/><line x1="22" y1="70" x2="62" y2="70" stroke="#fde68a" stroke-width="2"/><polygon points="41,54 44,64 47,54" fill="#fff4d6"/>',
+    ruana: '<polygon points="20,54 62,54 66,78 44,84 16,76" fill="#78350f" stroke="#451a03" stroke-width="1.5"/><path d="M19 62 L63 62" stroke="#fef3c7" stroke-width="2.5"/><polygon points="25,62 28,59 31,62 28,65" fill="#d97706"/><polygon points="35,62 38,59 41,62 38,65" fill="#dc2626"/><polygon points="47,62 50,59 53,62 50,65" fill="#dc2626"/><polygon points="57,62 60,59 63,62 60,65" fill="#d97706"/><polyline points="18,71 22,69 26,71 30,69 34,71 38,69 42,71 46,69 50,71 54,69 58,71 62,69 65,72" fill="none" stroke="#fde68a" stroke-width="1.4"/><polygon points="39,54 44,65 49,54" fill="#fffbeb" stroke="#b45309" stroke-width="0.8"/><path d="M16 76 L19 83 M23 78 L25 84 M30 80 L32 85 M37 82 L38 87 M44 84 L44 89 M51 82 L50 87 M58 80 L56 85 M64 77 L62 83" stroke="#fef3c7" stroke-width="1.6" stroke-linecap="round"/>',
     jersey: '<path d="M26 56 Q44 54 60 56 L58 76 Q44 80 26 76 Z" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/><path d="M26 70 Q44 73 58 70 L58 73 Q44 76 26 73 Z" fill="#1d4ed8"/><path d="M26 73 Q44 76 58 73 L58 76 Q44 79 26 76 Z" fill="#dc2626"/><polygon points="41,56 44,61 47,56" fill="#1d4ed8"/>',
     astronaut: '<path d="M24 55 Q44 52 62 55 L60 80 Q44 84 24 80 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><rect x="30" y="55" width="28" height="5" rx="2" fill="#0284c7"/><circle cx="36" cy="67" r="4" fill="#ef4444"/><circle cx="48" cy="67" r="4" fill="#3b82f6"/><line x1="28" y1="74" x2="56" y2="74" stroke="#64748b" stroke-width="2"/>',
     jacket: '<path d="M23 54 L44 58 L63 54 L60 78 L44 82 L24 78 Z" fill="#0f172a" stroke="#334155" stroke-width="2"/><polygon points="32,55 44,68 36,68" fill="#e2e8f0"/><polygon points="56,55 44,68 52,68" fill="#e2e8f0"/><line x1="44" y1="68" x2="44" y2="82" stroke="#94a3b8" stroke-width="2"/>',
@@ -497,14 +555,14 @@ function renderTukiSVG(skin, opts = {}) {
     glasses: '<path d="M26 36 Q38 31 52 36 L52 45 Q38 49 26 45 Z" fill="#0f172a" stroke="#475569" stroke-width="1.5"/><line x1="28" y1="39" x2="48" y2="43" stroke="#fff" stroke-width="1.2" opacity="0.6"/><path d="M52 38 Q58 37 62 40" stroke="#0f172a" stroke-width="2" fill="none"/>',
     grad: '<polygon points="16,24 38,15 62,24 38,32" fill="#111827" stroke="#1f2937" stroke-width="1"/><path d="M38 24 Q48 27 52 38" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="38" cy="24" r="3" fill="#f59e0b"/><circle cx="52" cy="38" r="2.5" fill="#f59e0b"/>',
     wizard: '<ellipse cx="38" cy="31" rx="22" ry="5.5" fill="#3b0764"/><path d="M23 30 Q34 6 56 10 Q45 20 53 30 Z" fill="#581c87"/><circle cx="38" cy="19" r="2.5" fill="#fbbf24"/><circle cx="46" cy="16" r="1.5" fill="#fde047"/>',
-    crown: '<polygon points="23,32 20,17 29,25 39,12 49,25 58,17 55,32" fill="#f59e0b" stroke="#b45309" stroke-width="1.5"/><circle cx="39" cy="18" r="2.2" fill="#ef4444"/><circle cx="28" cy="26" r="1.8" fill="#10b981"/><circle cx="50" cy="26" r="1.8" fill="#3b82f6"/>',
+    crown: '<polygon points="22,30 19,16 29,24 39,11 49,24 59,16 56,30" fill="url(#tuki-crown-gold)" stroke="#92400e" stroke-width="1.2"/><path d="M24 30 Q39 18 54 30 Z" fill="#831843" opacity="0.85"/><rect x="22" y="28" width="34" height="4.5" rx="1.5" fill="url(#tuki-crown-gold)" stroke="#78350f" stroke-width="1"/><circle cx="26" cy="30.2" r="0.9" fill="#fff"/><circle cx="33" cy="30.2" r="0.9" fill="#fff"/><circle cx="39" cy="30.2" r="0.9" fill="#fff"/><circle cx="45" cy="30.2" r="0.9" fill="#fff"/><circle cx="52" cy="30.2" r="0.9" fill="#fff"/><polygon points="39,17 41.5,21 39,25 36.5,21" fill="#ef4444" stroke="#991b1b" stroke-width="0.5"/><polygon points="39,17 40.5,20.5 39,22 37.5,20.5" fill="#fca5a5"/><circle cx="29" cy="24" r="2.2" fill="#10b981" stroke="#065f46" stroke-width="0.6"/><circle cx="28.2" cy="23.2" r="0.7" fill="#a7f3d0"/><circle cx="49" cy="24" r="2.2" fill="#3b82f6" stroke="#1e40af" stroke-width="0.6"/><circle cx="48.2" cy="23.2" r="0.7" fill="#bfdbfe"/><circle cx="19" cy="15.5" r="1.5" fill="#fffbeb" stroke="#d97706" stroke-width="0.5"/><circle cx="59" cy="15.5" r="1.5" fill="#fffbeb" stroke="#d97706" stroke-width="0.5"/><circle cx="39" cy="9.5" r="2.2" fill="#fef08a" stroke="#b45309" stroke-width="0.8"/><line x1="39" y1="6.5" x2="39" y2="10" stroke="#fef08a" stroke-width="1.2"/><line x1="37.5" y1="8" x2="40.5" y2="8" stroke="#fef08a" stroke-width="1.2"/>',
     party: '<polygon points="26,32 40,8 54,32" fill="#ec4899"/><path d="M29 26 L51 26" stroke="#fbbf24" stroke-width="2.5"/><path d="M34 18 L46 18" stroke="#38bdf8" stroke-width="2.5"/><circle cx="40" cy="7" r="3.5" fill="#facc15"/>',
     vueltiao: '<ellipse cx="40" cy="30" rx="27" ry="7" fill="#fef3c7" stroke="#1f2937" stroke-width="2"/><path d="M16 30 Q40 28 64 30" stroke="#1f2937" stroke-width="2" fill="none"/><path d="M25 29 Q30 14 55 17 Q54 28 55 29 Z" fill="#fffbeb" stroke="#1f2937" stroke-width="1.5"/><line x1="28" y1="24" x2="52" y2="24" stroke="#1f2937" stroke-width="2"/><circle cx="40" cy="16" r="2.5" fill="#1f2937"/>',
     chef: '<rect x="25" y="27" width="30" height="6" rx="2" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/><path d="M23 27 C20 18 30 10 38 10 C46 8 56 12 56 20 C60 22 58 27 55 27 Z" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/><line x1="33" y1="27" x2="33" y2="15" stroke="#e2e8f0" stroke-width="1"/><line x1="43" y1="27" x2="43" y2="15" stroke="#e2e8f0" stroke-width="1"/>',
     headphones: '<path d="M22 40 C18 16 58 14 58 38" stroke="#3b82f6" stroke-width="4" stroke-linecap="round" fill="none"/><rect x="18" y="34" width="7" height="13" rx="3.5" fill="#1d4ed8" stroke="#93c5fd" stroke-width="1"/><rect x="54" y="33" width="7" height="13" rx="3.5" fill="#1d4ed8" stroke="#93c5fd" stroke-width="1"/><path d="M22 45 Q32 50 42 48" stroke="#3b82f6" stroke-width="2" fill="none"/><circle cx="43" cy="48" r="2" fill="#ef4444"/>',
     beret: '<ellipse cx="38" cy="25" rx="20" ry="7" fill="#dc2626" transform="rotate(-10 38 25)"/><circle cx="37" cy="18" r="2" fill="#991b1b"/>',
     flower: '<circle cx="23" cy="28" r="4" fill="#ec4899"/><circle cx="31" cy="24" r="4.5" fill="#fbbf24"/><circle cx="40" cy="22" r="4.5" fill="#38bdf8"/><circle cx="49" cy="24" r="4" fill="#a855f7"/><circle cx="56" cy="28" r="3.5" fill="#f43f5e"/><circle cx="31" cy="24" r="1.5" fill="#fff"/><circle cx="40" cy="22" r="1.5" fill="#fff"/>',
-    vr: '<rect x="24" y="33" width="30" height="13" rx="4" fill="#090d16" stroke="#06b6d4" stroke-width="2"/><line x1="27" y1="39" x2="51" y2="39" stroke="#22d3ee" stroke-width="2"/><circle cx="28" cy="39" r="1.5" fill="#38bdf8"/><path d="M54 39 Q58 38 62 40" stroke="#06b6d4" stroke-width="2" fill="none"/>',
+    vr: '<path d="M23 34 Q39 30 55 34 L54 47 Q39 50 24 47 Z" fill="#050811" stroke="#06b6d4" stroke-width="1.8"/><path d="M25 36 Q39 33 53 36 L52 45 Q39 48 26 45 Z" fill="url(#tuki-vr-neon)" opacity="0.88"/><path d="M27 41 L34 41 L37 38 L40 44 L43 41 L51 41" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" opacity="0.95"/><circle cx="26" cy="38" r="1.3" fill="#22d3ee"/><circle cx="52" cy="38" r="1.3" fill="#f43f5e"/><line x1="28" y1="35" x2="50" y2="35" stroke="#67e8f9" stroke-width="0.8" opacity="0.6"/><path d="M54 38 Q59 37 63 40" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" fill="none"/>',
     cowboy: '<path d="M14 32 Q26 26 40 28 Q54 26 66 32 Q54 35 40 33 Q26 35 14 32 Z" fill="#92400e" stroke="#78350f" stroke-width="1.5"/><path d="M27 28 Q32 14 41 18 Q50 14 53 28 Z" fill="#b45309" stroke="#78350f" stroke-width="1.5"/><rect x="28" y="26" width="25" height="3" fill="#78350f"/>'
   }[h] || '';
 
@@ -517,7 +575,7 @@ function renderTukiSVG(skin, opts = {}) {
     trophy: '<path d="M5 60 Q5 72 11 72 Q17 72 17 60 Z" fill="#f59e0b" stroke="#d97706" stroke-width="1"/><path d="M3 62 C1 66 5 68 7 68 M19 62 C21 66 17 68 15 68" stroke="#d97706" stroke-width="1.2" fill="none"/><rect x="9" y="72" width="4" height="5" fill="#d97706"/><rect x="7" y="77" width="8" height="3" rx="1" fill="#78350f"/>'
   }[hand] || '';
 
-  return `<svg ${size}viewBox="0 0 100 100" class="tuki-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${colors.aura}${capeBehind}<g class="tuki-body-group"><ellipse cx="46" cy="58" rx="30" ry="34" fill="${colors.body}"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="${colors.chest}"/><path class="tuki-wing" d="M20 60 C10 70 14 84 24 86" fill="${colors.wing}"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/>${outfitLayer}${handLayer}</g><g class="tuki-head-group"><g class="tuki-eye"><circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.5" fill="#1f2a33"/><circle cx="44" cy="38" r="1.8" fill="#fff"/></g><g class="tuki-beak"><path class="tuki-beak-top" d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="${colors.beakTop}"/><path class="tuki-beak-bot" d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="${colors.beakBot}"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/></g>${hatLayer}</g></svg>`;
+  return `<svg ${size}viewBox="0 0 100 100" class="tuki-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}${colors.aura}${capeBehind}<g class="tuki-body-group"><ellipse cx="46" cy="58" rx="30" ry="34" fill="${colors.body}"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="${colors.chest}"/><path d="M32 68 Q38 73 44 73 Q50 73 56 68 Q50 76 44 77 Q38 76 32 68 Z" fill="${colors.chest}" opacity="0.45"/><path class="tuki-wing" d="M20 60 C10 70 14 84 24 86 C21 79 20 73 22 66 Z" fill="${colors.wing}"/><path class="tuki-wing-inner" d="M19 66 C15 72 16 80 22 83" stroke="${colors.body}" stroke-width="1.2" fill="none" opacity="0.35"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/>${outfitLayer}${handLayer}</g><g class="tuki-head-group"><g class="tuki-eye"><circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.8" fill="#1f2a33"/><circle cx="44.2" cy="38" r="2.2" fill="#fff"/><circle cx="40.5" cy="42.5" r="1.1" fill="#fff" opacity="0.9"/><circle cx="42" cy="40" r="5.8" fill="none" stroke="#60a5fa" stroke-width="0.75" opacity="0.35"/></g><g class="tuki-beak"><path class="tuki-beak-top" d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="url(#tuki-bt-${pl})"/><path d="M54 36 C70 31 88 35 93 42" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.45"/><path class="tuki-beak-bot" d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="url(#tuki-bb-${pl})"/><path d="M52 48 C70 50 88 49 95 43" stroke="#0f172a" stroke-width="1" fill="none" opacity="0.25"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/></g>${hatLayer}</g></svg>`;
 }
 let MASCOT = renderTukiSVG();
 function updateMascot() {
@@ -984,7 +1042,7 @@ function spawnTukiParticles(parentEl, type = 'happy') {
   if (!parentEl) return;
   const rect = parentEl.getBoundingClientRect();
   const w = rect.width || 70, h = rect.height || 70;
-  const icons = type === 'coin' ? ['🪙', '✨', '🪙', '🌟'] : type === 'love' ? ['❤️', '✨', '💖', '⭐'] : ['✨', '⭐', '🎶', '🦜', '💫', '🎉'];
+  const icons = type === 'coin' ? ['🪙', '✨', '🪙', '🌟'] : type === 'love' ? ['❤️', '✨', '💖', '⭐'] : type === 'sparkle' ? ['✨', '💎', '🌟', '✦', '⚡'] : ['✨', '⭐', '🎶', '🦜', '💫', '🎉'];
   for (let i = 0; i < 5; i++) {
     const p = document.createElement('span');
     p.className = 'tuki-particle';
@@ -6878,7 +6936,10 @@ function openTukiShopModal() {
         if (!it) return;
         previewSkin[it.type] = it.key;
         const pm = $('#shopPreviewMascot', el);
-        if (pm) pm.innerHTML = renderTukiSVG(previewSkin);
+        if (pm) {
+          pm.innerHTML = renderTukiSVG(previewSkin);
+          triggerTukiAnimation(pm, 'tuki-wiggle', 'sparkle');
+        }
         const sp = $('#shopSpeech', el);
         if (sp) sp.textContent = `Probando: ${it.name} ${it.icon}`;
         beep('tap');
@@ -6896,25 +6957,42 @@ function openTukiShopModal() {
           if ((S.coins || 0) < it.price) return toast('No tienes suficientes monedas 🪙');
           S.coins -= it.price;
           skin.owned.push(it.id);
-          skin[it.type] = it.key;
-          previewSkin = { ...skin };
-          save();
-          updateMascot();
-          render();
+        }
+
+        skin[it.type] = it.key;
+        previewSkin = { ...skin };
+        save();
+        updateMascot();
+        render();
+
+        const pm = $('#shopPreviewMascot', el);
+        if (pm) {
+          pm.innerHTML = renderTukiSVG(previewSkin);
+          triggerTukiAnimation(pm, 'tuki-celebrate', 'sparkle');
+        }
+        tukiChirp('celebrate');
+        confetti();
+
+        const sp = $('#shopSpeech', el);
+        const celebrateQuotes = [
+          `¡Uff, qué pinta! Me queda genial ${it.name} ${it.icon}✨`,
+          `¡Poder tucán activado! Estrenando ${it.name} 🦜🔥`,
+          `¡Gracias por este look! Con ${it.name} aprendemos con estilo 💎`
+        ];
+        if (sp) sp.innerHTML = pick(celebrateQuotes);
+
+        if (!isOwned) {
           beep('done');
-          confetti();
           toast(`🎉 ¡Compraste y equipaste ${it.name}!`, 3000);
         } else {
-          skin[it.type] = it.key;
-          previewSkin = { ...skin };
-          save();
-          updateMascot();
-          render();
           beep('ok');
           toast(`⚡ Equipaste ${it.name}`);
         }
-        close();
-        openTukiShopModal();
+
+        setTimeout(() => {
+          close();
+          openTukiShopModal();
+        }, 550);
       };
     });
   });

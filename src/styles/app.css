@@ -47,6 +47,11 @@ input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
 
 .tuki-particle{position:absolute;pointer-events:none;font-size:16px;user-select:none;z-index:30;animation:tukiParticleFloat .85s ease-out forwards}
 @keyframes tukiParticleFloat{0%{opacity:1;transform:translate(0,0) scale(.5)}60%{opacity:1;transform:translate(var(--tx),var(--ty)) scale(1.3)}100%{opacity:0;transform:translate(calc(var(--tx)*1.3),calc(var(--ty) - 15px)) scale(.8)}}
+.tuki-aura-spin{transform-origin:50px 50px;animation:tukiAuraSpin 20s linear infinite}
+@keyframes tukiAuraSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.tuki-aura-pulse{transform-origin:50px 50px;animation:tukiAuraPulse 3s ease-in-out infinite}
+@keyframes tukiAuraPulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:.85;transform:scale(1.02)}}
+@media(prefers-reduced-motion:reduce){.tuki-aura-spin,.tuki-aura-pulse{animation:none!important}}
 .mascot,.tuki-tutor-mascot,.mascot-wrap{position:relative}
 
 main{flex:1;padding:14px 14px 96px}
