@@ -470,42 +470,130 @@ function renderTukiSVG(skin, opts = {}) {
 
   const colors = {
     classic: {
-      body: '#1f2a33', chest: '#fff4d6', wing: '#1fa463', beakTop: '#ff9f1c', beakBot: '#e5484d',
+      bodyLight: '#334155', body: '#1e293b', bodyDark: '#090d16',
+      chestLight: '#ffffff', chest: '#fef3c7', chestDark: '#fed7aa',
+      wingLight: '#34d399', wing: '#10b981', wingDark: '#047857',
+      beakTopLight: '#fef08a', beakTop: '#f59e0b', beakTopDark: '#d97706',
+      beakBotLight: '#f87171', beakBot: '#ef4444', beakBotDark: '#991b1b',
+      eyePatch: '#0284c7',
       aura: ''
     },
     gold: {
-      body: '#78350f', chest: '#fef08a', wing: '#f59e0b', beakTop: '#fbbf24', beakBot: '#d97706',
+      bodyLight: '#b45309', body: '#78350f', bodyDark: '#451a03',
+      chestLight: '#ffffff', chest: '#fef08a', chestDark: '#fde047',
+      wingLight: '#fde047', wing: '#f59e0b', wingDark: '#b45309',
+      beakTopLight: '#fffbeb', beakTop: '#fbbf24', beakTopDark: '#b45309',
+      beakBotLight: '#fde047', beakBot: '#d97706', beakBotDark: '#78350f',
+      eyePatch: '#fbbf24',
       aura: '<circle cx="50" cy="50" r="47" fill="url(#tuki-gold-aura)"/><circle cx="50" cy="50" r="48" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="6 4" opacity="0.75" class="tuki-aura-spin"/><circle cx="50" cy="50" r="44" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="3 6" opacity="0.5"/><path d="M50 2 L50 8 M47 5 L53 5 M6 50 L12 50 M9 47 L9 53 M94 50 L88 50 M91 47 L91 53" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/><text x="74" y="24" font-size="8" fill="#fbbf24" opacity="0.9">✦</text><text x="16" y="28" font-size="7" fill="#fde047" opacity="0.85">✦</text>'
     },
     neon: {
-      body: '#1e1b4b', chest: '#38bdf8', wing: '#ec4899', beakTop: '#a855f7', beakBot: '#06b6d4',
+      bodyLight: '#312e81', body: '#1e1b4b', bodyDark: '#090724',
+      chestLight: '#e0f2fe', chest: '#38bdf8', chestDark: '#0284c7',
+      wingLight: '#f472b6', wing: '#ec4899', wingDark: '#be185d',
+      beakTopLight: '#e9d5ff', beakTop: '#a855f7', beakTopDark: '#7e22ce',
+      beakBotLight: '#67e8f9', beakBot: '#06b6d4', beakBotDark: '#0e7490',
+      eyePatch: '#ec4899',
       aura: '<circle cx="50" cy="50" r="47" fill="url(#tuki-neon-aura)"/><circle cx="50" cy="50" r="48" fill="none" stroke="#06b6d4" stroke-width="1.8" stroke-dasharray="8 4 2 4" opacity="0.8" class="tuki-aura-spin"/><circle cx="50" cy="50" r="44" fill="none" stroke="#ec4899" stroke-width="1.2" stroke-dasharray="4 8" opacity="0.6"/><path d="M10 50 L18 50 M82 50 L90 50 M50 8 L50 16" stroke="#38bdf8" stroke-width="1.5" opacity="0.8"/><text x="76" y="22" font-size="8" fill="#38bdf8" opacity="0.9">⚡</text><text x="14" y="24" font-size="7" fill="#ec4899" opacity="0.85">◆</text>'
     },
     fire: {
-      body: '#7f1d1d', chest: '#fed7aa', wing: '#f97316', beakTop: '#ef4444', beakBot: '#c2410c',
+      bodyLight: '#991b1b', body: '#7f1d1d', bodyDark: '#450a0a',
+      chestLight: '#fff7ed', chest: '#fed7aa', chestDark: '#fdba74',
+      wingLight: '#fb923c', wing: '#f97316', wingDark: '#c2410c',
+      beakTopLight: '#fca5a5', beakTop: '#ef4444', beakTopDark: '#991b1b',
+      beakBotLight: '#ea580c', beakBot: '#c2410c', beakBotDark: '#7c2d12',
+      eyePatch: '#f97316',
       aura: '<circle cx="50" cy="50" r="47" fill="url(#tuki-fire-aura)"/><circle cx="50" cy="50" r="48" fill="none" stroke="#ef4444" stroke-width="1.6" stroke-dasharray="5 3" opacity="0.65" class="tuki-aura-pulse"/><path d="M18 52 Q14 36 24 24 Q22 36 30 32 Q26 18 38 12 Q36 26 48 20 Q44 34 56 28 Q66 18 64 36 Q74 28 78 44 Q84 38 82 56" fill="none" stroke="#f97316" stroke-width="1.6" opacity="0.55"/><circle cx="20" cy="30" r="1.5" fill="#f97316" opacity="0.75"/><circle cx="78" cy="34" r="1.8" fill="#ef4444" opacity="0.75"/><text x="76" y="22" font-size="8" fill="#ef4444" opacity="0.85">🔥</text><text x="14" y="26" font-size="7" fill="#f97316" opacity="0.85">✨</text>'
     },
     ice: {
-      body: '#0f172a', chest: '#e0f2fe', wing: '#38bdf8', beakTop: '#7dd3fc', beakBot: '#0284c7',
+      bodyLight: '#1e293b', body: '#0f172a', bodyDark: '#020617',
+      chestLight: '#ffffff', chest: '#e0f2fe', chestDark: '#bae6fd',
+      wingLight: '#7dd3fc', wing: '#38bdf8', wingDark: '#0284c7',
+      beakTopLight: '#bae6fd', beakTop: '#7dd3fc', beakTopDark: '#0284c7',
+      beakBotLight: '#38bdf8', beakBot: '#0284c7', beakBotDark: '#0369a1',
+      eyePatch: '#38bdf8',
       aura: '<circle cx="50" cy="50" r="47" fill="url(#tuki-ice-aura)"/><circle cx="50" cy="50" r="48" fill="none" stroke="#38bdf8" stroke-width="1.6" stroke-dasharray="6 6" opacity="0.75" class="tuki-aura-pulse"/><path d="M50 4 L50 14 M45 9 L55 9 M10 50 L20 50 M15 45 L15 55 M80 50 L90 50 M85 45 L85 55" stroke="#bae6fd" stroke-width="1.4" stroke-linecap="round" opacity="0.8"/><text x="76" y="22" font-size="8" fill="#7dd3fc" opacity="0.9">❄️</text><text x="14" y="26" font-size="7" fill="#e0f2fe" opacity="0.85">✧</text>'
     }
-  }[pl] || { body: '#1f2a33', chest: '#fff4d6', wing: '#1fa463', beakTop: '#ff9f1c', beakBot: '#e5484d', aura: '' };
+  }[pl] || {
+    bodyLight: '#334155', body: '#1e293b', bodyDark: '#090d16',
+    chestLight: '#ffffff', chest: '#fef3c7', chestDark: '#fed7aa',
+    wingLight: '#34d399', wing: '#10b981', wingDark: '#047857',
+    beakTopLight: '#fef08a', beakTop: '#f59e0b', beakTopDark: '#d97706',
+    beakBotLight: '#f87171', beakBot: '#ef4444', beakBotDark: '#991b1b',
+    eyePatch: '#0284c7',
+    aura: ''
+  };
 
   const defs = `<defs>
-    <linearGradient id="tuki-bt-${pl}" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
-      <stop offset="30%" stop-color="${colors.beakTop}"/>
-      <stop offset="100%" stop-color="${colors.beakTop}" stop-opacity="0.92"/>
+    <!-- Sombra 3D en el suelo -->
+    <radialGradient id="tuki-ground-shadow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0f172a" stop-opacity="0.25"/>
+      <stop offset="60%" stop-color="#0f172a" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Torso 3D esférico -->
+    <radialGradient id="tuki-body-grad-${pl}" cx="38%" cy="32%" r="65%">
+      <stop offset="0%" stop-color="${colors.bodyLight}"/>
+      <stop offset="60%" stop-color="${colors.body}"/>
+      <stop offset="100%" stop-color="${colors.bodyDark}"/>
+    </radialGradient>
+
+    <!-- Pecho 3D con volumen convexo -->
+    <radialGradient id="tuki-chest-grad-${pl}" cx="40%" cy="30%" r="68%">
+      <stop offset="0%" stop-color="${colors.chestLight}"/>
+      <stop offset="55%" stop-color="${colors.chest}"/>
+      <stop offset="100%" stop-color="${colors.chestDark}"/>
+    </radialGradient>
+
+    <!-- Ala 3D volumétrica -->
+    <linearGradient id="tuki-wing-grad-${pl}" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="${colors.wingLight}"/>
+      <stop offset="50%" stop-color="${colors.wing}"/>
+      <stop offset="100%" stop-color="${colors.wingDark}"/>
     </linearGradient>
-    <linearGradient id="tuki-bb-${pl}" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="${colors.beakBot}"/>
-      <stop offset="100%" stop-color="#581c1c" stop-opacity="0.8"/>
+
+    <!-- Pico superior 3D -->
+    <linearGradient id="tuki-bt-${pl}" x1="30%" y1="0%" x2="40%" y2="100%">
+      <stop offset="0%" stop-color="${colors.beakTopLight}"/>
+      <stop offset="35%" stop-color="${colors.beakTop}"/>
+      <stop offset="100%" stop-color="${colors.beakTopDark}"/>
     </linearGradient>
+
+    <!-- Pico inferior 3D -->
+    <linearGradient id="tuki-bb-${pl}" x1="30%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="${colors.beakBotLight}"/>
+      <stop offset="45%" stop-color="${colors.beakBot}"/>
+      <stop offset="100%" stop-color="${colors.beakBotDark}"/>
+    </linearGradient>
+
+    <!-- Ojo 3D con sombreado esférico -->
+    <radialGradient id="tuki-eye-sphere" cx="42%" cy="38%" r="60%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="78%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </radialGradient>
+
+    <!-- Iris 3D con profundidad de lente -->
+    <radialGradient id="tuki-iris-grad" cx="45%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="55%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </radialGradient>
+
+    <!-- Patas 3D con volumen cilíndrico -->
+    <linearGradient id="tuki-foot-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a"/>
+      <stop offset="45%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+
+    <!-- Atuendos y Efectos -->
     <linearGradient id="tuki-crown-gold" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#fef08a"/>
       <stop offset="45%" stop-color="#f59e0b"/>
       <stop offset="85%" stop-color="#d97706"/>
-      <stop offset="100%" stop-color="#92400e"/>
+      <stop offset="100%" stop-color="#78350f"/>
     </linearGradient>
     <linearGradient id="tuki-vr-neon" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#06b6d4"/>
@@ -537,11 +625,11 @@ function renderTukiSVG(skin, opts = {}) {
   const capeBehind = o === 'cape' ? '<path d="M25 54 Q8 62 3 86 Q18 83 28 72 Z" fill="#dc2626"/><path d="M24 54 Q10 65 6 86" stroke="#991b1b" stroke-width="1.5" fill="none"/>' : '';
 
   const outfitLayer = {
-    bowtie: '<polygon points="33,56 43,60 33,64" fill="#dc2626"/><polygon points="53,56 43,60 53,64" fill="#dc2626"/><circle cx="43" cy="60" r="3" fill="#991b1b"/>',
+    bowtie: '<polygon points="33,56 43,60 33,64" fill="#dc2626"/><polygon points="53,56 43,60 53,64" fill="#dc2626"/><circle cx="43" cy="60" r="3" fill="#991b1b"/><ellipse cx="43" cy="59.5" rx="1.5" ry="1" fill="#f87171" opacity="0.6"/>',
     scarf: '<rect x="26" y="55" width="34" height="10" rx="4" fill="#0284c7"/><line x1="32" y1="55" x2="32" y2="65" stroke="#bae6fd" stroke-width="2"/><line x1="42" y1="55" x2="42" y2="65" stroke="#bae6fd" stroke-width="2"/><line x1="52" y1="55" x2="52" y2="65" stroke="#bae6fd" stroke-width="2"/><path d="M48 62 L48 78 L40 78 L40 62 Z" fill="#0369a1"/><line x1="40" y1="74" x2="48" y2="74" stroke="#bae6fd" stroke-width="2"/>',
     hawaiian: '<circle cx="28" cy="58" r="3.5" fill="#ec4899"/><circle cx="34" cy="62" r="3.5" fill="#f59e0b"/><circle cx="42" cy="64" r="3.5" fill="#eab308"/><circle cx="50" cy="62" r="3.5" fill="#06b6d4"/><circle cx="56" cy="58" r="3.5" fill="#a855f7"/>',
     cape: '<circle cx="28" cy="56" r="3.5" fill="#f59e0b"/>',
-    medal: '<path d="M36 55 L43 68 L50 55" stroke="#dc2626" stroke-width="3" fill="none"/><circle cx="43" cy="72" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="1"/>',
+    medal: '<path d="M36 55 L43 68 L50 55" stroke="#dc2626" stroke-width="3" fill="none"/><circle cx="43" cy="72" r="6" fill="#f59e0b" stroke="#d97706" stroke-width="1"/><circle cx="41.5" cy="70.5" r="2" fill="#fff" opacity="0.45"/>',
     ruana: '<polygon points="20,54 62,54 66,78 44,84 16,76" fill="#78350f" stroke="#451a03" stroke-width="1.5"/><path d="M19 62 L63 62" stroke="#fef3c7" stroke-width="2.5"/><polygon points="25,62 28,59 31,62 28,65" fill="#d97706"/><polygon points="35,62 38,59 41,62 38,65" fill="#dc2626"/><polygon points="47,62 50,59 53,62 50,65" fill="#dc2626"/><polygon points="57,62 60,59 63,62 60,65" fill="#d97706"/><polyline points="18,71 22,69 26,71 30,69 34,71 38,69 42,71 46,69 50,71 54,69 58,71 62,69 65,72" fill="none" stroke="#fde68a" stroke-width="1.4"/><polygon points="39,54 44,65 49,54" fill="#fffbeb" stroke="#b45309" stroke-width="0.8"/><path d="M16 76 L19 83 M23 78 L25 84 M30 80 L32 85 M37 82 L38 87 M44 84 L44 89 M51 82 L50 87 M58 80 L56 85 M64 77 L62 83" stroke="#fef3c7" stroke-width="1.6" stroke-linecap="round"/>',
     jersey: '<path d="M26 56 Q44 54 60 56 L58 76 Q44 80 26 76 Z" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/><path d="M26 70 Q44 73 58 70 L58 73 Q44 76 26 73 Z" fill="#1d4ed8"/><path d="M26 73 Q44 76 58 73 L58 76 Q44 79 26 76 Z" fill="#dc2626"/><polygon points="41,56 44,61 47,56" fill="#1d4ed8"/>',
     astronaut: '<path d="M24 55 Q44 52 62 55 L60 80 Q44 84 24 80 Z" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/><rect x="30" y="55" width="28" height="5" rx="2" fill="#0284c7"/><circle cx="36" cy="67" r="4" fill="#ef4444"/><circle cx="48" cy="67" r="4" fill="#3b82f6"/><line x1="28" y1="74" x2="56" y2="74" stroke="#64748b" stroke-width="2"/>',
@@ -552,7 +640,7 @@ function renderTukiSVG(skin, opts = {}) {
 
   const hatLayer = {
     cap: '<path d="M22 35 C23 20 54 20 56 34 Z" fill="#2563eb"/><path d="M42 33 C56 32 68 36 70 40 C56 42 44 38 42 33 Z" fill="#1d4ed8"/><circle cx="39" cy="22" r="2.5" fill="#f59e0b"/>',
-    glasses: '<path d="M26 36 Q38 31 52 36 L52 45 Q38 49 26 45 Z" fill="#0f172a" stroke="#475569" stroke-width="1.5"/><line x1="28" y1="39" x2="48" y2="43" stroke="#fff" stroke-width="1.2" opacity="0.6"/><path d="M52 38 Q58 37 62 40" stroke="#0f172a" stroke-width="2" fill="none"/>',
+    glasses: '<path d="M26 36 Q38 31 52 36 L52 45 Q38 49 26 45 Z" fill="#0f172a" stroke="#475569" stroke-width="1.5"/><line x1="28" y1="39" x2="48" y2="43" stroke="#fff" stroke-width="1.4" opacity="0.75"/><line x1="32" y1="38" x2="44" y2="44" stroke="#67e8f9" stroke-width="0.8" opacity="0.6"/><path d="M52 38 Q58 37 62 40" stroke="#0f172a" stroke-width="2" fill="none"/>',
     grad: '<polygon points="16,24 38,15 62,24 38,32" fill="#111827" stroke="#1f2937" stroke-width="1"/><path d="M38 24 Q48 27 52 38" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" fill="none"/><circle cx="38" cy="24" r="3" fill="#f59e0b"/><circle cx="52" cy="38" r="2.5" fill="#f59e0b"/>',
     wizard: '<ellipse cx="38" cy="31" rx="22" ry="5.5" fill="#3b0764"/><path d="M23 30 Q34 6 56 10 Q45 20 53 30 Z" fill="#581c87"/><circle cx="38" cy="19" r="2.5" fill="#fbbf24"/><circle cx="46" cy="16" r="1.5" fill="#fde047"/>',
     crown: '<polygon points="22,30 19,16 29,24 39,11 49,24 59,16 56,30" fill="url(#tuki-crown-gold)" stroke="#92400e" stroke-width="1.2"/><path d="M24 30 Q39 18 54 30 Z" fill="#831843" opacity="0.85"/><rect x="22" y="28" width="34" height="4.5" rx="1.5" fill="url(#tuki-crown-gold)" stroke="#78350f" stroke-width="1"/><circle cx="26" cy="30.2" r="0.9" fill="#fff"/><circle cx="33" cy="30.2" r="0.9" fill="#fff"/><circle cx="39" cy="30.2" r="0.9" fill="#fff"/><circle cx="45" cy="30.2" r="0.9" fill="#fff"/><circle cx="52" cy="30.2" r="0.9" fill="#fff"/><polygon points="39,17 41.5,21 39,25 36.5,21" fill="#ef4444" stroke="#991b1b" stroke-width="0.5"/><polygon points="39,17 40.5,20.5 39,22 37.5,20.5" fill="#fca5a5"/><circle cx="29" cy="24" r="2.2" fill="#10b981" stroke="#065f46" stroke-width="0.6"/><circle cx="28.2" cy="23.2" r="0.7" fill="#a7f3d0"/><circle cx="49" cy="24" r="2.2" fill="#3b82f6" stroke="#1e40af" stroke-width="0.6"/><circle cx="48.2" cy="23.2" r="0.7" fill="#bfdbfe"/><circle cx="19" cy="15.5" r="1.5" fill="#fffbeb" stroke="#d97706" stroke-width="0.5"/><circle cx="59" cy="15.5" r="1.5" fill="#fffbeb" stroke="#d97706" stroke-width="0.5"/><circle cx="39" cy="9.5" r="2.2" fill="#fef08a" stroke="#b45309" stroke-width="0.8"/><line x1="39" y1="6.5" x2="39" y2="10" stroke="#fef08a" stroke-width="1.2"/><line x1="37.5" y1="8" x2="40.5" y2="8" stroke="#fef08a" stroke-width="1.2"/>',
@@ -575,7 +663,7 @@ function renderTukiSVG(skin, opts = {}) {
     trophy: '<path d="M5 60 Q5 72 11 72 Q17 72 17 60 Z" fill="#f59e0b" stroke="#d97706" stroke-width="1"/><path d="M3 62 C1 66 5 68 7 68 M19 62 C21 66 17 68 15 68" stroke="#d97706" stroke-width="1.2" fill="none"/><rect x="9" y="72" width="4" height="5" fill="#d97706"/><rect x="7" y="77" width="8" height="3" rx="1" fill="#78350f"/>'
   }[hand] || '';
 
-  return `<svg ${size}viewBox="0 0 100 100" class="tuki-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}${colors.aura}${capeBehind}<g class="tuki-body-group"><ellipse cx="46" cy="58" rx="30" ry="34" fill="${colors.body}"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="${colors.chest}"/><path d="M32 68 Q38 73 44 73 Q50 73 56 68 Q50 76 44 77 Q38 76 32 68 Z" fill="${colors.chest}" opacity="0.45"/><path class="tuki-wing" d="M20 60 C10 70 14 84 24 86 C21 79 20 73 22 66 Z" fill="${colors.wing}"/><path class="tuki-wing-inner" d="M19 66 C15 72 16 80 22 83" stroke="${colors.body}" stroke-width="1.2" fill="none" opacity="0.35"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/>${outfitLayer}${handLayer}</g><g class="tuki-head-group"><g class="tuki-eye"><circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.8" fill="#1f2a33"/><circle cx="44.2" cy="38" r="2.2" fill="#fff"/><circle cx="40.5" cy="42.5" r="1.1" fill="#fff" opacity="0.9"/><circle cx="42" cy="40" r="5.8" fill="none" stroke="#60a5fa" stroke-width="0.75" opacity="0.35"/></g><g class="tuki-beak"><path class="tuki-beak-top" d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="url(#tuki-bt-${pl})"/><path d="M54 36 C70 31 88 35 93 42" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.45"/><path class="tuki-beak-bot" d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="url(#tuki-bb-${pl})"/><path d="M52 48 C70 50 88 49 95 43" stroke="#0f172a" stroke-width="1" fill="none" opacity="0.25"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/></g>${hatLayer}</g></svg>`;
+  return `<svg ${size}viewBox="0 0 100 100" class="tuki-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}${colors.aura}<!-- Sombra de suelo --><ellipse cx="44" cy="96" rx="28" ry="4" fill="url(#tuki-ground-shadow)"/>${capeBehind}<g class="tuki-body-group"><!-- Cuerpo 3D esférico --><ellipse cx="46" cy="58" rx="30" ry="34" fill="url(#tuki-body-grad-${pl})"/><!-- Brillo de contorno superior (Rim Light) --><path d="M22 40 C28 29 48 30 64 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.18"/><!-- Sombra de oclusión en base del torso --><path d="M26 78 C34 88 56 88 66 78 C58 84 34 84 26 78 Z" fill="${colors.bodyDark}" opacity="0.45"/><!-- Pecho 3D convexo con volumen y brillo --><ellipse cx="45" cy="69" rx="17.5" ry="19" fill="${colors.bodyDark}" opacity="0.25"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="url(#tuki-chest-grad-${pl})"/><ellipse cx="40" cy="58" rx="8" ry="10" fill="#ffffff" opacity="0.28"/><path d="M32 68 Q38 73 44 73 Q50 73 56 68 Q50 76 44 77 Q38 76 32 68 Z" fill="${colors.chestDark}" opacity="0.35"/><path d="M35 74 Q44 78 53 74 Q44 81 35 74 Z" fill="${colors.chestDark}" opacity="0.3"/><!-- Ala 3D con sombreado y plumas escalonadas --><path d="M19 61 C8 72 12 87 25 88" stroke="#000000" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.25"/><path class="tuki-wing" d="M20 60 C10 70 14 84 24 86 C21 79 20 73 22 66 Z" fill="url(#tuki-wing-grad-${pl})"/><path d="M21 62 C15 69 16 77 22 81" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.3"/><path class="tuki-wing-inner" d="M17 68 C13 74 15 81 21 84" stroke="${colors.wingDark}" stroke-width="1.3" fill="none" opacity="0.5"/><!-- Patas 3D con volumen cilíndrico y garras --><g class="tuki-feet"><ellipse cx="28" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="42" cy="98" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="56" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="url(#tuki-foot-grad)" stroke-width="4.5" stroke-linecap="round"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><circle cx="25.5" cy="97" r="1.4" fill="#78350f"/><circle cx="42" cy="98" r="1.4" fill="#78350f"/><circle cx="58.5" cy="97" r="1.4" fill="#78350f"/></g>${outfitLayer}${handLayer}</g><g class="tuki-head-group"><!-- Antifaz orbital toucan 3D --><ellipse cx="40" cy="40" rx="13.2" ry="12.8" fill="${colors.eyePatch}" opacity="0.22"/><ellipse cx="40" cy="40" rx="12.2" ry="11.8" fill="${colors.bodyDark}" opacity="0.35"/><!-- Ojo esférico 3D con lente gloss y reflejos múltiples --><g class="tuki-eye"><circle cx="40" cy="40" r="11" fill="url(#tuki-eye-sphere)"/><path d="M30 36 C34 32 46 32 50 36 C45 34 35 34 30 36 Z" fill="#94a3b8" opacity="0.4"/><circle cx="42" cy="40" r="5.8" fill="url(#tuki-iris-grad)"/><circle cx="42" cy="40" r="5.8" fill="none" stroke="#60a5fa" stroke-width="0.8" opacity="0.5"/><ellipse cx="44.2" cy="37.8" rx="2.2" ry="1.8" transform="rotate(-20 44.2 37.8)" fill="#ffffff"/><circle cx="40.2" cy="42.6" r="1.1" fill="#ffffff" opacity="0.9"/><circle cx="45" cy="41" r="0.6" fill="#ffffff" opacity="0.75"/></g><!-- Pico 3D esculpido con cresta de brillo y oclusión --><g class="tuki-beak"><path d="M50 33 C47 38 47 46 51 51" stroke="#0f172a" stroke-width="2.8" stroke-linecap="round" fill="none" opacity="0.6"/><path class="tuki-beak-top" d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="url(#tuki-bt-${pl})"/><path d="M54 35.5 C70 30 88 34 94 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.55"/><path d="M58 35 C72 31 84 34 90 39" stroke="#ffffff" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.8"/><path class="tuki-beak-bot" d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="url(#tuki-bb-${pl})"/><path d="M56 50 C70 55 86 52 93 47" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.25"/><path d="M51 48 C70 50.5 88 49.5 96 43.5" stroke="#3b0707" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.5"/><path d="M88 39 C93 38 97 43 97 44 C94 49 90 49 88 46 Z" fill="#090d16"/><circle cx="93.5" cy="41.5" r="1.6" fill="#ffffff" opacity="0.7"/><circle cx="94" cy="43.5" r="2.8" fill="#1f2a33" opacity="0.6"/></g>${hatLayer}</g></svg>`;
 }
 let MASCOT = renderTukiSVG();
 function updateMascot() {
