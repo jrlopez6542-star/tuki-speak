@@ -901,6 +901,41 @@ function lessonShell() {
   return `<div class="lhead"><button class="xbtn" id="xLesson" aria-label="Salir">✕</button><div class="pbar"><i style="width:${pct}%"></i></div>${L.mode === 'lesson' ? `<div class="lhearts">❤️ ${S.hearts}</div>` : `<div class="lhearts" style="color:var(--b)">🎯</div>`}</div>
   <div class="lbody" id="lbody"></div><div class="lfoot" id="lfoot" aria-live="polite"></div>`;
 }
+function tukiTutorBannerHTML(opts = {}) {
+  const title = opts.title || 'Profe Tuki 🦜';
+  const msg = opts.msg || '';
+  const sub = opts.sub || '';
+  const speakText = opts.speakText || msg;
+  return `<div class="tuki-tutor-banner">
+    <div class="tuki-tutor-mascot" title="¡Toca al Profe Tuki para escuchar un tip o saludo!">${MASCOT}</div>
+    <div class="tuki-tutor-bubble">
+      <div class="tuki-tutor-badge">${title}</div>
+      <div class="tuki-tutor-msg">${esc(msg)}</div>
+      ${sub ? `<div class="tuki-tutor-tip">${esc(sub)}</div>` : ''}
+    </div>
+    <button class="tuki-tutor-listen-btn" title="Escuchar al Profe Tuki" data-tuki-tutor-say="${esc(speakText)}">🔊</button>
+  </div>`;
+}
+
+function bindTukiTutorBanner(body) {
+  if (!body) return;
+  const m = $('.tuki-tutor-mascot', body);
+  if (m) m.onclick = () => interactWithTuki(m);
+  const b = $('[data-tuki-tutor-say]', body);
+  if (b) b.onclick = () => {
+    const txt = b.dataset.tukiTutorSay;
+    if (txt) {
+      if (m) {
+        m.classList.remove('tuki-wiggle');
+        void m.offsetWidth;
+        m.classList.add('tuki-wiggle');
+        setTimeout(() => m.classList.remove('tuki-wiggle'), 650);
+      }
+      deviceSpeakEs(txt, null, 1.05);
+    }
+  };
+}
+
 function nextEx() {
   if (!L) return;
   if (!L.queue.length) return finishLesson();
@@ -908,16 +943,30 @@ function nextEx() {
   $('#fullInner').innerHTML = lessonShell();
   $('#xLesson').onclick = () => confirmBox('¿Salir de la lección?', 'Perderás el progreso de esta lección.', 'Salir', closeLesson, true);
   (RENDER[L.cur.kind])(L.cur, $('#lbody'));
+  bindTukiTutorBanner($('#lbody'));
 }
 function setFoot(html, cls = '') { const f = $('#lfoot'); f.className = 'lfoot ' + cls; f.innerHTML = html; return f; }
 function footCheck(enabled, extra = '') { setFoot(`${extra || '<span></span>'}<button class="btn primary" id="primaryBtn" ${enabled ? '' : 'disabled'}>Comprobar</button>`); $('#primaryBtn').onclick = checkEar; }
 function enableCheck() { const b = $('#primaryBtn'); if (b) b.disabled = false; }
 
 /* ---- feedback ---- */
-const PRAISE = ['¡Excelente!', '¡Muy bien!', '¡Correcto!', '¡Genial!', '¡Así se hace!'];
+const PRAISE = [
+  '¡Excelente pronunciación y oído!',
+  '¡Eso es! ¡Vas con toda!',
+  '¡Qué berraquera, respuesta correcta!',
+  '¡Muy bien! Estás avanzando rápido.',
+  '¡Perfecto! Sigue con ese ritmo.'
+];
+const ENCOURAGE = [
+  '¡No te preocupes! De los errores se aprende.',
+  '¡Casi lo tienes! Escúchalo otra vez con calma.',
+  '¡Paso a paso! Vamos a revisar la respuesta correcta.',
+  '¡Ánimo! La práctica diaria hace al maestro.'
+];
 function feedback(ok, answerHTML, expl, sayText) {
   beep(ok ? 'ok' : 'bad');
-  const f = setFoot(`<div class="fb"><h3>${ok ? '✅ ' + pick(PRAISE) : '❌ Incorrecto'}</h3>${answerHTML ? `<div class="ans">${answerHTML}</div>` : ''}${expl ? `<div class="exp">${expl}</div>` : ''}</div>
+  const coachNote = ok ? pick(PRAISE) : pick(ENCOURAGE);
+  const f = setFoot(`<div class="fb"><h3>${ok ? '✅ ' + coachNote : '❌ ' + coachNote}</h3>${answerHTML ? `<div class="ans">${answerHTML}</div>` : ''}${expl ? `<div class="exp">${expl}</div>` : ''}</div>
     <div class="row">${sayText ? `<button class="spk" data-say-n="${esc(sayText)}" title="Escuchar">🔊</button>` : ''}<button class="btn primary" id="primaryBtn">Continuar</button></div>`, ok ? 'ok' : 'bad');
   const s = $('[data-say-n]', f); if (s) s.onclick = () => speak(sayText);
   $('#primaryBtn').onclick = nextEx; $('#primaryBtn').focus();
@@ -957,14 +1006,24 @@ RENDER.learn = (ex, body) => {
   const l = ex.l;
   if (l.type === 'vocab') return renderVocabLearn(ex, body);
   if (l.type === 'dialog') {
-    body.innerHTML = `<div class="ex-title">${l.icon} ${esc(l.title)}</div><div class="tipbox">🎬 ${esc(l.scene)}</div>
+    body.innerHTML = `${tukiTutorBannerHTML({
+      title: 'Profe Tuki · Diálogo 🎬',
+      msg: 'Escucha la conversación completa. Luego dirás las líneas de B y recibirás puntaje palabra por palabra.',
+      sub: l.scene ? 'Escenario: ' + l.scene : '',
+      speakText: 'Escucha la conversación completa con atención. Luego dirás las líneas del personaje B y te calificaré la pronunciación.'
+    })}<div class="ex-title">${l.icon} ${esc(l.title)}</div><div class="tipbox">🎬 ${esc(l.scene)}</div>
       <p class="muted small">Escucha el diálogo completo. Luego dirás las líneas de <b>B</b> y recibirás un puntaje por palabra. Toca cualquier palabra para oírla lento.</p>
       <div class="dlg">${l.lines.map(x => `<div class="msg ${x[0] === 'B' ? 'me' : 'bot'}"><b>${x[0]}:</b> ${wordsHTML(x[1])}<div class="small" style="opacity:.8">${esc(x[2])}</div></div>`).join('')}</div>
       <button class="btn blue" id="playAll">▶️ Escuchar diálogo</button>`;
     $('#playAll').onclick = () => { let i = 0; const nxt = () => { if (i < l.lines.length && L) speak(l.lines[i++][1], false, nxt); }; nxt(); };
   } else {
     body.innerHTML = `<div class="badge-new">NUEVO SONIDO</div><div class="ex-title">${l.icon} ${esc(l.title)} <span class="ipa">/${esc(l.sound)}/</span></div>
-      <div class="prompt"><div class="mascot">${MASCOT}</div><div class="bubble" style="font-size:16px;font-weight:600">${esc(l.expl)}</div></div>
+      ${tukiTutorBannerHTML({
+        title: 'Profe Tuki · Fonética 👄',
+        msg: l.expl,
+        sub: l.mouth ? 'Boca y lengua: ' + l.mouth : '',
+        speakText: l.expl + (l.mouth ? '. Colocación de la boca: ' + l.mouth : '')
+      })}
       <div class="tipbox"><b>👄 Boca y lengua:</b> ${esc(l.mouth)}</div>${mouthPanelHTML(l.id)}
       <h3>Ejemplos (toca para escuchar)</h3>
       <div class="wlist">${l.ex.map(w => `<div class="witem"><button class="spk" data-say-n="${esc(w[0])}">🔊</button><div><div class="en">${esc(w[0])}</div><div class="es">${esc(w[1])}</div></div><button class="spk slow" data-say="${esc(w[0])}" style="margin-left:auto" title="Lento">🐢</button></div>`).join('')}</div>
@@ -979,7 +1038,12 @@ function optionsHTML(opts, cls = 'opts') { return `<div class="${cls}">${opts.ma
 function bindOptions(body, ex, onPick) { $$('.opt', body).forEach(b => b.onclick = () => { $$('.opt', body).forEach(x => x.classList.remove('sel')); b.classList.add('sel'); ex.sel = +b.dataset.i; beep('tap'); enableCheck(); onPick && onPick(ex.sel); }); }
 RENDER.pick = (ex, body) => {
   const target = ex.pair[ex.side], lab = ex.l.pairLabels || ['', ''];
-  body.innerHTML = `<div class="ex-title">¿Qué palabra escuchas?</div><div class="muted small" style="margin:-8px 0 12px">Par mínimo · <span class="ipa">/${esc(ex.l.sound)}/</span></div>
+  body.innerHTML = `${tukiTutorBannerHTML({
+    title: 'Profe Tuki · Afina el Oído 👂',
+    msg: 'Escucha con atención: ¿cuál de estas dos palabras dije?',
+    sub: ex.l.sound ? `Par mínimo · Sonido /${ex.l.sound}/` : '',
+    speakText: 'Afina el oído. Escucha atentamente y elige cuál palabra estás oyendo.'
+  })}<div class="ex-title">¿Qué palabra escuchas?</div><div class="muted small" style="margin:-8px 0 12px">Par mínimo · <span class="ipa">/${esc(ex.l.sound)}/</span></div>
     <div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>
     <div class="pair">${ex.pair.map((w, i) => `<button class="opt" data-i="${i}"><span>${esc(w)}</span><span class="small muted">${esc(lab[i])}</span></button>`).join('')}</div>`;
   $('#pl').onclick = () => speak(target); $('#pls').onclick = () => speak(target, true);
@@ -987,7 +1051,12 @@ RENDER.pick = (ex, body) => {
 };
 RENDER.quiz = (ex, body) => {
   const q = ex.q; const order = shuffle(q.opts.map((o, i) => i)); ex.map = order;
-  body.innerHTML = `<div class="ex-title">${esc(q.q)}</div>${q.hide ? '<div style="height:10px"></div>' : '<div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>'}${optionsHTML(order.map(i => esc(q.opts[i])))}`;
+  body.innerHTML = `${tukiTutorBannerHTML({
+    title: 'Profe Tuki · Desafío 🧠',
+    msg: q.q,
+    sub: 'Toca la opción correcta para responder.',
+    speakText: q.q
+  })}<div class="ex-title">${esc(q.q)}</div>${q.hide ? '<div style="height:10px"></div>' : '<div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>'}${optionsHTML(order.map(i => esc(q.opts[i])))}`;
   if (!q.hide) { $('#pl').onclick = () => speak(q.say); $('#pls').onclick = () => speak(q.say, true); }
   bindOptions(body, ex, i => { ex.sel = order[i]; }); footCheck(false); if (S.settings.autoplay && !q.hide) setTimeout(() => speak(q.say), 300);
 };
@@ -996,7 +1065,12 @@ RENDER.order = (ex, body) => {
   const lower = new Set(ex.words.map(w => w.toLowerCase()));
   const distract = shuffle([...new Set((ex.pool || []).flatMap(tokensOf))].filter(w => !lower.has(w.toLowerCase()))).slice(0, 2);
   ex.tiles = shuffle([...ex.words, ...distract]); ex.sel = [];
-  body.innerHTML = `<div class="ex-title">Escucha y ordena la frase</div><div class="prompt"><button class="spk" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button><div class="muted">${esc(ex.es)}</div></div>
+  body.innerHTML = `${tukiTutorBannerHTML({
+    title: 'Profe Tuki · Ordenar Palabras 🧩',
+    msg: 'Escucha la frase y conecta las palabras en el orden correcto.',
+    sub: ex.es ? 'Significado: ' + ex.es : '',
+    speakText: 'Escucha la frase y conecta las palabras en el orden correcto.'
+  })}<div class="ex-title">Escucha y ordena la frase</div><div class="prompt"><button class="spk" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button><div class="muted">${esc(ex.es)}</div></div>
     <div class="answer-line" id="ansLine"></div><div class="bank" id="bank">${ex.tiles.map((t, i) => `<button class="tile" data-i="${i}">${esc(t)}</button>`).join('')}</div>`;
   $('#pl').onclick = () => speak(ex.text); $('#pls').onclick = () => speak(ex.text, true);
   const redraw = () => {
@@ -1009,7 +1083,12 @@ RENDER.order = (ex, body) => {
   footCheck(false); redraw(); if (S.settings.autoplay) setTimeout(() => speak(ex.text), 300);
 };
 RENDER.ltype = (ex, body) => {
-  body.innerHTML = `<div class="ex-title">Escribe lo que escuchas</div><div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>
+  body.innerHTML = `${tukiTutorBannerHTML({
+    title: 'Profe Tuki · Dictado ✍️',
+    msg: 'Escucha con atención y escribe la frase en inglés sin errores.',
+    sub: 'Toca 🐢 para escucharla despacio.',
+    speakText: 'Escucha con atención y escribe la frase en inglés sin errores.'
+  })}<div class="ex-title">Escribe lo que escuchas</div><div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>
     <textarea class="inp" id="tin" placeholder="Escribe en inglés…" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>`;
   $('#pl').onclick = () => speak(ex.text); $('#pls').onclick = () => speak(ex.text, true);
   const t = $('#tin'); t.oninput = () => { ex.sel = t.value.trim() || null; $('#primaryBtn').disabled = !ex.sel; };
@@ -1028,7 +1107,29 @@ RENDER.speak = RENDER.shadow = RENDER.dialog = RENDER.saypair = (ex, body) => {
     ctx = `<div class="tipbox small">🎬 ${esc(ex.l.scene)}</div><div class="dlg">${prev.map(x => `<div class="msg ${x[0] === 'B' ? 'me' : 'bot'}">${x[0] === 'A' ? `<button class="mini" data-say-n="${esc(x[1])}">🔊</button> ` : ''}${esc(x[1])}</div>`).join('')}</div>`;
   }
   const es = ex.kind === 'dialog' ? ex.l.lines[ex.i][2] : ex.kind === 'saypair' ? `Par mínimo: ${ex.pair[0]} / ${ex.pair[1]} — ${(ex.l.pairLabels || [])[ex.side] || ''}` : ex.es;
-  body.innerHTML = `<div class="ex-title">${SPEAK_TITLES[variant]}</div>${ctx}
+
+  const tutorVoiceTitle = variant === 'shadow'
+    ? 'Profe Tuki · Shadowing 👥'
+    : variant === 'dialog'
+    ? 'Profe Tuki · Conversación 💬'
+    : variant === 'saypair'
+    ? 'Profe Tuki · Sonidos Clave 🎯'
+    : 'Profe Tuki · Pronunciación 🎤';
+
+  const tutorVoiceMsg = variant === 'shadow'
+    ? 'Escucha 1 o 2 veces e imita el ritmo y la entonación como una sombra.'
+    : variant === 'dialog'
+    ? '¡Tu turno en la conversación! Di en voz alta la línea de tu personaje.'
+    : variant === 'saypair'
+    ? `Pronuncia claro para distinguir entre ${ex.pair[0]} y ${ex.pair[1]}.`
+    : 'Lee en voz alta y pronuncia con calma. Recuerda: ¡en voz no pierdes vidas!';
+
+  body.innerHTML = `${tukiTutorBannerHTML({
+    title: tutorVoiceTitle,
+    msg: tutorVoiceMsg,
+    sub: es ? 'Significado: ' + es : 'Toca el micrófono cuando estés listo para hablar.',
+    speakText: tutorVoiceMsg
+  })}<div class="ex-title">${SPEAK_TITLES[variant]}</div>${ctx}
     <div class="card" style="margin-bottom:12px"><div class="target" id="tgt">${wordsHTML(target)}</div>${es ? `<div class="muted small">${esc(es)}</div>` : ''}
     <div class="row" style="margin-top:10px"><button class="spk" id="pl" title="Escuchar">🔊</button><button class="spk slow" id="pls" title="Lento">🐢</button><span class="muted small">${variant === 'shadow' ? 'Escucha 1-2 veces y repite imitando el ritmo y la entonación.' : 'Toca una palabra para oírla lento.'}</span></div></div>
     <div id="micArea"></div><div id="res"></div>`;
@@ -1092,7 +1193,10 @@ function onSpeechResult(ex, target, alts, url0, az) {
     ${compareHTML(target, url)}${extraResultHTML(r, target, url, ex)}</div>`;
   bindCompare(target, url, $('#res')); bindExtra($('#res'), r, target, url, ex);
   beep(pass ? 'ok' : 'bad');
-  const f = setFoot(`<div class="fb"><h3>${pass ? (r.pct >= 90 ? '🌟 ¡Excelente pronunciación!' : '✅ ¡Bien dicho!') : '🔁 Sigue practicando'}</h3><div class="exp">${pass ? 'Puedes continuar o intentar mejorar tu puntaje.' : 'Escucha el modelo lento, fíjate en las palabras en rojo/amarillo y vuelve a intentarlo. En voz no pierdes vidas.'}</div></div>
+  const speechTutorMsg = pass
+    ? (r.pct >= 90 ? '🌟 Profe Tuki: ¡Excelente pronunciación!' : '✅ Profe Tuki: ¡Bien dicho!')
+    : '🔁 Profe Tuki: ¡Casi! Sigue practicando';
+  const f = setFoot(`<div class="fb"><h3>${speechTutorMsg}</h3><div class="exp">${pass ? 'Puedes continuar o intentar mejorar tu puntaje.' : 'Escucha el modelo lento 🐢, fíjate en las palabras en rojo o amarillo y vuelve a intentarlo. En voz no pierdes vidas.'}</div></div>
     <div class="row"><button class="btn ghost" id="againBtn">Repetir</button><button class="btn primary" id="primaryBtn">Continuar</button></div>`, pass ? 'ok' : 'bad');
   $('#againBtn').onclick = () => $('#mic').click();
   $('#primaryBtn').onclick = () => { const best = ex.attempt; recordSpeech(ex.l.id, best); if (L.mode === 'placement') (L.place = L.place || []).push({ u: ex.pu, ok: best.pct >= S.settings.threshold }); if (ex.cardKey && S.deck[ex.cardKey]) sm2(S.deck[ex.cardKey], best.pct >= S.settings.threshold ? 4 : 2); if (best.words) best.words.forEach(w => { const k = normText(w.tok).join(' '); if (S.wd[k]) S.wd[k].sid = ex.l.id; }); save(); L.speak.push(best.pct); L.done++; nextEx(); };
@@ -1118,8 +1222,19 @@ function finishLesson() {
   const goal = S.settings.goal, today = todayRec().xp;
   const retry = {};
   updateMascot();
-  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div>
-    <h1>${L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1><div class="muted">${esc(L.title)}</div>
+  const finishQuote = pick([
+    '¡Excelente trabajo hoy! Cada lección te acerca más a tu fluidez.',
+    '¡Qué berraquera de práctica! Tu pronunciación está mejorando notablemente.',
+    '¡Muy bien hecho! La constancia diaria es el verdadero secreto.',
+    '¡Orgulloso de tu avance hoy! Mañana seguimos con toda la energía.'
+  ]);
+  $('#fullInner').innerHTML = `<div class="complete">
+    <div class="mascot" id="finishMascot" style="width:120px;height:120px;cursor:pointer" title="¡Toca al Profe Tuki!">${MASCOT}</div>
+    <h1>${L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
+    <div class="tuki-speech" style="margin:8px auto 14px;max-width:320px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700">
+      🦜 <b>Profe Tuki:</b> «${finishQuote}»
+    </div>
+    <div class="muted">${esc(L.title)}</div>
     <div class="scards">
       <div class="scard" style="border-color:var(--o)"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)">+${xp}</div></div>
       <div class="scard" style="border-color:#d97706"><div class="t" style="background:#d97706">Monedas</div><div class="v" style="color:#d97706">+${earnedCoins} 🪙</div></div>
@@ -1130,6 +1245,8 @@ function finishLesson() {
     ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}
     <p>Meta diaria: <b>${Math.min(today, goal)}/${goal} XP</b> ${today >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}
     <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button></div>`;
+  const fm = $('#finishMascot');
+  if (fm) fm.onclick = () => interactWithTuki(fm);
   $('#primaryBtn').onclick = closeLesson;
   confetti();
 }
@@ -1965,7 +2082,11 @@ function buildVocabLesson(l, mode = 'lesson') {
 function renderVocabLearn(ex, body) {
   const l = ex.l;
   body.innerHTML = `<div class="badge-new">VOCABULARIO NUEVO</div><div class="ex-title">${l.icon} ${esc(l.title)}</div>
-    <div class="prompt"><div class="mascot">${MASCOT}</div><div class="bubble" style="font-size:16px;font-weight:600">${esc(l.expl)}</div></div>
+    ${tukiTutorBannerHTML({
+      title: 'Profe Tuki · Vocabulario 📖',
+      msg: l.expl || 'Aprende y escucha este vocabulario clave para tu lección.',
+      speakText: l.expl || 'Aprende y escucha este vocabulario clave para tu lección.'
+    })}
     <div class="wlist">${l.items.map(it => `<div class="witem" style="align-items:flex-start"><button class="spk" data-say-n="${esc(it[0])}">🔊</button><div style="min-width:0"><div class="en">${esc(it[0])} <span class="es">— ${esc(it[1])}</span></div><div class="small">${wordsHTML(it[2])}</div><div class="es small">${esc(it[3])}</div>${it[4] ? `<div class="small" style="color:var(--r)">⚠️ No significa «${esc(it[4])}»</div>` : ''}</div><button class="spk slow" data-say-n="${esc(it[2])}" style="margin-left:auto" title="Escuchar ejemplo">💬</button></div>`).join('')}</div>`;
   $$('[data-say-n]', body).forEach(b => b.onclick = () => speak(b.dataset.sayN));
   setFoot(`<span class="muted small">${L.mode === 'lesson' ? 'Lección ' + (l.li + 1) + ' · ' + esc(l.unit.title) : ''}</span><button class="btn primary" id="primaryBtn">¡Entendido!</button>`);

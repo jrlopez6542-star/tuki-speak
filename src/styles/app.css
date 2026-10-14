@@ -93,6 +93,15 @@ h2{font-size:22px} h3{font-size:18px}
 .prompt{display:flex;align-items:center;gap:12px;margin-bottom:18px}
 .bubble{position:relative;border:2px solid var(--line);border-radius:16px;padding:12px 14px;font-size:19px;font-weight:700;background:#fff}
 .mascot{width:74px;height:74px;flex:none}
+.tuki-tutor-banner{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:10px 14px;margin-bottom:16px;box-shadow:var(--sh);position:relative}
+.tuki-tutor-mascot{width:68px;height:68px;flex:none;cursor:pointer;transition:transform .2s ease}
+.tuki-tutor-mascot:hover{transform:scale(1.08)}
+.tuki-tutor-bubble{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.tuki-tutor-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:var(--g-d)}
+.tuki-tutor-msg{font-size:14px;font-weight:700;color:var(--ink);line-height:1.35}
+.tuki-tutor-tip{font-size:12px;color:var(--mute);font-weight:600;margin-top:2px}
+.tuki-tutor-listen-btn{background:var(--line);border:0;border-radius:10px;width:34px;height:34px;font-size:16px;cursor:pointer;flex:none;display:grid;place-items:center;transition:all .15s;color:var(--ink)}
+.tuki-tutor-listen-btn:hover{background:var(--b);color:#fff}
 .spk{width:44px;height:44px;border-radius:12px;border:0;background:var(--b);color:#fff;font-size:20px;box-shadow:0 4px 0 var(--b-d);flex:none;display:grid;place-items:center}
 .spk:active{transform:translateY(3px);box-shadow:0 1px 0 var(--b-d)}
 .spk.big{width:96px;height:96px;border-radius:24px;font-size:42px}
