@@ -633,6 +633,36 @@ function beep(type) {
     });
   } catch (e) {}
 }
+function tukiFanfare() {
+  if (!S.settings.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (AC.state === 'suspended') AC.resume();
+    const notes = [
+      [523.25, 0.12, 'triangle', 0.18],
+      [659.25, 0.12, 'triangle', 0.20],
+      [783.99, 0.15, 'triangle', 0.22],
+      [1046.50, 0.32, 'triangle', 0.26],
+      [783.99, 0.12, 'sine', 0.18],
+      [1046.50, 0.65, 'triangle', 0.28],
+      [1318.51, 0.65, 'sine', 0.16]
+    ];
+    let t = AC.currentTime + 0.05;
+    notes.forEach(([f, d, wave, vol], idx) => {
+      const o = AC.createOscillator(), g = AC.createGain();
+      o.type = wave || 'triangle';
+      o.frequency.value = f;
+      const noteTime = idx === 6 ? t - 0.65 : t;
+      g.gain.setValueAtTime(0.0001, noteTime);
+      g.gain.linearRampToValueAtTime(vol, noteTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, noteTime + d);
+      o.connect(g).connect(AC.destination);
+      o.start(noteTime);
+      o.stop(noteTime + d + 0.03);
+      if (idx < 5) t += d * 0.92;
+    });
+  } catch (e) {}
+}
 
 /* =================== RECONOCIMIENTO DE VOZ =================== */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1333,11 +1363,38 @@ function onSpeechResult(ex, target, alts, url0, az) {
 }
 
 /* ---- fin de lección ---- */
+function victoryConfetti(waves = 3) {
+  for (let w = 0; w < waves; w++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      const cols = ['#1fa463', '#ff9f1c', '#1cb0f6', '#ffd23f', '#e5484d', '#8b5cf6', '#ec4899', '#facc15'];
+      for (let i = 0; i < 50; i++) {
+        const p = document.createElement('i');
+        p.style.left = Math.random() * 100 + '%';
+        p.style.background = pick(cols);
+        p.style.animationDuration = (1.6 + Math.random() * 2) + 's';
+        p.style.animationDelay = (Math.random() * 0.4) + 's';
+        const sz = Math.floor(Math.random() * 7) + 8;
+        p.style.width = sz + 'px';
+        p.style.height = (sz * 1.3) + 'px';
+        if (Math.random() > 0.6) p.style.borderRadius = '50%';
+        c.appendChild(p);
+      }
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4800);
+    }, w * 420);
+  }
+}
+function confetti() { victoryConfetti(1); }
+
 function finishLesson() {
   const secs = Math.round((Date.now() - L.start) / 1000);
   const pron = L.speak.length ? Math.round(avg(L.speak)) : null;
   const ear = L.earN ? Math.round(L.earOk / L.earN * 100) : null;
-  let xp = L.mode === 'lesson' ? 10 + (L.mistakes === 0 ? 5 : 0) + (pron !== null && pron >= 85 ? 5 : 0) : 5 + Math.min(5, L.speak.length);
+  const isPerfect = L.mode === 'lesson' && L.mistakes === 0;
+  const isGoldPron = pron !== null && pron >= 88;
+  let xp = L.mode === 'lesson' ? 10 + (isPerfect ? 5 : 0) + (pron !== null && pron >= 85 ? 5 : 0) : 5 + Math.min(5, L.speak.length);
   let extra = '';
   if (L.mode === 'lesson') {
     const first = !S.done[L.l.id];
@@ -1346,41 +1403,98 @@ function finishLesson() {
     if (first) extra = `<p class="muted">🃏 Se agregaron ${lessonItems(L.l).length} tarjetas a tu mazo de repaso.</p>`;
   } else { refreshHearts(); if (S.hearts < MAX_HEARTS) { S.hearts++; extra = '<p class="muted">❤️ ¡Recuperaste una vida por practicar!</p>'; } }
   S.sessions++; todayRec().sec = (todayRec().sec || 0) + secs;
-  const up = addXP(xp); beep('done');
-  const earnedCoins = L.mode === 'lesson' ? (15 + (L.mistakes === 0 ? 10 : 0)) : 10;
+  const up = addXP(xp);
+  const earnedCoins = L.mode === 'lesson' ? (15 + (isPerfect ? 10 : 0)) : 10;
   addCoins(earnedCoins);
   const goal = S.settings.goal, today = todayRec().xp;
-  const retry = {};
   updateMascot();
-  const finishQuote = pick([
+
+  // Audio: Fanfarria de victoria alegre + chirps
+  tukiFanfare();
+  setTimeout(() => tukiChirp('celebrate'), 450);
+
+  // Confetti en oleadas tipo Duolingo
+  victoryConfetti(isPerfect ? 4 : 3);
+
+  // Insignias ganadas en esta lección
+  const badges = [];
+  if (isPerfect) badges.push('<div class="victory-badge perfect-badge">⭐ ¡LECCIÓN PERFECTA! (+10 🪙 Extra)</div>');
+  if (isGoldPron) badges.push(`<div class="victory-badge gold-badge">💎 ¡PRONUNCIACIÓN DE ORO (${pron}%)!</div>`);
+  if (up) badges.push(`<div class="victory-badge streak-badge">🔥 ¡RACHA AUMENTADA! (${S.streak} ${S.streak === 1 ? 'día' : 'días'})</div>`);
+
+  const finishQuote = pick(isPerfect ? [
+    '¡Increíble! ¡Lección perfecta sin un solo error! ¡Te ganaste 10 monedas extra!',
+    '¡Impecable, campeón! ¡Ni un solo fallo! Estás volando con tu inglés.',
+    '¡Qué bárbaro! Lección impecable. ¡Tuki está súper orgulloso de ti!'
+  ] : isGoldPron ? [
+    '¡Qué berraquera de pronunciación! Hablas con mucha claridad y ritmo.',
+    '¡Upa! Tu acento y entonación estuvieron de lujo hoy. ¡Sigue así!',
+    '¡Excelente pronunciación! La constancia diaria te está dando alas.'
+  ] : [
     '¡Excelente trabajo hoy! Cada lección te acerca más a tu fluidez.',
     '¡Qué berraquera de práctica! Tu pronunciación está mejorando notablemente.',
     '¡Muy bien hecho! La constancia diaria es el verdadero secreto.',
     '¡Orgulloso de tu avance hoy! Mañana seguimos con toda la energía.'
   ]);
+
+  const cardsHtml = [
+    { t: 'XP', v: `+${xp}`, c: 'var(--o)', bg: 'var(--o)' },
+    { t: 'Monedas', v: `+${earnedCoins} 🪙`, c: '#d97706', bg: '#d97706' },
+    { t: 'Pronunciación', v: pron === null ? '—' : pron + '%', c: 'var(--g-d)', bg: 'var(--g)' },
+    { t: 'Oído', v: ear === null ? '—' : ear + '%', c: 'var(--b-d)', bg: 'var(--b)' },
+    { t: 'Tiempo', v: `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`, c: '#8b5cf6', bg: '#8b5cf6' }
+  ].map((card, i) => `
+    <div class="scard scard-celebrate" style="border-color:${card.bg};animation-delay:${0.1 + i * 0.08}s">
+      <div class="t" style="background:${card.bg}">${card.t}</div>
+      <div class="v" style="color:${card.c}">${card.v}</div>
+    </div>`).join('');
+
   $('#fullInner').innerHTML = `<div class="complete">
-    <div class="mascot" id="finishMascot" style="width:120px;height:120px;cursor:pointer" title="¡Toca al Profe Tuki!">${MASCOT}</div>
-    <h1>${L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
-    <div class="tuki-speech" style="margin:8px auto 14px;max-width:320px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700">
+    <div class="victory-podium-wrap">
+      <div class="victory-aura"></div>
+      <div class="mascot tuki-celebrate" id="finishMascot" style="width:130px;height:130px;cursor:pointer;position:relative;z-index:2" title="¡Toca al Profe Tuki para celebrar!">
+        ${MASCOT}
+      </div>
+      <div class="victory-podium">
+        <span class="victory-podium-star">🏆</span>
+      </div>
+    </div>
+    <h1>${isPerfect ? '¡Lección Perfecta!' : L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
+    ${badges.length ? `<div class="victory-badges">${badges.join('')}</div>` : ''}
+    <div class="tuki-speech" style="margin:6px auto 12px;max-width:340px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700">
       🦜 <b>Profe Tuki:</b> «${finishQuote}»
     </div>
     <div class="muted">${esc(L.title)}</div>
-    <div class="scards">
-      <div class="scard" style="border-color:var(--o)"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)">+${xp}</div></div>
-      <div class="scard" style="border-color:#d97706"><div class="t" style="background:#d97706">Monedas</div><div class="v" style="color:#d97706">+${earnedCoins} 🪙</div></div>
-      <div class="scard" style="border-color:var(--g)"><div class="t" style="background:var(--g)">Pronunciación</div><div class="v" style="color:var(--g-d)">${pron === null ? '—' : pron + '%'}</div></div>
-      <div class="scard" style="border-color:var(--b)"><div class="t" style="background:var(--b)">Oído</div><div class="v" style="color:var(--b-d)">${ear === null ? '—' : ear + '%'}</div></div>
-      <div class="scard" style="border-color:#8b5cf6"><div class="t" style="background:#8b5cf6">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div>
-    </div>
+    <div class="scards">${cardsHtml}</div>
     ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}
     <p>Meta diaria: <b>${Math.min(today, goal)}/${goal} XP</b> ${today >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}
-    <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button></div>`;
+    <div class="row" style="margin-top:10px;gap:8px">
+      <button class="celebrate-btn" id="reCelebrateBtn">🎉 ¡Celebrar!</button>
+      <button class="btn primary" id="primaryBtn" style="min-width:180px">Continuar</button>
+    </div>
+  </div>`;
+
   const fm = $('#finishMascot');
-  if (fm) fm.onclick = () => interactWithTuki(fm);
+  const doCelebration = () => {
+    if (fm) triggerTukiAnimation(fm, 'tuki-celebrate', 'coin');
+    tukiChirp('celebrate');
+    victoryConfetti(1);
+    speakTukiEs(finishQuote, fm);
+  };
+  if (fm) fm.onclick = doCelebration;
+  const rcb = $('#reCelebrateBtn');
+  if (rcb) rcb.onclick = doCelebration;
+
   $('#primaryBtn').onclick = closeLesson;
-  confetti();
+
+  // Tuki habla felicitando al usuario y moviendo el pico
+  setTimeout(() => {
+    if (fm) {
+      triggerTukiAnimation(fm, 'tuki-celebrate', 'coin');
+      speakTukiEs(finishQuote, fm);
+    }
+  }, 400);
 }
-function confetti() { const c = document.createElement('div'); c.className = 'confetti'; const cols = ['#1fa463', '#ff9f1c', '#1cb0f6', '#ffd23f', '#e5484d', '#8b5cf6']; for (let i = 0; i < 60; i++) { const p = document.createElement('i'); p.style.left = Math.random() * 100 + '%'; p.style.background = pick(cols); p.style.animationDuration = 1.8 + Math.random() * 2 + 's'; p.style.animationDelay = Math.random() * .6 + 's'; c.appendChild(p); } document.body.appendChild(c); setTimeout(() => c.remove(), 5000); }
 function noHeartsModal() {
   modal(`<div style="text-align:center"><div style="font-size:54px">💔</div><h2>Te quedaste sin vidas</h2><p class="muted">Recuperas 1 vida cada 30 minutos (la próxima en ~${nextHeartIn()} min). También puedes ganar una vida completando una práctica.</p></div>
     <div class="row" style="margin-top:14px"><button class="btn ghost block" data-x>Esperar</button><button class="btn blue block" data-p>Practicar</button></div>`,
@@ -6947,4 +7061,4 @@ applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, spawnTukiParticles, speakTukiEs, tukiChirp, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, version: APP_VERSION };
