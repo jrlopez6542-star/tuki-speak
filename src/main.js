@@ -2462,7 +2462,7 @@ async function azureMic(btn, onResult, target) {
     });
     micMeter.destroy();
     btn.classList.remove('rec'); btn.innerHTML = '⏳ Analizando pronunciación…';
-    const url = URL.createObjectURL(rec.wav); Rec.url = url; LAST_REC = { url, samples: rec.samples };
+    const url = URL.createObjectURL(rec.wav); Rec.url = url; LAST_REC = { url, blob: rec.wav, samples: rec.samples };
     const az = await azureAssess(target, rec.wav);
     onResult(az.alts, url, az);
   } catch (e) {
@@ -2502,7 +2502,18 @@ function bindExtra(root, r, target, url, ex) {
 
 /* =================== VISUALIZACIÓN: ONDA Y TONO =================== */
 async function decodeAudio(src) {
-  const ab = src instanceof Blob ? await src.arrayBuffer() : await (await fetch(src)).arrayBuffer();
+  if (src && LAST_REC && LAST_REC.samples && (src === LAST_REC.url || src === LAST_REC.blob || src === LAST_REC.samples)) {
+    return LAST_REC.samples;
+  }
+  if (src instanceof Float32Array) return src;
+  let ab;
+  if (src instanceof Blob) {
+    ab = await src.arrayBuffer();
+  } else if (typeof src === 'string' && src.startsWith('blob:') && LAST_REC && LAST_REC.blob && src === LAST_REC.url) {
+    ab = await LAST_REC.blob.arrayBuffer();
+  } else {
+    ab = await (await fetch(src)).arrayBuffer();
+  }
   AC = AC || new (window.AudioContext || window.webkitAudioContext)();
   const buf = await AC.decodeAudioData(ab.slice(0));
   return resample(buf.getChannelData(0), buf.sampleRate, 16000);
@@ -2538,7 +2549,7 @@ async function drawViz(box, target, url) {
     else { $('#cvM', box).replaceWith(Object.assign(document.createElement('div'), { className: 'notice small', textContent: 'Para ver la curva del modelo activa una voz en la nube (Azure u OpenAI) en Ajustes: la voz del dispositivo no permite capturar su audio.' })); }
   } catch (e) { msg.push('No se pudo analizar el modelo: ' + errES(e)); }
   try {
-    const src = url || (LAST_REC && LAST_REC.url);
+    const src = (LAST_REC && (LAST_REC.samples || LAST_REC.blob)) || url || (LAST_REC && LAST_REC.url);
     if (!src) throw Object.assign(new Error('sin grabación'), { friendly: 'Activa "Grabar mi voz" en Ajustes (o usa Azure) para ver tu curva.' });
     const d = await decodeAudio(src); const p = pitchTrack(d); drawTrack($('#cvU', box), d, p, '#d9800a'); dirU = contourDir(p);
   } catch (e) { const c = $('#cvU', box); if (c) c.replaceWith(Object.assign(document.createElement('div'), { className: 'notice small', textContent: e.friendly || ('No se pudo analizar tu grabación: ' + errES(e)) })); }
