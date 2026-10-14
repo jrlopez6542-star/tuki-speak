@@ -716,3 +716,9 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 [data-theme=dark] .mic-vu-status.low{color:#fbbf24}
 [data-theme=dark] .mic-vu-status.good{color:#34d399}
 [data-theme=dark] .mic-vu-status.high{color:#f87171}
+
+/* Radar de Top 5 Errores Frecuentes */
+.top-errors-card{border:2px solid #fecaca!important;background:linear-gradient(180deg,#fff8f8 0%,var(--card) 100%)}
+[data-theme=dark] .top-errors-card{border-color:#7f1d1d!important;background:linear-gradient(180deg,#2b1111 0%,var(--card) 100%)}
+.top-error-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.top-error-item:last-child{border-bottom:0}

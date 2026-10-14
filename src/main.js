@@ -1919,6 +1919,76 @@ VIEWS.studio = v => {
 };
 
 /* ---- Progreso ---- */
+function getTop5Errors() {
+  const items = [];
+  const seen = new Set();
+  Object.entries(S.wd || {}).forEach(([k, r]) => {
+    if (!k || k.includes(' ') || k.length < 2 || !r.n) return;
+    const avgScore = Math.round(r.sum / r.n);
+    if (avgScore < 75 || r.last < 70) {
+      const l = LESSON[r.sid] || LESSONS.find(x => (x.ex || []).some(w => w[0].toLowerCase() === k)) || LESSONS[0];
+      const ph = l && l.sound ? `/${l.sound}/` : '';
+      const tip = (l && l.sound && PH_TIPS[l.sound]) || `Practica pronunciar claro «${r.disp || k}» cuidando las consonantes.`;
+      items.push({ id: 'w:' + k, word: r.disp || k, sound: ph, score: Math.min(avgScore, r.last || avgScore), n: r.n, tip, kind: 'word', lesson: l });
+      seen.add(k.toLowerCase());
+    }
+  });
+  Object.values(S.hard || {}).forEach(h => {
+    const k = normText(h.w).join(' ');
+    if (seen.has(k)) return;
+    items.push({ id: 'h:' + k, word: h.w, sound: '', score: h.last || 60, n: h.n || 1, tip: h.note || 'Palabra señalada como punto a reforzar en tus prácticas.', kind: 'word', lesson: LESSONS[0] });
+    seen.add(k);
+  });
+  Object.values(S.deck || {}).forEach(c => {
+    const k = (c.en || '').trim().toLowerCase();
+    if (!k || seen.has(k) || c.kind !== 'palabra') return;
+    if (c.reps <= 1 || (c.ease && c.ease < 2.1)) {
+      items.push({ id: 'c:' + k, word: c.en, sound: '', score: 65, n: c.reps || 1, tip: c.es ? `Significa «${c.es}». Repasa su significado y pronunciación.` : 'Tarjeta que requiere más repetición en tu mazo.', kind: 'card', lesson: LESSON[c.lesson] || LESSONS[0] });
+      seen.add(k);
+    }
+  });
+  LESSONS.forEach(l => {
+    if (l.type === 'dialog' || !l.sound) return;
+    const a = soundAvg(l.id);
+    if (a !== null && a < 78) {
+      const tip = PH_TIPS[l.sound] || l.mouth || `Enfócate en la posición de boca para /${l.sound}/.`;
+      items.push({ id: 's:' + l.id, word: l.title, sound: `/${l.sound}/`, score: a, n: (S.snd[l.id] || []).length, tip, kind: 'sound', lesson: l });
+    }
+  });
+  items.sort((a, b) => a.score - b.score);
+  const DEFAULTS = [
+    { word: 'Spain (sin "E")', sound: '/s+cons/', score: 70, tip: 'No digas "E-spain", empieza directamente con el siseo: "ssss-pain".', lesson: LESSON['s-cluster'] || LESSONS[0] },
+    { word: 'Worked / Played', sound: '/-ed/', score: 72, tip: 'La -ed en "worked" suena como /t/ (una sola sílaba: "workt").', lesson: LESSON['ed-endings'] || LESSONS[0] },
+    { word: 'This / They', sound: '/ð/', score: 72, tip: 'Punta de la lengua entre los dientes y vibra; no es una "d" fuerte.', lesson: LESSON['th-voiced'] || LESSONS[0] },
+    { word: 'Sheet vs Shit', sound: '/iː/ vs /ɪ/', score: 74, tip: 'La /iː/ de sheet es larga y sonriente; la /ɪ/ de shit es corta y relajada.', lesson: LESSON['i-sounds'] || LESSONS[0] },
+    { word: 'Consonantes finales (Night, Milk)', sound: '/finales/', score: 75, tip: 'Pronuncia la consonante final nítida sin agregar una "e" al final.', lesson: LESSON['final-cons'] || LESSONS[0] }
+  ];
+  for (const d of DEFAULTS) {
+    if (items.length >= 5) break;
+    if (!items.some(x => x.word === d.word)) items.push({ id: 'def:' + d.word, ...d, n: 0, isSuggested: true });
+  }
+  return items.slice(0, 5);
+}
+
+function buildTopErrorsPractice() {
+  const top5 = getTop5Errors();
+  const q = [];
+  top5.forEach(err => {
+    const l = err.lesson || LESSONS[0];
+    if (err.kind === 'word') {
+      q.push({ kind: 'speak', variant: 'word', l, text: err.word, es: err.tip });
+      if (l.pairs && l.pairs.length) q.push(sayPairEx(l, pick(l.pairs)));
+    } else if (l.pairs && l.pairs.length) {
+      q.push(sayPairEx(l, pick(l.pairs)));
+      if (l.sents && l.sents.length) { const s = pick(l.sents); q.push({ kind: 'speak', variant: 'sent', l, text: s[0], es: s[1] }); }
+    } else if (l.ex && l.ex.length) {
+      const w = pick(l.ex);
+      q.push({ kind: 'speak', variant: 'word', l, text: w[0], es: w[1] });
+    }
+  });
+  return q.slice(0, 8);
+}
+
 VIEWS.progress = v => {
   const all = Object.values(S.snd).flat().sort((a, b) => a.t - b.t);
   const recent = all.slice(-30).map(x => x.s);
@@ -1929,6 +1999,7 @@ VIEWS.progress = v => {
   const withData = rows.filter(r => r.a !== null);
   const weakest = withData.slice().sort((a, b) => a.a - b.a).filter(r => r.a < 90).slice(0, 3);
   const wwords = Object.entries(S.wd).filter(([k, r]) => r.n).map(([k, r]) => ({ k, disp: r.disp || k, a: Math.round(r.sum / r.n), n: r.n })).sort((a, b) => a.a - b.a).slice(0, 10);
+  const top5 = getTop5Errors();
   // gráfico de 14 días
   const days = []; for (let i = 13; i >= 0; i--) { const d = new Date(Date.now() - i * DAY); const k = dayKey(d); const r = S.days[k]; days.push({ k, lab: d.getDate(), s: r && r.n ? Math.round(r.sum / r.n) : null, xp: r ? r.xp : 0 }); }
   const W = 320, H = 130, px = i => 18 + i * ((W - 30) / 13), py = s => H - 20 - s / 100 * (H - 36);
@@ -1949,6 +2020,36 @@ VIEWS.progress = v => {
     <div class="kpi"><span>Oído (pares/quiz)</span><b style="color:var(--b-d)">${earPct === null ? '—' : earPct + '%'}</b><span>${earT.r + earT.w} respuestas</span></div>
     <div class="kpi"><span>Intentos de voz</span><b>${S.spoken}</b><span>${S.sessions} sesiones</span></div>
     <div class="kpi"><span>Racha / XP</span><b>🔥 ${streakNow()} · 💎 ${S.xp}</b><span>mejor racha ${S.bestStreak}</span></div></div>
+    
+    <div class="card top-errors-card" id="topErrorsCard">
+      <div class="row between" style="margin-bottom:8px">
+        <div>
+          <h3 style="margin:0 0 2px;color:#b91c1c">🎯 Radar de tus 5 Errores Frecuentes</h3>
+          <div class="small muted">Puntos críticos analizados en tu voz y mazo de tarjetas</div>
+        </div>
+        <span class="badge" style="background:#fee2e2;color:#991b1b;font-weight:900">Analítica</span>
+      </div>
+      <div class="top-errors-list">
+        ${top5.map((err, i) => `
+          <div class="top-error-item">
+            <div style="display:flex;align-items:center;gap:8px;min-width:0">
+              <span style="font-weight:900;color:var(--mute);font-size:13px;width:18px">${i + 1}.</span>
+              <button class="spk sm" data-say-n="${esc(err.word.replace(/\(.*\)/, '').trim())}" title="Escuchar">🔊</button>
+              <div style="min-width:0">
+                <div style="font-weight:800;font-size:14px;color:var(--ink)">${esc(err.word)} ${err.sound ? `<span class="pill" style="font-size:11px;padding:1px 6px">${esc(err.sound)}</span>` : ''}</div>
+                <div class="small muted" style="font-size:11px;line-height:1.2;margin-top:2px">${esc(err.tip)}</div>
+              </div>
+            </div>
+            <div style="text-align:right;flex:none">
+              <span style="font-weight:900;font-size:13px;color:${err.score >= 75 ? 'var(--g-d)' : err.score >= 60 ? 'var(--o-d)' : 'var(--r)'}">${err.score}%</span>
+            </div>
+          </div>`).join('')}
+      </div>
+      <button class="btn red block" id="trainErrorsBtn" style="margin-top:12px;font-weight:900;background:#dc2626;box-shadow:0 4px 0 #991b1b">
+        🚀 Entrenar mis 5 puntos débiles (3 min)
+      </button>
+    </div>
+
     <div class="card"><h3>💡 Recomendación</h3><p style="margin:0">${rec}</p>${weakest.length ? `<button class="btn primary sm" style="margin-top:10px" data-drill="${weakest[0].l.id}">Practicar ${esc(weakest[0].l.title)}</button>` : ''}</div>
     <div class="card"><h3>Últimos 14 días</h3><div class="small muted">Línea verde: puntaje promedio de voz · barras: XP</div>${chart}</div>
     <div class="card"><h3>Puntaje por sonido</h3><div class="small muted" style="margin-bottom:10px">Promedio de tus últimos 10 intentos de voz por lección.</div><div class="bars">
@@ -1958,6 +2059,8 @@ VIEWS.progress = v => {
     <p class="muted small">ℹ️ ${azureReady() ? 'Con Azure activo, los ejercicios usan evaluación fonema por fonema (precisión, fluidez, integridad y prosodia). Sin Azure, ' : ''}el puntaje compara, palabra por palabra, lo que el reconocedor de voz del navegador entendió con la frase objetivo (usando su confianza y alternativas). No es un análisis fonético por sonido como el de apps de pago; úsalo como guía y complementa con "Grabar y comparar".</p>`;
   $$('[data-drill]', v).forEach(b => b.onclick = () => { const l = LESSON[b.dataset.drill]; startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); });
   const ww = $('#ww'); if (ww) ww.onclick = () => { const q = buildPractice('words'); q.length ? startLesson(null, 'practice', q, 'Palabras para repetir') : toast('Todas tus palabras tienen buen puntaje. 🎉'); };
+  const teBtn = $('#trainErrorsBtn'); if (teBtn) teBtn.onclick = () => { const q = buildTopErrorsPractice(); if (q.length) startLesson(null, 'practice', q, '🎯 Refuerzo: Top 5 Errores'); else toast('No hay errores críticos registrados.'); };
+  $$('[data-say-n]', v).forEach(b => b.onclick = () => speak(b.dataset.sayN));
 };
 
 /* ---- Palabras / tarjetas ---- */
@@ -3266,9 +3369,12 @@ VIEWS.settings = v => {
     <div class="set-row"><div><label>Reconocimiento de voz</label><div class="desc">${azureReady() ? 'Azure (fonemas) ✅' : HAS_SR ? 'Navegador (por palabras) ✅' : 'No disponible ❌ — usa Chrome/Edge o configura Azure'}</div></div><button class="btn ghost sm" id="testMic" ${canSpeak() ? '' : 'disabled'}>Probar 🎤</button></div>
   </div>
   <div class="card"><h3>⏰ Recordatorio diario</h3>
-    ${sw('remindOn', s.remindOn, 'Notificación local', 'Solo funciona si la app está abierta o en segundo plano')}
+    ${sw('remindOn', s.remindOn, 'Notificación local y push', 'Aviso diario interactivo para no perder tu racha')}
     <div class="set-row"><div><label for="remindTime">Hora</label></div><input type="time" class="field" id="remindTime" value="${esc(s.remindTime)}" style="max-width:140px"></div>
-    <p class="small muted">Para un recordatorio 100% confiable (aunque cierres la app), agrega un evento diario a tu calendario:</p><button class="btn ghost sm" id="ics">📅 Agregar al calendario (.ics)</button>
+    <div class="row" style="margin-top:8px;gap:8px">
+      <button class="btn blue sm" id="btnTestNotify">🔔 Probar notificación</button>
+      <button class="btn ghost sm" id="ics">📅 Calendario (.ics)</button>
+    </div>
   </div>
   <div class="card"><h3>🎨 Apariencia y accesibilidad</h3>
     <div class="set-row"><div><label for="theme">Tema</label></div><select class="field" id="theme" style="max-width:200px">${opt([['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']], s.theme)}</select></div>
@@ -3333,6 +3439,18 @@ VIEWS.settings = v => {
   };
   $('#remindTime').onchange = e => set('remindTime', e.target.value || '19:00');
   $('#ics').onclick = downloadICS;
+  const bTestNotif = $('#btnTestNotify');
+  if (bTestNotif) bTestNotif.onclick = async () => {
+    if (!('Notification' in window)) return toast('Tu navegador no soporta notificaciones.');
+    const p = await Notification.requestPermission();
+    if (p !== 'granted') return toast('Permiso de notificaciones denegado.');
+    sendTukiNotification(
+      '🦜 ¡Profe Tuki cuida tu racha!',
+      `¡Hola! Así te avisará Tuki para que no pierdas tu racha de ${streakNow()} días 🔥. Toca para practicar 5 min.`,
+      'tuki-test'
+    );
+    toast('🔔 ¡Notificación de prueba enviada! Revisa tu barra de notificaciones.', 3500);
+  };
   // datos
   $('#exp').onclick = () => { const a = document.createElement('a'); const s2 = { ...S, settings: { ...S.settings, geminiKey: '', openaiKey: '', azureKey: '' } }; a.href = URL.createObjectURL(new Blob([JSON.stringify(s2, null, 1)], { type: 'application/json' })); a.download = 'tuki-speak-progreso-' + dayKey() + '.json'; a.click(); };
   $('#imp').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { const d = JSON.parse(t); if (!d || !(d.v === 1 || d.v === 2) || !d.settings) throw new Error('Archivo no válido'); const keys = { geminiKey: S.settings.geminiKey, openaiKey: S.settings.openaiKey, azureKey: S.settings.azureKey }; localStorage.setItem(KEY, JSON.stringify({ ...d, settings: { ...d.settings, ...keys } })); load(); save(); toast('Progreso importado ✅'); applyPrefs(); render(); }).catch(err => toast('Error: ' + err.message)); };
@@ -3347,13 +3465,39 @@ function downloadICS() {
   const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tuki Speak//ES', 'BEGIN:VEVENT', 'UID:tuki-speak-diario@' + location.host, 'DTSTAMP:' + now, 'DTSTART:' + start, 'DURATION:PT10M', 'RRULE:FREQ=DAILY', 'SUMMARY:Practicar inglés con Tuki Speak', 'DESCRIPTION:10 minutos de pronunciación: ' + url, 'URL:' + url, 'BEGIN:VALARM', 'TRIGGER:PT0M', 'ACTION:DISPLAY', 'DESCRIPTION:Hora de practicar inglés 🦜', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' })); a.download = 'tuki-speak-recordatorio.ics'; a.click();
 }
+function sendTukiNotification(title, body, tag = 'tuki-remind', actions = true) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return Promise.resolve(null);
+  const options = {
+    body,
+    icon: './icon-192.png',
+    badge: './icon-192.png',
+    tag,
+    renotify: true,
+    vibrate: [200, 100, 200],
+    data: { action: 'practice', url: './#practice' }
+  };
+  if (actions) {
+    options.actions = [
+      { action: 'practice', title: '🚀 Practicar 5 min' },
+      { action: 'close', title: '✕ Cerrar' }
+    ];
+  }
+  return (navigator.serviceWorker && navigator.serviceWorker.getRegistration ? navigator.serviceWorker.getRegistration() : Promise.resolve(null))
+    .then(reg => {
+      if (reg && reg.showNotification) return reg.showNotification(title, options);
+      return new Notification(title, options);
+    }).catch(e => console.warn('notify err', e));
+}
 function checkReminder() {
   const s = S.settings; if (!s.remindOn || !('Notification' in window) || Notification.permission !== 'granted') return;
   const now = new Date(), [h, m] = (s.remindTime || '19:00').split(':').map(Number), k = dayKey();
   if (S.lastRemind === k || now.getHours() * 60 + now.getMinutes() < h * 60 + m || todayRec().xp >= s.goal) return;
   S.lastRemind = k; save();
-  const body = `¡Hora de practicar! Te faltan ${s.goal - todayRec().xp} XP hoy. 🔥 Racha: ${streakNow()}`;
-  (navigator.serviceWorker && navigator.serviceWorker.getRegistration ? navigator.serviceWorker.getRegistration() : Promise.resolve(null)).then(reg => { if (reg && reg.showNotification) reg.showNotification('Tuki Speak 🦜', { body, icon: 'icon-192.png', tag: 'tuki-remind' }); else new Notification('Tuki Speak 🦜', { body, icon: 'icon-192.png' }); }).catch(() => {});
+  const leftXp = Math.max(1, s.goal - todayRec().xp);
+  const st = streakNow();
+  const title = `🦜 ¡No pierdas tu racha de ${st} ${st === 1 ? 'día' : 'días'}!`;
+  const body = `Te faltan ${leftXp} XP hoy para tu meta diaria. 5 minutos bastan para mantener tu racha viva 🔥`;
+  sendTukiNotification(title, body, 'tuki-remind', true);
 }
 
 /* =================== CONEXIÓN Y ACTUALIZACIONES =================== */
@@ -7221,5 +7365,9 @@ VIEWS.settings = function (v) {
 applyPrefs(); save(); render(); netBanner();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
-setTimeout(checkReminder, 5000);
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, version: APP_VERSION };
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'GOTO_PRACTICE') go('practice');
+  });
+}
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, version: APP_VERSION };

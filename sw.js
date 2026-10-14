@@ -6,7 +6,23 @@ const ASSETS = ['./', './index.html', './manifest.json', './icon.svg', './icon-1
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))); });
 self.addEventListener('message', e => { if (e.data === 'skipWaiting') self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => !KEEP.includes(k)).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
-self.addEventListener('notificationclick', e => { e.notification.close(); e.waitUntil(self.clients.matchAll({ type: 'window' }).then(cs => cs.length ? cs[0].focus() : self.clients.openWindow('./'))); });
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const act = e.action;
+  if (act === 'close') return;
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(cs => {
+      for (const client of cs) {
+        if ('focus' in client) {
+          client.focus();
+          if (act === 'practice') client.postMessage({ type: 'GOTO_PRACTICE' });
+          return;
+        }
+      }
+      if (self.clients.openWindow) return self.clients.openWindow(act === 'practice' ? './#practice' : './');
+    })
+  );
+});
 self.addEventListener('fetch', e => {
   const req = e.request; const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== location.origin) return; // no tocar Gemini, OpenAI, Azure ni otros dominios
