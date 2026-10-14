@@ -3563,18 +3563,62 @@ function showUpdateBanner(worker) {
   const b = document.createElement('div'); b.id = 'updBanner'; b.className = 'banner upd'; b.setAttribute('role', 'status');
   b.innerHTML = '<span>✨ Hay una nueva versión de Tuki Speak.</span><button class="btn primary" id="updBtn">Actualizar</button>';
   document.body.appendChild(b);
-  $('#updBtn').onclick = () => { UPDATE_REQ = true; b.querySelector('span').textContent = 'Actualizando…'; worker.postMessage('skipWaiting'); setTimeout(() => location.reload(), 3000); };
+  $('#updBtn').onclick = () => {
+    UPDATE_REQ = true;
+    b.querySelector('span').textContent = 'Actualizando…';
+    if (worker) worker.postMessage('skipWaiting');
+    setTimeout(() => location.reload(), 800);
+  };
 }
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) window.addEventListener('load', async () => {
+
+async function initServiceWorker() {
+  if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
   try {
-    const reg = await navigator.serviceWorker.register('sw.js');
-    if (reg.waiting && navigator.serviceWorker.controller) showUpdateBanner(reg.waiting);
-    reg.addEventListener('updatefound', () => { const w = reg.installing; if (w) w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdateBanner(w); }); });
-    navigator.serviceWorker.addEventListener('controllerchange', () => { if (UPDATE_REQ) location.reload(); });
-    setInterval(() => reg.update().catch(() => {}), 30 * 60e3);
+    const reg = await navigator.serviceWorker.register('/sw.js');
     window.__swReg = reg;
-  } catch (e) {}
-});
+
+    // Comprobar actualización al iniciar
+    reg.update().catch(() => {});
+
+    if (reg.waiting && navigator.serviceWorker.controller) {
+      showUpdateBanner(reg.waiting);
+    }
+
+    reg.addEventListener('updatefound', () => {
+      const w = reg.installing;
+      if (w) {
+        w.addEventListener('statechange', () => {
+          if (w.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateBanner(w);
+          }
+        });
+      }
+    });
+
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (refreshing) return;
+      if (UPDATE_REQ) {
+        refreshing = true;
+        location.reload();
+      }
+    });
+
+    // Verificación proactiva periódica y al volver a la pestaña
+    setInterval(() => reg.update().catch(() => {}), 10 * 60e3);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') reg.update().catch(() => {});
+    });
+  } catch (e) {
+    console.warn('SW registration:', e);
+  }
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  initServiceWorker();
+} else {
+  window.addEventListener('load', initServiceWorker);
+}
 
 
 /* =================== v2.4: DATOS NUEVOS (migración sin pérdida) =================== */
@@ -7342,50 +7386,72 @@ async function checkForAppUpdates(btn) {
   if (status) status.textContent = '⏳ Comprobando con el servidor si hay una nueva versión…';
 
   try {
+    let updateFound = false;
+    let remoteVer = null;
+
+    // 1. Comprobar meta app-version directamente en el servidor sin caché
+    try {
+      const res = await fetch('/index.html?_chk=' + Date.now(), { cache: 'no-store', method: 'GET' });
+      if (res && res.ok) {
+        const html = await res.text();
+        const m = html.match(/<meta\s+name=["']app-version["']\s+content=["']([^"']+)["']>/i);
+        remoteVer = m ? m[1] : null;
+        if (remoteVer && remoteVer !== APP_VERSION) {
+          updateFound = true;
+        }
+      }
+    } catch (e) {}
+
+    // 2. Comprobar Service Worker registration
     if ('serviceWorker' in navigator) {
       const reg = window.__swReg || (await navigator.serviceWorker.getRegistration());
       if (reg) {
         if (reg.waiting) {
+          updateFound = true;
           if (status) status.textContent = '✨ ¡Nueva versión encontrada! Actualizando…';
           toast('✨ Nueva versión encontrada. Actualizando…', 2500);
           reg.waiting.postMessage('skipWaiting');
-          setTimeout(() => location.reload(), 1000);
+          setTimeout(() => location.reload(), 800);
           return;
         }
         await reg.update();
         if (reg.waiting) {
+          updateFound = true;
           if (status) status.textContent = '✨ ¡Nueva versión encontrada! Actualizando…';
           toast('✨ Nueva versión encontrada. Actualizando…', 2500);
           reg.waiting.postMessage('skipWaiting');
-          setTimeout(() => location.reload(), 1000);
+          setTimeout(() => location.reload(), 800);
           return;
         }
         if (reg.installing) {
+          updateFound = true;
           if (status) status.textContent = '⏳ Descargando actualización…';
           toast('⏳ Descargando actualización…', 2000);
           reg.installing.addEventListener('statechange', () => {
             if (reg.installing && reg.installing.state === 'installed') {
               if (status) status.textContent = '✨ ¡Nueva versión lista! Recargando…';
               if (reg.waiting) reg.waiting.postMessage('skipWaiting');
-              setTimeout(() => location.reload(), 1000);
+              setTimeout(() => location.reload(), 800);
             }
           });
           return;
         }
       }
     }
-    const res = await fetch('./index.html?_chk=' + Date.now(), { cache: 'no-store', method: 'GET' }).catch(() => null);
-    if (res && res.ok) {
-      const html = await res.text();
-      const m = html.match(/<meta\s+name=["']app-version["']\s+content=["']([^"']+)["']>/i);
-      const remoteVer = m ? m[1] : null;
-      if (remoteVer && remoteVer !== APP_VERSION) {
-        if (status) status.textContent = `✨ ¡Nueva versión v${remoteVer} disponible! Recargando…`;
-        toast(`✨ Nueva versión v${remoteVer} encontrada. Actualizando…`, 2500);
-        setTimeout(() => location.reload(true), 1200);
-        return;
+
+    if (updateFound && remoteVer) {
+      if (status) status.textContent = `✨ ¡Nueva versión v${remoteVer} disponible! Recargando…`;
+      toast(`✨ Nueva versión v${remoteVer} encontrada. Actualizando…`, 2500);
+      if ('caches' in window) {
+        try {
+          const ks = await caches.keys();
+          await Promise.all(ks.filter(k => k !== 'tuki-tts-v1').map(k => caches.delete(k)));
+        } catch (e) {}
       }
+      setTimeout(() => location.reload(true), 1000);
+      return;
     }
+
     if (status) status.textContent = `✅ Tuki Speak v${APP_VERSION} está en la última versión.`;
     toast(`✅ Tuki Speak v${APP_VERSION} está al día.`, 3000);
   } catch (err) {
