@@ -755,7 +755,11 @@ if ('speechSynthesis' in window) { loadVoices(); speechSynthesis.onvoiceschanged
 function pickVoice() {
   if (S.settings.voice) { const v = VOICES.find(v => v.name === S.settings.voice); if (v) return v; }
   const us = VOICES.filter(v => /en[-_]US/i.test(v.lang));
-  return us.find(v => /Google/i.test(v.name)) || us.find(v => /Samantha|Aria|Jenny|Natural/i.test(v.name)) || us[0] || VOICES[0] || null;
+  return us.find(v => /natural|neural|online/i.test(v.name))
+    || us.find(v => /Google/i.test(v.name))
+    || us.find(v => /Samantha|Aria|Jenny|Natural/i.test(v.name))
+    || us.find(v => !/desktop|espeak/i.test(v.name))
+    || us[0] || VOICES[0] || null;
 }
 function speak(text, slow = false, onend) {
   if (!('speechSynthesis' in window)) { toast('Tu navegador no tiene voz (speechSynthesis).'); return; }
@@ -1219,12 +1223,11 @@ function speakTukiEs(text, targetEl) {
   if (!S.settings.sound) return;
   const m = targetEl ? ($('.brand-mascot-wrap', targetEl) || $('.mascot', targetEl) || $('.tuki-tutor-mascot', targetEl) || targetEl) : null;
   if (m) m.classList.add('tuki-talking');
+  const onDone = () => { if (m) m.classList.remove('tuki-talking'); };
   try {
-    deviceSpeakEs(text, () => {
-      if (m) m.classList.remove('tuki-talking');
-    }, 1.05);
+    speak(text, false, onDone, 'es');
   } catch (e) {
-    if (m) m.classList.remove('tuki-talking');
+    onDone();
   }
 }
 
@@ -2413,7 +2416,11 @@ pickVoice = function () {
   { const p = tvPref('en'); if (p.startsWith('dev:')) { const v = VOICES.find(v => v.name === p.slice(4)); if (v) return v; } }
   if (S.settings.voice) { const v = VOICES.find(v => v.name === S.settings.voice); if (v) return v; }
   const acc = (S.settings.accent || 'en-US').toLowerCase();
-  const sc = v => (v.lang.replace('_', '-').toLowerCase().startsWith(acc) ? 50 : 0) + (/natural|neural|online|premium|enhanced/i.test(v.name) ? 30 : 0) + (/Google US English|Google UK English/i.test(v.name) ? 25 : 0) + (/Samantha|Ava|Aria|Jenny|Allison|Serena|Libby|Sonia|Daniel|Karen|Moira/i.test(v.name) ? 15 : 0);
+  const sc = v => (v.lang.replace('_', '-').toLowerCase().startsWith(acc) ? 50 : 0)
+    + (/natural|neural|online|premium|enhanced/i.test(v.name) ? 35 : 0)
+    + (/Google/i.test(v.name) ? 25 : 0)
+    + (/Samantha|Ava|Aria|Jenny|Allison|Serena|Libby|Sonia|Daniel|Karen|Moira/i.test(v.name) ? 15 : 0)
+    - (/desktop|espeak|robotic/i.test(v.name) ? 40 : 0);
   return VOICES.slice().sort((a, b) => sc(b) - sc(a))[0] || null;
 };
 const _deviceSpeak = speak;
@@ -2464,7 +2471,14 @@ function pickEsVoice() {
   if (!('speechSynthesis' in window)) return null;
   const vs = speechSynthesis.getVoices().filter(v => /^es[-_]?/i.test(v.lang));
   { const p = tvPref('es'); if (p.startsWith('dev:')) { const v = vs.find(x => x.name === p.slice(4)); if (v) return v; } }
-  const sc = v => { const l = v.lang.replace('_', '-').toLowerCase(), i = ES_PREF.indexOf(l); return (i < 0 ? 0 : 50 - i * 8) + (/natural|neural|online|premium|enhanced|google/i.test(v.name) ? 20 : 0) + (v.localService === false ? 2 : 0); };
+  const sc = v => {
+    const l = v.lang.replace('_', '-').toLowerCase(), i = ES_PREF.indexOf(l);
+    return (i < 0 ? 0 : 50 - i * 8)
+      + (/natural|neural|online|premium|enhanced/i.test(v.name) ? 35 : 0)
+      + (/google/i.test(v.name) ? 25 : 0)
+      + (v.localService === false ? 2 : 0)
+      - (/desktop|espeak|robotic/i.test(v.name) ? 40 : 0);
+  };
   return vs.sort((a, b) => sc(b) - sc(a))[0] || null;
 }
 function deviceSpeakEn(text, rate, onend) {
