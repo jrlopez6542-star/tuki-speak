@@ -1231,15 +1231,134 @@ function speakTukiEs(text, targetEl) {
   }
 }
 
+function openTukiCompanionModal(phrase) {
+  const notifSupported = 'Notification' in window;
+  const notifState = notifSupported ? Notification.permission : 'unsupported';
+  const st = streakNow();
+  const goal = S.settings.goal;
+  const todayXp = todayRec().xp;
+
+  let notifBlock = '';
+  if (!notifSupported) {
+    notifBlock = `<div class="notice small" style="margin:10px 0">ℹ️ Tu navegador no soporta notificaciones locales.</div>`;
+  } else if (notifState === 'default') {
+    notifBlock = `
+      <div style="background:var(--card-hover, #f0fdf4);border:2px dashed #86efac;border-radius:16px;padding:14px;margin:12px 0;text-align:center">
+        <div style="font-weight:900;font-size:14px;color:var(--g-d);margin-bottom:4px">🔔 ¿Cuidamos tu racha diaria?</div>
+        <div class="small muted" style="margin-bottom:10px">Permítele a Tuki enviarte un recordatorio a las <b>${S.settings.remindTime || '19:00'}</b> para que nunca pierdas tu progreso.</div>
+        <button class="btn primary sm block" id="btnCompanionNotif">🔔 Activar recordatorios de racha</button>
+      </div>`;
+  } else if (notifState === 'denied') {
+    notifBlock = `
+      <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:14px;padding:10px 12px;margin:12px 0;font-size:12px;color:#991b1b;text-align:left">
+        ⚠️ <b>Notificaciones bloqueadas:</b> Para que Tuki pueda avisarte, toca el icono del candado 🔒 en la barra superior de tu navegador y activa "Notificaciones".
+      </div>`;
+  } else {
+    notifBlock = `
+      <div style="background:var(--card-hover, #f0fdf4);border:1.5px solid #86efac;border-radius:14px;padding:10px 12px;margin:12px 0;display:flex;align-items:center;justify-content:space-between">
+        <div style="text-align:left">
+          <div style="font-weight:800;font-size:13px;color:var(--g-d)">✅ Recordatorios diarios activos</div>
+          <div class="small muted">Te avisaré cada día a las <b>${S.settings.remindTime || '19:00'}</b></div>
+        </div>
+        <button class="btn ghost sm" id="btnTestCompanionNotif" style="padding:6px 10px;font-size:12px">Probar 🔔</button>
+      </div>`;
+  }
+
+  const html = `
+    <div style="text-align:center">
+      <div style="width:115px;height:115px;margin:0 auto 10px;cursor:pointer" id="companionMascot" title="¡Toca a Tuki!">
+        ${MASCOT}
+      </div>
+      <h2 style="margin:0 0 4px">¡Hola, soy Tuki! 🦜✨</h2>
+      <div class="tuki-speech" style="margin:8px auto 14px;max-width:320px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13px;font-weight:700">
+        «${esc(phrase)}»
+      </div>
+      <div class="row" style="justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <span class="pill" style="font-weight:800">🔥 Racha: ${st} ${st === 1 ? 'día' : 'días'}</span>
+        <span class="pill" style="font-weight:800">🎯 Hoy: ${Math.min(todayXp, goal)}/${goal} XP</span>
+        <span class="pill" style="font-weight:800">🪙 ${S.coins || 0} monedas</span>
+      </div>
+    </div>
+
+    ${notifBlock}
+
+    <div class="row wrap" style="gap:8px;margin-top:14px">
+      <button class="btn blue block" id="btnCompanionShop">🛍️ Vestir a Tuki (Armario)</button>
+      <button class="btn ghost block" data-x>¡Entendido!</button>
+    </div>
+  `;
+
+  modal(html, (el, close) => {
+    $('[data-x]', el).onclick = close;
+
+    const cm = $('#companionMascot', el);
+    if (cm) cm.onclick = () => {
+      triggerTukiAnimation(cm, 'tuki-wiggle', 'sparkle');
+      tukiChirp('chirp');
+      speakTukiEs(phrase, cm);
+    };
+
+    const bShop = $('#btnCompanionShop', el);
+    if (bShop) bShop.onclick = () => {
+      close();
+      openTukiShopModal();
+    };
+
+    const bNotif = $('#btnCompanionNotif', el);
+    if (bNotif) bNotif.onclick = async () => {
+      if (!('Notification' in window)) return toast('Tu navegador no soporta notificaciones.');
+      bNotif.disabled = true;
+      bNotif.textContent = 'Solicitando permiso…';
+      try {
+        const p = await Notification.requestPermission();
+        if (p === 'granted') {
+          set('remindOn', true);
+          save();
+          tukiChirp('celebrate');
+          confetti();
+          sendTukiNotification(
+            '🦜 ¡Profe Tuki cuida tu racha!',
+            `¡Listo! Así te avisará Tuki cada día para no perder tu racha de ${streakNow()} días 🔥. Toca para practicar 5 min.`,
+            'tuki-welcome'
+          );
+          toast('🎉 ¡Notificaciones activadas! Te avisaré cada día.', 3500);
+          close();
+        } else if (p === 'denied') {
+          toast('Permiso denegado. Puedes activarlo tocando el candado 🔒 en la barra de direcciones.', 4000);
+          close();
+        } else {
+          close();
+        }
+      } catch (err) {
+        toast('Error al solicitar permiso: ' + err.message);
+        close();
+      }
+    };
+
+    const bTest = $('#btnTestCompanionNotif', el);
+    if (bTest) bTest.onclick = () => {
+      sendTukiNotification(
+        '🦜 ¡Profe Tuki cuida tu racha!',
+        `¡Hola! Todo está listo para que no pierdas tu racha de ${streakNow()} días 🔥.`,
+        'tuki-test'
+      );
+      toast('🔔 ¡Notificación de prueba enviada! Revisa tus notificaciones.', 3000);
+    };
+  });
+}
+
 function interactWithTuki(el) {
   const m = el ? ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || el) : null;
-  triggerTukiAnimation(m, 'tuki-wiggle', 'happy');
+  triggerTukiAnimation(m, 'tuki-celebrate', 'sparkle');
   tukiChirp('chirp');
   const phrase = pick(TUKI_QUOTES_ES);
-  if (!L) {
+  if (L) {
     speakTukiEs(phrase, m);
+    toast(`🦜 Tuki: "${phrase}"`, 3500);
+    return;
   }
-  toast(`🦜 Tuki: "${phrase}"`, 3800);
+  speakTukiEs(phrase, m);
+  openTukiCompanionModal(phrase);
 }
 
 function tukiTutorBannerHTML(opts = {}) {
