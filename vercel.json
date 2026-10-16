@@ -13,7 +13,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://www.gstatic.com/firebasejs/12.19.0/ https://apis.google.com blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com https://www.google.com; media-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' blob: data: https://tuki-speak.vercel.app https://*.googleapis.com wss://generativelanguage.googleapis.com https://*.firebaseapp.com https://www.gstatic.com https://apis.google.com https://www.google.com https://api.openai.com https://*.stt.speech.microsoft.com wss://*.stt.speech.microsoft.com https://*.tts.speech.microsoft.com wss://*.tts.speech.microsoft.com https://*.api.cognitive.microsoft.com https://*.cognitiveservices.azure.com wss://*.cognitiveservices.azure.com; frame-src https://tuki-speak.firebaseapp.com https://accounts.google.com https://apis.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests;"
+          "value": "default-src 'self'; script-src 'self' 'sha256-GiKgpg7I0xWgT7r047fu34xA1Iy6X7/H9F0QLHmeNV0=' https://www.gstatic.com/firebasejs/12.19.0/ https://apis.google.com blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com https://www.google.com; media-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' https://tuki-speak.vercel.app https://*.googleapis.com wss://generativelanguage.googleapis.com https://*.firebaseapp.com https://www.gstatic.com https://apis.google.com https://www.google.com https://api.openai.com https://*.stt.speech.microsoft.com wss://*.stt.speech.microsoft.com https://*.tts.speech.microsoft.com wss://*.tts.speech.microsoft.com https://*.api.cognitive.microsoft.com https://*.cognitiveservices.azure.com wss://*.cognitiveservices.azure.com blob: data:; frame-src https://tuki-speak.firebaseapp.com https://accounts.google.com https://apis.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests "
         },
         {
           "key": "X-Content-Type-Options",
@@ -25,7 +25,7 @@
         },
         {
           "key": "Permissions-Policy",
-          "value": "microphone=(self), camera=(self), geolocation=(), payment=(), usb=(), interest-cohort=(), screen-wake-lock=(self)"
+          "value": "microphone=(self), camera=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
         },
         {
           "key": "X-Frame-Options",
@@ -36,80 +36,17 @@
           "value": "same-origin-allow-popups"
         },
         {
-          "key": "Cross-Origin-Resource-Policy",
-          "value": "same-origin"
-        },
-        {
-          "key": "X-Permitted-Cross-Domain-Policies",
-          "value": "none"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "0"
-        },
-        {
           "key": "Strict-Transport-Security",
           "value": "max-age=63072000; includeSubDomains; preload"
         }
       ]
     },
     {
-      "source": "/api/(.*)",
+      "source": "/sw.js",
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "no-store, no-cache, must-revalidate, proxy-revalidate"
-        },
-        {
-          "key": "Content-Security-Policy",
-          "value": "default-src 'none'; frame-ancestors 'none'"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-Permitted-Cross-Domain-Policies",
-          "value": "none"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        }
-      ]
-    },
-    {
-      "source": "/(sw.js|index.html)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
-        }
-      ]
-    },
-    {
-      "source": "/",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
+          "value": "no-cache"
         }
       ]
     }

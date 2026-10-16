@@ -2,20 +2,21 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GiKgpg7I0xWgT7r047fu34xA1Iy6X7/H9F0QLHmeNV0=' https://www.gstatic.com/firebasejs/12.19.0/ https://apis.google.com blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com https://www.google.com; media-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' https://tuki-speak.vercel.app https://*.googleapis.com wss://generativelanguage.googleapis.com https://*.firebaseapp.com https://www.gstatic.com https://apis.google.com https://www.google.com https://api.openai.com https://*.stt.speech.microsoft.com wss://*.stt.speech.microsoft.com https://*.tts.speech.microsoft.com wss://*.tts.speech.microsoft.com https://*.api.cognitive.microsoft.com https://*.cognitiveservices.azure.com wss://*.cognitiveservices.azure.com blob: data:; frame-src https://tuki-speak.firebaseapp.com https://accounts.google.com https://apis.google.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tuki Speak – Pronunciación en inglés gratis</title>
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="Mejora tu pronunciación y conversación en inglés gratis: sonidos difíciles, pares mínimos, shadowing y diálogos con puntaje.">
 <meta name="theme-color" content="#1fa463">
-<link rel="manifest" href="/manifest.json">
-<link rel="icon" href="/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Tuki Speak">
 <meta name="app-version" content="2.16.0">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<link rel="stylesheet" href="/src/styles/app.css">
+<link rel="stylesheet" href="./src/styles/app.css">
 <script>
 const APP_VERSION = '2.16.0'; // Backward compatibility for old SW
 if (window.top !== window.self) { try { window.top.location = window.self.location; } catch (e) { document.documentElement.style.display = 'none'; } }
@@ -44,6 +45,6 @@ if (window.top !== window.self) { try { window.top.location = window.self.locati
 </div>
 <div id="full" class="full hidden"><div class="full-inner" id="fullInner"></div></div>
 <div id="modalRoot"></div>
-<script type="module" src="/src/main.js"></script>
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>

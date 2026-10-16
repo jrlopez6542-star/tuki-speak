@@ -1,6 +1,6 @@
 # Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.13.0
 
-App web estática (un solo `index.html` con CSS/JS dentro + `manifest.json` + `sw.js` + íconos).
+App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
@@ -120,12 +120,13 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 - Si Gemini está saturado (503/429 o «high demand»), las llamadas únicas (resumen, traducción, informe, Traduce y completa) reintentan con espera y prueban otros modelos, incluidos los flash-lite, durante unos 25 s como máximo. Mientras tanto se muestra «Gemini está ocupado, probando otro modelo… (2/6)».
 - Si el resumen igual falla, verás un mensaje claro en español, un botón **Reintentar** y los «Detalles» técnicos plegados. La conversación queda guardada como **Resumen pendiente** en Progreso → Historial para generarlo después, incluso si cierras la app.
 
-## Probar en tu computador
+## Desarrollo y publicación
 ```bash
-python3 -m http.server 8000
-# abre http://localhost:8000 en Google Chrome
+npm ci
+npm run dev
+# abre la URL local que muestra Vite (normalmente http://localhost:3000)
 ```
-El micrófono, el reconocimiento de voz, la voz en vivo y el modo offline necesitan `http://localhost` o `https://`.
+Para generar el sitio publicable: `npm run build`. Publica el contenido de `dist/` en GitHub Pages o Vercel; no publiques la carpeta fuente como sitio estático sin compilar. Las rutas relativas permiten usar el mismo build en ambos destinos. El micrófono, el reconocimiento de voz, la voz en vivo y el modo offline necesitan `http://localhost` o `https://`.
 
 ## Claves opcionales (Ajustes ⚙️)
 | Servicio | Para qué | Dónde |
@@ -137,7 +138,7 @@ El micrófono, el reconocimiento de voz, la voz en vivo y el modo offline necesi
 ⚠️ Sin servidor propio, las claves se usan directamente desde el dispositivo: úsalas solo en tu propio equipo y configura límites de gasto.
 
 ## Publicar gratis
-GitHub Pages, Netlify Drop, Vercel o Cloudflare Pages: sube `index.html`, `manifest.json`, `sw.js`, `icon.svg`, `icon-192.png`, `icon-512.png`.
+GitHub Pages, Netlify, Vercel o Cloudflare Pages: ejecuta `npm run build` y publica el contenido de `dist/`. En GitHub Pages, configura la publicación desde un workflow/artefacto que use `dist/`.
 
 ## Instalar en el celular
 - **Android (Chrome)**: menú ⋮ → "Instalar app".

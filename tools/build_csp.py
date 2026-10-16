@@ -16,7 +16,7 @@ def policy(hashes, header):
         ("font-src", "'self' data:"),
         ("connect-src", "'self' https://tuki-speak.vercel.app https://*.googleapis.com wss://generativelanguage.googleapis.com https://*.firebaseapp.com https://www.gstatic.com https://apis.google.com https://www.google.com "
                         "https://api.openai.com https://*.stt.speech.microsoft.com wss://*.stt.speech.microsoft.com https://*.tts.speech.microsoft.com wss://*.tts.speech.microsoft.com "
-                        "https://*.api.cognitive.microsoft.com https://*.cognitiveservices.azure.com wss://*.cognitiveservices.azure.com"),
+                        "https://*.api.cognitive.microsoft.com https://*.cognitiveservices.azure.com wss://*.cognitiveservices.azure.com blob: data:"),
         ("frame-src", "https://tuki-speak.firebaseapp.com https://accounts.google.com https://apis.google.com"),
         ("worker-src", "'self' blob:"),
         ("manifest-src", "'self'"),
@@ -25,6 +25,7 @@ def policy(hashes, header):
         ("form-action", "'self'"),
     ]
     if header: d.append(("frame-ancestors", "'none'"))
+    if header: d.append(("upgrade-insecure-requests", ""))
     return '; '.join(f'{k} {v}' for k, v in d)
 def main():
     s = open(IDX, encoding='utf-8').read()
@@ -43,7 +44,12 @@ def main():
         {"key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups"},
         {"key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload"},
     ]
-    cfg = {"functions": {"api/*.js": {"maxDuration": 60}}, "headers": [{"source": "/(.*)", "headers": headers}, {"source": "/sw.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}]}
-    open(os.path.join(ROOT, 'vercel.json'), 'w').write(json.dumps(cfg, indent=2, ensure_ascii=False) + '\n')
+    cfg_path = os.path.join(ROOT, 'vercel.json')
+    try:
+        cfg = json.load(open(cfg_path, encoding='utf-8'))
+    except (OSError, json.JSONDecodeError):
+        cfg = {}
+    cfg.update({"functions": {"api/*.js": {"maxDuration": 60}}, "headers": [{"source": "/(.*)", "headers": headers}, {"source": "/sw.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]}], "cleanUrls": True})
+    open(cfg_path, 'w').write(json.dumps(cfg, indent=2, ensure_ascii=False) + '\n')
     print(f'{len(hashes)} scripts en línea con hash; CSP escrita en index.html y vercel.json')
 if __name__ == '__main__': main()
