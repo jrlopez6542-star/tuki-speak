@@ -1,6 +1,7 @@
 import './styles/app.css';
 import { TukiDB } from './tuki-db.js';
 import { $, $$, esc, decodeEnt, decodeDeep, shuffle, pick, sample, clamp, avg, dayKey, dayDiff, numWords, normText, lev, charSim, align, simScore, colorOf, typedMatch, scoreSpeech, scorePair, sleep, hashStr, b64FromBytes, f32ToB64 } from './utils.js';
+import { S, setState, KEY, DEFAULT_SETTINGS, DAY, HEART_MS, MAX_HEARTS, BAD_KEYS, load, refreshHearts, loseHeart, nextHeartIn, todayRec, isDone, recordSpeech, recordEar, soundAvg, addToDeck, sm2, dueCards, sm2Preview, intervalLabel } from './state.js';
 
 /* =================== CONTENIDO DEL CURSO =================== */
 // Lecciones de pronunciación: expl = explicación, mouth = posición de boca/lengua,
@@ -437,7 +438,6 @@ COURSE.forEach(u => u.lessons.forEach(l => { if (l.type === 'vocab') { l.ex = l.
 
 
 'use strict';
-const DAY = 864e5, HEART_MS = 30 * 60e3, MAX_HEARTS = 5;
 function renderTukiSVG(skin, opts = {}) {
   const sk = skin || (typeof S !== 'undefined' && S && S.tukiSkin) || { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic' };
   const h = sk.hat || 'none', o = sk.outfit || 'none', hand = sk.hand || 'none', pl = sk.plumage || 'classic';
@@ -641,50 +641,21 @@ function renderTukiSVG(skin, opts = {}) {
   return `<svg ${size}viewBox="0 0 100 100" class="tuki-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}${colors.aura}<!-- Sombra de suelo --><ellipse cx="44" cy="96" rx="28" ry="4" fill="url(#tuki-ground-shadow)"/>${capeBehind}<g class="tuki-body-group"><!-- Cuerpo 3D esférico --><ellipse cx="46" cy="58" rx="30" ry="34" fill="url(#tuki-body-grad-${pl})"/><!-- Brillo de contorno superior (Rim Light) --><path d="M22 40 C28 29 48 30 64 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.18"/><!-- Sombra de oclusión en base del torso --><path d="M26 78 C34 88 56 88 66 78 C58 84 34 84 26 78 Z" fill="${colors.bodyDark}" opacity="0.45"/><!-- Pecho 3D convexo con volumen y brillo --><ellipse cx="45" cy="69" rx="17.5" ry="19" fill="${colors.bodyDark}" opacity="0.25"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="url(#tuki-chest-grad-${pl})"/><ellipse cx="40" cy="58" rx="8" ry="10" fill="#ffffff" opacity="0.28"/><path d="M32 68 Q38 73 44 73 Q50 73 56 68 Q50 76 44 77 Q38 76 32 68 Z" fill="${colors.chestDark}" opacity="0.35"/><path d="M35 74 Q44 78 53 74 Q44 81 35 74 Z" fill="${colors.chestDark}" opacity="0.3"/><!-- Ala 3D con sombreado y plumas escalonadas --><path d="M19 61 C8 72 12 87 25 88" stroke="#000000" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.25"/><path class="tuki-wing" d="M20 60 C10 70 14 84 24 86 C21 79 20 73 22 66 Z" fill="url(#tuki-wing-grad-${pl})"/><path d="M21 62 C15 69 16 77 22 81" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.3"/><path class="tuki-wing-inner" d="M17 68 C13 74 15 81 21 84" stroke="${colors.wingDark}" stroke-width="1.3" fill="none" opacity="0.5"/><!-- Patas 3D con volumen cilíndrico y garras --><g class="tuki-feet"><ellipse cx="28" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="42" cy="98" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="56" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="url(#tuki-foot-grad)" stroke-width="4.5" stroke-linecap="round"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><circle cx="25.5" cy="97" r="1.4" fill="#78350f"/><circle cx="42" cy="98" r="1.4" fill="#78350f"/><circle cx="58.5" cy="97" r="1.4" fill="#78350f"/></g>${outfitLayer}${handLayer}</g><g class="tuki-head-group"><!-- Antifaz orbital toucan 3D --><ellipse cx="40" cy="40" rx="13.2" ry="12.8" fill="${colors.eyePatch}" opacity="0.22"/><ellipse cx="40" cy="40" rx="12.2" ry="11.8" fill="${colors.bodyDark}" opacity="0.35"/><!-- Ojo esférico 3D con lente gloss y reflejos múltiples --><g class="tuki-eye"><circle cx="40" cy="40" r="11" fill="url(#tuki-eye-sphere)"/><path d="M30 36 C34 32 46 32 50 36 C45 34 35 34 30 36 Z" fill="#94a3b8" opacity="0.4"/><circle cx="42" cy="40" r="5.8" fill="url(#tuki-iris-grad)"/><circle cx="42" cy="40" r="5.8" fill="none" stroke="#60a5fa" stroke-width="0.8" opacity="0.5"/><ellipse cx="44.2" cy="37.8" rx="2.2" ry="1.8" transform="rotate(-20 44.2 37.8)" fill="#ffffff"/><circle cx="40.2" cy="42.6" r="1.1" fill="#ffffff" opacity="0.9"/><circle cx="45" cy="41" r="0.6" fill="#ffffff" opacity="0.75"/></g><!-- Pico 3D esculpido con cresta de brillo y oclusión --><g class="tuki-beak"><path d="M50 33 C47 38 47 46 51 51" stroke="#0f172a" stroke-width="2.8" stroke-linecap="round" fill="none" opacity="0.6"/><path class="tuki-beak-top" d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="url(#tuki-bt-${pl})"/><path d="M54 35.5 C70 30 88 34 94 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.55"/><path d="M58 35 C72 31 84 34 90 39" stroke="#ffffff" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.8"/><path class="tuki-beak-bot" d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="url(#tuki-bb-${pl})"/><path d="M56 50 C70 55 86 52 93 47" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.25"/><path d="M51 48 C70 50.5 88 49.5 96 43.5" stroke="#3b0707" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.5"/><path d="M88 39 C93 38 97 43 97 44 C94 49 90 49 88 46 Z" fill="#090d16"/><circle cx="93.5" cy="41.5" r="1.6" fill="#ffffff" opacity="0.7"/><circle cx="94" cy="43.5" r="2.8" fill="#1f2a33" opacity="0.6"/></g>${hatLayer}</g></svg>`;
 }
 let MASCOT = renderTukiSVG();
-function updateMascot() {
+export function updateMascot() {
   MASCOT = renderTukiSVG();
 }
 
 /* =================== ESTADO / PERSISTENCIA =================== */
-const KEY = 'tukiSpeak.v1';
-const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, learnerLevel: 'novice', geminiKey: '', model: 'gemini-2.5-flash',
-  accent: 'en-US', ttsEngine: 'auto', azureKey: '', azureRegion: '', azureVoice: 'en-US-JennyNeural', openaiKey: '', openaiModel: 'gpt-4o-mini', openaiVoice: 'marin', openaiTtsModel: 'gpt-4o-mini-tts', realtimeModel: 'gpt-realtime', chatProvider: 'gemini', liveModel: 'gemini-3.1-flash-live-preview', liveVoice: 'Kore',
-  tukiVoiceEs: '', tukiVoiceEn: '', theme: 'auto', fontScale: 1, contrast: false, reduceMotion: false, haptics: true, remindOn: false, remindTime: '19:00' };
-function freshState() {
+export function freshState() {
   return { v: 2, badges: {}, freezes: 0, coins: 50, quests: {}, chests: { dailyClaimed: null }, tukiSkin: { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] }, placement: null, plans: {}, reviewed: 0, chats: 0, lives: 0, ph: {}, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
 }
-let S;
-function load() {
-  let raw = null;
-  try { raw = localStorage.getItem(KEY); S = JSON.parse(raw) || freshState(); } catch (e) { S = freshState(); }
-  if (!S || typeof S !== 'object') S = freshState();
-  const f = freshState(), oldV = S.v || 1;
-  // Migración sin pérdida de datos: guarda copia de seguridad del esquema anterior
-  if (raw && oldV < 2) { try { localStorage.setItem(KEY + '.backup-v1', raw); } catch (e) {} }
-  for (const k in f) if (S[k] === undefined || S[k] === null && k !== 'placement' && k !== 'lastDay') S[k] = f[k];
-  if (S.coins === undefined) S.coins = 50;
-  if (!S.tukiSkin) S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] };
-  if (!S.tukiSkin.hand) S.tukiSkin.hand = 'none';
-  if (!S.tukiSkin.plumage) S.tukiSkin.plumage = 'classic';
-  if (!Array.isArray(S.tukiSkin.owned)) S.tukiSkin.owned = ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'];
-  if (!S.tukiSkin.owned.includes('hand:none')) S.tukiSkin.owned.push('hand:none');
-  if (!S.tukiSkin.owned.includes('plumage:classic')) S.tukiSkin.owned.push('plumage:classic');
-  if (!S.chests) S.chests = { dailyClaimed: null };
-  if (!S.quests) S.quests = {};
-  if (!S.unitsDone) S.unitsDone = {};
-  S.settings = { ...DEFAULT_SETTINGS, ...S.settings };
-  if (S.settings.ttsEngine === 'device' && !S.settings.__ttsDeviceExplicit) S.settings.ttsEngine = 'auto';
-  if (oldV < 2) { S.v = 2; if (raw && (Object.keys(S.done || {}).length || S.xp)) S.placement = S.placement || 'legacy'; }
-  updateMascot();
-}
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { console.warn('save failed', e); } }
+export function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { console.warn('save failed', e); } }
 load();
 
 /* ---- índice de lecciones ---- */
 const LESSONS = [];
 COURSE.forEach((u, ui) => u.lessons.forEach((l, li) => { l.unit = u; l.ui = ui; l.li = li; l.idx = LESSONS.length; LESSONS.push(l); }));
 const LESSON = Object.fromEntries(LESSONS.map(l => [l.id, l]));
-const isDone = id => !!S.done[id];
 const isUnlocked = l => S.settings.freeMode || l.idx === 0 || isDone(LESSONS[l.idx - 1].id) || isDone(l.id);
 const currentLesson = () => LESSONS.find(l => !isDone(l.id)) || null;
 
@@ -700,15 +671,7 @@ function lessonItems(l) {
 }
 
 /* ---- hearts / streak / xp ---- */
-function refreshHearts() {
-  if (S.hearts >= MAX_HEARTS) { S.hearts = MAX_HEARTS; S.heartTs = Date.now(); return; }
-  const n = Math.floor((Date.now() - S.heartTs) / HEART_MS);
-  if (n > 0) { S.hearts = Math.min(MAX_HEARTS, S.hearts + n); S.heartTs += n * HEART_MS; if (S.hearts >= MAX_HEARTS) S.heartTs = Date.now(); save(); }
-}
-function loseHeart() { if (S.hearts >= MAX_HEARTS) S.heartTs = Date.now(); S.hearts = Math.max(0, S.hearts - 1); save(); }
-function nextHeartIn() { const ms = HEART_MS - (Date.now() - S.heartTs); const m = Math.max(0, Math.ceil(ms / 60e3)); return m; }
 function streakNow() { if (!S.lastDay) return 0; const d = dayDiff(S.lastDay, dayKey()); return d <= 1 ? S.streak : 0; }
-function todayRec() { const k = dayKey(); return S.days[k] || (S.days[k] = { xp: 0, n: 0, sum: 0 }); }
 function addXP(n) {
   const k = dayKey(); let streakUp = false;
   if (S.lastDay !== k) { const d = S.lastDay ? dayDiff(S.lastDay, k) : 99; S.streak = d === 1 ? S.streak + 1 : 1; S.lastDay = k; streakUp = true; }
@@ -886,25 +849,6 @@ const Rec = {
 
 
 /* ---- registro de estadísticas de voz ---- */
-function recordSpeech(soundId, result) {
-  const arr = S.snd[soundId] || (S.snd[soundId] = []);
-  arr.push({ t: Date.now(), s: result.pct }); if (arr.length > 40) arr.splice(0, arr.length - 40);
-  (result.words || []).forEach(w => { const key = normText(w.tok).join(' '); if (!key || key.length < 2) return; const r = S.wd[key] || (S.wd[key] = { n: 0, sum: 0, last: 0, t: 0, disp: w.tok.replace(/[.,!?;:"]/g, '') }); r.n++; r.sum += w.s * 100; r.last = Math.round(w.s * 100); r.t = Date.now(); });
-  const d = todayRec(); d.n++; d.sum += result.pct; S.spoken++; save();
-}
-function recordEar(soundId, ok) { const r = S.ear[soundId] || (S.ear[soundId] = { r: 0, w: 0 }); ok ? r.r++ : r.w++; save(); }
-function soundAvg(id, n = 10) { const a = (S.snd[id] || []).slice(-n).map(x => x.s); return a.length ? Math.round(avg(a)) : null; }
-
-/* ---- repetición espaciada (SM-2) ---- */
-function addToDeck(items) { items.forEach(it => { if (!it || !it.key || BAD_KEYS.has(it.key)) return; if (!S.deck[it.key]) S.deck[it.key] = { en: String(it.en || '').slice(0, 400), es: String(it.es || '').slice(0, 400), kind: it.kind, lesson: it.lesson, ef: 2.5, int: 0, reps: 0, due: Date.now(), lapses: 0, added: Date.now() }; }); save(); }
-function sm2(card, q) {
-  if (q < 3) { card.reps = 0; card.int = 0; card.lapses++; card.due = Date.now() + 60e3; }
-  else { card.int = card.reps === 0 ? (q === 3 ? 1 : q === 5 ? 3 : 1) : card.reps === 1 ? (q === 3 ? 3 : 6) : Math.round(card.int * card.ef * (q === 3 ? 0.8 : q === 5 ? 1.3 : 1)); card.reps++; card.due = Date.now() + card.int * DAY; }
-  card.ef = Math.max(1.3, card.ef + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)));
-  save();
-}
-const dueCards = () => Object.entries(S.deck).filter(([k, c]) => c.due <= Date.now()).map(([k, c]) => ({ key: k, ...c }));
-
 /* ---- UI helpers ---- */
 function toast(msg, ms = 2600) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms); }
 function modal(html, onMount) {
@@ -2256,8 +2200,6 @@ function startReview() {
   nextCard();
 }
 function closeReview() { $$('.confetti').forEach(c => c.remove()); R = null; stopRecognize(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; render(); }
-function intervalLabel(c, q) { const t = { ...c }; const saveFn = save; sm2Preview(t, q); return t.int ? (t.int === 1 ? '1 día' : t.int + ' días') : '1 min'; }
-function sm2Preview(card, q) { if (q < 3) { card.int = 0; return; } card.int = card.reps === 0 ? (q === 3 ? 1 : q === 5 ? 3 : 1) : card.reps === 1 ? (q === 3 ? 3 : 6) : Math.round(card.int * card.ef * (q === 3 ? 0.8 : q === 5 ? 1.3 : 1)); }
 function nextCard() {
   if (!R) return;
   if (!R.q.length) {
@@ -2966,8 +2908,6 @@ VIEWS.progress = v => {
   const last = v.lastElementChild;
   last.insertAdjacentHTML('beforebegin', `<div class="card"><h3>🏅 Insignias (${Object.keys(S.badges).length}/${BADGES.length})</h3><div class="badges">${BADGES.map(b => `<div class="badge ${S.badges[b.id] ? '' : 'off'}" title="${esc(b.d)}"><span class="i">${b.i}</span>${esc(b.t)}<div class="small muted" style="font-weight:600">${esc(b.d)}</div></div>`).join('')}</div></div>`);
 };
-const _recordSpeech = recordSpeech;
-recordSpeech = function (soundId, result) { if (result && result.engine === 'azure') { S.ph = S.ph || {}; (result.words || []).forEach(w => (w.ph || []).forEach(p => { const r = S.ph[p.p] || (S.ph[p.p] = { n: 0, sum: 0 }); r.n++; r.sum += p.s; })); } _recordSpeech(soundId, result); };
 
 /* =================== RACHA: modal con protectores =================== */
 $('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p>
@@ -3686,7 +3626,7 @@ VIEWS.settings = v => {
   // datos
   $('#exp').onclick = () => { const a = document.createElement('a'); const s2 = { ...S, settings: { ...S.settings, geminiKey: '', openaiKey: '', azureKey: '' } }; a.href = URL.createObjectURL(new Blob([JSON.stringify(s2, null, 1)], { type: 'application/json' })); a.download = 'tuki-speak-progreso-' + dayKey() + '.json'; a.click(); };
   $('#imp').onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { const d = JSON.parse(t); if (!d || !(d.v === 1 || d.v === 2) || !d.settings) throw new Error('Archivo no válido'); const keys = { geminiKey: S.settings.geminiKey, openaiKey: S.settings.openaiKey, azureKey: S.settings.azureKey }; localStorage.setItem(KEY, JSON.stringify({ ...d, settings: { ...d.settings, ...keys } })); load(); save(); toast('Progreso importado ✅'); applyPrefs(); render(); }).catch(err => toast('Error: ' + err.message)); };
-  $('#reset').onclick = () => confirmBox('¿Borrar todo tu progreso?', 'Se eliminarán XP, racha, lecciones, puntajes, insignias y tarjetas. Tus ajustes y claves se conservan. Esta acción no se puede deshacer.', 'Sí, borrar todo', () => { const keep = S.settings; S = freshState(); S.settings = keep; S.placement = 'skipped'; save(); CHAT.hist = []; toast('Progreso borrado.'); go('learn'); }, true);
+  $('#reset').onclick = () => confirmBox('¿Borrar todo tu progreso?', 'Se eliminarán XP, racha, lecciones, puntajes, insignias y tarjetas. Tus ajustes y claves se conservan. Esta acción no se puede deshacer.', 'Sí, borrar todo', () => { const keep = S.settings; setState(freshState()); S.settings = keep; S.placement = 'skipped'; save(); CHAT.hist = []; toast('Progreso borrado.'); go('learn'); }, true);
 };
 
 /* =================== RECORDATORIOS =================== */
@@ -4189,7 +4129,7 @@ function mergeStates(a, b) {
 }
 function adoptState(d) {
   const f = freshState(); for (const k in f) if (d[k] === undefined || (d[k] === null && k !== 'placement' && k !== 'lastDay')) d[k] = f[k];
-  d.settings = { ...DEFAULT_SETTINGS, ...d.settings }; S = d;
+  d.settings = { ...DEFAULT_SETTINGS, ...d.settings }; setState(d);
   ['summaries', 'interviews', 'convoItems'].forEach(k => { if (!Array.isArray(S[k])) S[k] = []; }); ['challenges', 'hard'].forEach(k => { if (!S[k] || typeof S[k] !== 'object') S[k] = {}; });
   _setSig = settingsSig(); _save24(); applyPrefs(); render();
 }
@@ -5138,7 +5078,6 @@ const safeReviver = (k, v) => (k === '__proto__' || k === 'constructor' || k ===
 const lsGet = (k, d) => { try { const raw = localStorage.getItem(k); if (!raw) return d; const v = JSON.parse(raw, safeReviver); return v == null ? d : v; } catch (e) { return d; } };
 const lsSet = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 /* ---- Validación de datos importados (archivo, nube) ---- */
-const BAD_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 const clampNum = x => { const n = +x; return Number.isFinite(n) ? Math.max(-1e15, Math.min(1e15, n)) : 0; };
 function deepClean(x, depth, cnt) {
   if (x === null) return null;
