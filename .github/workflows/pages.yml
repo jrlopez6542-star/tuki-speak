@@ -26,7 +26,7 @@ jobs:
           node-version: 24
           cache: npm
       - name: Install dependencies
-            - name: Check version
+      - name: Check version
         run: npm run check:version
       - name: Run API tests
         run: npm run test:api
