@@ -3,6 +3,7 @@ import { TukiDB } from './tuki-db.js';
 import { $, $$, esc, decodeEnt, decodeDeep, shuffle, pick, sample, clamp, avg, dayKey, dayDiff, numWords, normText, lev, charSim, align, simScore, colorOf, typedMatch, scoreSpeech, scorePair, sleep, hashStr, b64FromBytes, f32ToB64 } from './utils.js';
 import { S, setState, KEY, DEFAULT_SETTINGS, DAY, HEART_MS, MAX_HEARTS, BAD_KEYS, load, refreshHearts, loseHeart, nextHeartIn, todayRec, isDone, recordSpeech, recordEar, soundAvg, addToDeck, sm2, dueCards, sm2Preview, intervalLabel } from './state.js';
 import { VOICES, loadVoices, pickVoice, speak, SR, HAS_SR, curRec, setCurRec, recognize, stopRecognize, SR_ERR, Rec, canSpeak, vibrate, AZ_VOICES, OA_VOICES, GEM_VOICES, TTS, tvPref, AZ_NAME_RE, ttsEngineFor, azVoiceFor, stopAudio, cloudTTSReady, azureTTS, openaiTTS, ttsRate, cloudTTSBlob, ES_PREF, pickEsVoice, deviceSpeakEn, deviceSpeakEs, speakSeq, resample, StreamResampler, encodeWAV, MicCap, SAPI_IPA, toIPA, PH_TIPS, azureToResult, azureAssess, azureSTT, openaiSTT, pitchTrack, drawTrack, contourDir, expectRise } from './audio.js';
+import { L, setL, tokensOf, earEx, sayPairEx, buildLesson, unlockedLessons, buildPractice, startLesson, lessonShell, nextEx, setFoot, footCheck, enableCheck, PRAISE, ENCOURAGE, feedback, earResult, checkEar, RENDER, optionsHTML, bindOptions, SPEAK_TITLES, speakTarget, createMicMeter, doMic, recOnlyActive, recOnlyToggle, compareHTML, bindCompare, onSpeechResult, victoryConfetti, noHeartsModal } from './lessons.js';
 
 /* =================== CONTENIDO DEL CURSO =================== */
 // Lecciones de pronunciación: expl = explicación, mouth = posición de boca/lengua,
@@ -654,10 +655,10 @@ export function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } c
 load();
 
 /* ---- índice de lecciones ---- */
-const LESSONS = [];
+export const LESSONS = [];
 COURSE.forEach((u, ui) => u.lessons.forEach((l, li) => { l.unit = u; l.ui = ui; l.li = li; l.idx = LESSONS.length; LESSONS.push(l); }));
-const LESSON = Object.fromEntries(LESSONS.map(l => [l.id, l]));
-const isUnlocked = l => S.settings.freeMode || l.idx === 0 || isDone(LESSONS[l.idx - 1].id) || isDone(l.id);
+export const LESSON = Object.fromEntries(LESSONS.map(l => [l.id, l]));
+export const isUnlocked = l => S.settings.freeMode || l.idx === 0 || isDone(LESSONS[l.idx - 1].id) || isDone(l.id);
 const currentLesson = () => LESSONS.find(l => !isDone(l.id)) || null;
 
 /* ---- ítems para tarjetas ---- */
@@ -690,7 +691,7 @@ function addCoins(n, reason = '') {
 /* AUDIO: TTS + BEEPS -> ver src/audio.js (beep, fanfarrias y AC quedan aqui) */
 /* AUDIO: TTS + BEEPS (dispositivo) -> ver src/audio.js */
 let AC = null;
-function beep(type) {
+export function beep(type) {
   if (!S.settings.sound) return;
   try {
     AC = AC || new (window.AudioContext || window.webkitAudioContext)();
@@ -787,14 +788,14 @@ function tukiTrophyFanfare() {
 /* ---- registro de estadísticas de voz ---- */
 /* ---- UI helpers ---- */
 export function toast(msg, ms = 2600) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms); }
-function modal(html, onMount) {
+export function modal(html, onMount) {
   const root = $('#modalRoot'); const ov = document.createElement('div'); ov.className = 'overlay';
   ov.innerHTML = `<div class="sheet" role="dialog">${html}</div>`;
   ov.addEventListener('click', e => { if (e.target === ov) close(); });
   function close() { ov.remove(); }
   root.appendChild(ov); onMount && onMount(ov.firstElementChild, close); return close;
 }
-function confirmBox(title, text, okLabel, onOk, danger) {
+export function confirmBox(title, text, okLabel, onOk, danger) {
   modal(`<h2>${esc(title)}</h2><p class="muted">${esc(text)}</p><div class="row" style="margin-top:16px"><button class="btn ghost block" data-x>Cancelar</button><button class="btn ${danger ? 'red' : 'primary'} block" data-ok>${esc(okLabel)}</button></div>`,
     (el, close) => { $('[data-x]', el).onclick = close; $('[data-ok]', el).onclick = () => { close(); onOk(); }; });
 }
@@ -817,7 +818,7 @@ function getPhoneticHint(word) {
 }
 
 /** Palabras tocables: cada palabra se puede escuchar lento con guía fonética para novatos */
-function wordsHTML(text, words) {
+export function wordsHTML(text, words) {
   const toks = words ? words : text.split(/\s+/).filter(Boolean).map(tok => ({ tok }));
   const isNovice = (S && S.settings && S.settings.learnerLevel === 'novice');
   return toks.map(w => {
@@ -830,84 +831,11 @@ document.addEventListener('click', e => { const w = e.target.closest('[data-say]
 
 
 /* =================== CONSTRUCCIÓN DE LECCIONES =================== */
-const tokensOf = s => s.replace(/[¿¡?!.,;:"]/g, '').split(/\s+/).filter(Boolean);
-function earEx(l, i, P, Q) { return P ? { kind: 'pick', l, pair: P[i % P.length], side: Math.random() < .5 ? 0 : 1 } : { kind: 'quiz', l, q: Q[i % Q.length] }; }
-function sayPairEx(l, pair) { return { kind: 'saypair', l, pair, side: Math.random() < .6 ? 0 : 1 }; }
-function buildLesson(l, mode = 'lesson') {
-  if (l.type === 'vocab') return buildVocabLesson(l, mode);
-  const ex = [];
-  if (l.type === 'dialog') {
-    if (mode === 'lesson') ex.push({ kind: 'learn', l });
-    const bIdx = l.lines.map((x, i) => x[0] === 'B' ? i : -1).filter(i => i >= 0);
-    const aLines = l.lines.filter(x => x[0] === 'A').slice(1).sort((a, b) => a[1].length - b[1].length);
-    const bLines = l.lines.filter(x => x[0] === 'B').slice().sort((a, b) => a[1].length - b[1].length);
-    bIdx.forEach((i, k) => {
-      ex.push({ kind: 'dialog', l, i });
-      if (k === 1) ex.push({ kind: 'ltype', l, text: aLines[0][1], es: aLines[0][2] });
-      if (k === 2) ex.push({ kind: 'order', l, text: bLines[0][1], es: bLines[0][2], pool: l.lines.map(x => x[1]) });
-    });
-    const sh = pick(aLines.slice(0, 3));
-    ex.push({ kind: 'shadow', l, text: sh[1], es: sh[2] });
-    return ex;
-  }
-  const P = l.pairs ? shuffle(l.pairs) : null, Q = l.quiz ? shuffle(l.quiz) : null;
-  const W = shuffle(l.ex), T = shuffle(l.sents), pool = l.sents.map(s => s[0]);
-  if (mode === 'lesson') ex.push({ kind: 'learn', l });
-  ex.push(earEx(l, 0, P, Q), earEx(l, 1, P, Q));
-  ex.push({ kind: 'speak', variant: 'word', l, text: W[0][0], es: W[0][1] });
-  ex.push(P ? sayPairEx(l, P[2 % P.length]) : earEx(l, 2, P, Q));
-  ex.push({ kind: 'speak', variant: 'word', l, text: W[1][0], es: W[1][1] });
-  ex.push({ kind: 'speak', variant: 'sentence', l, text: T[0][0], es: T[0][1] });
-  ex.push({ kind: 'order', l, text: T[1][0], es: T[1][1], pool });
-  ex.push({ kind: 'shadow', l, text: T[2][0], es: T[2][1] });
-  ex.push(P ? sayPairEx(l, P[3 % P.length]) : earEx(l, 3, P, Q));
-  if (mode !== 'lesson') ex.push({ kind: 'speak', variant: 'word', l, text: W[2][0], es: W[2][1] });
-  return ex;
-}
-const unlockedLessons = () => LESSONS.filter(isUnlocked);
-function buildPractice(type, arg) {
-  const U = unlockedLessons(), pron = U.filter(l => l.type !== 'dialog');
-  if (type === 'sound') return buildLesson(LESSON[arg], 'practice');
-  if (type === 'pairs') {
-    const withP = pron.filter(l => l.pairs); const src = withP.length ? withP : LESSONS.filter(l => l.pairs).slice(0, 1);
-    const out = []; for (let i = 0; i < 10; i++) { const l = pick(src); const p = pick(l.pairs); out.push(i % 2 ? sayPairEx(l, p) : { kind: 'pick', l, pair: p, side: Math.random() < .5 ? 0 : 1 }); }
-    return out;
-  }
-  if (type === 'shadow') {
-    const all = []; U.forEach(l => { if (l.type === 'dialog') l.lines.forEach(x => all.push({ l, text: x[1], es: x[2] })); else l.sents.forEach(x => all.push({ l, text: x[0], es: x[1] })); });
-    return sample(all, 8).map(x => ({ kind: 'shadow', ...x }));
-  }
-  if (type === 'words') { // palabras con puntaje bajo
-    const weak = Object.entries(S.wd).filter(([k, r]) => r.n && r.sum / r.n < 80).sort((a, b) => a[1].sum / a[1].n - b[1].sum / b[1].n).slice(0, 10);
-    return weak.map(([k, r]) => ({ kind: 'speak', variant: 'word', l: LESSON[r.sid] || LESSONS[0], text: r.disp || k, es: '' }));
-  }
-  // 'weak': mezcla de los sonidos más débiles
-  const scored = U.map(l => { const a = soundAvg(l.id); const e = S.ear[l.id]; const ea = e && (e.r + e.w) ? e.r / (e.r + e.w) * 100 : null; const vals = [a, ea].filter(v => v !== null); return { l, v: vals.length ? avg(vals) : 101 }; }).sort((a, b) => a.v - b.v);
-  const tops = scored.slice(0, 2).map(x => x.l);
-  const out = [];
-  tops.forEach(l => { const ex = buildLesson(l, 'practice').filter(e => e.kind !== 'learn'); out.push(...sample(ex, 5)); });
-  const weakW = buildPractice('words').slice(0, 3); out.push(...weakW);
-  return shuffle(out).slice(0, 12);
-}
-
+// (Fase 3, modulo 4: movido a src/lessons.js, lineas 833-892)
 /* =================== MOTOR DE LECCIÓN =================== */
-let L = null;
-function startLesson(l, mode = 'lesson', queue = null, title = '') {
-  refreshHearts();
-  if (mode === 'lesson' && S.hearts <= 0) return noHeartsModal();
-  const q = queue || buildLesson(l, mode);
-  if (!q.length) return toast('No hay ejercicios disponibles todavía.');
-  L = { l, mode, title: title || (l && l.title) || 'Práctica', queue: q, total: q.length, done: 0, mistakes: 0, speak: [], earOk: 0, earN: 0, retry: {}, start: Date.now(), cur: null };
-  $('#full').classList.remove('hidden'); document.body.style.overflow = 'hidden';
-  nextEx();
-}
-function closeLesson() { $$('.confetti').forEach(c => c.remove()); stopRecognize(); speechSynthesis && speechSynthesis.cancel(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; L = null; render(); }
-function lessonShell() {
-  const pct = Math.round(L.done / L.total * 100);
-  return `<div class="lhead"><button class="xbtn" id="xLesson" aria-label="Salir">✕</button><div class="pbar"><i style="width:${pct}%"></i></div>${L.mode === 'lesson' ? `<div class="lhearts">❤️ ${S.hearts}</div>` : `<div class="lhearts" style="color:var(--b)">🎯</div>`}</div>
-  <div class="lbody" id="lbody"></div><div class="lfoot" id="lfoot" aria-live="polite"></div>`;
-}
-// =================== INTERACTIVIDAD Y ANIMACIONES DE TUKI (TIPO DUOLINGO) ===================
+// (Fase 3, modulo 4: movido a src/lessons.js, lineas 894-903)
+export function closeLesson() { $$('.confetti').forEach(c => c.remove()); stopRecognize(); speechSynthesis && speechSynthesis.cancel(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; setL(null); render(); }
+// (Fase 3, modulo 4: movido a src/lessons.js, lineas 905-910)
 function spawnTukiParticles(parentEl, type = 'happy') {
   if (!parentEl) return;
   const rect = parentEl.getBoundingClientRect();
@@ -928,7 +856,7 @@ function spawnTukiParticles(parentEl, type = 'happy') {
   }
 }
 
-function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType = 'happy') {
+export function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType = 'happy') {
   const m = el ? ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || el) : null;
   if (!m) return;
   m.classList.remove('tuki-wiggle', 'tuki-celebrate', 'tuki-comfort');
@@ -938,7 +866,7 @@ function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType = 'hap
   setTimeout(() => m.classList.remove(animClass), 900);
 }
 
-function tukiChirp(mood = 'chirp') {
+export function tukiChirp(mood = 'chirp') {
   if (!S.settings.sound) return;
   try {
     AC = AC || new (window.AudioContext || window.webkitAudioContext)();
@@ -1139,7 +1067,7 @@ function interactWithTuki(el) {
   openTukiCompanionModal(phrase);
 }
 
-function tukiTutorBannerHTML(opts = {}) {
+export function tukiTutorBannerHTML(opts = {}) {
   const title = opts.title || 'Profe Tuki 🦜';
   const msg = opts.msg || '';
   const sub = opts.sub || '';
@@ -1155,7 +1083,7 @@ function tukiTutorBannerHTML(opts = {}) {
   </div>`;
 }
 
-function bindTukiTutorBanner(body) {
+export function bindTukiTutorBanner(body) {
   if (!body) return;
   const m = $('.tuki-tutor-mascot', body);
   if (m) m.onclick = () => interactWithTuki(m);
@@ -1170,395 +1098,10 @@ function bindTukiTutorBanner(body) {
   };
 }
 
-function nextEx() {
-  if (!L) return;
-  if (!L.queue.length) return finishLesson();
-  L.cur = L.queue.shift(); L.cur.attempt = null; L.cur.sel = null;
-  $('#fullInner').innerHTML = lessonShell();
-  $('#xLesson').onclick = () => confirmBox('¿Salir de la lección?', 'Perderás el progreso de esta lección.', 'Salir', closeLesson, true);
-  (RENDER[L.cur.kind])(L.cur, $('#lbody'));
-  bindTukiTutorBanner($('#lbody'));
-}
-function setFoot(html, cls = '') { const f = $('#lfoot'); f.className = 'lfoot ' + cls; f.innerHTML = html; return f; }
-function footCheck(enabled, extra = '') { setFoot(`${extra || '<span></span>'}<button class="btn primary" id="primaryBtn" ${enabled ? '' : 'disabled'}>Comprobar</button>`); $('#primaryBtn').onclick = checkEar; }
-function enableCheck() { const b = $('#primaryBtn'); if (b) b.disabled = false; }
+// (Fase 3, modulo 4: movido a src/lessons.js, lineas 1173-1558)
+export function confetti() { victoryConfetti(1); }
 
-/* ---- feedback ---- */
-const PRAISE = [
-  '¡Excelente pronunciación y oído!',
-  '¡Eso es! ¡Vas con toda!',
-  '¡Qué berraquera, respuesta correcta!',
-  '¡Muy bien! Estás avanzando rápido.',
-  '¡Perfecto! Sigue con ese ritmo.'
-];
-const ENCOURAGE = [
-  '¡No te preocupes! De los errores se aprende.',
-  '¡Casi lo tienes! Escúchalo otra vez con calma.',
-  '¡Paso a paso! Vamos a revisar la respuesta correcta.',
-  '¡Ánimo! La práctica diaria hace al maestro.'
-];
-function feedback(ok, answerHTML, expl, sayText) {
-  beep(ok ? 'ok' : 'bad');
-  const coachNote = ok ? pick(PRAISE) : pick(ENCOURAGE);
-  const m = $('.tuki-tutor-mascot', $('#lbody')) || $('.mascot', $('#lbody'));
-  if (m) {
-    if (ok) {
-      triggerTukiAnimation(m, 'tuki-celebrate', 'happy');
-      tukiChirp('celebrate');
-    } else {
-      triggerTukiAnimation(m, 'tuki-comfort', 'happy');
-      tukiChirp('comfort');
-    }
-  }
-  const f = setFoot(`<div class="fb"><h3>${ok ? '✅ ' + coachNote : '❌ ' + coachNote}</h3>${answerHTML ? `<div class="ans">${answerHTML}</div>` : ''}${expl ? `<div class="exp">${expl}</div>` : ''}</div>
-    <div class="row">${sayText ? `<button class="spk" data-say-n="${esc(sayText)}" title="Escuchar">🔊</button>` : ''}<button class="btn primary" id="primaryBtn">Continuar</button></div>`, ok ? 'ok' : 'bad');
-  const s = $('[data-say-n]', f); if (s) s.onclick = () => speak(sayText);
-  $('#primaryBtn').onclick = nextEx; $('#primaryBtn').focus();
-}
-function earResult(ex, ok, answerHTML, expl, sayText) {
-  if (L.mode === 'placement') { L.earN++; if (ok) L.earOk++; L.done++; (L.place = L.place || []).push({ u: ex.pu, ok }); $('.pbar i').style.width = Math.round(L.done / L.total * 100) + '%'; feedback(ok, answerHTML, expl, sayText); return; }
-  L.earN++; if (ok) { L.earOk++; L.done++; } else {
-    L.mistakes++; ex.attempt = null; L.queue.push({ ...ex });
-    if (L.mode === 'lesson') { loseHeart(); }
-  }
-  recordEar(ex.l.id, ok);
-  $('.pbar i').style.width = Math.round(L.done / L.total * 100) + '%';
-  const lh = $('.lhearts'); if (lh && L.mode === 'lesson') lh.textContent = '❤️ ' + S.hearts;
-  feedback(ok, answerHTML, expl, sayText);
-  if (!ok && L.mode === 'lesson' && S.hearts <= 0) $('#primaryBtn').onclick = () => { closeLesson(); noHeartsModal(); };
-}
-function checkEar() {
-  const ex = L.cur; if (ex.sel === null || ex.sel === undefined) return;
-  $$('.opt, .tile, textarea').forEach(e => e.disabled = true);
-  if (ex.kind === 'pick') {
-    const target = ex.pair[ex.side], ok = ex.sel === ex.side, lab = ex.l.pairLabels || ['', ''];
-    earResult(ex, ok, `Escuchaste: «${esc(target)}»`, `${esc(ex.pair[0])} = ${esc(lab[0])} · ${esc(ex.pair[1])} = ${esc(lab[1])}`, target);
-  } else if (ex.kind === 'quiz') {
-    const ok = ex.sel === ex.q.a; earResult(ex, ok, `Respuesta: ${esc(ex.q.opts[ex.q.a])}`, (ex.q.expl ? esc(ex.q.expl) : esc(ex.l.title) + ' · ' + esc(ex.q.say)), ex.q.say);
-  } else if (ex.kind === 'order') {
-    const got = ex.sel.map(i => ex.tiles[i]).join(' ').toLowerCase(), want = ex.words.join(' ').toLowerCase();
-    earResult(ex, got === want, esc(ex.text), esc(ex.es), ex.text);
-  } else if (ex.kind === 'ltype') {
-    const m = typedMatch(ex.sel, [ex.text]);
-    earResult(ex, m.ok, (m.typo ? 'Ojo con la ortografía: ' : 'Correcto: ') + esc(ex.text), esc(ex.es), ex.text);
-  }
-}
-
-/* ---- renderers ---- */
-const RENDER = {};
-RENDER.learn = (ex, body) => {
-  const l = ex.l;
-  if (l.type === 'vocab') return renderVocabLearn(ex, body);
-  if (l.type === 'dialog') {
-    body.innerHTML = `${tukiTutorBannerHTML({
-      title: 'Profe Tuki · Diálogo 🎬',
-      msg: 'Escucha la conversación completa. Luego dirás las líneas de B y recibirás puntaje palabra por palabra.',
-      sub: l.scene ? 'Escenario: ' + l.scene : '',
-      speakText: 'Escucha la conversación completa con atención. Luego dirás las líneas del personaje B y te calificaré la pronunciación.'
-    })}<div class="ex-title">${l.icon} ${esc(l.title)}</div><div class="tipbox">🎬 ${esc(l.scene)}</div>
-      <p class="muted small">Escucha el diálogo completo. Luego dirás las líneas de <b>B</b> y recibirás un puntaje por palabra. Toca cualquier palabra para oírla lento.</p>
-      <div class="dlg">${l.lines.map(x => `<div class="msg ${x[0] === 'B' ? 'me' : 'bot'}"><b>${x[0]}:</b> ${wordsHTML(x[1])}<div class="small" style="opacity:.8">${esc(x[2])}</div></div>`).join('')}</div>
-      <button class="btn blue" id="playAll">▶️ Escuchar diálogo</button>`;
-    $('#playAll').onclick = () => { let i = 0; const nxt = () => { if (i < l.lines.length && L) speak(l.lines[i++][1], false, nxt); }; nxt(); };
-  } else {
-    body.innerHTML = `<div class="badge-new">NUEVO SONIDO</div><div class="ex-title">${l.icon} ${esc(l.title)} <span class="ipa">/${esc(l.sound)}/</span></div>
-      ${tukiTutorBannerHTML({
-        title: 'Profe Tuki · Fonética 👄',
-        msg: l.expl,
-        sub: l.mouth ? 'Boca y lengua: ' + l.mouth : '',
-        speakText: l.expl + (l.mouth ? '. Colocación de la boca: ' + l.mouth : '')
-      })}
-      <div class="tipbox"><b>👄 Boca y lengua:</b> ${esc(l.mouth)}</div>${mouthPanelHTML(l.id)}
-      <h3>Ejemplos (toca para escuchar)</h3>
-      <div class="wlist">${l.ex.map(w => `<div class="witem"><button class="spk" data-say-n="${esc(w[0])}">🔊</button><div><div class="en">${esc(w[0])}</div><div class="es">${esc(w[1])}</div></div><button class="spk slow" data-say="${esc(w[0])}" style="margin-left:auto" title="Lento">🐢</button></div>`).join('')}</div>
-      ${l.pairs ? `<h3 style="margin-top:14px">Pares mínimos</h3><div class="chips">${l.pairs.map(p => `<button class="chip" data-pair="${esc(p.join('|'))}">${esc(p[0])} · ${esc(p[1])}</button>`).join('')}</div>` : ''}`;
-    $$('[data-say-n]', body).forEach(b => b.onclick = () => speak(b.dataset.sayN));
-    $$('[data-pair]', body).forEach(b => b.onclick = () => { const [a, c] = b.dataset.pair.split('|'); speak(a, false, () => setTimeout(() => speak(c), 250)); });
-  }
-  setFoot(`<span class="muted small">${L.mode === 'lesson' ? 'Lección ' + (l.li + 1) + ' · ' + esc(l.unit.title) : ''}</span><button class="btn primary" id="primaryBtn">¡Entendido!</button>`);
-  $('#primaryBtn').onclick = () => { L.done++; nextEx(); };
-};
-function optionsHTML(opts, cls = 'opts') { return `<div class="${cls}">${opts.map((o, i) => `<button class="opt" data-i="${i}"><span class="k">${i + 1}</span><span>${o}</span></button>`).join('')}</div>`; }
-function bindOptions(body, ex, onPick) { $$('.opt', body).forEach(b => b.onclick = () => { $$('.opt', body).forEach(x => x.classList.remove('sel')); b.classList.add('sel'); ex.sel = +b.dataset.i; beep('tap'); enableCheck(); onPick && onPick(ex.sel); }); }
-RENDER.pick = (ex, body) => {
-  const target = ex.pair[ex.side], lab = ex.l.pairLabels || ['', ''];
-  body.innerHTML = `${tukiTutorBannerHTML({
-    title: 'Profe Tuki · Afina el Oído 👂',
-    msg: 'Escucha con atención: ¿cuál de estas dos palabras dije?',
-    sub: ex.l.sound ? `Par mínimo · Sonido /${ex.l.sound}/` : '',
-    speakText: 'Afina el oído. Escucha atentamente y elige cuál palabra estás oyendo.'
-  })}<div class="ex-title">¿Qué palabra escuchas?</div><div class="muted small" style="margin:-8px 0 12px">Par mínimo · <span class="ipa">/${esc(ex.l.sound)}/</span></div>
-    <div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>
-    <div class="pair">${ex.pair.map((w, i) => `<button class="opt" data-i="${i}"><span>${esc(w)}</span><span class="small muted">${esc(lab[i])}</span></button>`).join('')}</div>`;
-  $('#pl').onclick = () => speak(target); $('#pls').onclick = () => speak(target, true);
-  bindOptions(body, ex); footCheck(false); if (S.settings.autoplay) setTimeout(() => speak(target), 300);
-};
-RENDER.quiz = (ex, body) => {
-  const q = ex.q; const order = shuffle(q.opts.map((o, i) => i)); ex.map = order;
-  body.innerHTML = `${tukiTutorBannerHTML({
-    title: 'Profe Tuki · Desafío 🧠',
-    msg: q.q,
-    sub: 'Toca la opción correcta para responder.',
-    speakText: q.q
-  })}<div class="ex-title">${esc(q.q)}</div>${q.hide ? '<div style="height:10px"></div>' : '<div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>'}${optionsHTML(order.map(i => esc(q.opts[i])))}`;
-  if (!q.hide) { $('#pl').onclick = () => speak(q.say); $('#pls').onclick = () => speak(q.say, true); }
-  bindOptions(body, ex, i => { ex.sel = order[i]; }); footCheck(false); if (S.settings.autoplay && !q.hide) setTimeout(() => speak(q.say), 300);
-};
-RENDER.order = (ex, body) => {
-  ex.words = tokensOf(ex.text);
-  const lower = new Set(ex.words.map(w => w.toLowerCase()));
-  const distract = shuffle([...new Set((ex.pool || []).flatMap(tokensOf))].filter(w => !lower.has(w.toLowerCase()))).slice(0, 2);
-  ex.tiles = shuffle([...ex.words, ...distract]); ex.sel = [];
-  body.innerHTML = `${tukiTutorBannerHTML({
-    title: 'Profe Tuki · Ordenar Palabras 🧩',
-    msg: 'Escucha la frase y conecta las palabras en el orden correcto.',
-    sub: ex.es ? 'Significado: ' + ex.es : '',
-    speakText: 'Escucha la frase y conecta las palabras en el orden correcto.'
-  })}<div class="ex-title">Escucha y ordena la frase</div><div class="prompt"><button class="spk" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button><div class="muted">${esc(ex.es)}</div></div>
-    <div class="answer-line" id="ansLine"></div><div class="bank" id="bank">${ex.tiles.map((t, i) => `<button class="tile" data-i="${i}">${esc(t)}</button>`).join('')}</div>`;
-  $('#pl').onclick = () => speak(ex.text); $('#pls').onclick = () => speak(ex.text, true);
-  const redraw = () => {
-    $('#ansLine').innerHTML = ex.sel.map((i, k) => `<button class="tile" data-k="${k}">${esc(ex.tiles[i])}</button>`).join('');
-    $$('#bank .tile').forEach(b => b.classList.toggle('used', ex.sel.includes(+b.dataset.i)));
-    $$('#ansLine .tile').forEach(b => b.onclick = () => { ex.sel.splice(+b.dataset.k, 1); redraw(); });
-    const pb = $('#primaryBtn'); if (pb) pb.disabled = !ex.sel.length;
-  };
-  $$('#bank .tile').forEach(b => b.onclick = () => { if (!ex.sel.includes(+b.dataset.i)) { ex.sel.push(+b.dataset.i); beep('tap'); speak(ex.tiles[+b.dataset.i]); redraw(); } });
-  footCheck(false); redraw(); if (S.settings.autoplay) setTimeout(() => speak(ex.text), 300);
-};
-RENDER.ltype = (ex, body) => {
-  body.innerHTML = `${tukiTutorBannerHTML({
-    title: 'Profe Tuki · Dictado ✍️',
-    msg: 'Escucha con atención y escribe la frase en inglés sin errores.',
-    sub: 'Toca 🐢 para escucharla despacio.',
-    speakText: 'Escucha con atención y escribe la frase en inglés sin errores.'
-  })}<div class="ex-title">Escribe lo que escuchas</div><div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>
-    <textarea class="inp" id="tin" placeholder="Escribe en inglés…" autocapitalize="off" autocomplete="off" spellcheck="false"></textarea>`;
-  $('#pl').onclick = () => speak(ex.text); $('#pls').onclick = () => speak(ex.text, true);
-  const t = $('#tin'); t.oninput = () => { ex.sel = t.value.trim() || null; $('#primaryBtn').disabled = !ex.sel; };
-  t.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); if (ex.sel) checkEar(); } };
-  footCheck(false); if (S.settings.autoplay) setTimeout(() => speak(ex.text), 300);
-};
-
-/* ---- ejercicios de voz ---- */
-const SPEAK_TITLES = { word: 'Pronuncia esta palabra', sentence: 'Lee esta frase en voz alta', shadow: 'Shadowing: escucha e imita', dialog: 'Tu turno en la conversación', saypair: 'Di esta palabra' };
-function speakTarget(ex) { if (ex.kind === 'dialog') return ex.l.lines[ex.i][1]; if (ex.kind === 'saypair') return ex.pair[ex.side]; return ex.text; }
-RENDER.speak = RENDER.shadow = RENDER.dialog = RENDER.saypair = (ex, body) => {
-  const target = speakTarget(ex), variant = ex.kind === 'speak' ? ex.variant : ex.kind;
-  let ctx = '';
-  if (ex.kind === 'dialog') {
-    const prev = ex.l.lines.slice(Math.max(0, ex.i - 2), ex.i);
-    ctx = `<div class="tipbox small">🎬 ${esc(ex.l.scene)}</div><div class="dlg">${prev.map(x => `<div class="msg ${x[0] === 'B' ? 'me' : 'bot'}">${x[0] === 'A' ? `<button class="mini" data-say-n="${esc(x[1])}">🔊</button> ` : ''}${esc(x[1])}</div>`).join('')}</div>`;
-  }
-  const es = ex.kind === 'dialog' ? ex.l.lines[ex.i][2] : ex.kind === 'saypair' ? `Par mínimo: ${ex.pair[0]} / ${ex.pair[1]} — ${(ex.l.pairLabels || [])[ex.side] || ''}` : ex.es;
-
-  const tutorVoiceTitle = variant === 'shadow'
-    ? 'Profe Tuki · Shadowing 👥'
-    : variant === 'dialog'
-    ? 'Profe Tuki · Conversación 💬'
-    : variant === 'saypair'
-    ? 'Profe Tuki · Sonidos Clave 🎯'
-    : 'Profe Tuki · Pronunciación 🎤';
-
-  const tutorVoiceMsg = variant === 'shadow'
-    ? 'Escucha 1 o 2 veces e imita el ritmo y la entonación como una sombra.'
-    : variant === 'dialog'
-    ? '¡Tu turno en la conversación! Di en voz alta la línea de tu personaje.'
-    : variant === 'saypair'
-    ? `Pronuncia claro para distinguir entre ${ex.pair[0]} y ${ex.pair[1]}.`
-    : 'Lee en voz alta y pronuncia con calma. Recuerda: ¡en voz no pierdes vidas!';
-
-  body.innerHTML = `${tukiTutorBannerHTML({
-    title: tutorVoiceTitle,
-    msg: tutorVoiceMsg,
-    sub: es ? 'Significado: ' + es : 'Toca el micrófono cuando estés listo para hablar.',
-    speakText: tutorVoiceMsg
-  })}<div class="ex-title">${SPEAK_TITLES[variant]}</div>${ctx}
-    <div class="card" style="margin-bottom:12px"><div class="target" id="tgt">${wordsHTML(target)}</div>${es ? `<div class="muted small">${esc(es)}</div>` : ''}
-    <div class="row" style="margin-top:10px"><button class="spk" id="pl" title="Escuchar">🔊</button><button class="spk slow" id="pls" title="Lento">🐢</button><span class="muted small">${variant === 'shadow' ? 'Escucha 1-2 veces y repite imitando el ritmo y la entonación.' : 'Toca una palabra para oírla lento.'}</span></div></div>
-    <div id="micArea"></div><div id="res"></div>`;
-  $$('[data-say-n]', body).forEach(b => b.onclick = () => speak(b.dataset.sayN));
-  $('#pl').onclick = () => speak(target); $('#pls').onclick = () => speak(target, true);
-  const skip = `<button class="btn ghost" id="skipBtn">${canSpeak() ? 'No puedo hablar ahora' : 'Saltar'}</button>`;
-  setFoot(`${skip}<button class="btn primary" id="primaryBtn" disabled>Continuar</button>`);
-  $('#skipBtn').onclick = () => { L.done++; nextEx(); };
-  if (canSpeak()) {
-    $('#micArea').innerHTML = `<button class="mic" id="mic">🎤 Toca para hablar</button>`;
-    $('#mic').onclick = () => doMic($('#mic'), (alts, url, az) => onSpeechResult(ex, target, alts, url, az), target);
-  } else {
-    $('#micArea').innerHTML = `<div class="notice">⚠️ Tu navegador no soporta reconocimiento de voz, así que no puedo darte un puntaje. <b>Chrome</b> (Android o computador) o Edge funcionan mejor. Mientras tanto puedes grabarte y comparar con el modelo.</div>
-      ${Rec.supported ? `<button class="mic" id="recOnly">⏺ Grabar mi voz</button>` : ''}`;
-    const rb = $('#recOnly'); if (rb) rb.onclick = () => recOnlyToggle(rb, url => {
-      $('#res').innerHTML = compareHTML(target, url);
-      bindCompare(target, url);
-      setFoot(`<button class="btn ghost" id="skipBtn">Necesito practicar</button><button class="btn primary" id="primaryBtn">👍 Sonó parecido</button>`);
-      $('#skipBtn').onclick = () => { L.done++; nextEx(); }; $('#primaryBtn').onclick = () => { L.done++; nextEx(); };
-    });
-  }
-  if (S.settings.autoplay) setTimeout(() => speak(target, false, variant === 'shadow' ? () => setTimeout(() => L && L.cur === ex && speak(target, true), 400) : null), 350);
-};
-function createMicMeter(btn) {
-  let vu = $('#micVu');
-  if (vu) vu.remove();
-  if (btn && btn.parentElement) {
-    vu = document.createElement('div');
-    vu.id = 'micVu';
-    vu.className = 'mic-vu-wrap';
-    vu.innerHTML = `<div class="mic-vu-bar"><div class="mic-vu-fill low" id="micVuFill"></div></div>
-      <div class="mic-vu-status low" id="micVuStatus">
-        <span class="mic-vu-icon">🔉</span> <span class="mic-vu-text">Esperando voz… habla cerca del micrófono</span>
-      </div>`;
-    btn.parentElement.appendChild(vu);
-  }
-  let lastState = '';
-  return {
-    update(rms) {
-      if (!vu) return;
-      const fill = $('#micVuFill', vu), status = $('#micVuStatus', vu);
-      const text = $('.mic-vu-text', vu), icon = $('.mic-vu-icon', vu);
-      if (!fill || !status) return;
-      const pct = Math.min(100, Math.max(4, Math.round(rms * 420)));
-      fill.style.width = pct + '%';
-      let state = 'low', sText = 'Volumen bajo: acércate al micrófono', sIcon = '🔉';
-      if (rms >= 0.018 && rms <= 0.22) {
-        state = 'good'; sText = '¡Volumen óptimo! Te escucho con claridad'; sIcon = '🟢';
-      } else if (rms > 0.22) {
-        state = 'high'; sText = 'Demasiado volumen o ruido de fondo'; sIcon = '🔴';
-      }
-      if (state !== lastState) {
-        lastState = state;
-        fill.className = 'mic-vu-fill ' + state;
-        status.className = 'mic-vu-status ' + state;
-        if (text) text.textContent = sText;
-        if (icon) icon.textContent = sIcon;
-      }
-    },
-    destroy() {
-      if (vu) {
-        vu.style.opacity = '0';
-        vu.style.transition = 'opacity .2s ease';
-        setTimeout(() => { if (vu.parentElement) vu.remove(); }, 200);
-      }
-    }
-  };
-}
-
-async function doMic(btn, onResult, target) {
-  if (curRec) { stopRecognize(); return; }
-  if (MicCap.active) { MicCap.stop(); return; }
-  speechSynthesis && speechSynthesis.cancel(); stopAudio();
-  if (target && azureReady()) return azureMic(btn, onResult, target);
-  if (!HAS_SR) { toast(SR_ERR.unsupported + ' Usa Chrome o configura Azure en Ajustes.', 4000); return; }
-  btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando… habla ahora';
-  const micMeter = createMicMeter(btn);
-  let recOn = false, stream = null, anCtx = null, animId = null;
-  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
-      anCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const src = anCtx.createMediaStreamSource(stream), an = anCtx.createAnalyser();
-      an.fftSize = 256; src.connect(an);
-      const buf = new Float32Array(an.fftSize);
-      const loop = () => {
-        if (!btn.classList.contains('rec')) return;
-        an.getFloatTimeDomainData(buf);
-        let s = 0; for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i];
-        micMeter.update(Math.sqrt(s / buf.length));
-        animId = requestAnimationFrame(loop);
-      };
-      loop();
-    } catch (e) {}
-  }
-  if (S.settings.recordVoice && Rec.supported) { try { await Rec.start(); recOn = true; } catch (e) {} }
-  try {
-    const alts = await recognize();
-    const url = recOn ? await Rec.stop() : null;
-    onResult(alts, url);
-  } catch (err) {
-    if (recOn) await Rec.stop();
-    toast(SR_ERR[err] || ('Error de voz: ' + err), 3500);
-  } finally {
-    if (animId) cancelAnimationFrame(animId);
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    if (anCtx) anCtx.close().catch(() => {});
-    micMeter.destroy();
-    btn.classList.remove('rec');
-    btn.innerHTML = '🎤 Toca para hablar de nuevo';
-  }
-}
-let recOnlyActive = false;
-async function recOnlyToggle(btn, onDone) {
-  if (recOnlyActive) { recOnlyActive = false; const url = await Rec.stop(); btn.classList.remove('rec'); btn.innerHTML = '⏺ Grabar de nuevo'; onDone(url); return; }
-  try { await Rec.start(); recOnlyActive = true; btn.classList.add('rec'); btn.innerHTML = '⏹ Detener grabación'; setTimeout(() => { if (recOnlyActive) btn.click(); }, 15000); }
-  catch (e) { toast('No se pudo acceder al micrófono: ' + (e.message || e)); }
-}
-function compareHTML(target, url) { return `<div class="cmp"><button class="btn blue sm" data-cmp="model">🔊 Modelo</button><button class="btn ghost sm" data-cmp="slow">🐢 Lento</button>${url ? `<button class="btn orange sm" data-cmp="me">▶️ Mi voz</button>` : ''}</div>`; }
-function bindCompare(target, url, root = document) { $$('[data-cmp]', root).forEach(b => b.onclick = () => { const k = b.dataset.cmp; if (k === 'model') speak(target); else if (k === 'slow') speak(target, true); else Rec.play(url); }); }
-function onSpeechResult(ex, target, alts, url0, az) {
-  let r;
-  if (az) { r = az; if (ex.kind === 'saypair') { r.ok = r.pct >= S.settings.threshold; r.msg = (r.tips && r.tips[0]) || (r.ok ? '¡Bien pronunciada!' : 'Intenta de nuevo exagerando el sonido.'); } }
-  else if (ex.kind === 'saypair') { r = scorePair(target, ex.pair[1 - ex.side], alts); r.words = [{ tok: target, s: r.pct / 100, c: colorOf(r.pct / 100) }]; r.alts = alts; r.conf = alts[0].c; }
-  else r = scoreSpeech(target, alts);
-  if (!ex.attempt || r.pct >= ex.attempt.pct) ex.attempt = r;
-  ex.tries = (ex.tries || 0) + 1;
-  const url = url0 || (Rec.url && S.settings.recordVoice ? Rec.url : null);
-  $('#tgt').innerHTML = wordsHTML(target, r.words);
-  const retry = r.words.filter(w => w.c !== 'g').map(w => w.tok.replace(/[.,!?;:"]/g, ''));
-  const pass = ex.kind === 'saypair' ? r.ok : r.pct >= S.settings.threshold;
-  $('#res').innerHTML = `<div class="card"><div class="row between"><div><div class="scorebig" style="color:${pass ? 'var(--g-d)' : r.pct >= 50 ? 'var(--o-d)' : 'var(--r)'}">${r.pct}%</div><div class="small muted">Mejor intento: ${ex.attempt.pct}% · intentos: ${ex.tries}</div></div><div class="small" style="text-align:right">🟢 bien · 🟡 dudoso · 🔴 repetir</div></div>
-    <div class="heard">Escuché: «<b>${esc(r.heard)}</b>»${r.conf ? ` <span class="muted small">(confianza ${Math.round(r.conf * 100)}%)</span>` : ''}</div>
-    ${r.msg ? `<div class="small" style="margin-top:4px">${esc(r.msg)}</div>` : ''}
-    ${retry.length && ex.kind !== 'saypair' ? `<div class="small" style="margin-top:8px">Repite: ${retry.map(w => `<span class="wd r" data-say="${esc(w)}">${esc(w)} 🐢</span>`).join(' ')}</div>` : ''}
-    ${r.alts.length > 1 ? `<details class="small muted" style="margin-top:6px"><summary>Otras interpretaciones del reconocedor</summary>${r.alts.slice(1).map(a => esc(a.t)).join(' · ')}</details>` : ''}
-    ${compareHTML(target, url)}${extraResultHTML(r, target, url, ex)}</div>`;
-  bindCompare(target, url, $('#res')); bindExtra($('#res'), r, target, url, ex);
-  beep(pass ? 'ok' : 'bad');
-  const m = $('.tuki-tutor-mascot', $('#lbody')) || $('.mascot', $('#lbody'));
-  if (m) {
-    if (pass) {
-      triggerTukiAnimation(m, 'tuki-celebrate', 'happy');
-      tukiChirp('celebrate');
-    } else {
-      triggerTukiAnimation(m, 'tuki-comfort', 'happy');
-      tukiChirp('comfort');
-    }
-  }
-  const speechTutorMsg = pass
-    ? (r.pct >= 90 ? '🌟 Profe Tuki: ¡Excelente pronunciación!' : '✅ Profe Tuki: ¡Bien dicho!')
-    : '🔁 Profe Tuki: ¡Casi! Sigue practicando';
-  const f = setFoot(`<div class="fb"><h3>${speechTutorMsg}</h3><div class="exp">${pass ? 'Puedes continuar o intentar mejorar tu puntaje.' : 'Escucha el modelo lento 🐢, fíjate en las palabras en rojo o amarillo y vuelve a intentarlo. En voz no pierdes vidas.'}</div></div>
-    <div class="row"><button class="btn ghost" id="againBtn">Repetir</button><button class="btn primary" id="primaryBtn">Continuar</button></div>`, pass ? 'ok' : 'bad');
-  $('#againBtn').onclick = () => $('#mic').click();
-  $('#primaryBtn').onclick = () => { const best = ex.attempt; recordSpeech(ex.l.id, best); if (L.mode === 'placement') (L.place = L.place || []).push({ u: ex.pu, ok: best.pct >= S.settings.threshold }); if (ex.cardKey && S.deck[ex.cardKey]) sm2(S.deck[ex.cardKey], best.pct >= S.settings.threshold ? 4 : 2); if (best.words) best.words.forEach(w => { const k = normText(w.tok).join(' '); if (S.wd[k]) S.wd[k].sid = ex.l.id; }); save(); L.speak.push(best.pct); L.done++; nextEx(); };
-}
-
-/* ---- fin de lección ---- */
-function victoryConfetti(waves = 3) {
-  for (let w = 0; w < waves; w++) {
-    setTimeout(() => {
-      const c = document.createElement('div');
-      c.className = 'confetti';
-      const cols = ['#1fa463', '#ff9f1c', '#1cb0f6', '#ffd23f', '#e5484d', '#8b5cf6', '#ec4899', '#facc15'];
-      for (let i = 0; i < 50; i++) {
-        const p = document.createElement('i');
-        p.style.left = Math.random() * 100 + '%';
-        p.style.background = pick(cols);
-        p.style.animationDuration = (1.6 + Math.random() * 2) + 's';
-        p.style.animationDelay = (Math.random() * 0.4) + 's';
-        const sz = Math.floor(Math.random() * 7) + 8;
-        p.style.width = sz + 'px';
-        p.style.height = (sz * 1.3) + 'px';
-        if (Math.random() > 0.6) p.style.borderRadius = '50%';
-        c.appendChild(p);
-      }
-      document.body.appendChild(c);
-      setTimeout(() => c.remove(), 4800);
-    }, w * 420);
-  }
-}
-function confetti() { victoryConfetti(1); }
-
-function finishLesson() {
+export function finishLesson() {
   const secs = Math.round((Date.now() - L.start) / 1000);
   const pron = L.speak.length ? Math.round(avg(L.speak)) : null;
   const ear = L.earN ? Math.round(L.earOk / L.earN * 100) : null;
@@ -1693,11 +1236,7 @@ function finishLesson() {
     }
   }, 400);
 }
-function noHeartsModal() {
-  modal(`<div style="text-align:center"><div style="font-size:54px">💔</div><h2>Te quedaste sin vidas</h2><p class="muted">Recuperas 1 vida cada 30 minutos (la próxima en ~${nextHeartIn()} min). También puedes ganar una vida completando una práctica.</p></div>
-    <div class="row" style="margin-top:14px"><button class="btn ghost block" data-x>Esperar</button><button class="btn blue block" data-p>Practicar</button></div>`,
-    (el, close) => { $('[data-x]', el).onclick = close; $('[data-p]', el).onclick = () => { close(); startLesson(null, 'practice', buildPractice('weak'), 'Repaso de sonidos débiles'); }; });
-}
+// (Fase 3, modulo 4: movido a src/lessons.js, lineas 1696-1700)
 document.addEventListener('keydown', e => {
   if (!L || $('#full').classList.contains('hidden')) return;
   if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
@@ -2287,7 +1826,7 @@ const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 
 /* AZURE: EVALUACIÓN DE PRONUNCIACIÓN -> ver src/audio.js */
 /* AZURE: EVALUACIÓN DE PRONUNCIACIÓN -> ver src/audio.js */
 let LAST_REC = null;
-async function azureMic(btn, onResult, target) {
+export async function azureMic(btn, onResult, target) {
   btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando (Azure)… toca para terminar';
   const micMeter = createMicMeter(btn);
   try {
@@ -2329,8 +1868,8 @@ function azurePanelHTML(r) {
     <div>${r.words.map(w => `<span class="phw"><span class="w wd ${w.c}" data-say="${esc(w.tok.replace(/[.,!?;:"¿¡]/g, ''))}">${esc(w.tok)}</span><span>${(w.ph || []).map(p => `<span class="ph ${colorOf(p.s / 100)}" title="${p.s}/100${p.nb && p.nb !== p.p ? ' · sonó como /' + esc(p.nb) + '/' : ''}">${esc(p.p)}</span>`).join('')}</span></span>`).join('')}</div>
     ${r.tips && r.tips.length ? `<ul class="tips small">${r.tips.map(t => `<li>🗣️ ${esc(t)}</li>`).join('')}</ul>` : '<div class="small" style="margin-top:6px">✅ ¡Todos los sonidos se escucharon bien!</div>'}</div>`;
 }
-function extraResultHTML(r, target, url, ex) { return `${r && r.engine === 'azure' ? azurePanelHTML(r) : ''}<div style="margin-top:10px"><button class="btn ghost sm" data-viz>📊 Onda y entonación</button></div><div class="viz"></div>`; }
-function bindExtra(root, r, target, url, ex) {
+export function extraResultHTML(r, target, url, ex) { return `${r && r.engine === 'azure' ? azurePanelHTML(r) : ''}<div style="margin-top:10px"><button class="btn ghost sm" data-viz>📊 Onda y entonación</button></div><div class="viz"></div>`; }
+export function bindExtra(root, r, target, url, ex) {
   const b = $('[data-viz]', root), box = $('.viz', root); if (!b) return;
   b.onclick = () => { b.remove(); drawViz(box, target, url); };
   if (ex && ex.l && ex.l.id === 'intonation' && url) b.click();
@@ -2408,10 +1947,10 @@ const MOUTHS = {
   'novice-courtesy': [{ t: 'dental', lips: 'neutral', o: .2, v: 0, air: 1, cap: 'Thank: lengua entre los dientes' }, { t: 'high-front', lips: 'spread', o: .1, v: 1, cap: 'Please: alarga "plíiiz"' }],
   'novice-survival': [{ t: 'mid-central', lips: 'neutral', o: .3, v: 1, cap: 'Habla despacio con calma y ritmo relajado' }]
 };
-function mouthPanelHTML(id, compact) { const m = MOUTHS[id]; if (!m) return ''; return `<div class="mouths" ${compact ? 'style="margin-top:4px"' : ''}>${m.map(c => `<div class="mouth">${mouthSVG(c)}</div>`).join('')}</div>`; }
+export function mouthPanelHTML(id, compact) { const m = MOUTHS[id]; if (!m) return ''; return `<div class="mouths" ${compact ? 'style="margin-top:4px"' : ''}>${m.map(c => `<div class="mouth">${mouthSVG(c)}</div>`).join('')}</div>`; }
 
 /* =================== LECCIONES DE VOCABULARIO =================== */
-function buildVocabLesson(l, mode = 'lesson') {
+export function buildVocabLesson(l, mode = 'lesson') {
   const I = shuffle(l.items), all = l.items;
   const meaningQ = it => { const others = shuffle(all.filter(x => x !== it).map(x => x[1])); const opts = [it[1], ...(it[4] ? [it[4]] : []), ...others].filter((o, i, a) => a.indexOf(o) === i).slice(0, 3); return { kind: 'quiz', l, q: { q: `¿Qué significa «${it[0]}»?`, say: it[0], opts, a: 0, expl: `«${it[0]}» = ${it[1]}.` + (it[4] ? ` Ojo: NO significa «${it[4]}».` : '') + ` Ej.: ${it[2]}` } }; };
   const enQ = it => ({ kind: 'quiz', l, q: { q: `¿Cómo se dice «${it[1]}» en inglés?`, say: it[0], hide: true, opts: [it[0], ...shuffle(all.filter(x => x !== it).map(x => x[0])).slice(0, 2)], a: 0, expl: `${it[0]} — ${it[2]}` } });
@@ -2427,7 +1966,7 @@ function buildVocabLesson(l, mode = 'lesson') {
   if (mode !== 'lesson') ex.push({ kind: 'speak', variant: 'word', l, text: I[5][0], es: I[5][1] });
   return ex;
 }
-function renderVocabLearn(ex, body) {
+export function renderVocabLearn(ex, body) {
   const l = ex.l;
   body.innerHTML = `<div class="badge-new">VOCABULARIO NUEVO</div><div class="ex-title">${l.icon} ${esc(l.title)}</div>
     ${tukiTutorBannerHTML({
