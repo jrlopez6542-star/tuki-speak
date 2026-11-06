@@ -2441,7 +2441,7 @@ function parseTutor(t) {
 
 
 /* =================== v2: AYUDAS GENERALES =================== */
-const APP_VERSION = '2.14.0';
+const APP_VERSION = '2.19.0';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function errES(e, provider) {
   const pre = provider ? provider + ': ' : '';
