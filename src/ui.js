@@ -425,7 +425,7 @@ export function openTukiCompanionModal(phrase) {
       try {
         const p = await Notification.requestPermission();
         if (p === 'granted') {
-          set('remindOn', true);
+          S.settings.remindOn = true; // (fix audit 2026-11-06: 'set' no existe en este modulo; es un const local de Ajustes en main.js)
           save();
           tukiChirp('celebrate');
           confetti();
