@@ -11,7 +11,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test:api": "node tests/api.test.mjs"
+    "test:api": "node tests/api.test.mjs",
+    "check:version": "node tools/check_version.mjs"
   },
   "dependencies": {
     "jose": "^6.1.0"
