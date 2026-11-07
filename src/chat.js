@@ -16,6 +16,52 @@ import { save, toast, modal, go, render, addXP, checkBadges, errES, httpErr, FB,
 
 export const SCENARIOS = { free: 'a friendly casual chat about the learner\'s day, hobbies and plans', restaurant: 'a waiter at a restaurant in New York; the learner is the customer', airport: 'an airline check-in agent at the airport; the learner is a passenger' };
 export const SCEN_ES = { free: 'Charla libre', restaurant: 'Restaurante', airport: 'Aeropuerto' };
+
+/* ---- P4 (v2.21.0): escenarios de roleplay definidos por el usuario ---- */
+// Los escenarios personalizados viven en S.settings.customScenarios
+// (máx. 5, máx. 120 caracteres cada uno) y se registran en SCENARIOS /
+// SCEN_ES con claves "custom:0"…"custom:4", igual que las misiones
+// registran las suyas en ui.js. Así chatSystem() y liveSystem() los
+// usan sin cambios y el selector del chat los lista automáticamente.
+// 0 llamadas extra: solo texto en el system prompt. El texto del
+// usuario nunca puede cambiar el formato de 6 líneas: se capan la
+// longitud y las palabras de instrucción/etiquetas del formato.
+export const CUSTOM_SCEN_MAX = 5;
+export const CUSTOM_SCEN_LEN = 120;
+const CUSTOM_SCEN_BLOCK = /CORRECCI[OÓ]N|EXPLICACI[OÓ]N|AYUDA|PRONUNCIACI[OÓ]N|PR[AÁ]CTICA|\bREPLY\b|SYSTEM\s*PROMPT|IGNORE\s+(PREVIOUS|ALL|THE|YOUR)|OLVIDA\s+(TODO|LAS|TUS|LO)|NO\s+SIGAS|NEW\s+INSTRUCTION/i;
+export function sanitizeScenario(t) {
+  const s = String(t || '').replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, CUSTOM_SCEN_LEN).trim();
+  if (!s || CUSTOM_SCEN_BLOCK.test(s)) return '';
+  return s;
+}
+export function customScenarios() {
+  const a = S && S.settings && S.settings.customScenarios;
+  return Array.isArray(a) ? a.map(x => sanitizeScenario(x)).filter(Boolean).slice(0, CUSTOM_SCEN_MAX) : [];
+}
+export function registerCustomScenarios() {
+  for (const k of Object.keys(SCENARIOS)) if (k.startsWith('custom:')) { delete SCENARIOS[k]; delete SCEN_ES[k]; }
+  customScenarios().forEach((t, i) => {
+    SCENARIOS['custom:' + i] = 'a roleplay in this situation chosen by the learner: "' + t + '" (the learner plays themself; keep the reply format and the level rules unchanged)';
+    SCEN_ES['custom:' + i] = '✏️ ' + t;
+  });
+}
+export function addCustomScenario(text) {
+  const t = sanitizeScenario(text);
+  if (!t) return { ok: false, reason: 'empty' };
+  const list = customScenarios();
+  if (list.some(x => x.toLowerCase() === t.toLowerCase())) return { ok: false, reason: 'dup' };
+  if (list.length >= CUSTOM_SCEN_MAX) return { ok: false, reason: 'full' };
+  list.push(t); S.settings.customScenarios = list; save(); registerCustomScenarios();
+  return { ok: true, key: 'custom:' + (list.length - 1) };
+}
+export function removeCustomScenario(i) {
+  const list = customScenarios();
+  if (i < 0 || i >= list.length) return false;
+  list.splice(i, 1); S.settings.customScenarios = list; save(); registerCustomScenarios();
+  if (CHAT.scen && String(CHAT.scen).startsWith('custom:')) CHAT.scen = 'free';
+  return true;
+}
+registerCustomScenarios();
 export let CHAT = { scen: 'free', hist: [], busy: false };
 export function chatSystem() {
   return `You are "Tuki", a patient, friendly English pronunciation and conversation tutor for a Spanish-speaking learner from Colombia (beginner/intermediate level). Roleplay: you are ${SCENARIOS[CHAT.scen]}.

@@ -35,6 +35,7 @@ export function sanitizeSettings(s) {
     if (typeof v === 'string') out[k] = v.slice(0, 300);
     else if (typeof v === 'number') out[k] = Number.isFinite(v) ? v : (def || 0);
     else if (typeof v === 'boolean') out[k] = v;
+    else if (Array.isArray(v) && v.every(x => typeof x === 'string') && JSON.stringify(v).length < 2000) out[k] = v.slice(0, 5).map(x => x.slice(0, 120)); // p. ej. settings.customScenarios (P4)
     else if (v && typeof v === 'object' && !Array.isArray(v) && JSON.stringify(v).length < 2000) out[k] = deepClean(v, 0, { n: 0 });
   }
   return out;
