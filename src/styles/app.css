@@ -92,7 +92,7 @@ h2{font-size:22px} h3{font-size:18px}
 .unit-head h3{margin:0 0 2px;font-size:19px}
 .unit-head p{margin:0;opacity:.95;font-size:14px}
 .unit-head .guide{background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.5);color:#fff;border-radius:var(--r-sm);padding:8px 10px;font-weight:900;font-size:13px;white-space:nowrap}
-.path{display:flex;flex-direction:column;align-items:center;gap:18px;padding:22px 0 4px;position:relative}
+.path{display:flex;flex-direction:column;align-items:center;gap:48px;padding:48px 0 4px;position:relative}
 .node-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
 .node{width:74px;height:70px;border-radius:50%;border:0;font-size:30px;display:grid;place-items:center;background:var(--uc,var(--g));color:#fff;box-shadow:0 7px 0 rgba(0,0,0,.22);transition:transform .18s var(--spring);position:relative}
 .node:active{transform:translateY(5px) scale(.96);box-shadow:0 2px 0 rgba(0,0,0,.22)}
@@ -173,7 +173,7 @@ textarea.inp:focus{outline:none;border-color:#84d8ff;background:#fff}
 .complete h1{color:var(--o);font-size:30px}
 .scards{display:flex;gap:10px;margin:14px 0;width:100%;max-width:420px}
 .scard{flex:1;border:2px solid;border-radius:var(--r-md);overflow:hidden}
-.scard .t{color:#fff;font-weight:900;font-size:12px;padding:4px;text-transform:uppercase}
+.scard .t{color:#fff;font-weight:900;font-size:11px;line-height:1.25;padding:4px;text-transform:uppercase;overflow-wrap:anywhere;hyphens:auto}
 .scard .v{font-weight:900;font-size:20px;padding:10px 4px;background:#fff}
 .confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:60}
 .confetti i{position:absolute;top:-20px;width:10px;height:14px;border-radius:2px;animation:fall linear forwards}

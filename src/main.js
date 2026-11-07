@@ -914,7 +914,11 @@ VIEWS.practice = v => {
 
 /* ---- Estudio: grabar y comparar ---- */
 VIEWS.studio = v => {
-  const opts = []; LESSONS.forEach(l => { if (l.type === 'dialog') l.lines.forEach(x => opts.push(x[1])); else { l.ex.forEach(x => opts.push(x[0])); l.sents.forEach(x => opts.push(x[0])); } });
+  const all = []; LESSONS.forEach(l => { if (l.type === 'dialog') l.lines.forEach(x => all.push(x[1])); else { l.ex.forEach(x => all.push(x[0])); l.sents.forEach(x => all.push(x[0])); } });
+  // (fix qa-text-data: la misma frase aparece en varias lecciones y el
+  // selector la repetía — p. ej. "please", "thank you", "help", "support"
+  // dos veces. Se deduplica conservando el orden de primera aparición.)
+  const opts = [...new Set(all)];
   v.innerHTML = `<button class="btn ghost sm" id="back">← Práctica</button><h2 style="margin-top:12px">🎙️ Estudio: grabar y comparar</h2>
     <p class="muted small">1) Escucha el modelo · 2) Grábate · 3) Compara tu voz con el modelo · 4) Evalúa con el reconocedor (Chrome).</p>
     <div class="card"><label class="small muted" for="stText">Frase o palabra</label><textarea class="inp" id="stText" style="min-height:70px">${esc(STUDIO_PRESET() || pick(opts))}</textarea>
@@ -958,6 +962,11 @@ VIEWS.progress = v => {
   const weakest = withData.slice().sort((a, b) => a.a - b.a).filter(r => r.a < 90).slice(0, 3);
   const wwords = Object.entries(S.wd).filter(([k, r]) => r.n).map(([k, r]) => ({ k, disp: r.disp || k, a: Math.round(r.sum / r.n), n: r.n })).sort((a, b) => a.a - b.a).slice(0, 10);
   const top5 = getTop5Errors();
+  // (fix qa-text-data: getTop5Errors rellena con 5 sugerencias fijas cuando
+  // no hay datos reales; sin distinguirlas, un usuario nuevo veía "70-75%"
+  // como si fueran sus puntajes medidos. hasRealErrors marca si hay al
+  // menos un error real; las sugerencias se muestran como tales, sin %.)
+  const hasRealErrors = top5.some(e => !e.isSuggested);
   // gráfico de 14 días
   const days = []; for (let i = 13; i >= 0; i--) { const d = new Date(Date.now() - i * DAY); const k = dayKey(d); const r = S.days[k]; days.push({ k, lab: d.getDate(), s: r && r.n ? Math.round(r.sum / r.n) : null, xp: r ? r.xp : 0 }); }
   const W = 320, H = 130, px = i => 18 + i * ((W - 30) / 13), py = s => H - 20 - s / 100 * (H - 36);
@@ -976,14 +985,14 @@ VIEWS.progress = v => {
   v.innerHTML = `<h2>Tu progreso 📈</h2>
     <div class="kpis"><div class="kpi"><span>Pronunciación</span><b style="color:var(--g-d)">${overall === null ? '—' : overall + '%'}</b><span>últimos 30 intentos</span></div>
     <div class="kpi"><span>Oído (pares/quiz)</span><b style="color:var(--b-d)">${earPct === null ? '—' : earPct + '%'}</b><span>${earT.r + earT.w} respuestas</span></div>
-    <div class="kpi"><span>Intentos de voz</span><b>${S.spoken}</b><span>${S.sessions} sesiones</span></div>
+    <div class="kpi"><span>Intentos de voz</span><b>${S.spoken}</b><span>${S.sessions} sesiones completadas</span></div>
     <div class="kpi"><span>Racha / XP</span><b>🔥 ${streakNow()} · 💎 ${S.xp}</b><span>mejor racha ${S.bestStreak}</span></div></div>
     
     <div class="card top-errors-card" id="topErrorsCard">
       <div class="row between" style="margin-bottom:8px">
         <div>
           <h3 style="margin:0 0 2px;color:#b91c1c">🎯 Radar de tus 5 Errores Frecuentes</h3>
-          <div class="small muted">Puntos críticos analizados en tu voz y mazo de tarjetas</div>
+          <div class="small muted">${hasRealErrors ? 'Puntos críticos analizados en tu voz y mazo de tarjetas' : 'Sugerencias comunes para hispanohablantes · aún no hay datos de tu voz'}</div>
         </div>
         <span class="badge" style="background:#fee2e2;color:#991b1b;font-weight:900">Analítica</span>
       </div>
@@ -999,7 +1008,7 @@ VIEWS.progress = v => {
               </div>
             </div>
             <div style="text-align:right;flex:none">
-              <span style="font-weight:900;font-size:13px;color:${err.score >= 75 ? 'var(--g-d)' : err.score >= 60 ? 'var(--o-d)' : 'var(--r)'}">${err.score}%</span>
+              ${err.isSuggested ? '<span class="pill">Sugerencia</span>' : `<span style="font-weight:900;font-size:13px;color:${err.score >= 75 ? 'var(--g-d)' : err.score >= 60 ? 'var(--o-d)' : 'var(--r)'}">${err.score}%</span>`}
             </div>
           </div>`).join('')}
       </div>
