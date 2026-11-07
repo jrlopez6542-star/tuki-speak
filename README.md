@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.20.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.21.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.21.0
+- **✏️ Escenarios de roleplay propios**: en el selector de escenario del chat, «✏️ Crear escenario…» guarda hasta 5 situaciones tuyas (máx. 120 caracteres, p. ej. «en el médico explicando síntomas») que Tuki usa como roleplay en texto y en voz en vivo, sin llamadas extra.
 
 ## Novedades v2.20.0
 - **📚 3 unidades nuevas (17 en total, 50 lecciones)**: Inglés para el trabajo (emails, reuniones, presentaciones), Inglés de series y películas (slang, series sin subtítulos, expresiones famosas) y Sonidos que faltan (R americana, L oscura, NG final), al final del mismo camino.
