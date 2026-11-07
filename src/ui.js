@@ -1378,7 +1378,10 @@ export function ensure251() {
 export const V = { gen: 0, sup: 0, paused: false, timer: null, fails: 0, state: 'idle' };
 export const tcCanVoice = () => !!(HAS_SR || azureReady());
 export function ensure26() { if (S.settings.tcInput !== 'voice' && S.settings.tcInput !== 'text') S.settings.tcInput = window.__tcInputDefault || (tcCanVoice() ? 'voice' : 'text'); }
-ensure26();
+// (fix blank-main 2026-11-06: NO llamar a ensure26() en top-level aqui. ui.js se
+// evalua antes de que main.js ejecute load(), asi que S todavia es undefined
+// y S.settings lanzaba TypeError, matando el modulo entero y dejando #view
+// en blanco. ensure26() ya corre en cada render desde el wrapper de main.js.)
 
 export const tcVoiceOn = () => !!(L && L.mode === 'tc' && L.cur && L.cur.kind === 'tc' && S.settings.tcInput === 'voice' && tcCanVoice());
 export const tcOk = (g, ex) => g === V.gen && L && L.cur === ex && !V.paused && tcVoiceOn() && document.body.contains($('#tcBox'));

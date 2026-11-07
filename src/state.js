@@ -29,7 +29,7 @@ export function load() {
   if (raw && oldV < 2) { try { localStorage.setItem(KEY + '.backup-v1', raw); } catch (e) {} }
   for (const k in f) if (S[k] === undefined || S[k] === null && k !== 'placement' && k !== 'lastDay') S[k] = f[k];
   if (S.coins === undefined) S.coins = 50;
-  if (!S.tukiSkin) S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] };
+  if (!S.tukiSkin || typeof S.tukiSkin !== 'object') S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] };
   if (!S.tukiSkin.hand) S.tukiSkin.hand = 'none';
   if (!S.tukiSkin.plumage) S.tukiSkin.plumage = 'classic';
   if (!Array.isArray(S.tukiSkin.owned)) S.tukiSkin.owned = ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'];
