@@ -3248,7 +3248,8 @@ export function openPhotoPractice() {
           }
         }
         res.innerHTML = `<div class="tipbox small">
-          <b>📷 Objetos detectados en tu entorno:</b>
+          <b>📷 Ejemplo genérico para practicar:</b>
+          <p class="muted" style="margin:4px 0">${hasOwnGemini ? 'No pude analizar tu foto: estos objetos son un ejemplo, no lo que hay en tu foto.' : 'Sin tu clave de Gemini no puedo ver tu foto: estos objetos son un ejemplo, no lo que hay en tu foto.'}</p>
           <p style="margin:4px 0">• <b>room</b>: habitación<br>• <b>desk</b>: escritorio<br>• <b>screen</b>: pantalla<br>• <b>light</b>: luz / lámpara<br>• <b>window</b>: ventana</p>
           <b>Pregunta para ti:</b>
           <p style="margin:4px 0"><i>"Can you describe what you use the most in this space?"</i></p>
