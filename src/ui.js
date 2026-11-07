@@ -749,14 +749,20 @@ export function mouthSVG(c) {
   const ty = fixedTip ? ty0 : ty0 + jaw * 0.6, dy = dy0 + jaw * 0.5;
   let ul = { cx: 22, cy: 55, rx: 7, ry: 5 }, ll = { cx: 22, cy: 70 + jaw, rx: 7, ry: 5 };
   if (c.lips === 'closed') { ul.cy = 57; ll.cy = 64; } if (c.lips === 'round') { ul = { cx: 16, cy: 56, rx: 6, ry: 6 }; ll = { cx: 16, cy: 68 + jaw, rx: 6, ry: 6 }; } if (c.lips === 'spread') { ul.ry = 4; ll.ry = 4; ul.rx = 8; ll.rx = 8; } if (c.lips === 'lipteeth') { ll = { cx: 29, cy: 63, rx: 6, ry: 5 }; }
-  return `<svg viewBox="0 0 150 132" role="img" aria-label="${esc(c.cap || '')}">
+  // (fix qa-text-data: el svg sin ancho explícito se desbordaba en la guía
+  // de boca del modal, donde no aplica la regla .mouth svg; con width 100%
+  // queda contenido en su caja en ambos usos.)
+  return `<svg viewBox="0 0 150 132" style="width:100%;height:auto;display:block" role="img" aria-label="${esc(c.cap || '')}">
   <path d="M40 4 Q18 8 14 26 L4 40 L14 44" fill="none" stroke="#9aa6b0" stroke-width="2"/><path d="M18 86 Q20 108 44 116 Q80 124 100 110" fill="none" stroke="#9aa6b0" stroke-width="2"/>
   <path d="M36 50 Q45 42 60 38 Q90 32 112 44 Q120 50 124 58 L128 124" fill="none" stroke="#7a8793" stroke-width="3" stroke-linecap="round"/>
   <path d="M122 124 C 126 92, ${dx + 28} ${dy - 2}, ${dx} ${dy} S ${tx + 10} ${ty - 3}, ${tx} ${ty} C ${tx - 2} ${ty + 6}, ${tx + 6} ${ty + 10}, ${tx + 14} ${ty + 10} C 70 ${ty + 26}, 100 112, 110 126 Z" fill="#f28b9b" stroke="#d45d72" stroke-width="1.5"/>
   <rect x="30" y="49" width="7" height="11" rx="2" fill="#fff" stroke="#9aa6b0"/><rect x="30" y="${63 + jaw}" width="7" height="10" rx="2" fill="#fff" stroke="#9aa6b0"/>
   <ellipse cx="${ul.cx}" cy="${ul.cy}" rx="${ul.rx}" ry="${ul.ry}" fill="#e57373"/><ellipse cx="${ll.cx}" cy="${ll.cy}" rx="${ll.rx}" ry="${ll.ry}" fill="#e57373"/>
   ${c.air ? `<path d="M118 76 Q70 ${c.t === 'dental' ? 62 : 70} 6 ${c.t === 'dental' ? 60 : 62}" fill="none" stroke="#1cb0f6" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#ah)"/><defs><marker id="ah" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#1cb0f6"/></marker></defs>` : ''}
-  ${c.v ? `<path d="M132 98 l7 3 l-7 3 l7 3 l-7 3 l7 3" fill="none" stroke="#ff9f1c" stroke-width="2.5"/><text x="118" y="128" font-size="9" fill="#d9800a" font-weight="700">vibra</text>` : `<text x="112" y="128" font-size="9" fill="#9aa6b0" font-weight="700">sin vibrar</text>`}
+  // (fix qa-text-data: "sin vibrar" empezaba en x=112 y con font-size 9 se
+  // salía del viewBox de 150 y se recortaba a "sin vibra". Ambas etiquetas
+  // ahora terminan en x=148 con text-anchor="end", dentro del viewBox.)
+  ${c.v ? `<path d="M132 98 l7 3 l-7 3 l7 3 l-7 3 l7 3" fill="none" stroke="#ff9f1c" stroke-width="2.5"/><text x="148" y="128" font-size="9" fill="#d9800a" font-weight="700" text-anchor="end">vibra</text>` : `<text x="148" y="128" font-size="9" fill="#9aa6b0" font-weight="700" text-anchor="end">sin vibrar</text>`}
   </svg><div>${esc(c.cap || '')}</div>`;
 }
 export const MOUTHS = {
