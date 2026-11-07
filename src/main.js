@@ -1680,9 +1680,9 @@ VIEWS.practice = v => {
   };
 };
 const _buildPlan25 = buildPlan;
-buildPlan = function () { const base = _buildPlan25(); if (!base.length) return base; const it = tcPick(1, tcLevel())[0]; return it ? [...base.slice(0, 9), tcEx(it)] : base; };
+buildPlan = function () { const base = _buildPlan25(); if (!base.length) return base; if (!isFeatureUnlocked('tc')) return base; const it = tcPick(1, tcLevel())[0]; return it ? [...base.slice(0, 9), tcEx(it)] : base; };
 const _planCard25 = planCardHTML;
-planCardHTML = function () { return _planCard25().replace('</div>\n    <button class="btn orange', '<span class="plan-step">✍️ Traduce y completa</span></div>\n    <button class="btn orange'); };
+planCardHTML = function () { const base = _planCard25(); if (!isFeatureUnlocked('tc')) return base; return base.replace('</div>\n    <button class="btn orange', '<span class="plan-step">✍️ Traduce y completa</span></div>\n    <button class="btn orange'); };
 const _progress25 = VIEWS.progress;
 VIEWS.progress = v => {
   _progress25(v);
