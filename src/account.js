@@ -60,7 +60,8 @@ export function sanitizeState(d) {
   if (o.summaries) o.summaries = o.summaries.map(r => { const d = r.data && typeof r.data === 'object' && !Array.isArray(r.data) ? r.data : {}; const arr = (x, f) => Array.isArray(x) ? x.filter(e => e && typeof e === 'object').slice(0, 12).map(f) : [];
     return { ...r, id: str(r.id || uid(), 40), ts: clampNum(r.ts), title: str(r.title, 120), date: str(r.date, 20), added: clampNum(r.added), data: { summary_es: str(d.summary_es, 1500), scores: d.scores && typeof d.scores === 'object' && !Array.isArray(d.scores) ? d.scores : {},
       mistakes: arr(d.mistakes, m => ({ said: str(m.said, 400), correct: str(m.correct, 400), explain_es: str(m.explain_es, 600) })).filter(m => m.correct), new_words: arr(d.new_words, w => ({ en: str(w.en, 200), es: str(w.es, 200) })).filter(w => w.en),
-      mispronounced: arr(d.mispronounced, w => ({ word: str(w.word, 80), note_es: str(w.note_es, 300) })).filter(w => w.word), tips_es: Array.isArray(d.tips_es) ? d.tips_es.slice(0, 6).map(t => str(t, 400)) : [] } }; });
+      mispronounced: arr(d.mispronounced, w => ({ word: str(w.word, 80), note_es: str(w.note_es, 300) })).filter(w => w.word),
+      misheard: arr(d.misheard, w => ({ word: str(w.word, 80), heard_as: str(w.heard_as, 80), note_es: str(w.note_es, 300) })).filter(w => w.word), tips_es: Array.isArray(d.tips_es) ? d.tips_es.slice(0, 6).map(t => str(t, 400)) : [] } }; });
   if (o.badges) for (const k of Object.keys(o.badges)) o.badges[k] = clampNum(o.badges[k]);
   ['tc', 'pd'].forEach(k => { if (k in o && (!o[k] || typeof o[k] !== 'object' || Array.isArray(o[k]))) o[k] = {}; });
   o.settings = sanitizeSettings(o.settings);
