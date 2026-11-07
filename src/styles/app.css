@@ -32,7 +32,7 @@ input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
 @keyframes tukiBlink{0%,93%,97%,100%{transform:scaleY(1)}95%{transform:scaleY(0.08)}}
 
 .tuki-wing{transform-origin:22px 64px;transition:transform .25s ease}
-.tuki-wiggle .tuki-wing,.tuki-celebrate .tuki-wing{animation:tukiWingFlap .2s ease-in-out infinite alternate}
+.tuki-wiggle .tuki-wing,.tuki-celebrate .tuki-wing,.tuki-mood-proud .tuki-wing{animation:tukiWingFlap .2s ease-in-out infinite alternate}
 @keyframes tukiWingFlap{from{transform:rotate(0deg)}to{transform:rotate(-24deg) scaleY(1.1)}}
 
 .tuki-talking .tuki-beak-bot{transform-origin:52px 46px;animation:tukiBeakTalk .18s ease-in-out infinite alternate}
@@ -72,6 +72,12 @@ input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
 .tuki-mood-sleeping .tuki-svg{animation:tukiIdle 6s ease-in-out infinite}
 .tuki-mood-sleeping::after{content:"Z";position:absolute;top:-8px;right:2px;font-weight:900;font-size:18px;color:var(--b);animation:tukiZFloat 2.2s ease-in-out infinite}
 @keyframes tukiZFloat{0%{opacity:0;transform:translate(0,4px) scale(.8)}30%{opacity:1}100%{opacity:0;transform:translate(8px,-14px) scale(1.15)}}
+/* Pose propia de orgullo (fase premium etapa 2): salto alto con el pecho
+   erguido y las alas abiertas; distinta de 'celebrate' (rebotes cortos con
+   squash). La cabeza se levanta y las alas aletean durante toda la pose. */
+.tuki-mood-proud{animation:tukiProud 1.2s var(--spring) both}
+@keyframes tukiProud{0%{transform:scale(1) translateY(0) rotate(0deg)}30%{transform:scale(1.18,.82) translateY(3px)}55%{transform:scale(.94,1.18) translateY(-30px) rotate(-5deg)}75%{transform:scale(1.12,.94) translateY(-12px) rotate(4deg)}100%{transform:scale(1) translateY(0) rotate(0deg)}}
+.tuki-mood-proud .tuki-head-group{animation:none;transform:rotate(-5deg)}
 .mascot,.tuki-tutor-mascot,.mascot-wrap{position:relative}
 
 main{flex:1;padding:14px 14px 96px}
@@ -771,6 +777,6 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .complete{animation:viewIn .35s var(--ease-out) both}
 /* Movimiento reducido: sin animaciones nuevas ni transiciones de press */
 @media (prefers-reduced-motion: reduce){
-  #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.complete,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot,.tuki-mood-thinking .tuki-head-group,.tuki-mood-listening .tuki-head-group,.tuki-mood-confused,.tuki-mood-confused::after,.tuki-mood-sleeping::after{animation:none!important}
+  #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.complete,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot,.tuki-mood-thinking .tuki-head-group,.tuki-mood-listening .tuki-head-group,.tuki-mood-confused,.tuki-mood-confused::after,.tuki-mood-sleeping::after,.tuki-mood-proud{animation:none!important}
   .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.shop-card,.locked-card,.stat{transition:none!important}
 }

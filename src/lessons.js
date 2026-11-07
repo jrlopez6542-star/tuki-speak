@@ -14,7 +14,7 @@
 import { $, $$, esc, shuffle, pick, sample, avg, scoreSpeech, scorePair, colorOf, typedMatch, normText, align } from './utils.js';
 import { S, loseHeart, nextHeartIn, recordEar, recordSpeech, refreshHearts, sm2, soundAvg } from './state.js';
 import { HAS_SR, MicCap, Rec, SR_ERR, canSpeak, curRec, recognize, speak, stopAudio, stopRecognize } from './audio.js';
-import { LESSON, LESSONS, azureMic, azureReady, beep, bindExtra, bindTukiTutorBanner, buildVocabLesson, closeLesson, confetti, confirmBox, extraResultHTML, finishLesson, isUnlocked, modal, mouthPanelHTML, renderVocabLearn, save, toast, triggerTukiAnimation, tukiChirp, tukiTutorBannerHTML, wordsHTML } from './main.js';
+import { LESSON, LESSONS, azureMic, azureReady, beep, bindExtra, bindTukiTutorBanner, buildVocabLesson, closeLesson, confetti, confirmBox, extraResultHTML, finishLesson, isUnlocked, modal, mouthPanelHTML, renderVocabLearn, save, toast, tukiMood, tukiTutorBannerHTML, wordsHTML } from './main.js';
 
 export const tokensOf = s => s.replace(/[¿¡?!.,;:"]/g, '').split(/\s+/).filter(Boolean);
 export function earEx(l, i, P, Q) { return P ? { kind: 'pick', l, pair: P[i % P.length], side: Math.random() < .5 ? 0 : 1 } : { kind: 'quiz', l, q: Q[i % Q.length] }; }
@@ -125,13 +125,8 @@ export function feedback(ok, answerHTML, expl, sayText) {
   const coachNote = ok ? pick(PRAISE) : pick(ENCOURAGE);
   const m = $('.tuki-tutor-mascot', $('#lbody')) || $('.mascot', $('#lbody'));
   if (m) {
-    if (ok) {
-      triggerTukiAnimation(m, 'tuki-celebrate', 'happy');
-      tukiChirp('celebrate');
-    } else {
-      triggerTukiAnimation(m, 'tuki-comfort', 'happy');
-      tukiChirp('comfort');
-    }
+    if (ok) tukiMood('excited', { el: m, particles: 'happy' });
+    else tukiMood('sad', { el: m });
   }
   const f = setFoot(`<div class="fb"><h3>${ok ? '✅ ' + coachNote : '❌ ' + coachNote}</h3>${answerHTML ? `<div class="ans">${answerHTML}</div>` : ''}${expl ? `<div class="exp">${expl}</div>` : ''}</div>
     <div class="row">${sayText ? `<button class="spk" data-say-n="${esc(sayText)}" title="Escuchar">🔊</button>` : ''}<button class="btn primary" id="primaryBtn">Continuar</button></div>`, ok ? 'ok' : 'bad');
@@ -438,13 +433,8 @@ export function onSpeechResult(ex, target, alts, url0, az) {
   beep(pass ? 'ok' : 'bad');
   const m = $('.tuki-tutor-mascot', $('#lbody')) || $('.mascot', $('#lbody'));
   if (m) {
-    if (pass) {
-      triggerTukiAnimation(m, 'tuki-celebrate', 'happy');
-      tukiChirp('celebrate');
-    } else {
-      triggerTukiAnimation(m, 'tuki-comfort', 'happy');
-      tukiChirp('comfort');
-    }
+    if (pass) tukiMood('excited', { el: m, particles: 'happy' });
+    else tukiMood('sad', { el: m });
   }
   const speechTutorMsg = pass
     ? (r.pct >= 90 ? '🌟 Profe Tuki: ¡Excelente pronunciación!' : '✅ Profe Tuki: ¡Bien dicho!')

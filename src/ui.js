@@ -6,7 +6,7 @@ import { $, $$, avg, colorOf, dayKey, decodeDeep, decodeEnt, esc, hashStr, lev, 
 import { DAY, MAX_HEARTS, S, addToDeck, isDone, recordSpeech, refreshHearts, soundAvg, todayRec } from './state.js';
 import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
 import { L, RENDER, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
-import { AZT, CHAT, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemini, hardWords, numHash, tutorSpeed, uid } from './chat.js';
+import { AZT, CHAT, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemini, hardWords, numHash, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
 import { TukiDB } from './tuki-db.js';
 import { APP_VERSION, COURSE, LESSON, LESSONS, TAB, TUKI_OFFLINE_TC, VIEWS, addXP, beep, checkBadges, closeLesson, confetti, decodeAudio, go, isUnlocked, render, save, streakNow, tcGenerate, toast, tukiChirp, tukiFanfare } from './main.js';
@@ -331,7 +331,7 @@ export function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType
    aplican como cambio instantáneo), pero sin partículas ni clases de salto. */
 export const TUKI_MOOD_PRIORITY = { idle: 0, sleeping: 10, thinking: 50, listening: 50, happy: 60, confused: 60, sad: 60, proud: 70, excited: 70, celebration: 80, speaking: 90 };
 const TUKI_MOOD_MS = { happy: 900, excited: 1000, confused: 1200, sad: 900, proud: 1200, celebration: 1200 };
-const TUKI_MOOD_CLASSES = ['tuki-mood-thinking', 'tuki-mood-listening', 'tuki-mood-confused', 'tuki-mood-sleeping'];
+const TUKI_MOOD_CLASSES = ['tuki-mood-thinking', 'tuki-mood-listening', 'tuki-mood-confused', 'tuki-mood-sleeping', 'tuki-mood-proud'];
 const TUKI_MOOD_ANIM = ['tuki-wiggle', 'tuki-celebrate', 'tuki-comfort'];
 let tukiMoodCurrent = 'idle';
 let tukiMoodTimer = null;
@@ -384,7 +384,7 @@ export function tukiMood(state, opts = {}) {
   else if (state === 'excited') anim('tuki-celebrate', opts.particles || 'sparkle');
   else if (state === 'celebration') anim('tuki-celebrate', opts.particles || 'happy');
   else if (state === 'sad') anim('tuki-comfort', opts.particles || 'happy');
-  else if (state === 'proud') anim('tuki-celebrate', opts.particles || 'sparkle');
+  else if (state === 'proud') { pose('tuki-mood-proud'); if (!reduced && opts.particles !== false) targets.forEach(m => spawnTukiParticles(m, opts.particles || 'sparkle')); }
   else if (state === 'confused') pose('tuki-mood-confused');
   else if (state === 'thinking') pose('tuki-mood-thinking');
   else if (state === 'listening') pose('tuki-mood-listening');
@@ -398,6 +398,50 @@ export function tukiMood(state, opts = {}) {
     }, ms);
   }
   return state;
+}
+
+/* ---- Tuki se duerme por inactividad (fase premium, etapa 2) ----
+   Un único temporizador que se reinicia con cada interacción del usuario.
+   Tras 90 s sin interacción, y solo si el estado actual es 'idle', Tuki se
+   duerme; al interactuar de nuevo despierta (solo se pide 'idle' si está
+   durmiendo, para no cortar una celebración en curso). No interfiere con
+   lecciones, voz en vivo ni modales abiertos: en esos casos el temporizador
+   se rearma y lo vuelve a intentar más tarde. Con movimiento reducido el
+   cambio es instantáneo (lo garantiza tukiMood). */
+export const TUKI_SLEEP_MS = 90e3;
+let tukiSleepTimer = null;
+let tukiSleepWatchOn = false;
+export function tukiSleepBusy() {
+  try {
+    if (document.hidden) return true;
+    if (document.querySelector('.overlay')) return true; // modal abierto
+    if (typeof L !== 'undefined' && L && !$('#full').classList.contains('hidden')) return true; // lección en curso
+    if (typeof LIVE !== 'undefined' && LIVE && LIVE.on) return true; // voz en vivo
+  } catch (e) {}
+  return false;
+}
+function tukiSleepArm() {
+  if (tukiSleepTimer) clearTimeout(tukiSleepTimer);
+  tukiSleepTimer = setTimeout(() => {
+    tukiSleepTimer = null;
+    if (getTukiMood() !== 'idle' || tukiSleepBusy()) { tukiSleepArm(); return; }
+    tukiMood('sleeping');
+  }, TUKI_SLEEP_MS);
+}
+function tukiSleepWake() {
+  if (getTukiMood() === 'sleeping') tukiMood('idle');
+  tukiSleepArm();
+}
+export function initTukiSleepWatch() {
+  if (tukiSleepWatchOn || typeof document === 'undefined') return;
+  tukiSleepWatchOn = true;
+  document.addEventListener('pointerdown', tukiSleepWake, { passive: true });
+  document.addEventListener('keydown', tukiSleepWake);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { if (tukiSleepTimer) { clearTimeout(tukiSleepTimer); tukiSleepTimer = null; } }
+    else tukiSleepArm();
+  });
+  tukiSleepArm();
 }
 
 export const TUKI_QUOTES_ES = [
@@ -489,8 +533,7 @@ export function openTukiCompanionModal(phrase) {
 
     const cm = $('#companionMascot', el);
     if (cm) cm.onclick = () => {
-      triggerTukiAnimation(cm, 'tuki-wiggle', 'sparkle');
-      tukiChirp('chirp');
+      tukiMood('happy', { el: cm, particles: 'sparkle' });
       speakTukiEs(phrase, cm);
     };
 
@@ -545,8 +588,7 @@ export function openTukiCompanionModal(phrase) {
 
 export function interactWithTuki(el) {
   const m = el ? ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || el) : null;
-  triggerTukiAnimation(m, 'tuki-celebrate', 'sparkle');
-  tukiChirp('chirp');
+  if (m) tukiMood('excited', { el: m, chirp: 'chirp', particles: 'sparkle' });
   const phrase = pick(TUKI_QUOTES_ES);
   if (L) {
     speakTukiEs(phrase, m);
@@ -581,8 +623,7 @@ export function bindTukiTutorBanner(body) {
   if (b) b.onclick = () => {
     const txt = b.dataset.tukiTutorSay;
     if (txt) {
-      triggerTukiAnimation(m, 'tuki-wiggle', 'happy');
-      tukiChirp('chirp');
+      if (m) tukiMood('happy', { el: m, particles: 'happy' });
       speakTukiEs(txt, m);
     }
   };
@@ -1329,8 +1370,8 @@ export function tcBubble(i, msg, cls = '') {
 export function tcMascotReact(ok) {
   const m = $('.tc-mascot');
   if (!m) return;
-  if (ok) { triggerTukiAnimation(m, 'tuki-celebrate', 'happy'); tukiChirp('celebrate'); }
-  else { triggerTukiAnimation(m, 'tuki-comfort', 'happy'); tukiChirp('comfort'); }
+  if (ok) tukiMood('excited', { el: m, particles: 'happy' });
+  else tukiMood('sad', { el: m });
 }
 export function tcMarkOk(ex, i) {
   ex.st.ok[i] = true; const inp = $(`#tcEn .tc-in[data-i="${i}"]`); if (!inp) return;
@@ -1452,7 +1493,7 @@ export function tcFinish() {
     <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button><button class="btn blue" id="tcAgain" style="min-width:220px">🔁 Otra ronda</button></div>`;
   $('#primaryBtn').onclick = closeLesson; $('#tcAgain').onclick = () => { closeLesson(); startTC({ lv }); };
   const tfm = $('#tcFinishMascot');
-  if (tfm) tfm.onclick = () => { triggerTukiAnimation(tfm, 'tuki-celebrate', 'coin'); tukiChirp('celebrate'); confetti(); };
+  if (tfm) tfm.onclick = () => { tukiMood('celebration', { el: tfm, particles: 'coin' }); confetti(); };
   confetti(); checkBadges();
 }
 
@@ -1933,7 +1974,7 @@ export function pdFinish() {
     <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button></div>`;
   $('#primaryBtn').onclick = closeLesson; confetti(); checkBadges();
   const pfm = $('#pdFinishMascot');
-  if (pfm) pfm.onclick = () => { triggerTukiAnimation(pfm, 'tuki-celebrate', 'coin'); tukiChirp('celebrate'); confetti(); };
+  if (pfm) pfm.onclick = () => { tukiMood('celebration', { el: pfm, particles: 'coin' }); confetti(); };
 }
 
 export function pdCardHTML() {
@@ -3183,7 +3224,7 @@ export function openTukiShopModal() {
         const pm = $('#shopPreviewMascot', el);
         if (pm) {
           pm.innerHTML = renderTukiSVG(previewSkin);
-          triggerTukiAnimation(pm, 'tuki-wiggle', 'sparkle');
+          tukiMood('happy', { el: pm, particles: 'sparkle' });
         }
         const sp = $('#shopSpeech', el);
         if (sp) sp.textContent = `Probando: ${it.name} ${it.icon}`;
@@ -3213,9 +3254,8 @@ export function openTukiShopModal() {
         const pm = $('#shopPreviewMascot', el);
         if (pm) {
           pm.innerHTML = renderTukiSVG(previewSkin);
-          triggerTukiAnimation(pm, 'tuki-celebrate', 'sparkle');
-        }
-        tukiChirp('celebrate');
+          tukiMood('excited', { el: pm, particles: 'sparkle' });
+        } else tukiChirp('celebrate');
         confetti();
 
         const sp = $('#shopSpeech', el);
