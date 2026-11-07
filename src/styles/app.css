@@ -54,6 +54,24 @@ input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
 .tuki-aura-pulse{transform-origin:50px 50px;animation:tukiAuraPulse 3s ease-in-out infinite}
 @keyframes tukiAuraPulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:.85;transform:scale(1.02)}}
 @media(prefers-reduced-motion:reduce){.tuki-aura-spin,.tuki-aura-pulse{animation:none!important}}
+/* ---- TUKI MOODS (coordinador tukiMood, fase premium etapa 1) ----
+   Clases de estado en el wrapper de la mascota. La animación idle
+   (respiración/parpadeo/cabeza) sigue por debajo; el estado es una capa más.
+   'sleeping' usa transform estático (ojos cerrados, cabeza ladeada): es un
+   cambio de estado, no decoración, así que se mantiene con movimiento reducido. */
+.tuki-mood-thinking .tuki-head-group{animation:tukiThink 2.4s ease-in-out infinite}
+@keyframes tukiThink{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(-9deg) translateY(1px)}}
+.tuki-mood-listening .tuki-head-group{animation:tukiListen 2s ease-in-out infinite}
+@keyframes tukiListen{0%,100%{transform:rotate(2deg)}50%{transform:rotate(7deg) translateY(-1px)}}
+.tuki-mood-confused{animation:tukiConfused .9s ease-in-out both}
+@keyframes tukiConfused{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+.tuki-mood-confused::after{content:"?";position:absolute;top:-6px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--b);color:#fff;font-weight:900;font-size:14px;line-height:22px;text-align:center;box-shadow:0 2px 0 var(--b-d);animation:tukiBubbleBob 1.2s ease-in-out infinite}
+@keyframes tukiBubbleBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.tuki-mood-sleeping .tuki-eye{animation:none!important;transform:scaleY(.08)}
+.tuki-mood-sleeping .tuki-head-group{animation:none;transform:rotate(8deg) translateY(2px)}
+.tuki-mood-sleeping .tuki-svg{animation:tukiIdle 6s ease-in-out infinite}
+.tuki-mood-sleeping::after{content:"Z";position:absolute;top:-8px;right:2px;font-weight:900;font-size:18px;color:var(--b);animation:tukiZFloat 2.2s ease-in-out infinite}
+@keyframes tukiZFloat{0%{opacity:0;transform:translate(0,4px) scale(.8)}30%{opacity:1}100%{opacity:0;transform:translate(8px,-14px) scale(1.15)}}
 .mascot,.tuki-tutor-mascot,.mascot-wrap{position:relative}
 
 main{flex:1;padding:14px 14px 96px}
@@ -753,6 +771,6 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .complete{animation:viewIn .35s var(--ease-out) both}
 /* Movimiento reducido: sin animaciones nuevas ni transiciones de press */
 @media (prefers-reduced-motion: reduce){
-  #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.complete,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot{animation:none!important}
+  #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.complete,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot,.tuki-mood-thinking .tuki-head-group,.tuki-mood-listening .tuki-head-group,.tuki-mood-confused,.tuki-mood-confused::after,.tuki-mood-sleeping::after{animation:none!important}
   .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.shop-card,.locked-card,.stat{transition:none!important}
 }

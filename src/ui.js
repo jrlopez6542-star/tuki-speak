@@ -316,6 +316,90 @@ export function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType
   setTimeout(() => m.classList.remove(animClass), 900);
 }
 
+/* ---- Coordinador de estado de Tuki (Fase premium, etapa 1) ----
+   Una sola API para pedir estados de Tuki: tukiMood(estado, opts).
+   El estado vive en JS + clases CSS en el wrapper de la mascota, nunca
+   dentro del string SVG: MASCOT se re-renderiza al cambiar la skin y
+   perdería cualquier estado guardado dentro.
+   Prioridad (un estado nuevo solo interrumpe al actual si su prioridad es
+   mayor o igual; 'idle' siempre limpia): speaking 90 > celebration 80 >
+   excited/proud 70 > happy/confused/sad 60 > thinking/listening 50 >
+   sleeping 10 > idle 0. Los estados transitorios vuelven solos a idle.
+   Reutiliza triggerTukiAnimation por dentro; no lo duplica ni lo reescribe.
+   Con movimiento reducido no se anima nada decorativo: el estado se registra
+   igual (y las poses de estado, como los ojos cerrados de 'sleeping', se
+   aplican como cambio instantáneo), pero sin partículas ni clases de salto. */
+export const TUKI_MOOD_PRIORITY = { idle: 0, sleeping: 10, thinking: 50, listening: 50, happy: 60, confused: 60, sad: 60, proud: 70, excited: 70, celebration: 80, speaking: 90 };
+const TUKI_MOOD_MS = { happy: 900, excited: 1000, confused: 1200, sad: 900, proud: 1200, celebration: 1200 };
+const TUKI_MOOD_CLASSES = ['tuki-mood-thinking', 'tuki-mood-listening', 'tuki-mood-confused', 'tuki-mood-sleeping'];
+const TUKI_MOOD_ANIM = ['tuki-wiggle', 'tuki-celebrate', 'tuki-comfort'];
+let tukiMoodCurrent = 'idle';
+let tukiMoodTimer = null;
+let tukiMoodTargets = [];
+
+export function tukiMoodReduced() {
+  try {
+    if (typeof S !== 'undefined' && S && S.settings && S.settings.reduceMotion) return true;
+    if (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
+  } catch (e) {}
+  return false;
+}
+export function getTukiMood() { return tukiMoodCurrent; }
+
+function tukiMoodResolve(el) {
+  if (el) {
+    const m = (el.matches && el.matches('.brand-mascot-wrap,.mascot,.tuki-tutor-mascot,.tc-mascot')) ? el : ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || $('.tc-mascot', el) || el);
+    return m ? [m] : [];
+  }
+  return $$('.brand-mascot-wrap, .mascot, .tuki-tutor-mascot, .tc-mascot, #companionMascot');
+}
+function tukiMoodClearClasses(els) {
+  els.forEach(m => m.classList.remove('tuki-talking', ...TUKI_MOOD_ANIM, ...TUKI_MOOD_CLASSES));
+}
+
+export function tukiMood(state, opts = {}) {
+  if (!Object.prototype.hasOwnProperty.call(TUKI_MOOD_PRIORITY, state)) return tukiMoodCurrent;
+  // 'speaking' sin la clase visible = el habla terminó (speakTukiEs quita
+  // .tuki-talking en onDone) sin avisar al coordinador: no bloquea.
+  if (tukiMoodCurrent === 'speaking' && state !== 'speaking' && !tukiMoodTargets.some(m => m.classList.contains('tuki-talking'))) tukiMoodCurrent = 'idle';
+  if (state !== 'idle' && TUKI_MOOD_PRIORITY[state] < TUKI_MOOD_PRIORITY[tukiMoodCurrent]) return tukiMoodCurrent;
+  if (tukiMoodTimer) { clearTimeout(tukiMoodTimer); tukiMoodTimer = null; }
+  const targets = tukiMoodResolve(opts.el);
+  tukiMoodClearClasses([...new Set([...tukiMoodTargets, ...targets])]);
+  tukiMoodTargets = targets;
+  tukiMoodCurrent = state;
+  if (state === 'idle') return 'idle';
+  const reduced = tukiMoodReduced();
+  const chirp = opts.chirp === undefined ? ({ happy: 'chirp', excited: 'celebrate', celebration: 'celebrate', sad: 'comfort', proud: 'celebrate', confused: 'chirp' })[state] || null : opts.chirp;
+  if (chirp) { try { tukiChirp(chirp); } catch (e) {} }
+  const anim = (cls, particles) => {
+    if (reduced) return;
+    targets.forEach(m => {
+      if (opts.particles === false) m.classList.add(cls);
+      else triggerTukiAnimation(m, cls, particles || 'happy');
+    });
+  };
+  const pose = cls => targets.forEach(m => m.classList.add(cls));
+  if (state === 'happy') anim('tuki-wiggle', opts.particles || 'happy');
+  else if (state === 'excited') anim('tuki-celebrate', opts.particles || 'sparkle');
+  else if (state === 'celebration') anim('tuki-celebrate', opts.particles || 'happy');
+  else if (state === 'sad') anim('tuki-comfort', opts.particles || 'happy');
+  else if (state === 'proud') anim('tuki-celebrate', opts.particles || 'sparkle');
+  else if (state === 'confused') pose('tuki-mood-confused');
+  else if (state === 'thinking') pose('tuki-mood-thinking');
+  else if (state === 'listening') pose('tuki-mood-listening');
+  else if (state === 'sleeping') pose('tuki-mood-sleeping');
+  else if (state === 'speaking') pose('tuki-talking');
+  const ms = opts.duration != null ? opts.duration : (TUKI_MOOD_MS[state] || 0);
+  if (ms > 0) {
+    tukiMoodTimer = setTimeout(() => {
+      tukiMoodTimer = null;
+      if (tukiMoodCurrent === state) { tukiMoodClearClasses(tukiMoodTargets); tukiMoodCurrent = 'idle'; }
+    }, ms);
+  }
+  return state;
+}
+
 export const TUKI_QUOTES_ES = [
   "¡De una! Recuerda: ¡cada minuto de práctica suma para tu fluidez!",
   "¡Estás hablando más claro cada día! ¡Sigue así!",
