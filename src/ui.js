@@ -330,7 +330,6 @@ export const TUKI_QUOTES_ES = [
   "¡Excelente vibra! Recuerda tomar agüita y vocalizar bien clarito.",
   "¡Gana monedas y pásate por mi armario a ver qué más me estrenas!"
 ];
-export const TUKI_QUOTES = TUKI_QUOTES_ES.map(q => ({ es: q, en: q }));
 
 export function speakTukiEs(text, targetEl) {
   if (!S.settings.sound) return;
