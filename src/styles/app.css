@@ -214,6 +214,12 @@ textarea.inp:focus{outline:none;border-color:#84d8ff;background:#fff}
 [data-theme=dark] .ph-hint{background:rgba(28,176,246,.14);color:#c9d4de}
 [data-theme=dark] .ph-hint-title{color:#e8eef2}
 [data-theme=dark] .ph-hint-mouth{color:#9fb0bf}
+/* Tutor con IA en el momento del error: botón bajo demanda en el pie de
+   feedback y caja con la explicación (1-2 frases) + aviso de IA. */
+.err-tutor{margin-top:10px}
+.err-tutor-box{margin-top:8px;padding:10px 12px;border-left:3px solid #8b5cf6;background:rgba(139,92,246,.08);border-radius:0 10px 10px 0;font-size:14px;line-height:1.5;text-align:left;color:var(--ink)}
+.err-tutor-box .spinner.sm{width:22px;height:22px;border-width:3px;margin:6px auto}
+[data-theme=dark] .err-tutor-box{background:rgba(139,92,246,.16)}
 .lfoot.ok .btn.primary{background:#58a700;box-shadow:0 4px 0 #3f7b00}
 .lfoot.bad .btn.primary{background:var(--r);box-shadow:0 4px 0 var(--r-d)}
 /* complete */

@@ -14,7 +14,7 @@
 import { $, $$, esc, shuffle, pick, sample, avg, scoreSpeech, scorePair, colorOf, typedMatch, normText, align } from './utils.js';
 import { S, loseHeart, nextHeartIn, recordEar, recordSpeech, refreshHearts, sm2, soundAvg } from './state.js';
 import { HAS_SR, MicCap, Rec, SR_ERR, canSpeak, curRec, recognize, speak, stopAudio, stopRecognize } from './audio.js';
-import { LESSON, LESSONS, azureMic, azureReady, beep, bindExtra, bindTukiTutorBanner, buildVocabLesson, closeLesson, confetti, confirmBox, extraResultHTML, finishLesson, isUnlocked, modal, mouthPanelHTML, phonemeHintHTML, renderVocabLearn, save, toast, tukiMood, tukiTutorBannerHTML, wordsHTML } from './main.js';
+import { LESSON, LESSONS, azureMic, azureReady, beep, bindExtra, bindTukiTutorBanner, buildVocabLesson, closeLesson, confetti, confirmBox, errorTutorHTML, bindErrorTutor, extraResultHTML, finishLesson, isUnlocked, modal, mouthPanelHTML, phonemeHintHTML, renderVocabLearn, save, toast, tukiMood, tukiTutorBannerHTML, wordsHTML } from './main.js';
 
 export const tokensOf = s => s.replace(/[¿¡?!.,;:"]/g, '').split(/\s+/).filter(Boolean);
 export function earEx(l, i, P, Q) { return P ? { kind: 'pick', l, pair: P[i % P.length], side: Math.random() < .5 ? 0 : 1 } : { kind: 'quiz', l, q: Q[i % Q.length] }; }
@@ -124,7 +124,7 @@ export const ENCOURAGE = [
   '¡Paso a paso! Vamos a revisar la respuesta correcta.',
   '¡Ánimo! La práctica diaria hace al maestro.'
 ];
-export function feedback(ok, answerHTML, expl, sayText) {
+export function feedback(ok, answerHTML, expl, sayText, tutor) {
   beep(ok ? 'ok' : 'bad');
   const coachNote = ok ? pick(PRAISE) : pick(ENCOURAGE);
   const m = $('.tuki-tutor-mascot', $('#lbody')) || $('.mascot', $('#lbody'));
@@ -132,10 +132,27 @@ export function feedback(ok, answerHTML, expl, sayText) {
     if (ok) tukiMood('excited', { el: m, particles: 'happy' });
     else tukiMood('sad', { el: m });
   }
-  const f = setFoot(`<div class="fb"><h3>${ok ? '✅ ' + coachNote : '❌ ' + coachNote}</h3>${answerHTML ? `<div class="ans">${answerHTML}</div>` : ''}${expl ? `<div class="exp">${expl}</div>` : ''}</div>
+  // (tutor con IA en el momento del error: el botón solo aparece si hay
+  // proveedor y cuota; nunca bloquea "Continuar")
+  const tutorHTML = (!ok && tutor) ? errorTutorHTML(tutor) : '';
+  const f = setFoot(`<div class="fb"><h3>${ok ? '✅ ' + coachNote : '❌ ' + coachNote}</h3>${answerHTML ? `<div class="ans">${answerHTML}</div>` : ''}${expl ? `<div class="exp">${expl}</div>` : ''}${tutorHTML}</div>
     <div class="row">${sayText ? `<button class="spk" data-say-n="${esc(sayText)}" title="Escuchar">🔊</button>` : ''}<button class="btn primary" id="primaryBtn">Continuar</button></div>`, ok ? 'ok' : 'bad');
   const s = $('[data-say-n]', f); if (s) s.onclick = () => speak(sayText);
+  if (tutorHTML) bindErrorTutor(f, tutor);
   $('#primaryBtn').onclick = nextEx; $('#primaryBtn').focus();
+}
+/* Contexto medido para el tutor de IA en ejercicios de oído: lo esperado
+   vs. lo que el usuario eligió/escribió. Sin inventar datos: si no hay
+   respuesta del usuario, no hay contexto. */
+export function earTutorCtx(ex) {
+  let target = '', heard = '', typeLabel = '';
+  if (ex.kind === 'pick') { target = ex.pair[ex.side]; heard = ex.sel == null ? '' : ex.pair[ex.sel]; typeLabel = 'par mínimo'; }
+  else if (ex.kind === 'quiz') { target = ex.q.opts[ex.q.a]; heard = ex.sel == null ? '' : ex.q.opts[ex.sel]; typeLabel = 'pregunta'; }
+  else if (ex.kind === 'order') { target = ex.text; heard = (ex.sel || []).map(i => ex.tiles[i]).join(' '); typeLabel = 'ordenar frase'; }
+  else if (ex.kind === 'ltype') { target = ex.text; heard = typeof ex.sel === 'string' ? ex.sel : ''; typeLabel = 'dictado'; }
+  else return null;
+  if (!target || !heard || target.toLowerCase() === heard.toLowerCase()) return null;
+  return { kind: 'ear', type: ex.kind, typeLabel, target, heard, sound: ex.l && ex.l.sound };
 }
 export function earResult(ex, ok, answerHTML, expl, sayText) {
   // (fase premium, etapa 6: pista fonémica uniforme al fallar un ejercicio
@@ -149,7 +166,8 @@ export function earResult(ex, ok, answerHTML, expl, sayText) {
   recordEar(ex.l.id, ok);
   $('.pbar i').style.width = Math.round(L.done / L.total * 100) + '%';
   const lh = $('.lhearts'); if (lh && L.mode === 'lesson') lh.textContent = '❤️ ' + S.hearts;
-  feedback(ok, answerHTML, expl + hint, sayText);
+  // (tutor con IA: solo en ejercicios fallidos fuera de la prueba de nivel)
+  feedback(ok, answerHTML, expl + hint, sayText, !ok ? earTutorCtx(ex) : null);
   if (!ok && L.mode === 'lesson' && S.hearts <= 0) $('#primaryBtn').onclick = () => { closeLesson(); noHeartsModal(); };
 }
 export function checkEar() {
@@ -419,6 +437,15 @@ export async function recOnlyToggle(btn, onDone) {
 }
 export function compareHTML(target, url) { return `<div class="cmp"><button class="btn blue sm" data-cmp="model">🔊 Modelo</button><button class="btn ghost sm" data-cmp="slow">🐢 Lento</button>${url ? `<button class="btn orange sm" data-cmp="me">▶️ Mi voz</button>` : ''}</div>`; }
 export function bindCompare(target, url, root = document) { $$('[data-cmp]', root).forEach(b => b.onclick = () => { const k = b.dataset.cmp; if (k === 'model') speak(target); else if (k === 'slow') speak(target, true); else Rec.play(url); }); }
+/* Contexto medido para el tutor de IA en ejercicios de voz: objetivo,
+   lo escuchado, puntaje y palabras con puntaje bajo (máx. 6), más la
+   pista fonémica medida de Azure cuando existe. Sin inventar datos. */
+export function voiceTutorCtx(ex, target, r) {
+  if (!target || !r || r.pct == null) return null;
+  const weak = (r.words || []).filter(w => w.s != null && w.s < 0.8).slice(0, 6).map(w => ({ t: String(w.tok || '').replace(/[.,!?;:"]/g, ''), s: w.s }));
+  const typeLabel = ex.kind === 'speak' ? (ex.variant === 'sentence' ? 'frase' : ex.variant === 'word' ? 'palabra' : ex.variant) : ex.kind === 'saypair' ? 'par mínimo' : ex.kind;
+  return { kind: 'voice', type: ex.kind === 'speak' ? ex.variant : ex.kind, typeLabel, target, heard: r.heard || '', pct: r.pct, weak, tips: r.tips || [], sound: ex.l && ex.l.sound };
+}
 export function onSpeechResult(ex, target, alts, url0, az) {
   let r;
   if (az) { r = az; if (ex.kind === 'saypair') { r.ok = r.pct >= S.settings.threshold; r.msg = (r.tips && r.tips[0]) || (r.ok ? '¡Bien pronunciada!' : 'Intenta de nuevo exagerando el sonido.'); } }
@@ -446,9 +473,14 @@ export function onSpeechResult(ex, target, alts, url0, az) {
   const speechTutorMsg = pass
     ? (r.pct >= 90 ? '🌟 Profe Tuki: ¡Excelente pronunciación!' : '✅ Profe Tuki: ¡Bien dicho!')
     : '🔁 Profe Tuki: ¡Casi! Sigue practicando';
-  const f = setFoot(`<div class="fb"><h3>${speechTutorMsg}</h3><div class="exp">${pass ? 'Puedes continuar o intentar mejorar tu puntaje.' : 'Escucha el modelo lento 🐢, fíjate en las palabras en rojo o amarillo y vuelve a intentarlo. En voz no pierdes vidas.'}${!pass ? phonemeHintHTML(ex.l, r) : ''}</div></div>
+  // (tutor con IA: solo al fallar un ejercicio de voz; el botón no aparece
+  // sin proveedor o con la cuota agotada, y nunca bloquea "Continuar")
+  const tutor = !pass ? voiceTutorCtx(ex, target, r) : null;
+  const tutorHTML = tutor ? errorTutorHTML(tutor) : '';
+  const f = setFoot(`<div class="fb"><h3>${speechTutorMsg}</h3><div class="exp">${pass ? 'Puedes continuar o intentar mejorar tu puntaje.' : 'Escucha el modelo lento 🐢, fíjate en las palabras en rojo o amarillo y vuelve a intentarlo. En voz no pierdes vidas.'}${!pass ? phonemeHintHTML(ex.l, r) : ''}</div>${tutorHTML}</div>
     <div class="row"><button class="btn ghost" id="againBtn">Repetir</button><button class="btn primary" id="primaryBtn">Continuar</button></div>`, pass ? 'ok' : 'bad');
   $('#againBtn').onclick = () => $('#mic').click();
+  if (tutorHTML) bindErrorTutor(f, tutor);
   $('#primaryBtn').onclick = () => { const best = ex.attempt; recordSpeech(ex.l.id, best); if (L.mode === 'placement') (L.place = L.place || []).push({ u: ex.pu, ok: best.pct >= S.settings.threshold }); if (ex.cardKey && S.deck[ex.cardKey]) sm2(S.deck[ex.cardKey], best.pct >= S.settings.threshold ? 4 : 2); if (best.words) best.words.forEach(w => { const k = normText(w.tok).join(' '); if (S.wd[k]) S.wd[k].sid = ex.l.id; }); save(); L.speak.push(best.pct); L.done++; nextEx(); };
 }
 
