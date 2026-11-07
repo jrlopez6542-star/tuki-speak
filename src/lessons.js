@@ -101,6 +101,10 @@ export function nextEx() {
   $('#xLesson').onclick = () => confirmBox('¿Salir de la lección?', 'Perderás el progreso de esta lección.', 'Salir', closeLesson, true);
   (RENDER[L.cur.kind])(L.cur, $('#lbody'));
   bindTukiTutorBanner($('#lbody'));
+  // (fase premium, etapa 3: entrada suave por ejercicio; #lbody es un nodo
+  // nuevo en cada nextEx, así que la animación corre una vez por ejercicio
+  // sin re-animar el resto de la interfaz ni mover el foco)
+  const lb = $('#lbody'); if (lb) lb.classList.add('ex-enter');
 }
 export function setFoot(html, cls = '') { const f = $('#lfoot'); f.className = 'lfoot ' + cls; f.innerHTML = html; return f; }
 export function footCheck(enabled, extra = '') { setFoot(`${extra || '<span></span>'}<button class="btn primary" id="primaryBtn" ${enabled ? '' : 'disabled'}>Comprobar</button>`); $('#primaryBtn').onclick = checkEar; }

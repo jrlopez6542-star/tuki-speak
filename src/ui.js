@@ -243,6 +243,34 @@ export function addCoins(n, reason = '') {
   if (reason) toast(`🪙 ${n >= 0 ? '+' : ''}${n} monedas (${reason})`, 2500);
 }
 
+/* Count-up de XP/monedas en pantallas de fin (fase premium, etapa 3):
+   anima el número desde 0 hasta el total con ease-out; con movimiento
+   reducido pone el total de inmediato. El valor final ya está escrito en
+   el HTML, así que si el elemento se desmonta a mitad de animación el
+   número mostrado sigue siendo el correcto. */
+export function countUp(el, dur = 750) {
+  if (!el) return;
+  const to = Number(el.dataset.countup);
+  if (!Number.isFinite(to)) return;
+  const prefix = el.dataset.countupPrefix || '', suffix = el.dataset.countupSuffix || '';
+  if (tukiMoodReduced()) { el.textContent = prefix + to + suffix; return; }
+  if (el._countUpRaf) cancelAnimationFrame(el._countUpRaf);
+  const t0 = performance.now();
+  const tick = now => {
+    const p = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = prefix + Math.round(to * e) + suffix;
+    if (p < 1) el._countUpRaf = requestAnimationFrame(tick);
+    else el._countUpRaf = null;
+  };
+  el.textContent = prefix + '0' + suffix;
+  el._countUpRaf = requestAnimationFrame(tick);
+}
+export function countUpAll(root) {
+  if (!root) return;
+  root.querySelectorAll('[data-countup]').forEach(el => countUp(el));
+}
+
 /* AUDIO: TTS + BEEPS -> ver src/audio.js (beep, fanfarrias y AC quedan aqui) */
 /* AUDIO: TTS + BEEPS (dispositivo) -> ver src/audio.js */
 
@@ -250,7 +278,15 @@ export function modal(html, onMount) {
   const root = $('#modalRoot'); const ov = document.createElement('div'); ov.className = 'overlay';
   ov.innerHTML = `<div class="sheet" role="dialog">${html}</div>`;
   ov.addEventListener('click', e => { if (e.target === ov) close(); });
-  function close() { ov.remove(); }
+  // (fase premium, etapa 3: cierre animado; la guarda evita overlays
+  // huérfanos si se cierra dos veces seguidas, y con movimiento reducido
+  // se elimina de inmediato, sin esperar la animación)
+  function close() {
+    if (ov.dataset.closing) return;
+    if (tukiMoodReduced()) { ov.remove(); return; }
+    ov.dataset.closing = '1'; ov.classList.add('closing');
+    setTimeout(() => ov.remove(), 200);
+  }
   root.appendChild(ov); onMount && onMount(ov.firstElementChild, close); return close;
 }
 export function confirmBox(title, text, okLabel, onOk, danger) {
@@ -1483,15 +1519,16 @@ export function tcFinish() {
   $('#fullInner').innerHTML = `<div class="complete"><div class="mascot tuki-celebrate" id="tcFinishMascot" style="width:120px;height:120px;cursor:pointer" title="¡Toca al Profe Tuki para celebrar!">${MASCOT}</div>
     <h1>¡Ronda completada!</h1><div class="muted">Traduce y completa · ${esc(TC_LV[lv])}</div>
     <div class="scards">
-      <div class="scard" style="border-color:var(--o)"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)">+${xp}</div></div>
-      <div class="scard" style="border-color:var(--g)"><div class="t" style="background:var(--g)">A la primera</div><div class="v" style="color:var(--g-d)">${t.first}/${n}</div></div>
-      <div class="scard" style="border-color:var(--b)"><div class="t" style="background:var(--b)">Dominadas</div><div class="v" style="color:var(--b-d)">${tcMasteredCount()}</div></div>
-      <div class="scard" style="border-color:#8b5cf6"><div class="t" style="background:#8b5cf6">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div>
+      <div class="scard scard-celebrate" style="border-color:var(--o);animation-delay:.1s"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)" data-countup="${xp}" data-countup-prefix="+">+${xp}</div></div>
+      <div class="scard scard-celebrate" style="border-color:var(--g);animation-delay:.18s"><div class="t" style="background:var(--g)">A la primera</div><div class="v" style="color:var(--g-d)">${t.first}/${n}</div></div>
+      <div class="scard scard-celebrate" style="border-color:var(--b);animation-delay:.26s"><div class="t" style="background:var(--b)">Dominadas</div><div class="v" style="color:var(--b-d)">${tcMasteredCount()}</div></div>
+      <div class="scard scard-celebrate" style="border-color:#8b5cf6;animation-delay:.34s"><div class="t" style="background:#8b5cf6">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div>
     </div>
     ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}
     <p>Meta diaria: <b>${Math.min(today, goal)}/${goal} XP</b> ${today >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}${t.rev || L.mistakes ? '<p class="muted small">🃏 Las frases que fallaste quedaron en tus tarjetas de repaso.</p>' : ''}
     <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button><button class="btn blue" id="tcAgain" style="min-width:220px">🔁 Otra ronda</button></div>`;
   $('#primaryBtn').onclick = closeLesson; $('#tcAgain').onclick = () => { closeLesson(); startTC({ lv }); };
+  countUpAll($('#fullInner'));
   const tfm = $('#tcFinishMascot');
   if (tfm) tfm.onclick = () => { tukiMood('celebration', { el: tfm, particles: 'coin' }); confetti(); };
   confetti(); checkBadges();
@@ -1964,15 +2001,16 @@ export function pdFinish() {
   refreshHearts(); let extra = ''; if (S.hearts < MAX_HEARTS) { S.hearts++; extra = '<p class="muted">❤️ ¡Recuperaste una vida!</p>'; }
   const up = addXP(xp), st = pdStreak(); S.pd.best = Math.max(S.pd.best || 0, st); save(); beep('done');
   $('#fullInner').innerHTML = `<div class="complete"><div class="mascot tuki-celebrate" id="pdFinishMascot" style="width:120px;height:120px;cursor:pointer" title="¡Toca al Profe Tuki para celebrar!">${MASCOT}</div><h1>¡Práctica diaria completa!</h1><div class="muted">Escuchaste y hablaste en inglés hoy 🎧🗣️</div>
-    <div class="scards"><div class="scard" style="border-color:var(--o)"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)">+${xp}</div></div>
-    <div class="scard" style="border-color:var(--g)"><div class="t" style="background:var(--g)">Pronunciación</div><div class="v" style="color:var(--g-d)">${sc.length ? Math.round(avg(sc)) + '%' : '—'}</div></div>
-    <div class="scard" style="border-color:#ff9f1c"><div class="t" style="background:#ff9f1c">Racha diaria</div><div class="v" style="color:#c97a00">🔥 ${st}</div></div>
-    <div class="scard" style="border-color:#8b5cf6"><div class="t" style="background:#8b5cf6">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div></div>
+    <div class="scards"><div class="scard scard-celebrate" style="border-color:var(--o);animation-delay:.1s"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)" data-countup="${xp}" data-countup-prefix="+">+${xp}</div></div>
+    <div class="scard scard-celebrate" style="border-color:var(--g);animation-delay:.18s"><div class="t" style="background:var(--g)">Pronunciación</div><div class="v" style="color:var(--g-d)">${sc.length ? Math.round(avg(sc)) + '%' : '—'}</div></div>
+    <div class="scard scard-celebrate" style="border-color:#ff9f1c;animation-delay:.26s"><div class="t" style="background:#ff9f1c">Racha diaria</div><div class="v" style="color:#c97a00">🔥 ${st}</div></div>
+    <div class="scard scard-celebrate" style="border-color:#8b5cf6;animation-delay:.34s"><div class="t" style="background:#8b5cf6">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div></div>
     ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}${first ? '' : '<p class="small muted">Repetición: +5 XP (el bono de +15 es una vez al día).</p>'}
     ${p.cards || p.hard ? `<p class="small muted">🃏 ${p.cards} tarjeta(s) nueva(s) · 🎯 ${p.hard} palabra(s) para practicar en «Mis palabras difíciles».</p>` : ''}${extra}
     <p class="small">Vuelve mañana para mantener tu racha de práctica diaria.</p>
     <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button></div>`;
   $('#primaryBtn').onclick = closeLesson; confetti(); checkBadges();
+  countUpAll($('#fullInner'));
   const pfm = $('#pdFinishMascot');
   if (pfm) pfm.onclick = () => { tukiMood('celebration', { el: pfm, particles: 'coin' }); confetti(); };
 }
