@@ -65,7 +65,7 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 - ~~Uso del plan gratis~~ (quitado en v2.9.1).
 
 ## Qué incluye
-- **12 unidades / 36 lecciones**: vocales, consonantes, TH, finales, terminaciones, entonación, conversaciones reales, habla conectada (linking, reducciones, flap-t), números/fechas/horas, phrasal verbs, falsos amigos, small talk y entrevista avanzada.
+- **17 unidades / 50 lecciones**: vocales, consonantes, TH, finales, terminaciones, entonación, conversaciones reales, habla conectada (linking, reducciones, flap-t), números/fechas/horas, phrasal verbs, falsos amigos, small talk y entrevista avanzada, inglés para el trabajo, inglés de series y películas, y sonidos que faltan (R americana, L oscura, NG final).
 - **Prueba de nivel** al primer uso (10 preguntas con oído y voz, se puede saltar o repetir en Ajustes).
 - **Plan de hoy** (~10 min): sonidos débiles + tarjetas pendientes + pares mínimos + una frase de «Traduce y completa».
 - ✍️ **Traduce y completa** (nuevo en v2.5, en Aprender y Práctica): lees una frase en español con la parte clave en **verde** y escribes el inglés en huecos azules dentro de la frase, que crecen mientras escribes.
