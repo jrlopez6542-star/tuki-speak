@@ -3123,6 +3123,7 @@ export function canvasConfetti() {
   cv.height = window.innerHeight;
   document.body.appendChild(cv);
   const ctx = cv.getContext('2d');
+  if (!ctx) { cv.remove(); return; } // guarda defensiva (QA etapa 8): sin contexto 2D no hay confetti
   const cols = ['#1fa463', '#ff9f1c', '#1cb0f6', '#ffd23f', '#e5484d', '#8b5cf6'];
   const parts = [];
   // (fase premium, etapa 7: 70 → 50 partículas; mismo origen, colores y
