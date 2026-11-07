@@ -1279,7 +1279,7 @@ VIEWS.chat = v => {
   $('#cmic').onclick = () => chatMic($('#cmic'));
   chatDraw(); liveUI(); fitChat();
 };
-const _render = render; render = function () { const v = $('#view'); v.classList.toggle('chatmode', TAB === 'chat'); _render(); if (TAB === 'chat') fitChat(); };
+const _render = render; let _lastTab = null; render = function () { const v = $('#view'); v.classList.toggle('chatmode', TAB === 'chat'); _render(); if (TAB !== _lastTab) { _lastTab = TAB; v.classList.remove('view-enter'); void v.offsetWidth; v.classList.add('view-enter'); } if (TAB === 'chat') fitChat(); };
 
 /* =================== AJUSTES =================== */
 VIEWS.settings = v => {
