@@ -1204,7 +1204,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.19.0';
+export const APP_VERSION = '2.20.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 

@@ -1,9 +1,15 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.19.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.20.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.20.0
+- **📚 3 unidades nuevas (17 en total, 50 lecciones)**: Inglés para el trabajo (emails, reuniones, presentaciones), Inglés de series y películas (slang, series sin subtítulos, expresiones famosas) y Sonidos que faltan (R americana, L oscura, NG final), al final del mismo camino.
+- **🤖 IA de Tuki en tus errores**: botón «¿Por qué me equivoqué?» en el feedback de ejercicio fallido (1 llamada por toque, solo si lo pides); «🎯 Practica mis errores» crea 6–8 ejercicios nuevos desde tus errores medidos (máx. 1 llamada de IA al día); y al terminar una conversación el resumen trae «🎧 Pronunciación en vivo» con las palabras que el reconocedor entendió mal, sin llamadas extra.
+- **📷 Práctica con foto honesta y cuota visible**: el ejemplo sin clave de Gemini ya se etiqueta como ejemplo genérico, no como objetos detectados; y Ajustes muestra «IA de Tuki: X/60 llamadas hoy» con aviso cuando quedan 5 o menos.
+- **Regla de versiones**: cada cambio grande sube la versión (minor para funciones y contenido, patch para arreglos); `npm run check:version` lo verifica en 5 lugares.
 
 ## Novedades v2.13.0
 - **🎙️ Voz de alta fidelidad (Azure Neural) predeterminada en práctica**: Ahora todos los ejercicios de práctica (pares mínimos, shadowing, lecciones, repaso SRS, tarjetas) utilizan automáticamente las voces neurales de Azure (`en-US-JennyNeural` para inglés y `es-CO-SalomeNeural` para explicaciones en español) de forma predeterminada cuando inicias sesión con tu cuenta de Tuki. Si estás sin conexión o sin sesión, Tuki recurre automáticamente a las mejores voces del dispositivo sin interrumpir tu práctica.
