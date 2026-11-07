@@ -12,7 +12,7 @@ import { S, DAY, addToDeck } from './state.js';
 import { speak, speakSeq, recognize, stopRecognize, SR, HAS_SR, curRec, SR_ERR, Rec, MicCap, canSpeak, stopAudio, azureSTT, openaiSTT, StreamResampler } from './audio.js';
 import { startLesson } from './lessons.js';
 import { TukiDB } from './tuki-db.js';
-import { save, toast, modal, go, render, addXP, checkBadges, errES, httpErr, FB, KS, LOCKED, TAB, LESSON, LESSONS, openWordPop, closeWordPop } from './main.js';
+import { save, toast, modal, go, render, addXP, checkBadges, errES, httpErr, FB, KS, LOCKED, TAB, LESSON, LESSONS, openWordPop, closeWordPop, buildTopErrorsPractice } from './main.js';
 
 export const SCENARIOS = { free: 'a friendly casual chat about the learner\'s day, hobbies and plans', restaurant: 'a waiter at a restaurant in New York; the learner is the customer', airport: 'an airline check-in agent at the airport; the learner is a passenger' };
 export const SCEN_ES = { free: 'Charla libre', restaurant: 'Restaurante', airport: 'Aeropuerto' };
@@ -737,9 +737,14 @@ export function aiFriendly(e, what) {
   return 'No se pudo generar ' + (what || 'el resumen') + ' en este momento.';
 }
 export function openSummarySheet(promiseOrRec, title) {
-  modal(`<div id="sumBody"></div><div class="row" style="margin-top:10px"><button class="btn ghost block" data-x>Cerrar</button><button class="btn primary block hidden" id="sumPractice" disabled>🎤 Practicar ahora</button></div>`, (el, close) => {
+  modal(`<div id="sumBody"></div><div class="row" style="margin-top:10px"><button class="btn ghost block" data-x>Cerrar</button><button class="btn primary block hidden" id="sumPractice" disabled>🎤 Practicar ahora</button><button class="btn ghost block hidden" id="sumPracticeErrors">🎯 Practica mis errores</button></div>`, (el, close) => {
     $('[data-x]', el).onclick = close; el.closest('.overlay').classList.add('sumsheet');
     const pb = $('#sumPractice', el);
+    const peBtn = $('#sumPracticeErrors', el);
+    // (Top 2: al final del resumen, practicar los errores con IA cuando hay
+    // datos medidos suficientes; sin IA o sin datos el botón no aparece y el
+    // flujo del resumen no cambia)
+    if (peBtn && practiceErrorsHasData()) { peBtn.classList.remove('hidden'); peBtn.onclick = () => { close(); startPracticeErrors(); }; }
     const onStatus = ev => { if (!document.body.contains(el)) return document.removeEventListener('tuki-ai-status', onStatus); const st = $('#sumStatus', el); if (st && ev.detail) st.textContent = ev.detail; };
     document.addEventListener('tuki-ai-status', onStatus);
     const loading = () => { pb.classList.add('hidden'); pb.disabled = true; $('#sumBody', el).innerHTML = `<div class="sumcard"><h2>📝 Resumen</h2><p class="muted">${esc(title || '')}</p><div class="spinner"></div><p class="small muted" style="text-align:center" id="sumStatus" aria-live="polite">Tuki está analizando tu conversación…</p></div>`; };
@@ -784,6 +789,197 @@ export function hardWords() {
 }
 export function hardDrillItems(n) { return hardWords().slice(0, n).map(h => ({ kind: 'speak', variant: 'word', l: LESSON[h.sid] || LESSONS[0], text: h.w, es: h.note || 'Palabra difícil para ti' })); }
 export function startHardDrill() { const q = hardDrillItems(8); if (!q.length) return toast('Aún no hay palabras difíciles. ¡Sigue practicando!'); startLesson(null, 'practice', q, 'Mis palabras difíciles'); }
+
+/* ---- "🎯 Practica mis errores" (Top 2) ----
+   Genera 6-8 ejercicios NUEVOS a partir de los errores MEDIDOS del usuario:
+   2 fonemas más débiles (S.ph), 3 palabras con peor puntaje (S.wd/S.hard)
+   y 1-2 errores de su último resumen o entrevista. La cola se ejecuta con
+   el motor existente (startLesson, sin cambios) y solo con tipos de
+   ejercicio que el motor ya ejecuta (speak, pick, quiz, order, ltype,
+   saypair). Máx. 1 llamada Gemini al día por usuario: caché {day, hash,
+   items} en 'tukiSpeak.pcache' (+ respaldo en memoria). Si ya se generó
+   una vez hoy, se reutiliza la cola de hoy aunque el hash haya cambiado.
+   Sin proveedor o con cuota agotada, y si la validación falla, la práctica
+   sigue existiendo como hoy (buildTopErrorsPractice), sin mostrar error.
+   Generación solo bajo demanda al abrir la práctica, nunca en segundo
+   plano. Nunca se inventan errores: cada ejercicio debe usar ("uses") una
+   palabra, un fonema o una palabra de la frase corregida que esté en los
+   datos medidos; si no, se descarta. */
+export const PRACTICE_ERRORS_CACHE_KEY = 'tukiSpeak.pcache';
+export let MEM_PCACHE = null;
+export function practiceErrorsData() {
+  const phonemes = Object.entries(S.ph || {}).map(([ipa, r]) => ({ ipa, avg: Math.round(r.sum / r.n), n: r.n }))
+    .filter(p => p.n >= 1 && Number.isFinite(p.avg) && p.avg < 80).sort((a, b) => a.avg - b.avg).slice(0, 2);
+  const words = hardWords().filter(h => h.w && !/\s/.test(String(h.w).trim())).slice(0, 3)
+    .map(h => ({ w: String(h.w).trim(), score: h.last == null ? (h.avg == null ? 60 : h.avg) : h.last, note: h.note || '' }));
+  let errors = [];
+  const lastSum = (S.summaries || [])[0];
+  if (lastSum && lastSum.data && Array.isArray(lastSum.data.mistakes)) errors = lastSum.data.mistakes.slice(0, 2).map(m => ({ said: String(m.said || ''), correct: String(m.correct || ''), explain_es: String(m.explain_es || '') })).filter(m => m.correct);
+  if (!errors.length) {
+    const lastIv = (S.interviews || [])[0];
+    if (lastIv && lastIv.data && Array.isArray(lastIv.data.common_mistakes)) errors = lastIv.data.common_mistakes.slice(0, 2).map(m => ({ said: String(m.said || ''), correct: String(m.correct || ''), explain_es: String(m.explain_es || '') })).filter(m => m.correct);
+  }
+  return { phonemes, words, errors, total: phonemes.length + words.length + errors.length };
+}
+export function practiceErrorsHasData(d) {
+  const data = d || practiceErrorsData();
+  return data.total >= 3 && (data.words.length + data.errors.length) >= 1;
+}
+export function practiceErrorsAIAvailable() {
+  if (!currentProvider()) return false;
+  if (gemShared()) { const q = aiQuotaToday(); if (q && (q.limit - q.used) <= 0) return false; }
+  return true;
+}
+export function practiceErrorsHash(data) { return hashStr(JSON.stringify([data.phonemes, data.words, data.errors])); }
+export function practiceErrorsCacheGet() {
+  if (MEM_PCACHE) return MEM_PCACHE;
+  try { const v = JSON.parse(localStorage.getItem(PRACTICE_ERRORS_CACHE_KEY) || 'null'); if (v && typeof v === 'object') { MEM_PCACHE = v; return v; } } catch (e) {}
+  return null;
+}
+export function practiceErrorsCacheSet(v) {
+  MEM_PCACHE = v;
+  try { localStorage.setItem(PRACTICE_ERRORS_CACHE_KEY, JSON.stringify(v)); } catch (e) {}
+}
+export const PRACTICE_ERRORS_SYS = `You are "Tuki", a patient English pronunciation tutor for a Spanish-speaking learner from Colombia. You are given MEASURED data about this learner's real mistakes: their weakest phonemes (with average scores), their worst-scored words, and 1-2 errors from their latest conversation summary or interview (what they said vs. the correct sentence).
+Create 6-8 NEW practice exercises using ONLY those measured words, phonemes and errors. Never invent mistakes the learner did not make and never use words outside the given data as the practiced target (other words may appear only as ordinary context around the target).
+Return ONLY JSON with this exact shape:
+{"items":[{"kind":"speak"|"saypair"|"pick"|"quiz"|"order"|"ltype","uses":"<the measured word, phoneme IPA, or a word from the corrected sentence that this exercise practices>","text":"<English sentence or word to say, hear or order>","es":"<short Spanish meaning or hint, no answer>","pair":["word1","word2"],"q":"<quiz question in English>","opts":["option 1","option 2","option 3"],"a":0}]}
+Rules per kind (use each field only for its kind):
+- "speak": "text" is a NEW sentence (8-15 words) using a measured word in a different context than the original, or a short dialogue line (1 sentence) using it; "es" is its Spanish meaning. For a single measured word use "text" = the word alone.
+- "saypair"/"pick": "pair" is a NEW minimal pair contrasting the weakest phoneme (two real English words that differ in that sound only, e.g. ship/sheep for "ɪ" vs "iː"); "uses" is the phoneme IPA exactly as listed (e.g. "ɪ"); "text" is empty.
+- "quiz": "q" asks which option is correct (listening/meaning), "opts" has 3 options, "a" is the index of the correct one; the correct option must contain the "uses" word; "es" is a short Spanish hint without the answer.
+- "order": "text" is a NEW sentence (6-10 words) using a measured word, to be rebuilt from shuffled tiles; "es" is its Spanish meaning.
+- "ltype": "text" is a sentence (6-10 words) using a measured word, for dictation; "es" is its Spanish meaning.
+Include: at least 2 "speak" items, 1 minimal pair ("saypair" or "pick") for the weakest phoneme when one is given, and 1 item built from each summary/interview error when given. Vary the kinds. Everyday situations, no offensive content, no TV shows, movies, books, songs or real people.`;
+export function practiceErrorsPrompt(data) {
+  const lines = ['Measured data (use ONLY this):'];
+  if (data.phonemes.length) lines.push(`Weakest phonemes: ${data.phonemes.map(p => `${p.ipa} (avg ${p.avg}%, ${p.n} samples)`).join(', ')}`);
+  if (data.words.length) lines.push(`Worst words: ${data.words.map(w => `"${w.w}" (score ${w.score}${w.note ? `, note: ${w.note}` : ''})`).join(', ')}`);
+  if (data.errors.length) lines.push(`Latest errors: ${data.errors.map(e => `said "${e.said}" -> correct "${e.correct}"${e.explain_es ? ` (${e.explain_es})` : ''}`).join(' | ')}`);
+  lines.push('Create 6-8 exercises.');
+  return lines.join('\n');
+}
+function practiceErrorsLesson(uses, isPhoneme) {
+  if (isPhoneme) { const l = LESSONS.find(x => x.sound && ('/' + x.sound + '/') === uses) || LESSONS.find(x => x.sound && uses.includes(x.sound)); if (l) return l; }
+  else {
+    const w = String(uses || '').toLowerCase();
+    const l = LESSONS.find(x => (x.ex || []).some(e => String(e[0]).toLowerCase() === w)) || LESSONS.find(x => (x.sents || []).some(s => String(s[0]).toLowerCase().includes(w)));
+    if (l) return l;
+  }
+  return LESSONS[0];
+}
+const _peClean = s => String(s || '').trim().replace(/\s+/g, ' ');
+const _peHasToken = (text, tok) => new RegExp('(^|[^a-z])' + String(tok).toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^a-z]|$)').test(String(text || '').toLowerCase());
+/* Valida el JSON como tcValidate(): estructura, longitud, sin contenido
+   ofensivo; cada ejercicio debe tener tipo válido, objetivo medido ("uses")
+   y datos completos. Descarta ítems inválidos; si quedan menos de 3, o si
+   cubren menos de 2 objetivos distintos, degrada entero (devuelve null).
+   Devuelve ítems PLANOS (solo strings y arrays): la cola del motor se
+   construye aparte en practiceErrorsToQueue(), porque los objetos de
+   lección son circulares y no se pueden guardar en localStorage, y porque
+   startLesson muta la cola con shift() (no debe tocar el caché). */
+export function validatePracticeErrors(d, data) {
+  if (!d || typeof d !== 'object' || !Array.isArray(d.items)) return null;
+  const allowedTokens = new Set(data.words.map(w => w.w.toLowerCase()));
+  (data.errors || []).forEach(e => String(e.correct || '').toLowerCase().replace(/[^a-z' ]/g, ' ').split(/\s+/).filter(t => t.length >= 3).forEach(t => allowedTokens.add(t)));
+  const allowedPhonemes = new Set(data.phonemes.map(p => p.ipa));
+  const BAD = /fuck|shit|bitch|damn|porn|sex|kill|hate you|stupid/i;
+  const seen = new Set(), out = [], usesSet = new Set();
+  for (const raw of d.items.slice(0, 8)) {
+    if (!raw || typeof raw !== 'object') continue;
+    const kind = raw.kind, uses = _peClean(raw.uses), es = _peClean(raw.es).slice(0, 160);
+    if (!['speak', 'saypair', 'pick', 'quiz', 'order', 'ltype'].includes(kind) || !uses || BAD.test(uses + ' ' + (raw.text || '') + ' ' + (raw.q || ''))) continue;
+    const key = kind + '|' + _peClean(raw.text || raw.q || (raw.pair || []).join('/')).toLowerCase();
+    if (seen.has(key)) continue;
+    if (kind === 'saypair' || kind === 'pick') {
+      const pair = Array.isArray(raw.pair) ? raw.pair.map(x => _peClean(x)) : [];
+      if (pair.length !== 2 || pair[0].toLowerCase() === pair[1].toLowerCase()) continue;
+      if (!pair.every(w => /^[a-z][a-z'-]{1,19}$/.test(w))) continue;
+      const usesPh = uses.replace(/\//g, ''); // S.ph guarda la IPA sin barras; la IA puede ponerlas
+      if (!allowedPhonemes.has(usesPh)) continue;
+      const lv = lev(pair[0].toLowerCase(), pair[1].toLowerCase());
+      if (lv < 1 || lv > 4) continue; // par mínimo creíble: difiere en 1-4 letras
+      seen.add(key); usesSet.add(usesPh);
+      out.push({ kind, uses: usesPh, pair: [pair[0], pair[1]] });
+      continue;
+    }
+    if (!allowedTokens.has(uses.toLowerCase())) continue;
+    if (kind === 'quiz') {
+      const q = _peClean(raw.q).slice(0, 160);
+      const opts = Array.isArray(raw.opts) ? raw.opts.map(x => _peClean(x)).filter(x => x && x.length <= 60) : [];
+      const a = Number.isInteger(raw.a) ? raw.a : -1;
+      if (!q || opts.length < 2 || opts.length > 4 || a < 0 || a >= opts.length) continue;
+      if (new Set(opts.map(o => o.toLowerCase())).size !== opts.length) continue;
+      if (!_peHasToken(opts[a], uses)) continue;
+      seen.add(key); usesSet.add(uses.toLowerCase());
+      out.push({ kind: 'quiz', uses: uses.toLowerCase(), q, opts: [...opts], a, es });
+      continue;
+    }
+    const text = _peClean(raw.text).slice(0, 140);
+    if (!text || BAD.test(text)) continue;
+    if (kind === 'speak') {
+      const single = !/\s/.test(text);
+      if (single && text.length > 30) continue;
+      if (!single && (text.split(/\s+/).length < 3 || text.split(/\s+/).length > 18)) continue;
+      if (!_peHasToken(text, uses)) continue;
+      seen.add(key); usesSet.add(uses.toLowerCase());
+      out.push({ kind: 'speak', uses: uses.toLowerCase(), text, es, single });
+    } else if (kind === 'order' || kind === 'ltype') {
+      const n = text.split(/\s+/).length;
+      if (n < 4 || n > 12) continue;
+      if (!_peHasToken(text, uses)) continue;
+      seen.add(key); usesSet.add(uses.toLowerCase());
+      out.push({ kind, uses: uses.toLowerCase(), text, es });
+    }
+  }
+  if (out.length < 3 || usesSet.size < 2) return null;
+  return out.slice(0, 8);
+}
+/* Ítems planos validados -> cola del motor (tipos que startLesson ya
+   ejecuta; la lección se busca por fonema o por palabra, con LESSONS[0]
+   como respaldo). Crea objetos nuevos cada vez: startLesson muta la cola
+   y nunca debe tocar los ítems cacheados. */
+export function practiceErrorsToQueue(items) {
+  const pool = (items || []).filter(x => x.text).map(x => x.text);
+  return (items || []).map(it => {
+    if (it.kind === 'saypair' || it.kind === 'pick') return { kind: it.kind, l: practiceErrorsLesson('/' + it.uses + '/', true), pair: [...it.pair], side: Math.random() < .5 ? 0 : 1 };
+    if (it.kind === 'quiz') return { kind: 'quiz', l: practiceErrorsLesson(it.uses, false), q: { q: it.q, opts: [...it.opts], a: it.a, say: it.opts[it.a], expl: it.es || undefined } };
+    if (it.kind === 'order') return { kind: 'order', l: practiceErrorsLesson(it.uses, false), text: it.text, es: it.es, pool: pool.length > 1 ? [...pool] : [it.text] };
+    if (it.kind === 'ltype') return { kind: 'ltype', l: practiceErrorsLesson(it.uses, false), text: it.text, es: it.es };
+    return { kind: 'speak', variant: it.single ? 'word' : 'sentence', l: practiceErrorsLesson(it.uses, false), text: it.text, es: it.es };
+  });
+}
+export async function generatePracticeErrors(data) {
+  const day = dayKey(), hash = practiceErrorsHash(data);
+  const cached = practiceErrorsCacheGet();
+  if (cached && cached.day === day) {
+    if (Array.isArray(cached.items) && cached.items.length >= 3) return { queue: practiceErrorsToQueue(cached.items), fromCache: true };
+    return { queue: null, attempted: true }; // ya se intentó hoy: tope duro de 1/día
+  }
+  let items = null;
+  try {
+    const d = await aiJSON(PRACTICE_ERRORS_SYS, practiceErrorsPrompt(data), 4000);
+    items = validatePracticeErrors(d, data);
+  } catch (e) { items = null; }
+  // (el intento cuenta como la llamada del día aunque falle o el JSON no
+  // valide: el servidor reembolsa los fallos aguas arriba, pero el cliente
+  // no reintenta hoy para respetar el tope de 1/día)
+  practiceErrorsCacheSet({ day, hash, items });
+  return { queue: items ? practiceErrorsToQueue(items) : null, fromCache: false };
+}
+export async function startPracticeErrors() {
+  const data = practiceErrorsData();
+  const fallback = () => { const q = buildTopErrorsPractice(); if (q.length) startLesson(null, 'practice', q, '🎯 Refuerzo: Top 5 Errores'); else toast('No hay errores críticos registrados.'); };
+  if (!practiceErrorsHasData(data) || !practiceErrorsAIAvailable()) return fallback();
+  let closeLoading = null;
+  modal(`<div style="text-align:center"><div class="spinner"></div><h2 style="margin:6px 0">🎯 Practica mis errores</h2><p class="small muted">Tuki está creando ejercicios nuevos con tus errores…</p></div>`, (el, close) => { closeLoading = close; });
+  const res = await generatePracticeErrors(data);
+  if (closeLoading) closeLoading();
+  if (res.queue && res.queue.length >= 3) {
+    startLesson(null, 'practice', res.queue, '🎯 Practica mis errores');
+    if (!res.fromCache) toast('✨ ' + res.queue.length + ' ejercicios nuevos con tus errores', 2500);
+  } else fallback();
+}
 
 export const numHash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h; };
 export const SENIORITY = { intern: ['Practicante / pasantía', 'internship'], junior: ['Junior', 'junior'], mid: ['Semi-senior', 'mid-level'], senior: ['Senior', 'senior'], lead: ['Líder / gerente', 'lead / manager'] };
