@@ -271,6 +271,20 @@ export function countUpAll(root) {
   root.querySelectorAll('[data-countup]').forEach(el => countUp(el));
 }
 
+/* Pista fonémica uniforme en errores (fase premium, etapa 6): mismo
+   formato en lecciones (oído y voz) y en la repetición de la práctica
+   diaria: el tip fonémico de Azure del resultado de voz cuando existe,
+   si no el sonido de la lección con su tip de PH_TIPS y su colocación
+   de boca. No inventa datos: sin sonido ni tips, no muestra nada.
+   Solo se usa en errores; nunca cambia la evaluación ni el puntaje. */
+export function phonemeHintHTML(l, r) {
+  const tip = (r && r.tips && r.tips[0]) || null;
+  if (tip) return `<div class="ph-hint"><div class="ph-hint-title">🎯 Qué corregir</div><div>${esc(tip)}</div></div>`;
+  if (!l || !l.sound) return '';
+  const t = PH_TIPS[l.sound];
+  return `<div class="ph-hint"><div class="ph-hint-title">🎯 Qué corregir · /${esc(l.sound)}/</div>${t ? `<div>${esc(t)}</div>` : ''}${l.mouth ? `<div class="ph-hint-mouth">👄 ${esc(l.mouth)}</div>` : ''}</div>`;
+}
+
 /* AUDIO: TTS + BEEPS -> ver src/audio.js (beep, fanfarrias y AC quedan aqui) */
 /* AUDIO: TTS + BEEPS (dispositivo) -> ver src/audio.js */
 
@@ -1900,7 +1914,10 @@ export function pdBindRepeat(root, target, onScore) {
   b.onclick = () => doMic(b, (alts, url, az) => {
     const r = az || scoreSpeech(target, alts); $('[data-tgt]', root).innerHTML = wordsHTML(target, r.words);
     const pass = r.pct >= S.settings.threshold;
-    $('[data-res]', root).innerHTML = `<b style="color:${pass ? 'var(--g-d)' : r.pct >= 50 ? 'var(--o-d)' : 'var(--r)'}">${r.pct}%</b> · escuché «${esc(r.heard || '')}» · 🟢 bien · 🟡 dudoso · 🔴 repetir${az ? ' · 🔬 Azure' : ''}`;
+    // (fase premium, etapa 6: pista fonémica uniforme al fallar la
+    // repetición; la práctica diaria no tiene sonido de lección, así que
+    // la pista viene del resultado de voz — tip de Azure cuando existe)
+    $('[data-res]', root).innerHTML = `<b style="color:${pass ? 'var(--g-d)' : r.pct >= 50 ? 'var(--o-d)' : 'var(--r)'}">${r.pct}%</b> · escuché «${esc(r.heard || '')}» · 🟢 bien · 🟡 dudoso · 🔴 repetir${az ? ' · 🔬 Azure' : ''}${!pass ? phonemeHintHTML(null, r) : ''}`;
     recordSpeech('pd', r); onScore && onScore(r, pass);
   }, target);
 }
