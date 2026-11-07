@@ -1072,7 +1072,7 @@ export const tcLevel = () => TC_LV[S.settings.tcLevel] ? S.settings.tcLevel : ch
 export const tcCtx = it => it.ctxT || TC_CTX[it.ctx] || 'Contexto: conversación cotidiana';
 export const tcRec = id => S.tc.items[id] || null;
 export const tcMastered = id => { const r = tcRec(id); return !!(r && r.st >= 2); };
-export const tcMasteredCount = lv => TC_BANK.filter(x => (!lv || x.lv === lv) && tcMastered(x.id)).length + (S.tc.ai || []).filter(x => (!lv || x.lv === lv) && tcMastered(x.id)).length;
+export const tcMasteredCount = lv => tcAll().filter(x => (!lv || x.lv === lv) && tcMastered(x.id)).length;
 export const tcSpans = it => [...it.es.matchAll(/\[([^\]]+)\]/g)].map(m => m[1]);
 export const tcEsPlain = it => it.es.replace(/\[([^\]]+)\]/g, '$1');
 export const tcEsHTML = it => esc(it.es).replace(/\[([^\]]+)\]/g, '<mark class="tc-hl">$1</mark>');
@@ -1102,6 +1102,11 @@ export function tcPick(n, lv, exclude) {
 }
 export const tcEx = (it, again) => ({ kind: 'tc', item: it, l: LESSONS[0], again: !!again });
 export function startTC(opts = {}) {
+  // (fix tc-progress-lock 2026-11-06: el bloqueo de 3 lecciones se saltaba
+  // desde Inicio porque la tarjeta de Aprender llamaba a tcSetup sin
+  // comprobar isFeatureUnlocked('tc'). El candado vive aqui, punto unico
+  // de entrada, para cubrir Inicio, Practica, IA, "Otra ronda" y TUKI.)
+  if (!isFeatureUnlocked('tc')) return showLockedFeatureModal('tc');
   const lv = opts.lv || tcLevel();
   let items = opts.items || (opts.ids ? opts.ids.map(tcById).filter(Boolean) : tcPick(opts.n || TC_SESSION, lv));
   if (!items.length) return toast('No hay frases disponibles.');
@@ -1291,7 +1296,12 @@ export function tcTally(ex, xp, o) {
   const it = ex.item; tcRecord(it, o);
   if (o.miss || o.rev) tcAddCard(it);
   if (L && L.tc) { L.tc.xp += xp; if (!o.rev) L.tc.ok++; if (o.first) L.tc.first++; if (o.hint) L.tc.hints++; if (o.rev) L.tc.rev++; }
-  if (xp) { S.tc.xp += xp; if (!L || L.mode !== 'tc') addXP(xp); }
+  // (fix tc-progress-lock 2026-11-06: el XP se acreditaba solo al terminar
+  // la ronda (tcFinish), asi que el encabezado no se movia con el "+10 XP"
+  // de cada acierto y al salir a mitad de ronda ese XP se perdia del total
+  // aunque S.tc.xp ya lo contaba. Ahora se acredita aqui, en cada acierto;
+  // tcFinish solo suma el bonus de +5 por completar la ronda.)
+  if (xp) { S.tc.xp += xp; addXP(xp); }
   save();
 }
 export function tcSuccess(ex) {
@@ -1327,7 +1337,7 @@ export function tcFinish() {
   const t = L.tc || { xp: 0, ok: 0, first: 0 }, secs = Math.round((Date.now() - L.start) / 1000), n = L.total;
   S.tc.sessions++; S.sessions++; todayRec().sec = (todayRec().sec || 0) + secs;
   refreshHearts(); let extra = ''; if (S.hearts < MAX_HEARTS) { S.hearts++; extra = '<p class="muted">❤️ ¡Recuperaste una vida por practicar!</p>'; }
-  const xp = t.xp + 5, up = addXP(xp); beep('done'); save();
+  const xp = t.xp + 5, up = addXP(5); beep('done'); save();
   const goal = S.settings.goal, today = todayRec().xp, lv = tcLevel();
   $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div>
     <h1>¡Ronda completada!</h1><div class="muted">Traduce y completa · ${esc(TC_LV[lv])}</div>
@@ -1345,6 +1355,9 @@ export function tcFinish() {
 }
 
 export function tcSetup() {
+  // (fix tc-progress-lock 2026-11-06: no abrir el selector de nivel si la
+  // practica sigue bloqueada; el candado tambien esta en startTC.)
+  if (!isFeatureUnlocked('tc')) return showLockedFeatureModal('tc');
   const lv0 = tcLevel();
   modal(`<h2 style="margin-top:0">✍️ Traduce y completa</h2><p class="muted" style="margin-top:0">Lee la frase en español y escribe en inglés la parte en <b class="tc-hl">verde</b>. Tuki te explica en español por qué una respuesta no es la mejor.</p>
     <div class="small muted" style="font-weight:800">Nivel</div><div class="chips tc-lvchips" id="tcLv">${Object.keys(TC_LV).map(k => `<button class="chip ${k === lv0 ? 'active' : ''}" data-lv="${k}">${esc(TC_LV[k])} <span class="small">${tcMasteredCount(k)}/${tcAll().filter(x => x.lv === k).length}</span></button>`).join('')}</div>
