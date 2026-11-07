@@ -54,6 +54,14 @@ input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
 .tuki-aura-pulse{transform-origin:50px 50px;animation:tukiAuraPulse 3s ease-in-out infinite}
 @keyframes tukiAuraPulse{0%,100%{opacity:.55;transform:scale(1)}50%{opacity:.85;transform:scale(1.02)}}
 @media(prefers-reduced-motion:reduce){.tuki-aura-spin,.tuki-aura-pulse{animation:none!important}}
+/* (fase premium, etapa 7: pausa de las animaciones infinitas de Tuki
+   cuando la instancia está fuera de pantalla (.tuki-paused, vía
+   IntersectionObserver) o la pestaña está oculta (.tuki-paused-all en
+   <html>). Es animation-play-state, no se quita la animación: al volver
+   a verse sigue donde iba. Cubre también las poses infinitas de estado
+   — thinking/listening en la cabeza y los "?" / "Z" flotantes.) */
+.tuki-paused .tuki-svg,.tuki-paused .tuki-head-group,.tuki-paused .tuki-eye,.tuki-paused .tuki-aura-spin,.tuki-paused .tuki-aura-pulse,.tuki-paused .tuki-mood-confused::after,.tuki-paused .tuki-mood-sleeping::after,
+.tuki-paused-all .tuki-svg,.tuki-paused-all .tuki-head-group,.tuki-paused-all .tuki-eye,.tuki-paused-all .tuki-aura-spin,.tuki-paused-all .tuki-aura-pulse,.tuki-paused-all .tuki-mood-confused::after,.tuki-paused-all .tuki-mood-sleeping::after{animation-play-state:paused!important}
 /* ---- TUKI MOODS (coordinador tukiMood, fase premium etapa 1) ----
    Clases de estado en el wrapper de la mascota. La animación idle
    (respiración/parpadeo/cabeza) sigue por debajo; el estado es una capa más.
@@ -822,6 +830,15 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 @media (prefers-reduced-motion: reduce){
   #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.overlay.closing,.overlay.closing .sheet,.complete,.ex-enter,.scard-celebrate,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot,.tuki-mood-thinking .tuki-head-group,.tuki-mood-listening .tuki-head-group,.tuki-mood-confused,.tuki-mood-confused::after,.tuki-mood-sleeping::after,.tuki-mood-proud{animation:none!important}
   .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.shop-card,.locked-card,.stat,.tuki-guide-mascot,.unit-milestone{transition:none!important}
+}
+/* (fase premium, etapa 7: la lista explícita de arriba es frágil — cada
+   clase nueva había que añadirla a mano o seguía animando. Esta regla
+   general es la red de seguridad para el ajuste del sistema: apaga toda
+   animación y transición. La lista se conserva tal cual por compatibilidad;
+   no hay listeners de animationend/transitionend en la app, así que nada
+   depende de que una animación CSS llegue a su fin.) */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
 }
 
 /* ---- FASE PREMIUM ETAPA 5: MUNDO DE APRENDIZAJE ----
