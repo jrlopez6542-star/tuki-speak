@@ -775,8 +775,16 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .tc-slot.bad .tc-in{animation:shakeX .35s ease both}
 .lfoot.ok,.lfoot.bad{animation:fbIn .3s var(--ease-out) both}
 .complete{animation:viewIn .35s var(--ease-out) both}
+/* Entrada por ejercicio (fase premium, etapa 3): la clase la pone nextEx() en lessons.js */
+#lbody.ex-enter{animation:exIn .28s var(--ease-out) both}
+@keyframes exIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* Cierre de modal animado (fase premium, etapa 3): la clase la pone close() en ui.js */
+.overlay.closing{animation:fadeOut .2s ease-out both;pointer-events:none}
+.overlay.closing .sheet{animation:sheetOut .2s var(--ease-out) both}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes sheetOut{from{transform:translateY(0) scale(1);opacity:1}to{transform:translateY(24px) scale(.98);opacity:0}}
 /* Movimiento reducido: sin animaciones nuevas ni transiciones de press */
 @media (prefers-reduced-motion: reduce){
-  #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.complete,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot,.tuki-mood-thinking .tuki-head-group,.tuki-mood-listening .tuki-head-group,.tuki-mood-confused,.tuki-mood-confused::after,.tuki-mood-sleeping::after,.tuki-mood-proud{animation:none!important}
+  #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.overlay.closing,.overlay.closing .sheet,.complete,.ex-enter,.scard-celebrate,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot,.tuki-mood-thinking .tuki-head-group,.tuki-mood-listening .tuki-head-group,.tuki-mood-confused,.tuki-mood-confused::after,.tuki-mood-sleeping::after,.tuki-mood-proud{animation:none!important}
   .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.shop-card,.locked-card,.stat{transition:none!important}
 }
