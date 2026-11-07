@@ -461,17 +461,20 @@ export function chatDraw(keepScroll) {
 }
 /* IA rápida (traducciones) con caché local */
 /* IA rápida (traducciones) con caché local y respaldo persistente en TukiDB */
-export const CACHE_KEYS = { w: 'tukiSpeak.wcache', t: 'tukiSpeak.tcache' };
+export const CACHE_KEYS = { w: 'tukiSpeak.wcache', t: 'tukiSpeak.tcache', e: 'tukiSpeak.ecache' };
 export const MEM_WCACHE = new Map();
 export const MEM_TCACHE = new Map();
+export const MEM_ECACHE = new Map();
 export function cacheGet(k, id) {
   if (k === 'w' && MEM_WCACHE.has(id)) return MEM_WCACHE.get(id);
   if (k === 't' && MEM_TCACHE.has(id)) return MEM_TCACHE.get(id);
+  if (k === 'e' && MEM_ECACHE.has(id)) return MEM_ECACHE.get(id);
   try {
     const v = (JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}'))[id];
     if (v) {
       if (k === 'w') MEM_WCACHE.set(id, v);
       if (k === 't') MEM_TCACHE.set(id, v);
+      if (k === 'e') MEM_ECACHE.set(id, v);
     }
     return v;
   } catch (e) { return undefined; }
@@ -479,6 +482,7 @@ export function cacheGet(k, id) {
 export function cacheSet(k, id, v) {
   if (k === 'w') { MEM_WCACHE.set(id, v); TukiDB.set('words', id, v).catch(() => {}); }
   if (k === 't') { MEM_TCACHE.set(id, v); TukiDB.set('kv', 'tr:' + id, v).catch(() => {}); }
+  if (k === 'e') { MEM_ECACHE.set(id, v); TukiDB.set('kv', 'err:' + id, v).catch(() => {}); }
   try {
     const o = JSON.parse(localStorage.getItem(CACHE_KEYS[k]) || '{}');
     o[id] = v;
@@ -559,6 +563,76 @@ export async function toggleTranslate(i) {
     m.trText = t.replace(/^["“]|["”]$/g, ''); cacheSet('t', id, m.trText);
   } catch (e) { m.trErr = errES(e); }
   chatDraw(true);
+}
+
+/* ---- Tutor con IA en el momento del error (Top 1) ----
+   Botón "💡 ¿Por qué me equivoqué?" en el pie de feedback de un ejercicio
+   fallido (oído o voz). 1 llamada aiQuick por toque, solo bajo demanda;
+   el resultado se cachea por hash (objetivo + lo escuchado + puntaje)
+   como las traducciones (clave 'e'). El botón NO aparece sin proveedor
+   o con la cuota compartida agotada; el feedback actual sigue igual y
+   "Continuar" nunca queda bloqueado por la IA. La explicación se basa
+   solo en el resultado medido (palabras, puntajes, fonema confundido):
+   el prompt prohíbe inventar errores fuera de esos datos. */
+export const ERR_TUTOR_SYS = `You are "Tuki", a patient English pronunciation tutor for a Spanish-speaking learner from Colombia. The learner just made a mistake in an exercise. You are given MEASURED data about that mistake (what was expected, what the learner said or chose, scores per word, and any phoneme tip measured by an automatic evaluator).
+Explain in Latin American Spanish (use "tú"), in 1-2 short sentences: what was heard vs. what it should have been, which phoneme or word failed, and the corrected sentence to repeat.
+Rules: only use the data given. Never invent mistakes that are not in the data. If the data does not show a clear error, say so in one sentence. Do not add greetings, markdown or extra sections. Output only the explanation.`;
+export function errorTutorAvailable() {
+  if (!currentProvider()) return false;
+  if (gemShared()) { const q = aiQuotaToday(); if (q && (q.limit - q.used) <= 0) return false; }
+  return true;
+}
+export function errorTutorKey(c) {
+  return hashStr(JSON.stringify([c.kind, c.type || '', c.target || '', c.heard || '', c.pct == null ? '' : Math.round(c.pct), (c.weak || []).map(w => w.t + ':' + Math.round(w.s * 100)).join(',')]));
+}
+export function errorTutorPrompt(c) {
+  const lines = [
+    `Ejercicio: ${c.kind === 'voice' ? 'voz' : 'oído'} · ${c.typeLabel || c.type || ''}`,
+    `Lo esperado: "${c.target || ''}"`,
+    `${c.kind === 'voice' ? 'Lo que el usuario dijo' : 'Lo que el usuario eligió'}: "${c.heard || ''}"`,
+  ];
+  if (c.pct != null) lines.push(`Puntaje: ${Math.round(c.pct)}%`);
+  if (c.weak && c.weak.length) lines.push(`Palabras con puntaje bajo (medido): ${c.weak.map(w => `${w.t} ${Math.round(w.s * 100)}%`).join(', ')}`);
+  if (c.tips && c.tips.length) lines.push(`Pista fonémica medida: ${c.tips[0]}`);
+  if (c.sound) lines.push(`Sonido de la lección: /${c.sound}/`);
+  return lines.join('\n');
+}
+export async function explainError(c) {
+  const id = errorTutorKey(c);
+  const cached = cacheGet('e', id);
+  if (cached) return cached;
+  const text = String(await aiQuick(ERR_TUTOR_SYS, errorTutorPrompt(c), { max: 300 }) || '').trim();
+  if (!text) throw new Error('La IA no devolvió una explicación.');
+  cacheSet('e', id, text);
+  return text;
+}
+export function errorTutorHTML(c) {
+  if (!c || !errorTutorAvailable()) return '';
+  return `<div class="err-tutor"><button class="btn ghost block err-tutor-btn" data-err-tutor type="button">💡 ¿Por qué me equivoqué?</button><div class="err-tutor-box" data-err-tutor-box hidden></div></div>`;
+}
+export function bindErrorTutor(root, c) {
+  const btn = root && root.querySelector ? root.querySelector('[data-err-tutor]') : null;
+  if (!btn || !c) return;
+  btn.onclick = async () => {
+    const box = root.querySelector('[data-err-tutor-box]');
+    if (!box) return;
+    if (box.dataset.done) { box.hidden = !box.hidden; btn.textContent = box.hidden ? '💡 ¿Por qué me equivoqué?' : '💡 Ocultar explicación'; return; }
+    if (btn.disabled) return;
+    btn.disabled = true; btn.textContent = '⏳ Tuki está pensando…';
+    box.hidden = false;
+    box.innerHTML = '<div class="spinner sm"></div><div class="small muted" style="text-align:center">Tuki está analizando tu error…</div>';
+    try {
+      const text = await explainError(c);
+      box.dataset.done = '1';
+      box.innerHTML = `<div class="err-tutor-text">${esc(text)}</div><div class="row" style="margin-top:8px"><button class="mini" data-err-say type="button">🔊 Escuchar la frase correcta</button></div><div class="small muted" style="margin-top:6px">La IA puede equivocarse.</div>`;
+      const say = box.querySelector('[data-err-say]');
+      if (say) say.onclick = () => speak(c.target);
+      btn.disabled = false; btn.textContent = '💡 Ocultar explicación';
+    } catch (e) {
+      box.innerHTML = `<div class="small">⚠️ ${esc(errES(e))}</div>`;
+      btn.disabled = false; btn.textContent = '💡 ¿Por qué me equivoqué?';
+    }
+  };
 }
 
 export async function chatSend(text, hidden = false, conf = 0) {
