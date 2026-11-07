@@ -84,7 +84,32 @@ export async function tukiApi(path, body) {
   if (r.status === 401 || r.status === 403) r = await post(true); // token vencido o correo recién verificado
   const d = await r.json().catch(() => ({}));
   if (!r.ok) { const m = (d.error && d.error.message) || ''; const e = new Error(r.status + (m ? ': ' + m : '')); e.status = r.status; e.code = d.error && d.error.code; if (m) e.friendly = m; e.shared = true; e.fatal = [401, 403, 429, 503].includes(r.status); throw e; }
+  if (path === 'gemini' && d && Number.isFinite(d.used) && Number.isFinite(d.limit)) recordAiQuota(d.used, d.limit);
   return d;
+}
+// Cuota diaria compartida (P8): /api/gemini devuelve { text, model, used, limit }.
+// Se guarda en S.aiQuota (precedente: S.liveModels) con el día, para no mostrar
+// un conteo de ayer. Solo la ruta 'gemini' (60/día): los tokens Live/Azure
+// tienen otros límites y no se mezclan aquí.
+export function recordAiQuota(used, limit) {
+  if (!Number.isFinite(used) || !Number.isFinite(limit) || limit <= 0) return;
+  S.aiQuota = { used: Math.max(0, Math.floor(used)), limit: Math.floor(limit), day: dayKey() };
+  try { save(); } catch (e) {}
+}
+export function aiQuotaToday() {
+  const q = S.aiQuota;
+  if (!q || q.day !== dayKey() || !Number.isFinite(q.used) || !Number.isFinite(q.limit) || q.limit <= 0) return null;
+  return q;
+}
+export function aiQuotaText() { // línea en Ajustes (solo con claves compartidas)
+  if (!gemShared()) return '';
+  const q = aiQuotaToday();
+  if (!q) return '';
+  return `IA de Tuki: ${q.used}/${q.limit} llamadas hoy · te quedan ${Math.max(0, q.limit - q.used)} en este dispositivo`;
+}
+export function aiQuotaLow() {
+  const q = aiQuotaToday();
+  return gemShared() && !!q && (q.limit - q.used) <= 5;
 }
 export const AZT = { tok: '', region: '', exp: 0, p: null };
 export async function azAuth() {
@@ -419,13 +444,14 @@ export function msgText(m) { return m.live ? decodeEnt(m.text) : parseTutor(m.te
 export function chatDraw(keepScroll) {
   const log = $('#log'); if (!log) return;
   const st = log.scrollTop;
+  const q = aiQuotaToday(); // cuota de hoy para el aviso suave (≤5 restantes)
   log.innerHTML = CHAT.hist.map((m, i) => {
     if (m.role === 'user') return m.hidden ? '' : `<div class="msg me">${m.live ? '🎙️ ' : ''}${esc(decodeEnt(m.text))}${m.conf ? `<div class="small" style="opacity:.8">🎤 confianza ${Math.round(m.conf * 100)}%</div>` : ''}</div>`;
     if (m.live) return `<div class="msg bot"><div class="mtext">${tapWords(m.text)}</div>${trHTML(m)}${msgActs(i, m.text, 'en')}</div>`;
     const p = parseTutor(m.text), esMode = tutorLang() === 'es', exLang = tutorLang() === 'en' ? 'en' : 'es';
     const fixHTML = p.fix ? (isPerfect(p.fix) ? `<div class="msg fix ok">✅ ¡Perfecto! Tu frase fue correcta.</div>` : `<div class="msg fix"><div class="fx-lab">✏️ Corrección (EN)</div><div class="fx-en">${tapWords(p.fix)} <button class="mini" data-say-n="${esc(p.fix)}" data-lang="en" title="Escuchar la frase correcta">🔊</button></div>${p.expl ? `<div class="fx-lab" style="margin-top:6px">💡 ${exLang === 'es' ? 'Explicación (ES)' : 'Why (EN)'}</div><div class="fx-es">${exLang === 'es' ? esc(p.expl) : tapWords(p.expl)}</div>` : ''}</div>`) : (p.expl ? `<div class="msg fix"><div class="fx-lab">💡 ${exLang === 'es' ? 'Explicación (ES)' : 'Why (EN)'}</div><div class="fx-es">${esc(p.expl)}</div></div>` : '');
     return `${fixHTML}${p.help ? `<div class="msg help">🇨🇴 ${esc(p.help)} <button class="mini" data-say-n="${esc(p.help)}" data-lang="es">🔊</button></div>` : ''}${p.pron ? `<div class="msg fix pron">🗣️ ${esc(p.pron)}</div>` : ''}<div class="msg bot"><div class="mtext">${esMode ? quoteTap(p.reply) : tapWords(p.reply)}</div>${trHTML(m)}${msgActs(i, p.reply, esMode ? 'es' : 'en')}</div>${p.practice ? `<div class="msg practice"><div class="fx-lab">🎯 Practica en inglés</div><div class="fx-en">${tapWords(p.practice)}</div><div class="row" style="gap:6px;margin-top:6px"><button class="mini" data-say-n="${esc(p.practice)}" data-lang="en">🔊</button><button class="mini" data-say-slow="${esc(p.practice)}">🐢</button></div></div>` : ''}`;
-  }).join('') + (!CHAT.hist.length && !CHAT.busy && !CHAT.err ? `<div class="empty small">${LIVE.on ? 'Habla cuando quieras: aquí verás lo que tú y Tuki dicen. Di «más despacio» o «¿qué significa…?» si lo necesitas.' : 'Toca <b>«Hablar en vivo»</b> (abajo) para conversar con tu voz, o escribe. Toca <b>Nueva</b> para que Tuki empiece.<br>Toca cualquier palabra en inglés para ver su significado.<br><span class="muted">Nivel: ' + LEVELS[chatLevel()].label + ' · Tutor: ' + TUTOR_LANGS[tutorLang()].name + ' · Velocidad: ' + TUTOR_SPEEDS[tutorSpeed()].name + '. La IA puede equivocarse; tu voz y mensajes se envían a ' + (currentProvider() === 'openai' ? 'OpenAI' : 'Google') + (prov => prov === 'gemini' && gemShared() ? ' con las claves de Tuki' : ' con tu clave')(currentProvider()) + '. Usa audífonos para evitar eco.</span>'}</div>` : '') + (CHAT.busy ? '<div class="msg bot">…</div>' : '') + (CHAT.err ? `<div class="msg err">⚠️ ${esc(CHAT.err)}</div>` : '');
+  }).join('') + (!CHAT.hist.length && !CHAT.busy && !CHAT.err ? `<div class="empty small">${LIVE.on ? 'Habla cuando quieras: aquí verás lo que tú y Tuki dicen. Di «más despacio» o «¿qué significa…?» si lo necesitas.' : 'Toca <b>«Hablar en vivo»</b> (abajo) para conversar con tu voz, o escribe. Toca <b>Nueva</b> para que Tuki empiece.<br>Toca cualquier palabra en inglés para ver su significado.<br><span class="muted">Nivel: ' + LEVELS[chatLevel()].label + ' · Tutor: ' + TUTOR_LANGS[tutorLang()].name + ' · Velocidad: ' + TUTOR_SPEEDS[tutorSpeed()].name + '. La IA puede equivocarse; tu voz y mensajes se envían a ' + (currentProvider() === 'openai' ? 'OpenAI' : 'Google') + (prov => prov === 'gemini' && gemShared() ? ' con las claves de Tuki' : ' con tu clave')(currentProvider()) + '. Usa audífonos para evitar eco.</span>'}</div>` : '') + (CHAT.busy ? '<div class="msg bot">…</div>' : '') + (CHAT.err ? `<div class="msg err">⚠️ ${esc(CHAT.err)}</div>` : '') + (q && gemShared() && (q.limit - q.used) <= 5 ? `<div class="msg warn small">⚠️ Te quedan ${Math.max(0, q.limit - q.used)} llamadas de IA hoy en este dispositivo.</div>` : '');
   $$('[data-say-n]', log).forEach(b => b.onclick = () => speak(b.dataset.sayN, false, null, b.dataset.lang === 'es' ? 'es' : undefined, chatMul()));
   $$('[data-say-slow]', log).forEach(b => b.onclick = () => speak(b.dataset.saySlow, true, null, undefined, chatMul()));
   $$('[data-slow-i]', log).forEach(b => b.onclick = () => { const m = CHAT.hist[+b.dataset.slowI]; if (!m) return; const lang = !m.live && tutorLang() === 'es' ? 'es' : undefined; speak(msgText(m), true, null, lang, chatMul()); });

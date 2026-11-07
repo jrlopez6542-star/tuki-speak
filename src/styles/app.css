@@ -256,6 +256,7 @@ textarea.inp:focus{outline:none;border-color:#84d8ff;background:#fff}
 .msg.me{background:var(--b);color:#fff;align-self:flex-end;border-bottom-right-radius:8px}
 .msg.fix{background:#fff7e6;border:2px solid #ffe0a3;align-self:flex-start;font-size:14px}
 .msg.err{background:var(--r-l);color:#b71c1c;align-self:center;font-size:14px}
+.msg.warn{background:#fff7e6;border:2px solid #ffe0a3;align-self:center;font-size:14px}
 .msg .mini{background:none;border:0;font-size:16px;padding:0 0 0 6px;vertical-align:middle}
 .chatbar{display:flex;gap:8px;align-items:flex-end}
 .chatbar textarea{flex:1;min-height:48px;max-height:120px;border:2px solid var(--line);border-radius:var(--r-md);padding:11px;resize:none}
@@ -308,7 +309,7 @@ a{color:var(--b-d)}
 [data-theme=dark] .tile.used{background:#22303c;border-color:#22303c}
 [data-theme=dark] .tipbox,[data-theme=dark] .face.back{background:#12261d;border-color:#1f4d35}
 [data-theme=dark] .tipbox b{color:#5fe0a0}
-[data-theme=dark] .notice,[data-theme=dark] .msg.fix{background:#33290f;border-color:#6b5314;color:var(--ink)}
+[data-theme=dark] .notice,[data-theme=dark] .msg.fix,[data-theme=dark] .msg.warn{background:#33290f;border-color:#6b5314;color:var(--ink)}
 [data-theme=dark] .lfoot.ok{background:#16330f;border-top-color:#16330f}
 [data-theme=dark] .lfoot.bad{background:#3b1d21;border-top-color:#3b1d21}
 [data-theme=dark] .fb .exp{color:#c9d4de}
