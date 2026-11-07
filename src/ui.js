@@ -1234,10 +1234,19 @@ export function tcBubble(i, msg, cls = '') {
   if (cls !== 'think') tcSay(msg);
   requestAnimationFrame(() => d.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
 }
+/* Reacción de Tuki en Traduce y completa: celebra el acierto y consuela el fallo.
+   La mascota (.tc-mascot) está visible en la tarjeta durante toda la ronda. */
+export function tcMascotReact(ok) {
+  const m = $('.tc-mascot');
+  if (!m) return;
+  if (ok) { triggerTukiAnimation(m, 'tuki-celebrate', 'happy'); tukiChirp('celebrate'); }
+  else { triggerTukiAnimation(m, 'tuki-comfort', 'happy'); tukiChirp('comfort'); }
+}
 export function tcMarkOk(ex, i) {
   ex.st.ok[i] = true; const inp = $(`#tcEn .tc-in[data-i="${i}"]`); if (!inp) return;
   const v = tcNorm(inp.value), acc = ex.item.b[i].a.find(a => tcNorm(a) === v); inp.value = acc || inp.value.trim().replace(/[.,!?;:¡¿"]+/g, '');
   inp.readOnly = true; inp.setAttribute('tabindex', '-1'); inp.parentNode.classList.remove('bad', 'wait'); inp.parentNode.classList.add('ok'); tcSize(inp);
+  if (!ex.st.done) tcMascotReact(true);
 }
 export async function tcCheck(ex, manual) {
   if (ex.st.done || ex.st.busy) return;
@@ -1255,6 +1264,7 @@ export async function tcCheck(ex, manual) {
   const key = i + '|' + tcNorm(val), fresh = !ex.st.seen[key]; ex.st.seen[key] = 1;
   if (fresh && r.k !== 'typo') { ex.st.miss++; if (L) L.mistakes++; beep('bad'); }
   inp.parentNode.classList.add('bad');
+  tcMascotReact(false);
   if (r.k === 'near' || r.k === 'typo') return tcBubble(i, r.msg, r.k === 'typo' ? 'typo' : '');
   if (currentProvider()) {
     ex.st.busy = true; inp.parentNode.classList.replace('bad', 'wait'); tcBubble(i, 'Tuki está pensando… 🤔', 'think');
@@ -1308,6 +1318,7 @@ export function tcSuccess(ex) {
   const it = ex.item, hint = ex.st.hint > 0, xp = hint ? TC_XP_HINT : TC_XP, first = !hint && ex.st.miss === 0;
   $$('#tcEn .tc-in').forEach((inp, i) => tcMarkOk(ex, i)); tcBubble(null);
   const praise = pick(TC_PRAISE), box = $('#tcBox'); box.classList.add('win');
+  tcMascotReact(true);
   $('#tcAfter').innerHTML = tcAfterHTML(it, praise, ex.st.aiOk ? '🤖 ' + ex.st.aiOk : ''); tcBindAfter(it);
   $('#tcTools').innerHTML = ''; $('#tcHint').innerHTML = '';
   L.done++; $('.pbar i').style.width = Math.round(L.done / L.total * 100) + '%';
@@ -1338,7 +1349,7 @@ export function tcFinish() {
   refreshHearts(); let extra = ''; if (S.hearts < MAX_HEARTS) { S.hearts++; extra = '<p class="muted">❤️ ¡Recuperaste una vida por practicar!</p>'; }
   const xp = t.xp + 5, up = addXP(5); beep('done'); save();
   const goal = S.settings.goal, today = todayRec().xp, lv = tcLevel();
-  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div>
+  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot tuki-celebrate" id="tcFinishMascot" style="width:120px;height:120px;cursor:pointer" title="¡Toca al Profe Tuki para celebrar!">${MASCOT}</div>
     <h1>¡Ronda completada!</h1><div class="muted">Traduce y completa · ${esc(TC_LV[lv])}</div>
     <div class="scards">
       <div class="scard" style="border-color:var(--o)"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)">+${xp}</div></div>
@@ -1350,6 +1361,8 @@ export function tcFinish() {
     <p>Meta diaria: <b>${Math.min(today, goal)}/${goal} XP</b> ${today >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}${t.rev || L.mistakes ? '<p class="muted small">🃏 Las frases que fallaste quedaron en tus tarjetas de repaso.</p>' : ''}
     <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button><button class="btn blue" id="tcAgain" style="min-width:220px">🔁 Otra ronda</button></div>`;
   $('#primaryBtn').onclick = closeLesson; $('#tcAgain').onclick = () => { closeLesson(); startTC({ lv }); };
+  const tfm = $('#tcFinishMascot');
+  if (tfm) tfm.onclick = () => { triggerTukiAnimation(tfm, 'tuki-celebrate', 'coin'); tukiChirp('celebrate'); confetti(); };
   confetti(); checkBadges();
 }
 
@@ -1819,7 +1832,7 @@ export function pdFinish() {
   S.sessions++; todayRec().sec = (todayRec().sec || 0) + secs;
   refreshHearts(); let extra = ''; if (S.hearts < MAX_HEARTS) { S.hearts++; extra = '<p class="muted">❤️ ¡Recuperaste una vida!</p>'; }
   const up = addXP(xp), st = pdStreak(); S.pd.best = Math.max(S.pd.best || 0, st); save(); beep('done');
-  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div><h1>¡Práctica diaria completa!</h1><div class="muted">Escuchaste y hablaste en inglés hoy 🎧🗣️</div>
+  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot tuki-celebrate" id="pdFinishMascot" style="width:120px;height:120px;cursor:pointer" title="¡Toca al Profe Tuki para celebrar!">${MASCOT}</div><h1>¡Práctica diaria completa!</h1><div class="muted">Escuchaste y hablaste en inglés hoy 🎧🗣️</div>
     <div class="scards"><div class="scard" style="border-color:var(--o)"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)">+${xp}</div></div>
     <div class="scard" style="border-color:var(--g)"><div class="t" style="background:var(--g)">Pronunciación</div><div class="v" style="color:var(--g-d)">${sc.length ? Math.round(avg(sc)) + '%' : '—'}</div></div>
     <div class="scard" style="border-color:#ff9f1c"><div class="t" style="background:#ff9f1c">Racha diaria</div><div class="v" style="color:#c97a00">🔥 ${st}</div></div>
@@ -1829,6 +1842,8 @@ export function pdFinish() {
     <p class="small">Vuelve mañana para mantener tu racha de práctica diaria.</p>
     <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button></div>`;
   $('#primaryBtn').onclick = closeLesson; confetti(); checkBadges();
+  const pfm = $('#pdFinishMascot');
+  if (pfm) pfm.onclick = () => { triggerTukiAnimation(pfm, 'tuki-celebrate', 'coin'); tukiChirp('celebrate'); confetti(); };
 }
 
 export function pdCardHTML() {

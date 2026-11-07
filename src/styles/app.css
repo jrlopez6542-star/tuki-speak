@@ -25,6 +25,8 @@ input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
 /* ---- TUKI ANIMATIONS (TIPO DUOLINGO) ---- */
 .tuki-svg{display:block;width:100%;height:100%;overflow:visible;transform-origin:50% 85%;animation:tukiIdle 3.4s ease-in-out infinite;filter:drop-shadow(0 8px 16px rgba(15,23,42,0.14))}
 @keyframes tukiIdle{0%,100%{transform:translateY(0) rotate(0deg) scale(1)}50%{transform:translateY(-3.8px) rotate(1.4deg) scale(1.01)}}
+.tuki-head-group{transform-origin:44px 58px;animation:tukiHeadBob 5.2s ease-in-out infinite}
+@keyframes tukiHeadBob{0%,100%{transform:rotate(0deg)}50%{transform:rotate(2deg)}}
 
 .tuki-eye{transform-origin:40px 40px;animation:tukiBlink 3.8s ease-in-out infinite}
 @keyframes tukiBlink{0%,93%,97%,100%{transform:scaleY(1)}95%{transform:scaleY(0.08)}}
@@ -423,10 +425,11 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .tc-after .exp{font-size:15px;line-height:1.4}
 .tc-after .cmp{margin-top:8px}
 .tc-praise{font-size:20px;font-weight:900;color:var(--g-d);margin-bottom:4px}
-.tc-mascot{position:absolute;right:-6px;bottom:4px;width:92px;height:92px;display:none;pointer-events:none}
-.tc-card.win .tc-mascot{display:block;animation:tcPop .55s cubic-bezier(.25,1.4,.5,1) both}
+.tc-mascot{position:absolute;right:-6px;bottom:4px;width:92px;height:92px;display:block;pointer-events:none}
+.tc-card.win .tc-mascot{animation:tcPop .55s cubic-bezier(.25,1.4,.5,1) both}
 .tc-mascot svg{width:100%;height:100%;transform:scaleX(-1)}
-.tc-mascot i{position:absolute;font-style:normal;font-size:20px;animation:tcSpark 1.2s ease-in-out .35s 2 both}
+.tc-mascot i{position:absolute;font-style:normal;font-size:20px;opacity:0}
+.tc-card.win .tc-mascot i{animation:tcSpark 1.2s ease-in-out .35s 2 both}
 .tc-mascot .s1{left:-8px;top:2px}.tc-mascot .s2{left:18px;top:-14px;font-size:14px;animation-delay:.5s}.tc-mascot .s3{left:-18px;top:44px;font-size:15px;animation-delay:.65s}
 @keyframes tcPop{from{transform:translateX(115%) rotate(18deg)}to{transform:none}}
 @keyframes tcSpark{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1.15)}}
@@ -452,7 +455,7 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 [data-theme=dark] .tc-entry{background:linear-gradient(135deg,#12283a,var(--card))}
 [data-theme=dark] .tc-fake{background:#123047;border-color:#2a6f99}
 [data-theme=dark] .tc-praise{color:#5fe0a0}
-.tc-card.win .tc-ctx{padding-right:84px}
+.tc-card .tc-ctx{padding-right:84px}
 [data-theme=dark] .tc-top .pill{background:#243241;color:var(--mute)}
 [data-theme=dark] .btn[disabled]{background:#26323d!important;color:#5f6f7e!important;box-shadow:0 4px 0 #1b242d!important}
 .hitem.pend{border-style:dashed}.pill.gen{background:var(--o);color:#fff}
@@ -750,6 +753,6 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .complete{animation:viewIn .35s var(--ease-out) both}
 /* Movimiento reducido: sin animaciones nuevas ni transiciones de press */
 @media (prefers-reduced-motion: reduce){
-  #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.complete{animation:none!important}
+  #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.complete,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot{animation:none!important}
   .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.shop-card,.locked-card,.stat{transition:none!important}
 }
