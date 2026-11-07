@@ -288,20 +288,60 @@ export function phonemeHintHTML(l, r) {
 /* AUDIO: TTS + BEEPS -> ver src/audio.js (beep, fanfarrias y AC quedan aqui) */
 /* AUDIO: TTS + BEEPS (dispositivo) -> ver src/audio.js */
 
+/* Selector de elementos enfocables para el focus trap del modal (etapa 7):
+   se calcula en vivo en cada Tab, porque el contenido del sheet puede
+   cambiar después de montar (p. ej. la tienda re-renderiza sus tarjetas). */
+const MODAL_FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+function modalFocusable(sheet) {
+  return [...sheet.querySelectorAll(MODAL_FOCUSABLE)].filter(el => {
+    if (el.type === 'hidden') return false;
+    if (el.style && el.style.display === 'none') return false;
+    try { const cs = getComputedStyle(el); if (cs && (cs.display === 'none' || cs.visibility === 'hidden')) return false; } catch (e) {}
+    return true;
+  });
+}
+
 export function modal(html, onMount) {
   const root = $('#modalRoot'); const ov = document.createElement('div'); ov.className = 'overlay';
-  ov.innerHTML = `<div class="sheet" role="dialog">${html}</div>`;
+  ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" tabindex="-1">${html}</div>`;
   ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  // (fase premium, etapa 7: modal accesible — focus trap, cierre con
+  // Escape y devolución del foco al elemento que lo abrió. No cambia la
+  // firma de modal() ni la animación de cierre de la etapa 3: se respeta
+  // la guarda dataset.closing y el temporizador de 200 ms. El foco solo
+  // se devuelve si no hay otro modal abierto, para no sacarlo del modal
+  // que se abrió encadenado tras cerrar este.)
+  const opener = document.activeElement;
+  const sheet = ov.firstElementChild;
+  function restoreFocus() {
+    try {
+      if (document.querySelector('.overlay')) return;
+      if (opener && document.contains(opener) && typeof opener.focus === 'function') opener.focus({ preventScroll: true });
+    } catch (e) {}
+  }
+  ov.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.stopPropagation(); close(); return; }
+    if (e.key !== 'Tab') return;
+    const f = modalFocusable(sheet);
+    if (!f.length) { e.preventDefault(); return; }
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus({ preventScroll: true }); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus({ preventScroll: true }); }
+  });
   // (fase premium, etapa 3: cierre animado; la guarda evita overlays
   // huérfanos si se cierra dos veces seguidas, y con movimiento reducido
   // se elimina de inmediato, sin esperar la animación)
   function close() {
     if (ov.dataset.closing) return;
-    if (tukiMoodReduced()) { ov.remove(); return; }
+    if (tukiMoodReduced()) { ov.remove(); restoreFocus(); return; }
     ov.dataset.closing = '1'; ov.classList.add('closing');
-    setTimeout(() => ov.remove(), 200);
+    setTimeout(() => { ov.remove(); restoreFocus(); }, 200);
   }
-  root.appendChild(ov); onMount && onMount(ov.firstElementChild, close); return close;
+  root.appendChild(ov);
+  const first = modalFocusable(sheet)[0];
+  if (first) first.focus({ preventScroll: true });
+  else sheet.focus({ preventScroll: true });
+  onMount && onMount(ov.firstElementChild, close); return close;
 }
 export function confirmBox(title, text, okLabel, onOk, danger) {
   modal(`<h2>${esc(title)}</h2><p class="muted">${esc(text)}</p><div class="row" style="margin-top:16px"><button class="btn ghost block" data-x>Cancelar</button><button class="btn ${danger ? 'red' : 'primary'} block" data-ok>${esc(okLabel)}</button></div>`,
@@ -488,10 +528,73 @@ export function initTukiSleepWatch() {
   document.addEventListener('pointerdown', tukiSleepWake, { passive: true });
   document.addEventListener('keydown', tukiSleepWake);
   document.addEventListener('visibilitychange', () => {
+    // (fase premium, etapa 7: el mismo listener que duerme a Tuki también
+    // pausa sus animaciones con la pestaña oculta; no se crea un segundo
+    // listener de visibilitychange.)
+    tukiPauseSetHidden(document.hidden);
     if (document.hidden) { if (tukiSleepTimer) { clearTimeout(tukiSleepTimer); tukiSleepTimer = null; } }
     else tukiSleepArm();
   });
+  tukiPauseSetHidden(document.hidden);
   tukiSleepArm();
+}
+
+/* ---- Pausa de animaciones de Tuki fuera de pantalla / pestaña oculta
+   (fase premium, etapa 7) ----
+   Cada instancia de Tuki corre 3 animaciones infinitas (idle 3.4 s,
+   blink 3.8 s, headBob 5.2 s) y el drop-shadow de .tuki-svg se recalcula
+   en cada cuadro mientras anima. Con un IntersectionObserver se pausa
+   (animation-play-state, clase .tuki-paused) lo que no se ve, y con la
+   pestaña oculta se pausa todo (clase .tuki-paused-all en <html>, vía el
+   visibilitychange que ya existe en initTukiSleepWatch). Al volver a
+   verse, la animación sigue donde iba: no se quita ni se reinicia nada.
+   Las mascotas se re-renderizan a menudo (render() reescribe el
+   innerHTML), así que un MutationObserver re-observa las nuevas y deja
+   de observar las que ya no están conectadas. Sin IntersectionObserver
+   no se hace nada (navegador viejo: todo sigue animando como antes).
+   El drop-shadow se queda en .tuki-svg: moverlo al wrapper cambiaría
+   el containing block de los ::after de estado ("?" de confusión, "Z"
+   de dormir) en wrappers sin position:relative (guía, compañero); con
+   la pausa, el coste por cuadro desaparece fuera de pantalla, que era
+   el problema real. */
+const TUKI_PAUSE_SELECTOR = '.brand-mascot-wrap,.mascot,.tuki-tutor-mascot,.tc-mascot,.tuki-guide-mascot,.mascot-wrap,#companionMascot';
+let tukiPauseIO = null;
+let tukiPauseOn = false;
+const tukiPauseSeen = new Set();
+function tukiPauseSetHidden(hidden) {
+  try { document.documentElement.classList.toggle('tuki-paused-all', !!hidden); } catch (e) {}
+}
+function tukiPauseObserve() {
+  if (!tukiPauseIO) return;
+  document.querySelectorAll(TUKI_PAUSE_SELECTOR).forEach(el => {
+    if (tukiPauseSeen.has(el)) return;
+    tukiPauseSeen.add(el);
+    tukiPauseIO.observe(el);
+  });
+  tukiPauseSeen.forEach(el => {
+    if (!el.isConnected) { try { tukiPauseIO.unobserve(el); } catch (e) {} tukiPauseSeen.delete(el); }
+  });
+}
+export function initTukiAnimPause() {
+  if (tukiPauseOn || typeof document === 'undefined') return;
+  tukiPauseOn = true;
+  tukiPauseSetHidden(document.hidden);
+  if (typeof IntersectionObserver === 'undefined') return;
+  tukiPauseIO = new IntersectionObserver(entries => {
+    entries.forEach(en => en.target.classList.toggle('tuki-paused', !en.isIntersecting));
+  }, { rootMargin: '40px' });
+  tukiPauseObserve();
+  if (typeof MutationObserver !== 'undefined' && document.body) {
+    let scheduled = false;
+    const schedule = typeof requestAnimationFrame === 'function'
+      ? fn => requestAnimationFrame(fn)
+      : fn => setTimeout(fn, 0);
+    new MutationObserver(() => {
+      if (scheduled) return;
+      scheduled = true;
+      schedule(() => { scheduled = false; tukiPauseObserve(); });
+    }).observe(document.body, { childList: true, subtree: true });
+  }
 }
 
 export const TUKI_QUOTES_ES = [
@@ -582,10 +685,13 @@ export function openTukiCompanionModal(phrase) {
     $('[data-x]', el).onclick = close;
 
     const cm = $('#companionMascot', el);
-    if (cm) cm.onclick = () => {
-      tukiMood('happy', { el: cm, particles: 'sparkle' });
-      speakTukiEs(phrase, cm);
-    };
+    if (cm) {
+      cm.onclick = () => {
+        tukiMood('happy', { el: cm, particles: 'sparkle' });
+        speakTukiEs(phrase, cm);
+      };
+      makeMascotClickable(cm, '¡Toca a Tuki!');
+    }
 
     const bShop = $('#btnCompanionShop', el);
     if (bShop) bShop.onclick = () => {
@@ -649,6 +755,28 @@ export function interactWithTuki(el) {
   openTukiCompanionModal(phrase);
 }
 
+/* ---- Mascotas clicables por teclado (fase premium, etapa 7) ----
+   Las mascotas son <div> con onclick: sin esto no se podían activar con
+   teclado. makeMascotClickable les da tabindex/role/aria-label y hace que
+   Enter/Espacio disparen el mismo clic (el onclick que ya tienen), sin
+   cambiar lo que hacen al tocarlas. La guarda _mascotKeyBound evita
+   duplicar el listener en elementos que sobreviven a re-renders, como
+   la marca superior (#brand). La mascota de TC (.tc-mascot) no se toca:
+   tiene pointer-events:none y aria-hidden, no es clicable. */
+export function makeMascotClickable(el, label) {
+  if (!el) return el;
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('role', 'button');
+  el.setAttribute('aria-label', label || el.getAttribute('title') || 'Toca a Tuki');
+  if (!el._mascotKeyBound) {
+    el._mascotKeyBound = true;
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+    });
+  }
+  return el;
+}
+
 export function tukiTutorBannerHTML(opts = {}) {
   const title = opts.title || 'Profe Tuki 🦜';
   const msg = opts.msg || '';
@@ -668,7 +796,7 @@ export function tukiTutorBannerHTML(opts = {}) {
 export function bindTukiTutorBanner(body) {
   if (!body) return;
   const m = $('.tuki-tutor-mascot', body);
-  if (m) m.onclick = () => interactWithTuki(m);
+  if (m) { m.onclick = () => interactWithTuki(m); makeMascotClickable(m, '¡Toca al Profe Tuki para escuchar un tip o saludo!'); }
   const b = $('[data-tuki-tutor-say]', body);
   if (b) b.onclick = () => {
     const txt = b.dataset.tukiTutorSay;
@@ -1544,7 +1672,7 @@ export function tcFinish() {
   $('#primaryBtn').onclick = closeLesson; $('#tcAgain').onclick = () => { closeLesson(); startTC({ lv }); };
   countUpAll($('#fullInner'));
   const tfm = $('#tcFinishMascot');
-  if (tfm) tfm.onclick = () => { tukiMood('celebration', { el: tfm, particles: 'coin' }); confetti(); };
+  if (tfm) { tfm.onclick = () => { tukiMood('celebration', { el: tfm, particles: 'coin' }); confetti(); }; makeMascotClickable(tfm, '¡Toca al Profe Tuki para celebrar!'); }
   confetti(); checkBadges();
 }
 
@@ -2029,7 +2157,7 @@ export function pdFinish() {
   $('#primaryBtn').onclick = closeLesson; confetti(); checkBadges();
   countUpAll($('#fullInner'));
   const pfm = $('#pdFinishMascot');
-  if (pfm) pfm.onclick = () => { tukiMood('celebration', { el: pfm, particles: 'coin' }); confetti(); };
+  if (pfm) { pfm.onclick = () => { tukiMood('celebration', { el: pfm, particles: 'coin' }); confetti(); }; makeMascotClickable(pfm, '¡Toca al Profe Tuki para celebrar!'); }
 }
 
 export function pdCardHTML() {
@@ -2997,7 +3125,9 @@ export function canvasConfetti() {
   const ctx = cv.getContext('2d');
   const cols = ['#1fa463', '#ff9f1c', '#1cb0f6', '#ffd23f', '#e5484d', '#8b5cf6'];
   const parts = [];
-  for (let i = 0; i < 70; i++) {
+  // (fase premium, etapa 7: 70 → 50 partículas; mismo origen, colores y
+  // duración, solo menos nodos por cuadro)
+  for (let i = 0; i < 50; i++) {
     parts.push({
       x: cv.width / 2, y: cv.height * 0.45,
       vx: (Math.random() - 0.5) * 14,
@@ -3267,7 +3397,7 @@ export function openTukiShopModal() {
     });
 
     const pm = $('#shopPreviewMascot', el);
-    if (pm) pm.onclick = () => interactWithTuki(pm);
+    if (pm) { pm.onclick = () => interactWithTuki(pm); makeMascotClickable(pm, '¡Toca para interactuar con Tuki!'); }
 
     $$('[data-preview]', el).forEach(card => {
       card.onclick = e => {

@@ -459,7 +459,9 @@ export function victoryConfetti(waves = 3) {
       const c = document.createElement('div');
       c.className = 'confetti';
       const cols = ['#1fa463', '#ff9f1c', '#1cb0f6', '#ffd23f', '#e5484d', '#8b5cf6', '#ec4899', '#facc15'];
-      for (let i = 0; i < 50; i++) {
+      // (fase premium, etapa 7: 50 → 40 piezas por ola; mismos colores,
+      // tamaños y tiempos, solo menos nodos: 5 olas pasan de 250 a 200)
+      for (let i = 0; i < 40; i++) {
         const p = document.createElement('i');
         p.style.left = Math.random() * 100 + '%';
         p.style.background = pick(cols);

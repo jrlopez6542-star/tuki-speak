@@ -6,7 +6,7 @@ import { VOICES, loadVoices, pickVoice, speak, SR, HAS_SR, curRec, setCurRec, re
 import { L, setL, tokensOf, earEx, sayPairEx, buildLesson, unlockedLessons, buildPractice, startLesson, lessonShell, nextEx, setFoot, footCheck, enableCheck, PRAISE, ENCOURAGE, feedback, earResult, checkEar, RENDER, optionsHTML, bindOptions, SPEAK_TITLES, speakTarget, createMicMeter, doMic, recOnlyActive, recOnlyToggle, compareHTML, bindCompare, onSpeechResult, victoryConfetti, noHeartsModal } from './lessons.js';
 import { SCENARIOS, SCEN_ES, CHAT, chatSystem, geminiCall, gemini, parseTutor, TUKI_API, SHARED_TEXT_MODELS, keysLocked, fbSignedIn, fbCanShare, gemShared, azOwn, azShared, noAIMsg, sharedModel, tukiApi, AZT, azAuth, aiModeText, azFetch, azureReady, LIVE, LIVE_LABEL, GEMINI_LIVE_MODELS, currentProvider, LEVELS, LEVEL_KEYS, defaultLevel, chatLevel, levelRules, TUTOR_LANGS, tutorLang, langRules, TUTOR_SPEEDS, tutorSpeed, chatMul, speedRules, HELP_COMMANDS, isPerfect, tutorSpeechParts, liveSystem, liveSet, liveUI, liveAppend, liveTurnDone, Player, WORKLET_SRC, startMicStream, liveErrES, connectGemini, onGeminiMsg, startGeminiLive, listLiveModels, startOpenAIRealtime, onOAIEvent, startLive, stopLive, openaiChat, resetChat, tapWords, quoteTap, msgActs, trHTML, msgText, chatDraw, CACHE_KEYS, MEM_WCACHE, MEM_TCACHE, cacheGet, cacheSet, AIQ, GEM_QUICK_MODELS, aiTransient, aiStatus, aiBusyErr, gemQuickCall, aiQuick, toggleTranslate, chatSend, chatMic, fitChat, uid, clamp100, parseJSONLoose, aiJSON, sayBtns, bindSayTap, scoreBarH, convoTranscript, addLearnItems, flagHard, SUM_SYS, ensureSP, sumPendingAdd, summarizeConvo, runPendingSummary, summaryHTML, aiFriendly, openSummarySheet, endConversation, convoPracticeItems, hardWords, hardDrillItems, startHardDrill, numHash, SENIORITY, IV_END, modeRules, TOPICS, todayTopic, chSecs, enterMode, leaveMode, interviewSetup, ivQuestion, reportInterview, interviewHTML, openInterviewSheet, finishInterview, challengeSetup, chLeft, startChTimer, finishChallenge, chStreak } from './chat.js';
 import { b64u, unb64u, clampNum, deepClean, sanitizeSettings, sanitizeState, KDF_ITER, LOCK_FIELDS, KEYS_LOCAL, KS, LOCKED, setLocked, kdf, newKS, sealKeys, validBlob, openKeys, ksFromPhrase, keysObj, keysSig, hasAnyKey, phraseStrength, lockApply, lockRelease, getLockSig, setLockSig, applyKeys, setLocalLock, FB_VER, FB_BASE, FB_CFG, FB_HINT, FB_OWNER, CLOUD_META, CLOUD_SCHEMA, SYNC_MIN_MS, SYNC_DEBOUNCE_MS, CLOUD_MAX, syncMin, syncDebounce, FB, AUTH_ERR, authErr, devName, fbLoad, fbFail, localHasData, cloudMeta, setCloudMeta, uref, readMeta, readData, cloudSettings, packProgress, keysForCloud, cloudPush, adoptMerged, cloudFirstSync, askOtherOwner, cloudSync, fbSchedule, fbMarkDirty, fbGoogle, fbEmail, fbReset, fbVerify, fbReload, fbSignOut, unlockPrompt, unlockKeys, createPhrase, changePhrase, forgetPhrase, acMsg, acctHTML, keysHTML, bindAcct, bindKeys } from './account.js';
-import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TUKI_SHOP_ITEMS, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, interactWithTuki, initTukiSleepWatch, tukiSleepBusy, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openTukiShopModal, openWordPop, pdCardHTML, pdEvaluate, pdFinish, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, placementFinish, placementIntro, profileTouch, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEntryHTML, tcEval, tcEx, tcExtract, tcExtractAll, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
+import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TUKI_SHOP_ITEMS, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, initTukiAnimPause, interactWithTuki, initTukiSleepWatch, makeMascotClickable, tukiSleepBusy, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openTukiShopModal, openWordPop, pdCardHTML, pdEvaluate, pdFinish, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, placementFinish, placementIntro, profileTouch, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEntryHTML, tcEval, tcEx, tcExtract, tcExtractAll, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
 export { updateMascot, modal, confirmBox, wordsHTML, triggerTukiAnimation, tukiMood, tukiTutorBannerHTML, bindTukiTutorBanner, mouthPanelHTML, phonemeHintHTML, buildVocabLesson, renderVocabLearn, bindExtra, extraResultHTML, errES, httpErr, openWordPop, closeWordPop, azureMic, lsGet, lsSet } from './ui.js';
 export { azFetch, azureReady } from './chat.js';
 export { FB, KS, LOCKED } from './account.js';
@@ -621,6 +621,10 @@ export function tukiChirp(mood = 'chirp') {
 
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 916-1105)
 export function confetti() { victoryConfetti(1); }
+/* (fase premium, etapa 7: punto único para el doble confetti del fin de
+   unidad — DOM + canvas a la vez — para no duplicar la decisión en la
+   entrada y en el re-celebrar. El fin de lección normal solo usa DOM.) */
+function unitConfetti(waves) { victoryConfetti(waves); canvasConfetti(); }
 
 export function finishLesson() {
   const secs = Math.round((Date.now() - L.start) / 1000);
@@ -665,11 +669,10 @@ export function finishLesson() {
   if (unitCompleted) {
     tukiTrophyFanfare();
     setTimeout(() => tukiChirp('celebrate'), 650);
-    victoryConfetti(5);
     // (fase premium, etapa 6: el fin de unidad dispara los dos confettis
     // en el mismo momento — DOM + canvas — para que se sienta distinto
     // al fin de lección normal, que solo usa el DOM)
-    canvasConfetti();
+    unitConfetti(5);
   } else {
     tukiFanfare();
     setTimeout(() => tukiChirp('celebrate'), 450);
@@ -749,13 +752,13 @@ export function finishLesson() {
   const doCelebration = () => {
     if (fm) tukiMood(unitCompleted ? 'celebration' : 'proud', { el: fm, particles: 'coin' });
     if (unitCompleted) tukiTrophyFanfare();
-    victoryConfetti(unitCompleted ? 3 : 1);
     // (fase premium, etapa 6: re-celebrar el fin de unidad también dispara
     // el confetti de canvas, igual que al entrar)
-    if (unitCompleted) canvasConfetti();
+    if (unitCompleted) unitConfetti(3);
+    else victoryConfetti(1);
     speakTukiEs(finishQuote, fm);
   };
-  if (fm) fm.onclick = doCelebration;
+  if (fm) { fm.onclick = doCelebration; makeMascotClickable(fm, '¡Toca al Profe Tuki para celebrar!'); }
   const rcb = $('#reCelebrateBtn');
   if (rcb) rcb.onclick = doCelebration;
 
@@ -799,7 +802,7 @@ $('#stGear').onclick = () => go('settings');
 const scBtn = $('#stCoins');
 if (scBtn) scBtn.onclick = () => openTukiShopModal();
 const brandEl = $('#brand');
-if (brandEl) brandEl.onclick = () => interactWithTuki(brandEl);
+if (brandEl) { brandEl.onclick = () => interactWithTuki(brandEl); makeMascotClickable(brandEl, '¡Toca a Tuki!'); }
 $('#stHearts').onclick = () => modal(`<h2>❤️ Vidas: ${S.hearts}/${MAX_HEARTS}</h2><p class="muted">Pierdes una vida solo en ejercicios de <b>oído</b> (elegir, ordenar, escribir) durante las lecciones. Los ejercicios de voz nunca quitan vidas. ${S.hearts < MAX_HEARTS ? `Próxima vida en ~${nextHeartIn()} min.` : '¡Estás al máximo!'} Completar una práctica te da +1 vida.</p><button class="btn primary block" data-x>Entendido</button>`, (el, c) => $('[data-x]', el).onclick = c);
 $('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p><button class="btn primary block" data-x>¡Vamos!</button>`, (el, c) => $('[data-x]', el).onclick = c);
 $('#stXp').onclick = () => go('progress');
@@ -890,7 +893,7 @@ VIEWS.learn = v => {
   // que tocar a Tuki en la marca o en el banner del tutor: celebra y habla
   // con una frase existente de TUKI_QUOTES_ES. Al renderizar saluda con la
   // pose 'proud' del coordinador, en silencio y sin partículas.)
-  $$('.tuki-guide-mascot', v).forEach(g => g.onclick = () => interactWithTuki(g));
+  $$('.tuki-guide-mascot', v).forEach(g => { g.onclick = () => interactWithTuki(g); makeMascotClickable(g, '¡Toca a Tuki!'); });
   const tg = $('.tuki-guide-mascot', v);
   if (tg) tukiMood('proud', { el: tg, chirp: null, particles: false });
 };
@@ -2230,7 +2233,7 @@ VIEWS.settings = function (v) {
 
 
 /* =================== INICIO =================== */
-applyPrefs(); save(); render(); netBanner(); initTukiSleepWatch();
+applyPrefs(); save(); render(); netBanner(); initTukiSleepWatch(); initTukiAnimPause();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 if ('serviceWorker' in navigator) {
@@ -2252,4 +2255,4 @@ TukiDB.migrateFromLocalStorage(CACHE_KEYS).then(() => {
   }).catch(() => {});
 }).catch(() => {});
 
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, finishLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, countUpAll, phonemeHintHTML, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, initTukiSleepWatch, tukiSleepBusy, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, TukiDB, updateOfflineCardStats, runOfflinePreload, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, finishLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), endConversation, summarizeConvo, openSummarySheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, runPendingSummary, sumPendingAdd, startTC, tcEval, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, aiModeText, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, countUpAll, phonemeHintHTML, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, initTukiSleepWatch, initTukiAnimPause, makeMascotClickable, tukiSleepBusy, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, TukiDB, updateOfflineCardStats, runOfflinePreload, version: APP_VERSION };
