@@ -812,5 +812,27 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 /* Movimiento reducido: sin animaciones nuevas ni transiciones de press */
 @media (prefers-reduced-motion: reduce){
   #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.overlay.closing,.overlay.closing .sheet,.complete,.ex-enter,.scard-celebrate,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot,.tuki-mood-thinking .tuki-head-group,.tuki-mood-listening .tuki-head-group,.tuki-mood-confused,.tuki-mood-confused::after,.tuki-mood-sleeping::after,.tuki-mood-proud{animation:none!important}
-  .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.shop-card,.locked-card,.stat{transition:none!important}
+  .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.shop-card,.locked-card,.stat,.tuki-guide-mascot,.unit-milestone{transition:none!important}
 }
+
+/* ---- FASE PREMIUM ETAPA 5: MUNDO DE APRENDIZAJE ----
+   Hito al final de cada unidad, Tuki guía junto a la lección actual y
+   transición de fin de unidad distinta (fondo y aura tintados con el color
+   propio de la unidad, --uc). Sin imágenes externas, sin emojis nuevos
+   (🏆 ya se usaba en el podio y la insignia de trofeo), sin cambios de
+   lógica de desbloqueo, progreso ni recompensas. */
+.unit-milestone{width:64px;height:64px;border-radius:50%;border:3px dashed var(--uc,var(--g));background:var(--card);font-size:28px;display:grid;place-items:center;cursor:pointer;box-shadow:var(--sh-1);transition:transform .18s var(--spring)}
+.unit-milestone:hover{transform:scale(1.07)}
+.unit-milestone.reached{border-style:solid;border-color:#d9ac10;background:var(--y);box-shadow:0 7px 0 #d9ac10,0 0 0 6px color-mix(in srgb, var(--uc) 18%, transparent)}
+.tuki-guide{display:flex;align-items:center;gap:8px;margin-top:10px;max-width:240px}
+.tuki-guide-mascot{width:52px;height:52px;flex:none;cursor:pointer;transition:transform .25s var(--spring)}
+.tuki-guide-mascot:hover{transform:scale(1.1)}
+.tuki-guide-bubble{flex:1;background:var(--card);border:2px solid var(--line);border-radius:var(--r-md);border-bottom-left-radius:4px;padding:8px 10px;font-size:12px;font-weight:700;line-height:1.35;box-shadow:var(--sh-1);text-align:left}
+.complete.unit-complete{background:
+  radial-gradient(220px 220px at 50% 0%, color-mix(in srgb, var(--uc) 16%, transparent), transparent 70%),
+  radial-gradient(160px 160px at 88% 90%, color-mix(in srgb, var(--uc) 12%, transparent), transparent 70%),
+  var(--card);
+  border:2px solid color-mix(in srgb, var(--uc) 45%, var(--line));
+  border-radius:var(--r-xl)}
+.complete.unit-complete .victory-aura{background:radial-gradient(circle,color-mix(in srgb, var(--uc) 40%, transparent) 0%,rgba(255,210,63,.25) 55%,transparent 75%)}
+.complete.unit-complete h1{color:var(--uc,var(--o))}
