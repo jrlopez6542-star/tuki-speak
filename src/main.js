@@ -836,7 +836,7 @@ VIEWS.learn = v => {
   COURSE.forEach((u, ui) => {
     const done = u.lessons.filter(l => isDone(l.id)).length;
     const prevUnitDone = ui === 0 || S.settings.freeMode || COURSE[ui - 1].lessons.every(l => isDone(l.id));
-    html += `<section class="unit ${!prevUnitDone ? 'unit-locked' : ''}"><div class="unit-head" style="background:${u.color}"><div><p>Unidad ${ui + 1} · ${done}/${u.lessons.length} ${!prevUnitDone ? '🔒' : ''}</p><h3>${u.icon} ${esc(u.title)}</h3><p>${esc(u.desc)}</p></div><button class="guide" data-guide="${u.id}">📘 Guía</button></div><div class="path">`;
+    html += `<section class="unit unit-ambient ${!prevUnitDone ? 'unit-locked' : ''}" style="--uc:${u.color}"><div class="unit-head" style="background:${u.color}"><div><p>Unidad ${ui + 1} · ${done}/${u.lessons.length} ${!prevUnitDone ? '🔒' : ''}</p><h3>${u.icon} ${esc(u.title)}</h3><p>${esc(u.desc)}</p></div><button class="guide" data-guide="${u.id}">📘 Guía</button></div><div class="path">`;
     u.lessons.forEach((l, li) => {
       const unl = isUnlocked(l), dn = isDone(l.id), isCur = cur && cur.id === l.id;
       const off = [0, 48, 64, 48, 0, -48, -64, -48][(l.idx) % 8];
