@@ -7,6 +7,11 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 
 ## Novedades v2.39.0
 - **📊 Monitoreo de la cuota compartida (solo el dueño)**: el Panel de administrador en Ajustes ahora muestra un resumen agregado del consumo de las claves de Tuki — totales de hoy y de 7 días (Gemini · Live · Azure), usuarios con uso hoy y una tabla por día —, sin endpoint nuevo ni secreto nuevo: resume los documentos de cuota que el panel ya leía (solo el dueño los puede leer). Alerta visible cuando el consumo agregado del día supera un umbral: 🔴 300 llamadas Gemini en el día (= 5 usuarios a tope) o algún usuario en su límite de 60, 🟡 150 llamadas en el día, algún usuario con 55+ o un pico de más del doble de la media de los 6 días previos; sin superar el umbral no aparece ninguna alerta. Sin cambios en la cuota por persona, la tabla por usuario ni el progreso.
+
+## Novedades v2.37.1
+- **🔒 Chat con clave propia: historial recortado y reintento acotado (F2)**: con clave propia de Gemini u OpenAI, el chat envía como mucho los últimos 60 mensajes (antes el historial completo; la ruta compartida ya lo recortaba a 100 y P10 ya compactaba a partir de 60, así que la nota de perfil sigue conservando el contexto anterior); y `aiQuick` hace una sola pasada por la cadena de modelos (antes hasta 4 pasadas × 5–6 modelos, cada intento fallido pagado con la propia clave) y `gemini()` un solo intento por modelo. Si todos los modelos están saturados, aparece el aviso de «ocupado» para reintentar después. Sin cambios en el formato de 6 líneas, el flujo base, las cuotas compartidas ni el progreso.
+
+## Novedades v2.37.0
 - **💬 Estado de Tuki en el chat**: mientras se espera la respuesta de la IA, el chat muestra «Tuki está escribiendo…» con tres puntos animados (reutiliza el indicador «…» que ya aparecía con `CHAT.busy`) y el botón de enviar queda bloqueado hasta que llega la respuesta; con movimiento reducido los puntos quedan estáticos. Sin cambios en el envío, la recepción, las cuotas ni el progreso.
 
 ## Novedades v2.36.0
