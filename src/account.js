@@ -51,6 +51,7 @@ export function sanitizeState(d) {
   }
   ['placement', 'lastDay'].forEach(k => { if (k in o) o[k] = typeof o[k] === 'string' ? o[k].slice(0, 40) : null; });
   if ('chatProfile' in o) o.chatProfile = typeof o.chatProfile === 'string' ? o.chatProfile.slice(0, 600) : null; // (P10: nota de perfil del chat largo)
+  if ('placementFree' in o) { const pf = o.placementFree; o.placementFree = pf && typeof pf === 'object' && !Array.isArray(pf) && ['A0', 'A2', 'B1', 'B2', 'C1'].includes(pf.level) ? { date: String(pf.date || '').slice(0, 20), level: pf.level, foci: Array.isArray(pf.foci) ? pf.foci.slice(0, 3).map(f => String(f).slice(0, 200)) : [], summary_es: String(pf.summary_es || '').slice(0, 500), scores: pf.scores && typeof pf.scores === 'object' ? pf.scores : {}, azurePct: clampNum(pf.azurePct), weak: Array.isArray(pf.weak) ? pf.weak.slice(0, 3) : [] } : null; } // (P11: habla libre de la prueba de nivel)
   const objMap = (m, fn) => { for (const k of Object.keys(m || {})) { const e = m[k]; if (!e || typeof e !== 'object' || Array.isArray(e)) delete m[k]; else if (fn) fn(e, k); } };
   if (o.deck) objMap(o.deck, e => { e.en = String(e.en ?? '').slice(0, 400); e.es = String(e.es ?? '').slice(0, 400); ['ef', 'int', 'reps', 'due', 'lapses'].forEach(n => { if (n in e) e[n] = clampNum(e[n]); }); });
   if (o.hard) objMap(o.hard, e => { e.w = String(e.w ?? '').slice(0, 80); e.n = clampNum(e.n); e.t = clampNum(e.t); if (e.note != null) e.note = String(e.note).slice(0, 300); });

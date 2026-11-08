@@ -6,7 +6,7 @@ import { $, $$, avg, colorOf, dayKey, decodeDeep, decodeEnt, esc, hashStr, lev, 
 import { DAY, MAX_HEARTS, S, addToDeck, isDone, recordSpeech, refreshHearts, soundAvg, todayRec } from './state.js';
 import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
 import { L, RENDER, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
-import { AZT, CHAT, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tutorSpeed, uid } from './chat.js';
+import { AZT, CHAT, LEVELS, LEVEL_KEYS, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
 import { TukiDB } from './tuki-db.js';
 import { APP_VERSION, COURSE, LESSON, LESSONS, TAB, TC_LAST_PERSONALIZED, TUKI_OFFLINE_TC, VIEWS, addXP, beep, checkBadges, closeLesson, confetti, decodeAudio, go, isUnlocked, render, save, streakNow, tcGenerate, toast, tukiChirp, tukiFanfare } from './main.js';
@@ -1121,6 +1121,140 @@ export function renderVocabLearn(ex, body) {
   $('#primaryBtn').onclick = () => { L.done++; nextEx(); };
 }
 
+/* ---- P11 (v2.27.0): prueba de nivel con habla libre (opcional, 1 minuto) ----
+   Al final de la prueba fija, solo si hay proveedor de IA, Azure y
+   micrófono, y solo una vez por usuario (S.placementFree), se ofrece un
+   paso opcional de habla libre con tema guiado. La prueba sigue siendo
+   opcional y saltable: el bloque vive DENTRO de la pantalla de resultado
+   de placementFinish(), bajo el botón «¡Vamos!», que nunca queda
+   bloqueado por la IA; quien no quiera, pulsa «¡Vamos!» o «No, gracias»
+   y la prueba termina exactamente como hoy. Costo: 1 token Azure (el
+   vigente, cacheado en AZT: STT + evaluación dentro de los mismos
+   10 min) + 1 llamada Gemini, una sola vez por usuario. El audio es
+   local y nunca se guarda: solo se envía a Azure (transcripción y
+   evaluación fonémica, como en las lecciones) y la transcripción a
+   Gemini para el resumen. Consentimiento explícito con casilla antes
+   de grabar. Los fonemas débiles medidos alimentan S.ph (vía
+   recordSpeech, igual que las lecciones) y las palabras, S.wd, así el
+   Top 2 ya puede practicarlas. El nivel sugerido NUNCA se aplica solo:
+   se ofrece con botones Aceptar/Mantener, como P5. Sin proveedor, sin
+   Azure, sin micrófono o con la cuota compartida agotada, el bloque
+   no aparece (revelado progresivo, R9). */
+export const PLACEMENT_FREE_TOPIC = 'Háblame de ti durante un minuto: quién eres, qué te gusta hacer y por qué quieres aprender inglés.';
+export const PLACEMENT_FREE_SYS = `You are "Tuki", an expert English teacher assessing a Spanish-speaking learner from Colombia. The learner just finished a fixed placement test and then spoke freely for up to 1 minute about themselves. You receive the TRANSCRIPTION of that free speech (from speech recognition, so odd words may be pronunciation problems) plus MEASURED pronunciation data from Azure (overall score and weak phonemes).
+Return ONLY JSON with this exact shape (Spanish for all *_es fields, Latin American Spanish, use "tú"):
+{"level":"A0|A2|B1|B2|C1","summary_es":"1-2 sentences about how the free speech went","foci":["first concrete thing to practice","second","third"],"scores":{"fluency":0-100,"pronunciation":0-100,"vocabulary":0-100}}
+Rules: choose the CEFR level that best fits the transcript AND the Azure score (a fluent transcript with a low Azure score stays at the lower level; do not inflate). Exactly 3 foci, each one short concrete action (max 12 words). Base everything ONLY on the transcript and the measured data given. Never invent words, mistakes or topics that are not in the transcript. If the transcript is too short or unclear to judge, pick the level closest to the fixed test suggestion and say so in summary_es. No markdown, no extra fields.`;
+export function placementFreeAvailable() {
+  if (S.placementFree) return false;
+  if (!currentProvider() || !azureReady() || !canSpeak()) return false;
+  if (gemShared()) { const q = aiQuotaToday(); if (q && (q.limit - q.used) <= 0) return false; }
+  return true;
+}
+export function placementFreeWeak(az) {
+  const agg = {};
+  (az && az.words || []).forEach(w => (w.ph || []).forEach(p => { if (p.s < 70) { const a = agg[p.p] || (agg[p.p] = { n: 0, sum: 0 }); a.n++; a.sum += p.s; } }));
+  return Object.entries(agg).map(([p, a]) => ({ p, s: Math.round(a.sum / a.n) })).sort((a, b) => a.s - b.s).slice(0, 3);
+}
+export function placementFreeValidate(d) {
+  if (!d || typeof d !== 'object' || Array.isArray(d)) throw new Error('La IA no devolvió un resultado válido.');
+  if (!LEVEL_KEYS.includes(d.level)) throw new Error('La IA no devolvió un nivel válido.');
+  const foci = (Array.isArray(d.foci) ? d.foci : []).map(f => String(f || '').trim()).filter(Boolean).slice(0, 3);
+  if (!foci.length) throw new Error('La IA no devolvió focos de práctica.');
+  const sc = d.scores || {}, clamp = v => Math.max(0, Math.min(100, Math.round(+v || 0)));
+  return { level: d.level, summary_es: String(d.summary_es || '').slice(0, 500), foci, scores: { fluency: clamp(sc.fluency), pronunciation: clamp(sc.pronunciation), vocabulary: clamp(sc.vocabulary) } };
+}
+export async function placementFreeAnalyze(transcript, az) {
+  const weak = placementFreeWeak(az);
+  const lines = [
+    `Tema guiado: "${PLACEMENT_FREE_TOPIC}"`,
+    `Transcripción de la habla libre:\n${String(transcript || '').slice(0, 2000)}`,
+    `Puntaje de pronunciación medido por Azure: ${az && az.pct != null ? az.pct + '/100' : 'sin datos'}.`,
+  ];
+  if (weak.length) lines.push(`Fonemas más débiles medidos: ${weak.map(w => `/${w.p} / ${w.s}/100`).join(', ')}.`);
+  if (az && az.tips && az.tips.length) lines.push(`Pistas fonémicas medidas: ${az.tips.slice(0, 2).join(' ')}`);
+  lines.push(`La prueba fija de oído y voz sugirió el nivel ${chatLevel()}.`);
+  return placementFreeValidate(await aiJSON(PLACEMENT_FREE_SYS, lines.join('\n'), 1200));
+}
+export function placementFreeSave(res) {
+  if (!res || !res.ai) return null;
+  S.placementFree = { date: dayKey(), level: res.ai.level, foci: res.ai.foci, summary_es: res.ai.summary_es, scores: res.ai.scores, azurePct: res.az ? res.az.pct : null, weak: placementFreeWeak(res.az) };
+  save(); return S.placementFree;
+}
+/* Orquesta la captura ya grabada: transcribe con Azure, evalúa los
+   fonemas contra la propia transcripción y pide el resumen a Gemini.
+   Si Gemini falla, devuelve ai:null con el error: la UI muestra el
+   resultado de Azure y ofrece reintentar solo el resumen. */
+export async function placementFreeFinish(cap) {
+  if (!cap || !cap.spoke || !cap.wav) { const e = new Error('No se detectó voz. Habla más cerca del micrófono e inténtalo de nuevo.'); e.friendly = e.message; throw e; }
+  const transcript = String(await azureSTT(cap.wav) || '').trim();
+  if (transcript.split(/\s+/).filter(Boolean).length < 3) { const e = new Error('No se entendió suficiente: di al menos unas frases completas e inténtalo de nuevo.'); e.friendly = e.message; throw e; }
+  const az = await azureAssess(transcript, cap.wav);
+  recordSpeech('placement-free', az);
+  let ai = null, aiErr = null;
+  try { ai = await placementFreeAnalyze(transcript, az); } catch (e) { aiErr = errES(e); }
+  return { transcript, az, ai, aiErr };
+}
+export function placementFreeHTML() {
+  return `<div class="card" style="max-width:420px;width:100%;text-align:left;margin-top:12px"><h3 style="margin:0 0 4px">🎙️ Habla libre (opcional, 1 minuto)</h3>
+    <p class="small" style="margin:0 0 6px">¿Quieres afinar tu nivel? Habla 1 minuto sobre ti y Tuki te dirá tu nivel con más detalle y tus 3 primeros focos.</p>
+    <p class="small muted" style="margin:0 0 6px"><b>Tema:</b> ${esc(PLACEMENT_FREE_TOPIC)}</p>
+    <label class="small" style="display:flex;gap:6px;align-items:flex-start;margin:6px 0"><input type="checkbox" id="plFreeConsent" style="margin-top:2px"><span>Acepto que mi voz se envíe a Azure para evaluar mi pronunciación y a Gemini para el resumen. El audio no se guarda.</span></label>
+    <div class="row" style="margin-top:8px"><button class="btn primary sm" id="plFreeRec" type="button">🎙️ Grabar 1 minuto</button><button class="btn ghost sm" id="plFreeSkip" type="button">No, gracias</button></div>
+    <div class="small" id="plFreeStatus" style="margin-top:8px" aria-live="polite"></div></div>`;
+}
+export function placementFreeResultHTML(res) {
+  const ai = res.ai, weak = placementFreeWeak(res.az);
+  const lvl = ai ? `<p style="margin:0 0 6px"><b>Nivel sugerido: ${esc(LEVELS[ai.level] ? LEVELS[ai.level].label : ai.level)}</b>${ai.level !== chatLevel() ? ` (la prueba fija decía ${esc(chatLevel())})` : ''}.</p>${ai.summary_es ? `<p class="small" style="margin:0 0 6px">${esc(ai.summary_es)}</p>` : ''}
+    <p class="small" style="margin:0 0 4px"><b>Tus 3 primeros focos:</b></p><ol class="small" style="margin:0 0 6px;padding-left:18px">${ai.foci.map(f => `<li>${esc(f)}</li>`).join('')}</ol>` : '';
+  const az = res.az ? `<p class="small" style="margin:0 0 4px"><b>Pronunciación (Azure): ${res.az.pct}/100</b>${weak.length ? ` · fonemas a practicar: ${weak.map(w => `/${esc(w.p)}/ ${w.s}`).join(', ')}` : ''}.</p>` : '';
+  const note = `<p class="small muted" style="margin:0">La pronunciación se midió contra tu propia transcripción: detecta fonemas débiles, no es una nota absoluta.</p>`;
+  const aiNote = ai ? `<p class="small muted" style="margin:4px 0 0">La IA puede equivocarse.</p>` : `<p class="small" style="margin:4px 0 0">⚠️ ${esc(res.aiErr || 'No se pudo hacer el resumen con IA.')}</p><button class="btn ghost sm" id="plFreeRetry" type="button" style="margin-top:6px">🔄 Reintentar el resumen con IA</button>`;
+  const apply = ai && ai.level !== chatLevel() ? `<div class="row" style="margin-top:8px"><button class="btn primary sm" id="plFreeApply" type="button">✅ Usar este nivel en el chat</button><button class="btn ghost sm" id="plFreeKeep" type="button">Mantener mi nivel</button></div>` : '';
+  return `<h3 style="margin:0 0 6px">🎙️ Tu habla libre</h3>${lvl}${az}${note}${aiNote}${apply}`;
+}
+export function bindPlacementFreeResult(root, res) {
+  if (!root || !res) return;
+  const apply = $('#plFreeApply', root), keep = $('#plFreeKeep', root), retry = $('#plFreeRetry', root);
+  if (apply) apply.onclick = () => { S.settings.chatLevel = res.ai.level; save(); root.innerHTML = placementFreeResultHTML(res) + `<p class="small" style="margin-top:8px"><b>✅ Nivel del chat: ${esc(LEVELS[res.ai.level].label)}.</b></p>`; bindPlacementFreeResult(root, res); toast(`🎚️ Nivel del chat: ${LEVELS[res.ai.level].label}`); };
+  if (keep) keep.onclick = () => { const box = root.querySelector('#plFreeApply'); if (box) box.parentElement.remove(); toast('De acuerdo, sigues en tu nivel actual.'); };
+  if (retry) retry.onclick = async () => {
+    retry.disabled = true; retry.textContent = '⏳ Tuki está pensando…';
+    try { res.ai = await placementFreeAnalyze(res.transcript, res.az); res.aiErr = null; placementFreeSave(res); root.innerHTML = placementFreeResultHTML(res); bindPlacementFreeResult(root, res); }
+    catch (e) { retry.disabled = false; retry.textContent = '🔄 Reintentar el resumen con IA'; toast(errES(e), 4000); }
+  };
+}
+export function bindPlacementFree(root) {
+  if (!root) return;
+  const rec = $('#plFreeRec', root), skip = $('#plFreeSkip', root), consent = $('#plFreeConsent', root), status = $('#plFreeStatus', root);
+  if (skip) skip.onclick = () => { root.remove(); };
+  if (!rec) return;
+  rec.onclick = async () => {
+    if (!consent || !consent.checked) { if (status) status.innerHTML = '⚠️ Marca la casilla de consentimiento para grabar.'; return; }
+    if (rec.disabled) return;
+    rec.disabled = true; if (skip) skip.disabled = true;
+    const t0 = Date.now();
+    if (status) status.innerHTML = `<div class="row between"><span>🎙️ Grabando… <b id="plFreeTimer">0:00</b> (máx. 1:00) · habla ahora</span><button class="btn ghost sm" id="plFreeStop" type="button">⏹️ Terminar</button></div>`;
+    const timer = setInterval(() => { const el = $('#plFreeTimer', root); if (!el) return clearInterval(timer); const s = Math.floor((Date.now() - t0) / 1000); el.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }, 500);
+    const stopBtn = $('#plFreeStop', root);
+    if (stopBtn) stopBtn.onclick = () => MicCap.stop();
+    try {
+      const cap = await MicCap.start({ maxMs: 60000, vad: true });
+      clearInterval(timer);
+      if (status) status.innerHTML = '<div class="spinner sm"></div><div class="small muted" style="text-align:center">Tuki está analizando tu voz…</div>';
+      const res = await placementFreeFinish(cap);
+      if (res.ai) placementFreeSave(res);
+      root.innerHTML = placementFreeResultHTML(res);
+      bindPlacementFreeResult(root, res);
+    } catch (e) {
+      clearInterval(timer);
+      rec.disabled = false; if (skip) skip.disabled = false;
+      if (status) status.innerHTML = `⚠️ ${esc(errES(e))} <button class="btn ghost sm" id="plFreeAgain" type="button">Reintentar</button>`;
+      const again = $('#plFreeAgain', root); if (again) again.onclick = () => { root.innerHTML = placementFreeHTML(); bindPlacementFree(root); };
+    }
+  };
+}
+
 /* =================== PRUEBA DE NIVEL =================== */
 
 export function buildPlacement() {
@@ -1151,8 +1285,9 @@ export function placementFinish() {
   $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:110px;height:110px">${MASCOT}</div><h1>¡Prueba terminada!</h1>
     <p>Acertaste <b>${okN} de ${res.length}</b>.</p><div class="card" style="max-width:420px;width:100%;text-align:left">${Object.keys(byU).map(u => `<div class="row between"><span>${AREAS[u]}</span><b>${byU[u].every(Boolean) ? '✅' : '🔁 practicar'}</b></div>`).join('')}</div>
     <p>Empezarás en la <b>Unidad ${start + 1}: ${esc(COURSE[start].title)}</b>.${start ? ' Las unidades anteriores quedan desbloqueadas por si quieres repasarlas.' : ''}</p>
+    ${placementFreeAvailable() ? `<div id="plFree">${placementFreeHTML()}</div>` : ''}
     <button class="btn primary" id="primaryBtn" style="min-width:220px">¡Vamos!</button></div>`;
-  $('#primaryBtn').onclick = closeLesson; confetti();
+  $('#primaryBtn').onclick = closeLesson; if ($('#plFree')) bindPlacementFree($('#plFree')); confetti();
 }
 
 /* =================== PLAN DE HOY =================== */
