@@ -770,8 +770,56 @@ export async function runPendingSummary(id) {
   S.summaries.unshift(rec); S.summaries = S.summaries.slice(0, 60); addXP(5); save(); checkBadges();
   return rec;
 }
+/* ---- P5 (v2.22.0): dificultad adaptativa con sugerencia (no automática) ----
+   Al guardar un resumen, si el puntaje medio de los últimos 3 resúmenes
+   es ≥85 y el nivel es menor que C1, o ≤50 y mayor que A0, se muestra una
+   sugerencia con el dato ("tu puntaje medio es 88 · fluidez media 90") y
+   dos botones: aceptar o no. El nivel NUNCA cambia sin confirmación y
+   S.placement no se toca. Exige 3 resúmenes. La misma sugerencia no se
+   repite con los mismos datos (se recuerda en
+   S.settings.levelSuggestShown). 0 llamadas extra: usa puntajes ya
+   guardados. */
+export function levelSuggestionRaw() {
+  const sums = (S.summaries || []).slice(0, 3);
+  if (sums.length < 3) return null;
+  const avgOf = r => { const s = (r.data && r.data.scores) || {}; return (clamp100(s.fluency) + clamp100(s.grammar) + clamp100(s.vocabulary)) / 3; };
+  const avg = Math.round(sums.reduce((a, r) => a + avgOf(r), 0) / sums.length);
+  const fluency = Math.round(sums.reduce((a, r) => a + clamp100(((r.data && r.data.scores) || {}).fluency), 0) / sums.length);
+  const idx = LEVEL_KEYS.indexOf(chatLevel());
+  if (avg >= 85 && idx < LEVEL_KEYS.length - 1) return { dir: 'up', to: LEVEL_KEYS[idx + 1], avg, fluency, n: sums.length };
+  if (avg <= 50 && idx > 0) return { dir: 'down', to: LEVEL_KEYS[idx - 1], avg, fluency, n: sums.length };
+  return null;
+}
+export function levelSuggestion() {
+  const sug = levelSuggestionRaw();
+  if (!sug) return null;
+  const shown = S.settings.levelSuggestShown;
+  if (shown && shown.dir === sug.dir && shown.to === sug.to && shown.n === (S.summaries || []).length) return null;
+  return sug;
+}
+export function markLevelSuggestShown(sug) { if (sug) { S.settings.levelSuggestShown = { dir: sug.dir, to: sug.to, n: (S.summaries || []).length }; save(); } }
+export function applyLevelSuggestion() {
+  const sug = levelSuggestionRaw();
+  if (!sug) return null;
+  S.settings.chatLevel = sug.to; markLevelSuggestShown(sug); return sug;
+}
+export function levelSuggestHTML(sug) {
+  if (!sug) return '';
+  const to = LEVELS[sug.to];
+  const line = sug.dir === 'up' ? `📈 Tuki cree que estás listo para ${esc(to.label)}.` : `📉 Tuki cree que este nivel te está costando: ¿bajar a ${esc(to.label)}?`;
+  const yes = sug.dir === 'up' ? `Sí, cambiar a ${esc(to.short)}` : `Sí, bajar a ${esc(to.short)}`;
+  return `<div class="tipbox" id="lvlSuggest"><b>${line}</b><div class="small muted">Tu puntaje medio en los últimos ${sug.n} resúmenes es ${sug.avg} · fluidez media ${sug.fluency}. El nivel solo cambia si tú lo aceptas.</div><div class="row" style="margin-top:8px"><button class="btn primary sm" id="lvlYes">${yes}</button><button class="btn ghost sm" id="lvlNo">No, gracias</button></div></div>`;
+}
+export function bindLevelSuggest(el, sug) {
+  if (!sug || !el) return;
+  markLevelSuggestShown(sug);
+  const yes = $('#lvlYes', el), no = $('#lvlNo', el), box = $('#lvlSuggest', el);
+  if (yes) yes.onclick = () => { S.settings.chatLevel = sug.to; save(); if (box) box.innerHTML = `<b>✅ Nivel del chat: ${esc(LEVELS[sug.to].label)}.</b><div class="small muted">Tuki adaptará el vocabulario y la velocidad a este nivel.</div>`; toast(`🎚️ Nivel del chat: ${LEVELS[sug.to].label}`); };
+  if (no) no.onclick = () => { if (box) box.remove(); toast('De acuerdo, sigues en tu nivel actual.'); };
+}
 export function summaryHTML(rec) {
   const d = rec.data, sc = d.scores, avgS = Math.round((sc.fluency + sc.grammar + sc.vocabulary) / 3);
+  const sug = rec.id && S.summaries[0] && rec.id === S.summaries[0].id ? levelSuggestion() : null;
   return `<div class="sumcard"><div class="row between"><h2 style="margin:0">📝 Resumen</h2><div class="sumscore">${avgS}</div></div>
     <div class="small muted">${esc(rec.title)} · ${esc(rec.date)}${rec.live ? ' · 🎙️ voz en vivo' : ' · ⌨️ texto'}</div>
     ${d.summary_es ? `<p>${esc(d.summary_es)}</p>` : ''}
@@ -781,7 +829,7 @@ export function summaryHTML(rec) {
     ${d.mispronounced.length ? `<h3>🗣️ Para pronunciar mejor</h3>${d.mispronounced.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtns(w.word)} <div class="small muted">${esc(w.note_es || '')}</div></div>`).join('')}` : ''}
     ${(d.misheard || []).length ? `<h3>🎧 Pronunciación en vivo (${d.misheard.length} ${d.misheard.length === 1 ? 'palabra' : 'palabras'})</h3><p class="small muted">Estas palabras el reconocedor las entendió mal o las repetiste con duda, según la transcripción de esta sesión. Es una pista de pronunciación, no una nota: no es una evaluación fonémica con audio como la de las lecciones con Azure, ni una calificación absoluta.</p>${d.misheard.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtns(w.word)}${w.heard_as ? ` <span class="small muted">— se entendió como «${esc(w.heard_as)}»</span>` : ''} <div class="small muted">${esc(w.note_es || '')}</div></div>`).join('')}` : ''}
     ${d.tips_es.length ? `<h3>🎯 Consejos</h3><ul class="small">${d.tips_es.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
-    ${rec.added ? `<div class="tipbox small">🃏 Se agregaron <b>${rec.added}</b> tarjetas a tu mazo y al <b>Plan de hoy</b>.</div>` : ''}</div>`;
+    ${rec.added ? `<div class="tipbox small">🃏 Se agregaron <b>${rec.added}</b> tarjetas a tu mazo y al <b>Plan de hoy</b>.</div>` : ''}${levelSuggestHTML(sug)}</div>`;
 }
 export function aiFriendly(e, what) {
   if (e && e.friendly) return e.friendly;
@@ -802,7 +850,7 @@ export function openSummarySheet(promiseOrRec, title) {
     document.addEventListener('tuki-ai-status', onStatus);
     const loading = () => { pb.classList.add('hidden'); pb.disabled = true; $('#sumBody', el).innerHTML = `<div class="sumcard"><h2>📝 Resumen</h2><p class="muted">${esc(title || '')}</p><div class="spinner"></div><p class="small muted" style="text-align:center" id="sumStatus" aria-live="polite">Tuki está analizando tu conversación…</p></div>`; };
     const show = rec => {
-      $('#sumBody', el).innerHTML = summaryHTML(rec); bindSayTap(el);
+      $('#sumBody', el).innerHTML = summaryHTML(rec); bindSayTap(el); if ($('#lvlSuggest', el)) bindLevelSuggest(el, levelSuggestion());
       const items = [...rec.data.mistakes.map(m => m.correct), ...rec.data.new_words.map(w => w.en)];
       pb.disabled = !items.length; pb.classList.toggle('hidden', !items.length);
       pb.onclick = () => { close(); startLesson(null, 'practice', items.slice(0, 8).map(t => ({ kind: 'speak', variant: /\s/.test(t) ? 'sentence' : 'word', l: LESSONS[0], text: t, es: '' })), 'Práctica de tu conversación'); };
@@ -1099,6 +1147,7 @@ Include one item per recruiter question that the candidate answered (max ${iv.n}
 }
 export function interviewHTML(rec) {
   const d = rec.data;
+  const sug = rec.id && S.interviews[0] && rec.id === S.interviews[0].id ? levelSuggestion() : null;
   return `<div class="sumcard"><div class="row between"><h2 style="margin:0">🧑‍💼 Informe de entrevista</h2><div class="sumscore">${d.overall}</div></div>
     <div class="small muted">${esc(rec.role)} · ${esc((SENIORITY[rec.sen] || SENIORITY.junior)[0])} · ${rec.n} preguntas · ${esc(rec.date)}</div>
     ${d.summary_es ? `<p>${esc(d.summary_es)}</p>` : ''}
@@ -1107,12 +1156,12 @@ export function interviewHTML(rec) {
       <div class="small">💡 ${esc(q.feedback_es)}</div>${q.better ? `<div class="better" data-ctx="${esc(q.better)}"><div class="small"><b>Respuesta más fuerte:</b></div>${tapWords(q.better)} ${sayBtns(q.better)}</div>` : ''}</div>`).join('')}
     ${d.common_mistakes.length ? `<h3>✏️ Errores comunes</h3>${d.common_mistakes.map(m => `<div class="mist" data-ctx="${esc(m.correct)}"><div class="said">✗ ${esc(m.said || '')}</div><div class="good">✓ ${tapWords(m.correct)} ${sayBtns(m.correct)}</div><div class="small">💡 ${esc(m.explain_es || '')}</div></div>`).join('')}` : ''}
     ${d.tips_es.length ? `<h3>🎯 Consejos</h3><ul class="small">${d.tips_es.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
-    ${rec.added ? `<div class="tipbox small">🃏 Se agregaron <b>${rec.added}</b> frases corregidas a tus tarjetas.</div>` : ''}</div>`;
+    ${rec.added ? `<div class="tipbox small">🃏 Se agregaron <b>${rec.added}</b> frases corregidas a tus tarjetas.</div>` : ''}${levelSuggestHTML(sug)}</div>`;
 }
 export function openInterviewSheet(p) {
   modal(`<div id="ivBody"><div class="sumcard"><h2>🧑‍💼 Informe de entrevista</h2><div class="spinner"></div><p class="small muted" style="text-align:center">Evaluando tus respuestas…</p></div></div><div class="row" style="margin-top:10px"><button class="btn ghost block" data-x>Cerrar</button><button class="btn primary block" id="ivAgain">🔁 Otra entrevista</button></div>`, (el, close) => {
     el.closest('.overlay').classList.add('sumsheet'); $('[data-x]', el).onclick = close; $('#ivAgain', el).onclick = () => { close(); interviewSetup(); };
-    const show = rec => { $('#ivBody', el).innerHTML = interviewHTML(rec); bindSayTap(el); };
+    const show = rec => { $('#ivBody', el).innerHTML = interviewHTML(rec); bindSayTap(el); if ($('#lvlSuggest', el)) bindLevelSuggest(el, levelSuggestion()); };
     if (p && p.then) p.then(show).catch(e => { $('#ivBody', el).innerHTML = `<div class="sumcard"><h2>🧑‍💼 Informe</h2><div class="msg err">⚠️ No se pudo generar el informe: ${esc(errES(e))}</div></div>`; }); else show(p);
   });
 }
