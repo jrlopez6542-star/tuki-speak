@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.40.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.41.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.41.0
+- **🚀 Pantalla de entrada sin cuadro**: al abrir la app instalada (PWA) ya no se ve el cuadro verde con Tuki sobre fondo casi blanco: el `background_color` del manifest pasa a `#1fa463` (el verde exacto del icono, verificado píxel a píxel), así que el icono se funde con el fondo y solo se ve Tuki sobre verde. Además, la app muestra su propia pantalla de carga al instante — Tuki (el SVG de la mascota, con fondo transparente, sin cuadro ni marco), «Tuki Speak», una frase corta y puntos animados — sobre verde de marca a pantalla completa, que se retira sola tras el primer render, con entrada suave y movimiento reducido respetado; si la app no arranca, se oculta sola a los ~8 s y nunca bloquea la entrada. ⚠️ Cambiar el manifest puede requerir reinstalar o actualizar la PWA instalada para ver el cambio en el splash del sistema. Sin cambios en el progreso, el curso, las cuotas ni la voz.
 
 ## Novedades v2.40.0
 - **📊 Monitoreo de la cuota compartida (solo el dueño)**: el Panel de administrador en Ajustes ahora muestra un resumen agregado del consumo de las claves de Tuki — totales de hoy y de 7 días (Gemini · Live · Azure), usuarios con uso hoy y una tabla por día —, sin endpoint nuevo ni secreto nuevo: resume los documentos de cuota que el panel ya leía (solo el dueño los puede leer). Alerta visible cuando el consumo agregado del día supera un umbral: 🔴 300 llamadas Gemini en el día (= 5 usuarios a tope) o algún usuario en su límite de 60, 🟡 150 llamadas en el día, algún usuario con 55+ o un pico de más del doble de la media de los 6 días previos; sin superar el umbral no aparece ninguna alerta. Sin cambios en la cuota por persona, la tabla por usuario ni el progreso.
