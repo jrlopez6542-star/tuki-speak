@@ -89,7 +89,7 @@ export function startLesson(l, mode = 'lesson', queue = null, title = '') {
 }
 export function lessonShell() {
   const pct = Math.round(L.done / L.total * 100);
-  return `<div class="lhead"><button class="xbtn" id="xLesson" aria-label="Salir">✕</button><div class="pbar"><i style="width:${pct}%"></i></div>${L.mode === 'lesson' ? `<div class="lhearts">❤️ ${S.hearts}</div>` : `<div class="lhearts" style="color:var(--b)">🎯</div>`}</div>
+  return `<div class="lhead"><button class="xbtn" id="xLesson" aria-label="Salir">✕</button><div class="pbar"><i style="width:${pct}%"></i></div>${L.mode === 'lesson' ? `<div class="lhearts">❤️ ${S.hearts}</div>` : `<div class="lhearts" style="color:var(--b-d)">🎯</div>`}</div>
   <div class="lbody" id="lbody"></div><div class="lfoot" id="lfoot" aria-live="polite"></div>`;
 }
 // =================== INTERACTIVIDAD Y ANIMACIONES DE TUKI (TIPO DUOLINGO) ===================
@@ -457,7 +457,7 @@ export function onSpeechResult(ex, target, alts, url0, az) {
   $('#tgt').innerHTML = wordsHTML(target, r.words);
   const retry = r.words.filter(w => w.c !== 'g').map(w => w.tok.replace(/[.,!?;:"]/g, ''));
   const pass = ex.kind === 'saypair' ? r.ok : r.pct >= S.settings.threshold;
-  $('#res').innerHTML = `<div class="card"><div class="row between"><div><div class="scorebig" style="color:${pass ? 'var(--g-d)' : r.pct >= 50 ? 'var(--o-d)' : 'var(--r)'}">${r.pct}%</div><div class="small muted">Mejor intento: ${ex.attempt.pct}% · intentos: ${ex.tries}</div></div><div class="small" style="text-align:right">🟢 bien · 🟡 dudoso · 🔴 repetir</div></div>
+  $('#res').innerHTML = `<div class="card"><div class="row between"><div><div class="scorebig" style="color:${pass ? 'var(--g-d)' : r.pct >= 50 ? 'var(--o-d)' : 'var(--r-d)'}">${r.pct}%</div><div class="small muted">Mejor intento: ${ex.attempt.pct}% · intentos: ${ex.tries}</div></div><div class="small" style="text-align:right">🟢 bien · 🟡 dudoso · 🔴 repetir</div></div>
     <div class="heard">Escuché: «<b>${esc(r.heard)}</b>»${r.conf ? ` <span class="muted small">(confianza ${Math.round(r.conf * 100)}%)</span>` : ''}</div>
     ${r.msg ? `<div class="small" style="margin-top:4px">${esc(r.msg)}</div>` : ''}
     ${retry.length && ex.kind !== 'saypair' ? `<div class="small" style="margin-top:8px">Repite: ${retry.map(w => `<span class="wd r" data-say="${esc(w)}">${esc(w)} 🐢</span>`).join(' ')}</div>` : ''}

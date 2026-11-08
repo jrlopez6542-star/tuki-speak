@@ -16,7 +16,7 @@ export { FB, KS, LOCKED } from './account.js';
 // ex = palabras ejemplo [en, es], pairs = pares mínimos [palabraSonidoA, palabraSonidoB] (a = sonido objetivo/lado A),
 // pairLabels = etiqueta de cada lado, quiz = preguntas de oído, sents = frases [en, es]
 export const COURSE = [
-{ id:'u0', title:'Primeros pasos: Frases esenciales', icon:'🌱', color:'#059669',
+{ id:'u0', title:'Primeros pasos: Frases esenciales', icon:'🌱', color:'#047857',
   desc:'¡Desde cero absoluto! Saludos, cortesía y frases de supervivencia con pronunciación guiada.',
   lessons:[
   { id:'novice-greetings', sound:'saludos', title:'Saludos y despedidas', icon:'👋',
@@ -47,7 +47,7 @@ export const COURSE = [
           {q:'¿Cómo pides ayuda con cortesía?',say:'Can you help me?',opts:['Can you help me? (¿Me ayudas?)','Excuse me','Bye'],a:0}],
     sents:[['Can you speak slowly, please?','¿Puedes hablar despacio, por favor?'],["I don't understand English.","No entiendo inglés."],['Can you repeat that, please?','¿Puedes repetir eso, por favor?']] }
   ]},
-{ id:'u1', title:'Vocales que cambian el significado', icon:'🅰️', color:'#1fa463',
+{ id:'u1', title:'Vocales que cambian el significado', icon:'🅰️', color:'#14804d',
   desc:'El inglés tiene más vocales que el español. ¡Aquí está la diferencia entre ship y sheep!',
   lessons:[
   { id:'ih-ee', sound:'ɪ / iː', title:'Ship vs. Sheep', icon:'🚢',
@@ -75,7 +75,7 @@ export const COURSE = [
           {q:'En «teacher», la terminación «-er» suena como…',say:'teacher',opts:['/ər/ débil','/er/ con "e" fuerte','/ɪr/'],a:0}],
     sents:[['I have a problem with the computer.','Tengo un problema con el computador.'],['What are you talking about?','¿De qué estás hablando?'],['Today my teacher is not here.','Hoy mi profesor no está aquí.']] }
   ]},
-{ id:'u2', title:'Consonantes difíciles', icon:'🔤', color:'#1cb0f6',
+{ id:'u2', title:'Consonantes difíciles', icon:'🔤', color:'#0b7cb0',
   desc:'Sonidos que en español no distinguimos: b/v, s/z y sh/ch.',
   lessons:[
   { id:'b-v', sound:'b / v', title:'Best vs. Vest', icon:'🦺',
@@ -100,7 +100,7 @@ export const COURSE = [
     pairs:[['ship','chip'],['share','chair'],['wash','watch'],['shoes','choose'],['sheet','cheat'],['cash','catch']],
     sents:[['I want to watch a movie.','Quiero ver una película.'],['Please wash the dishes in the kitchen.','Por favor lava los platos en la cocina.'],['She chose new shoes.','Ella escogió zapatos nuevos.']] }
   ]},
-{ id:'u3', title:'La TH y los finales', icon:'👅', color:'#8b5cf6',
+{ id:'u3', title:'La TH y los finales', icon:'👅', color:'#7c3aed',
   desc:'Think, this, y no "comerse" el final de las palabras.',
   lessons:[
   { id:'th-voiceless', sound:'θ', title:'Think (TH sorda)', icon:'🤔',
@@ -125,7 +125,7 @@ export const COURSE = [
     pairs:[['seat','sea'],['wait','way'],['road','row'],['bike','buy'],['page','pay'],['boat','bow']],
     sents:[['I work at night.','Trabajo de noche.'],['It is cold outside.','Hace frío afuera.'],['Can you help me with the bread and milk?','¿Me ayudas con el pan y la leche?']] }
   ]},
-{ id:'u4', title:'Inicios y terminaciones', icon:'🧩', color:'#ff9f1c',
+{ id:'u4', title:'Inicios y terminaciones', icon:'🧩', color:'#b45309',
   desc:'Sin "e" antes de sp/st, y cómo suenan -ed y -s.',
   lessons:[
   { id:'s-cluster', sound:'s+cons.', title:'Spain, no "Espain"', icon:'🇪🇸',
@@ -157,7 +157,7 @@ export const COURSE = [
           {q:'¿Cómo suena la -s en «plays»?',say:'plays',opts:['/z/','/s/','/ɪz/'],a:0}],
     sents:[['She works in a big office.','Ella trabaja en una oficina grande.'],['My brother watches the news.','Mi hermano ve las noticias.'],['The dogs are next to the boxes.','Los perros están al lado de las cajas.']] }
   ]},
-{ id:'u5', title:'Ritmo, acento y entonación', icon:'🎵', color:'#e5484d',
+{ id:'u5', title:'Ritmo, acento y entonación', icon:'🎵', color:'#c62f35',
   desc:'La música del inglés: sílabas fuertes, palabras débiles y entonación.',
   lessons:[
   { id:'word-stress', sound:'acento', title:'Acento de la palabra', icon:'🔊',
@@ -192,7 +192,7 @@ export const COURSE = [
           {q:'«I live in Bogota.» — ¿sube o baja al final?',say:'I live in Bogota.',opts:['Baja ↘','Sube ↗'],a:0}],
     sents:[['Do you want some coffee?','¿Quieres café?'],['What do you do for work?','¿A qué te dedicas?'],['Is this seat free?','¿Está libre este asiento?']] }
   ]},
-{ id:'u6', title:'Conversaciones reales I', icon:'🗣️', color:'#14b8a6',
+{ id:'u6', title:'Conversaciones reales I', icon:'🗣️', color:'#0f766e',
   desc:'Diálogos de la vida real: tú dices tu parte y recibes un puntaje.',
   lessons:[
   { id:'c-greet', type:'dialog', sound:'conversación', title:'Saludos y presentaciones', icon:'👋',
@@ -226,7 +226,7 @@ export const COURSE = [
            ['A','Boarding starts at ten thirty at gate twelve.','El abordaje empieza a las diez y media en la puerta doce.'],
            ['B','Perfect. Thank you very much.','Perfecto. Muchas gracias.']] }
   ]},
-{ id:'u7', title:'Conversaciones reales II', icon:'💼', color:'#6366f1',
+{ id:'u7', title:'Conversaciones reales II', icon:'💼', color:'#4f46e5',
   desc:'Trabajo, compras y tu rutina diaria.',
   lessons:[
   { id:'c-interview', type:'dialog', sound:'conversación', title:'Entrevista de trabajo', icon:'🤝',
@@ -265,7 +265,7 @@ export const COURSE = [
 
 /* =================== CONTENIDO ADICIONAL (v2) =================== */
 COURSE.push(
-{ id:'u8', title:'Habla conectada', icon:'🔗', color:'#0ea5e9',
+{ id:'u8', title:'Habla conectada', icon:'🔗', color:'#0b6fa3',
   desc:'Cómo hablan los nativos: palabras unidas, gonna/wanna y la T americana.',
   lessons:[
   { id:'linking', sound:'linking', title:'Unir palabras (linking)', icon:'🧷',
@@ -299,7 +299,7 @@ COURSE.push(
           {q:'¿En cuál palabra la T NO es suave?',say:'table',opts:['table (t al inicio)','water','party'],a:0}],
     sents:[['Can I have a glass of water?','¿Me das un vaso de agua?'],['This city is better at night.','Esta ciudad es mejor de noche.'],['We had a little party.','Hicimos una pequeña fiesta.']] }
   ]},
-{ id:'u9', title:'Números, fechas y horas', icon:'🔢', color:'#f59e0b',
+{ id:'u9', title:'Números, fechas y horas', icon:'🔢', color:'#a16207',
   desc:'13 vs 30, fechas, precios y la hora sin confusiones.',
   lessons:[
   { id:'teen-ty', sound:'-teen / -ty', title:'Thirteen vs. Thirty', icon:'🔟',
@@ -330,7 +330,7 @@ COURSE.push(
           {q:'«It\'s ten to nine» significa…',say:"It's ten to nine",opts:['Son las 8:50','Son las 9:10','Son las 10:09'],a:0}],
     sents:[['The movie starts at half past eight.','La película empieza a las ocho y media.'],['This jacket costs sixty dollars.','Esta chaqueta cuesta sesenta dólares.'],["It's a quarter to ten.",'Son las diez menos cuarto.']] }
   ]},
-{ id:'u10', title:'Phrasal verbs comunes', icon:'🧱', color:'#10b981',
+{ id:'u10', title:'Phrasal verbs comunes', icon:'🧱', color:'#0b7a4d',
   desc:'Verbo + partícula: el vocabulario que más usan los nativos.',
   lessons:[
   { id:'pv-daily', type:'vocab', sound:'phrasal verbs', title:'Phrasal verbs del día a día', icon:'☀️',
@@ -358,7 +358,7 @@ COURSE.push(
            ['fill out','llenar (un formulario)','Please fill out this form.','Por favor llena este formulario.'],
            ['carry on','continuar','Carry on with your presentation.','Continúa con tu presentación.']] }
   ]},
-{ id:'u11', title:'Falsos amigos', icon:'🎭', color:'#ec4899',
+{ id:'u11', title:'Falsos amigos', icon:'🎭', color:'#be185d',
   desc:'Palabras que parecen español pero significan otra cosa.',
   lessons:[
   { id:'ff-1', type:'vocab', sound:'falsos amigos', title:'Falsos amigos I', icon:'😳',
@@ -386,7 +386,7 @@ COURSE.push(
            ['pretend','fingir','He pretends to be busy.','Él finge estar ocupado.','pretender (intentar)'],
            ['record','grabar','Can I record the meeting?','¿Puedo grabar la reunión?','recordar']] }
   ]},
-{ id:'u12', title:'Small talk y entrevista avanzada', icon:'🌟', color:'#a855f7',
+{ id:'u12', title:'Small talk y entrevista avanzada', icon:'🌟', color:'#9333ea',
   desc:'Charlas casuales, networking y preguntas difíciles de entrevista.',
   lessons:[
   { id:'c-smalltalk', type:'dialog', sound:'conversación', title:'Small talk', icon:'☕',
@@ -502,7 +502,7 @@ COURSE.push(
            ["Here's looking at you, kid",'Brindo por ti · Casablanca (1942)',"Here's looking at you, kid. It was a pleasure to meet you.",'Brindo por ti. Fue un placer conocerte.'],
            ["You can't handle the truth!",'¡No puedes con la verdad! · A Few Good Men (1992)',"You can't handle the truth! It's too much for you.",'¡No puedes con la verdad! Es demasiado para ti.']] }
   ]},
-{ id:'u16', title:'Sonidos que faltan', icon:'🎙️', color:'#65a30d',
+{ id:'u16', title:'Sonidos que faltan', icon:'🎙️', color:'#4d7c0f',
   desc:'La R americana, la L oscura y la NG final: los tres sonidos que más delatan tu acento.',
   lessons:[
   { id:'am-r', sound:'r', title:'La R americana', icon:'🇺🇸',
@@ -796,11 +796,11 @@ export function finishLesson() {
   ]);
 
   const cardsHtml = [
-    { t: 'XP', v: `+${xp}`, n: xp, pre: '+', c: 'var(--o)', bg: 'var(--o)' },
-    { t: 'Monedas', v: `+${earnedCoins} 🪙`, n: earnedCoins, pre: '+', suf: ' 🪙', c: '#d97706', bg: '#d97706' },
-    { t: 'Pronunciación', v: pron === null ? '—' : pron + '%', c: 'var(--g-d)', bg: 'var(--g)' },
-    { t: 'Oído', v: ear === null ? '—' : ear + '%', c: 'var(--b-d)', bg: 'var(--b)' },
-    { t: 'Tiempo', v: `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`, c: '#8b5cf6', bg: '#8b5cf6' }
+    { t: 'XP', v: `+${xp}`, n: xp, pre: '+', c: 'var(--o-d)', bg: 'var(--o-d)' },
+    { t: 'Monedas', v: `+${earnedCoins} 🪙`, n: earnedCoins, pre: '+', suf: ' 🪙', c: '#d97706', bg: '#b45309' },
+    { t: 'Pronunciación', v: pron === null ? '—' : pron + '%', c: '#15814c', bg: 'var(--g-d)' },
+    { t: 'Oído', v: ear === null ? '—' : ear + '%', c: '#1591cc', bg: 'var(--b-d)' },
+    { t: 'Tiempo', v: `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`, c: '#8b5cf6', bg: '#7c3aed' }
   ].map((card, i) => `
     <div class="scard scard-celebrate" style="border-color:${card.bg};animation-delay:${0.1 + i * 0.08}s">
       <div class="t" style="background:${card.bg}">${card.t}</div>
@@ -1147,7 +1147,7 @@ VIEWS.progress = v => {
               </div>
             </div>
             <div style="text-align:right;flex:none">
-              ${err.isSuggested ? '<span class="pill">Sugerencia</span>' : `<span style="font-weight:900;font-size:13px;color:${err.score >= 75 ? 'var(--g-d)' : err.score >= 60 ? 'var(--o-d)' : 'var(--r)'}">${err.score}%</span>`}
+              ${err.isSuggested ? '<span class="pill">Sugerencia</span>' : `<span style="font-weight:900;font-size:13px;color:${err.score >= 75 ? 'var(--g-d)' : err.score >= 60 ? 'var(--o-d)' : 'var(--r-d)'}">${err.score}%</span>`}
             </div>
           </div>`).join('')}
       </div>
@@ -1205,7 +1205,7 @@ function nextCard() {
     $('#primaryBtn').onclick = closeReview; confetti(); return;
   }
   const c = R.q[0], card = S.deck[c.key];
-  $('#fullInner').innerHTML = `<div class="lhead"><button class="xbtn" id="xr">✕</button><div class="pbar"><i style="width:${Math.round(R.n / (R.n + R.q.length) * 100)}%"></i></div><div class="lhearts" style="color:var(--b)">🃏 ${R.q.length}</div></div>
+  $('#fullInner').innerHTML = `<div class="lhead"><button class="xbtn" id="xr">✕</button><div class="pbar"><i style="width:${Math.round(R.n / (R.n + R.q.length) * 100)}%"></i></div><div class="lhearts" style="color:var(--b-d)">🃏 ${R.q.length}</div></div>
     <div class="lbody"><div class="ex-title">Repaso de tarjetas</div>
     <div class="flash" id="flash"><div class="flash-in"><div class="face"><div class="muted small">${card.kind === 'frase' ? 'FRASE' : 'PALABRA'} · ¿Qué significa?</div><div class="big">${esc(card.en)}</div><div class="row"><button class="spk" id="c1">🔊</button><button class="spk slow" id="c2">🐢</button></div><div class="muted small">Toca la tarjeta para voltearla</div></div>
     <div class="face back"><div class="big" style="font-size:24px">${esc(card.es)}</div><div class="muted">${esc(card.en)}</div>${canSpeak() ? '<button class="btn blue sm" id="csay">🎤 Pronunciar</button><div id="cres" class="small"></div>' : ''}</div></div></div></div>
@@ -1226,7 +1226,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.33.0';
+export const APP_VERSION = '2.34.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1355,7 +1355,7 @@ const _progress = VIEWS.progress;
 VIEWS.progress = v => {
   _progress(v);
   const wk = off => { let xp = 0, n = 0, sum = 0, sec = 0, act = 0; for (let i = off; i < off + 7; i++) { const r = S.days[dayKey(new Date(Date.now() - i * DAY))]; if (r) { xp += r.xp; n += r.n; sum += r.sum; sec += r.sec || 0; if (r.xp) act++; } } return { xp, n, avg: n ? Math.round(sum / n) : null, min: Math.round(sec / 60), act }; };
-  const a = wk(0), b = wk(7), delta = (x, y) => y ? ` <span class="small" style="color:${x >= y ? 'var(--g-d)' : 'var(--r)'}">${x >= y ? '▲' : '▼'} ${Math.abs(x - y)}</span>` : '';
+  const a = wk(0), b = wk(7), delta = (x, y) => y ? ` <span class="small" style="color:${x >= y ? 'var(--g-d)' : 'var(--r-d)'}">${x >= y ? '▲' : '▼'} ${Math.abs(x - y)}</span>` : '';
   const days = []; for (let i = 6; i >= 0; i--) { const d = new Date(Date.now() - i * DAY); days.push({ l: 'DLMMJVS'[d.getDay()], xp: (S.days[dayKey(d)] || {}).xp || 0 }); }
   const mx = Math.max(10, ...days.map(d => d.xp));
   const phs = Object.entries(S.ph || {}).filter(([p, r]) => r.n >= 2).map(([p, r]) => ({ p, a: Math.round(r.sum / r.n), n: r.n })).sort((x, y) => x.a - y.a).slice(0, 8);
