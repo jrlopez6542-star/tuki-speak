@@ -9,7 +9,7 @@ import { L, RENDER, buildPractice, createMicMeter, doMic, feedback, nextEx, sayP
 import { AZT, CHAT, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemini, hardWords, numHash, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
 import { TukiDB } from './tuki-db.js';
-import { APP_VERSION, COURSE, LESSON, LESSONS, TAB, TUKI_OFFLINE_TC, VIEWS, addXP, beep, checkBadges, closeLesson, confetti, decodeAudio, go, isUnlocked, render, save, streakNow, tcGenerate, toast, tukiChirp, tukiFanfare } from './main.js';
+import { APP_VERSION, COURSE, LESSON, LESSONS, TAB, TC_LAST_PERSONALIZED, TUKI_OFFLINE_TC, VIEWS, addXP, beep, checkBadges, closeLesson, confetti, decodeAudio, go, isUnlocked, render, save, streakNow, tcGenerate, toast, tukiChirp, tukiFanfare } from './main.js';
 
 export function renderTukiSVG(skin, opts = {}) {
   const sk = skin || (typeof S !== 'undefined' && S && S.tukiSkin) || { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic' };
@@ -1478,7 +1478,7 @@ export async function tcStartAI(btn) {
   const lv = tcLevel();
   if (!currentProvider()) { toast('Para frases con IA agrega una clave gratuita de Gemini en Ajustes. Uso el banco de frases.', 3500); return startTC({ lv }); }
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Creando frases…'; }
-  try { const items = await tcGenerate(lv, 6); startTC({ lv, items: items.concat(tcPick(TC_SESSION - items.length, lv, items.map(x => x.id))) }); toast('✨ ' + items.length + ' frases nuevas de la IA', 2500); }
+  try { const items = await tcGenerate(lv, 6); startTC({ lv, items: items.concat(tcPick(TC_SESSION - items.length, lv, items.map(x => x.id))) }); toast('✨ ' + items.length + ' frases nuevas de la IA' + (TC_LAST_PERSONALIZED.covered.length ? ' · con tus palabras difíciles (' + TC_LAST_PERSONALIZED.covered.join(', ') + ')' : ''), 2500); }
   catch (e) { toast('⚠️ No se pudieron crear frases con IA (' + errES(e) + '). Uso el banco de frases.', 4000); startTC({ lv }); }
   finally { if (btn && document.body.contains(btn)) { btn.disabled = false; btn.textContent = '✨ Más frases con IA'; } }
 }
@@ -1574,6 +1574,8 @@ export async function tcCheck(ex, manual) {
   if (fresh && r.k !== 'typo') { ex.st.miss++; if (L) L.mistakes++; beep('bad'); }
   inp.parentNode.classList.add('bad');
   tcMascotReact(false);
+  ex.st.lastWrong = { val, near: r.k === 'near' ? r.msg : '' };
+  tcMaybeOfferHint(ex);
   if (r.k === 'near' || r.k === 'typo') return tcBubble(i, r.msg, r.k === 'typo' ? 'typo' : '');
   if (currentProvider()) {
     ex.st.busy = true; inp.parentNode.classList.replace('bad', 'wait'); tcBubble(i, 'Tuki está pensando… 🤔', 'think');
@@ -1599,6 +1601,35 @@ export function tcHint(ex) {
   if (ex.st.hint >= 2) { $$('#tcEn .tc-in').forEach((inp, i) => { if (!ex.st.ok[i]) { inp.placeholder = it.b[i].a[0].charAt(0) + '…'; tcSize(inp); } }); $('#tcHintBtn').disabled = true; }
   else $('#tcHintBtn').textContent = '💡 Otra pista (primera letra)';
   tcFoot(ex); $('#tcHint').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+}
+/* ---- P6 (v2.23.0): "💡 Otra pista" tras fallar 2 veces el mismo ítem ----
+   Fallos acumulados del ítem (intentos anteriores en S.tc.items + fallos
+   frescos de este intento en ex.st.miss). El botón aparece solo entonces,
+   en la fila de herramientas que ya existe, y muestra una pista con el
+   error concreto del usuario (su última respuesta entrecomillada) más las
+   primeras letras y la pista del ítem. 0 llamadas nuevas de IA: no usa
+   tcAskAI, solo datos que ya están en pantalla. En voz, Tuki la dice. */
+export function tcFailsTotal(it, ex) {
+  const prior = (S.tc.items[it.id] && S.tc.items[it.id].miss) || 0;
+  return prior + (ex && ex.st ? ex.st.miss || 0 : 0);
+}
+export function tcMaybeOfferHint(ex) {
+  const tools = $('#tcTools'); if (!tools || $('#tcExtraHintBtn')) return;
+  if (ex.st.done || tcFailsTotal(ex.item, ex) < 2) return;
+  tools.insertAdjacentHTML('beforeend', '<button class="chip" id="tcExtraHintBtn">💡 Otra pista</button>');
+  $('#tcExtraHintBtn').onclick = () => tcExtraHint(ex);
+}
+export function tcExtraHint(ex) {
+  if (!ex || ex.st.done) return '';
+  const it = ex.item, last = ex.st.lastWrong || {};
+  const targets = it.b.map((b, i) => ex.st.ok[i] ? null : b.a[0]).filter(Boolean);
+  const letters = targets.map(a => a.split(' ').map(w => w.slice(0, w.length > 5 ? 2 : 1) + '…').join(' '));
+  const wrong = last.val ? `Dijiste «${last.val}»` : 'Tu última respuesta no era la que buscamos';
+  const speak = `${wrong}. La respuesta empieza por ${letters.join(' y ')}.`;
+  $('#tcHint').innerHTML = `<div class="tc-hint">💡 ${esc(wrong)}. La respuesta empieza por: <b>${esc(letters.join(' · '))}</b><div class="small muted" style="margin-top:6px">${esc(it.h)}</div></div>`;
+  const b = $('#tcExtraHintBtn'); if (b) b.disabled = true;
+  $('#tcHint').scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  return speak;
 }
 export function tcAfterHTML(it, praise, sub) {
   const full = tcFull(it);
@@ -1869,6 +1900,8 @@ export const _tcBubble26 = tcBubble;
 tcBubble = function (i, msg, cls = '') { if (tcVoiceOn() && msg && i != null && cls !== 'think') { V.sup++; try { _tcBubble26(i, msg, cls); } finally { V.sup--; } return tcSay(msg, tcRelisten(L.cur)); } if (cls === 'think' && tcVoiceOn()) tcVState('thinking'); return _tcBubble26(i, msg, cls); };
 export const _tcHint26 = tcHint;
 tcHint = function (ex) { _tcHint26(ex); if (!tcVoiceOn()) return; const it = ex.item, lt = it.b.map((b, i) => ex.st.ok[i] ? null : '«' + b.a[0].charAt(0) + '»').filter(Boolean); tcSay(ex.st.hint >= 2 ? 'La respuesta empieza por ' + lt.join(' y ') + '.' : 'Pista: ' + it.h, tcRelisten(ex)); };
+export const _tcExtraHint26 = tcExtraHint;
+tcExtraHint = function (ex) { const t = _tcExtraHint26(ex); if (t && tcVoiceOn()) tcSay(t, tcRelisten(L.cur)); return t; };
 export const _tcSuccess26 = tcSuccess;
 tcSuccess = function (ex) {
   const voice = tcVoiceOn(); if (!voice) return _tcSuccess26(ex);
