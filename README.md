@@ -1,15 +1,17 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.37.1
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.39.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
 
+## Novedades v2.39.0
+- **🎭 Práctica y Ajustes llegan a los techos R10 de densidad**: en Práctica, los 9 modos dejan de ser 9 tarjetas y pasan a ser 9 filas dentro de una sola tarjeta «🎭 Modos de práctica», con los mismos destinos, candados y textos (Práctica pasa de 16 a 8 tarjetas visibles, techo 12 ✔); en Ajustes, las 3 tarjetas de mantenimiento — 📦 Modo Offline, 🔄 Actualizaciones y 💾 Datos — se fusionan en una sola tarjeta «📦 Datos y mantenimiento» con 3 secciones, con los mismos botones (Ajustes pasa de 14 a 12 tarjetas, techo 12 ✔). Aprender (10 bloques con datos) y Progreso (9 tarjetas) ya cumplían su techo y no se tocan. Sin cambios en la lógica de los modos, el progreso, el XP ni las claves.
+
 ## Novedades v2.37.1
 - **🔒 Chat con clave propia: historial recortado y reintento acotado (F2)**: con clave propia de Gemini u OpenAI, el chat envía como mucho los últimos 60 mensajes (antes el historial completo; la ruta compartida ya lo recortaba a 100 y P10 ya compactaba a partir de 60, así que la nota de perfil sigue conservando el contexto anterior); y `aiQuick` hace una sola pasada por la cadena de modelos (antes hasta 4 pasadas × 5–6 modelos, cada intento fallido pagado con la propia clave) y `gemini()` un solo intento por modelo. Si todos los modelos están saturados, aparece el aviso de «ocupado» para reintentar después. Sin cambios en el formato de 6 líneas, el flujo base, las cuotas compartidas ni el progreso.
 
 ## Novedades v2.37.0
-- **💬 Estado de Tuki en el chat**: mientras se espera la respuesta de la IA, el chat muestra «Tuki está escribiendo…» con tres puntos animados (reutiliza el indicador «…» que ya aparecía con `CHAT.busy`) y el botón de enviar queda bloqueado hasta que llega la respuesta; con movimiento reducido los puntos quedan estáticos. Sin cambios en el envío, la recepción, las cuotas ni el progreso.
 
 ## Novedades v2.36.0
 - **💬 Sugerencias rápidas en el chat**: encima de la barra aparecen 3 chips con frases para empezar, según el escenario puesto (Charla libre, Restaurante o Aeropuerto; los escenarios propios usan las genéricas). Tocar un chip envía su frase tal cual, sin llamadas extra a la IA. Sin cambios en el envío, el dictado ni el progreso.
