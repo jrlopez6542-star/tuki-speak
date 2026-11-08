@@ -6,7 +6,7 @@ import { $, $$, avg, colorOf, dayKey, decodeDeep, decodeEnt, esc, hashStr, lev, 
 import { DAY, MAX_HEARTS, S, addToDeck, isDone, recordSpeech, refreshHearts, soundAvg, todayRec } from './state.js';
 import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
 import { L, RENDER, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
-import { AZT, CHAT, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemini, hardWords, numHash, tutorSpeed, uid } from './chat.js';
+import { AZT, CHAT, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
 import { TukiDB } from './tuki-db.js';
 import { APP_VERSION, COURSE, LESSON, LESSONS, TAB, TC_LAST_PERSONALIZED, TUKI_OFFLINE_TC, VIEWS, addXP, beep, checkBadges, closeLesson, confetti, decodeAudio, go, isUnlocked, render, save, streakNow, tcGenerate, toast, tukiChirp, tukiFanfare } from './main.js';
@@ -2031,6 +2031,94 @@ export function pdItems(key = dayKey()) {
   const rep = (S.pd.days[key] && S.pd.days[key].n) || 0;
   return { l: pdPick(PD_LISTEN, key, 'l', rep), s: pdPick(PD_SPEAK, key, 's', rep), m: pdPick(PD_MIXED, key, 'm', rep) };
 }
+/* ---- P7 (v2.24.0): 1 pregunta generada del día ----
+   El paso 2 (Hablar) de la práctica diaria puede venir de la IA en vez
+   del banco estático: 1 pregunta generada desde los errores de ayer
+   (resumen, S.hard, fonema débil). Cacheada por dayKey() en
+   'tukiSpeak.pdgen' (+ respaldo en memoria, como 'tukiSpeak.pcache' de
+   Top 2): 1 llamada Gemini al día como máximo; el intento cuenta aunque
+   falle o el JSON no valide, así que hoy no se reintenta. Sin proveedor,
+   sin cuota o sin errores medidos no se llama y la PD sigue exactamente
+   como hoy (banco estático). Sin tarjeta ni aviso nuevo (reglas de
+   densidad R2/R3): la pregunta generada vive dentro de los 3 pasos
+   existentes, con la misma forma pdQ, y pdKeywordEval() sigue siendo el
+   fallback de evaluación. */
+export const PD_GEN_CACHE_KEY = 'tukiSpeak.pdgen';
+export let MEM_PDGEN = null;
+export function pdGenCacheGet() {
+  if (MEM_PDGEN) return MEM_PDGEN;
+  try { const v = JSON.parse(localStorage.getItem(PD_GEN_CACHE_KEY) || 'null'); if (v && typeof v === 'object') { MEM_PDGEN = v; return v; } } catch (e) {}
+  return null;
+}
+export function pdGenCacheSet(v) {
+  MEM_PDGEN = v;
+  try { localStorage.setItem(PD_GEN_CACHE_KEY, JSON.stringify(v)); } catch (e) {}
+}
+export function pdGenData() {
+  const y = dayKey(new Date(Date.now() - DAY));
+  const phonemes = Object.entries(S.ph || {}).map(([ipa, r]) => ({ ipa, avg: Math.round(r.sum / r.n), n: r.n }))
+    .filter(p => p.n >= 1 && Number.isFinite(p.avg) && p.avg < 80).sort((a, b) => a.avg - b.avg).slice(0, 1);
+  const words = hardWords().filter(h => h.w && !/\s/.test(String(h.w).trim())).slice(0, 3)
+    .map(h => ({ w: String(h.w).trim(), score: h.last == null ? (h.avg == null ? 60 : h.avg) : h.last, note: h.note || '' }));
+  let errors = [];
+  const sums = S.summaries || [];
+  const sum = sums.find(r => r.date === y) || sums[0];
+  if (sum && sum.data && Array.isArray(sum.data.mistakes)) errors = sum.data.mistakes.slice(0, 2).map(m => ({ said: String(m.said || ''), correct: String(m.correct || '') })).filter(m => m.correct);
+  return { phonemes, words, errors, total: phonemes.length + words.length + errors.length };
+}
+export function pdGenHasData(d) {
+  const data = d || pdGenData();
+  return (data.words.length + data.errors.length) >= 1;
+}
+export function pdGenAvailable() {
+  if (!currentProvider()) return false;
+  if (gemShared()) { const q = aiQuotaToday(); if (q && (q.limit - q.used) <= 0) return false; }
+  return true;
+}
+export const PD_GEN_SYS = `You are "Tuki", a patient English teacher for a Spanish-speaking learner from Colombia. You are given MEASURED data about this learner's real mistakes from yesterday: their weakest phoneme (with average score), their worst-scored words, and 1-2 errors from a recent conversation summary (what they said vs. the correct sentence).
+Create ONE new spoken practice question that makes the learner use one of those measured words or the topic of a corrected sentence in a new everyday situation.
+Return ONLY JSON with this exact shape:
+{"q":"<one open question in English>","es":"<Spanish translation of the question>","kw":["keyword1","keyword2"],"model":"<short natural model answer in English>","modelEs":"<Spanish meaning of the model answer>"}
+Rules: q is one open question (max 16 words, A1-A2 words) that naturally invites the learner to use a measured word; es is its translation; kw has 4-8 lowercase single keywords the learner's answer should contain, including a measured word when possible; model is a short natural answer (max 14 words) that uses a measured word; modelEs is its Spanish meaning. Never invent mistakes the learner did not make and never make the practiced target a word outside the given data (other words may appear only as ordinary context). No offensive content, no TV shows, movies, books, songs or real people.`;
+export function pdGenPrompt(data) {
+  const lines = ['Measured data from yesterday (use ONLY this):'];
+  if (data.phonemes.length) lines.push(`Weakest phoneme: ${data.phonemes.map(p => `${p.ipa} (avg ${p.avg}%, ${p.n} samples)`).join(', ')}`);
+  if (data.words.length) lines.push(`Worst words: ${data.words.map(w => `"${w.w}" (score ${w.score}${w.note ? `, note: ${w.note}` : ''})`).join(', ')}`);
+  if (data.errors.length) lines.push(`Latest errors: ${data.errors.map(e => `said "${e.said}" -> correct "${e.correct}"`).join(' | ')}`);
+  lines.push('Create 1 question.');
+  return lines.join('\n');
+}
+const _pdGenClean = s => String(s || '').trim().replace(/\s+/g, ' ');
+export function pdGenValidate(d, data) {
+  if (!d || typeof d !== 'object') return null;
+  const BAD = /fuck|shit|bitch|damn|porn|sex|kill|hate you|stupid/i;
+  const q = _pdGenClean(d.q), es = _pdGenClean(d.es), model = _pdGenClean(d.model), modelEs = _pdGenClean(d.modelEs);
+  const kw = Array.isArray(d.kw) ? d.kw.map(x => String(x || '').trim().toLowerCase()).filter(x => /^[a-z][a-z' -]{1,19}$/.test(x)) : [];
+  if (!q || q.length < 5 || q.length > 140 || !/\?$/.test(q)) return null;
+  if (!es || !model || model.length < 3 || model.length > 160 || !modelEs) return null;
+  if (kw.length < 3) return null;
+  if (BAD.test(q + ' ' + model + ' ' + kw.join(' '))) return null;
+  // La pregunta o la respuesta modelo debe usar de verdad una palabra
+  // medida (o una palabra de la frase corregida); si no, se degrada al
+  // banco estático sin 2.ª llamada.
+  const allowed = new Set((data.words || []).map(w => String(w.w).toLowerCase()));
+  (data.errors || []).forEach(e => String(e.correct || '').toLowerCase().replace(/[^a-z' ]/g, ' ').split(/\s+/).filter(t => t.length >= 3).forEach(t => allowed.add(t)));
+  const hay = s => String(s || '').toLowerCase().replace(/[^a-z' ]/g, ' ').split(/\s+/).some(t => allowed.has(t));
+  if (!hay(q) && !hay(model)) return null;
+  return { id: 'pdg-' + dayKey(), q, es, kw, model, modelEs, min: 2 };
+}
+export async function pdGenSpeak(key = dayKey()) {
+  const cached = pdGenCacheGet();
+  if (cached && cached.day === key) return cached.item || null;
+  if (!pdGenAvailable() || !pdGenHasData()) return null;
+  const data = pdGenData();
+  let item = null;
+  try { const d = await aiJSON(PD_GEN_SYS, pdGenPrompt(data), 1200); item = pdGenValidate(d, data); } catch (e) { item = null; }
+  // (el intento cuenta como la llamada del día aunque falle o el JSON no
+  // valide: el cliente no reintenta hoy para respetar el tope de 1/día)
+  pdGenCacheSet({ day: key, item });
+  return item;
+}
 export function pdStreak() { let n = 0; const d = new Date(); for (;;) { const k = dayKey(d); if (!(S.pd.days[k] && S.pd.days[k].done)) { if (n === 0 && k === dayKey()) { d.setDate(d.getDate() - 1); continue; } break; } n++; d.setDate(d.getDate() - 1); } return n; }
 export const pdMul = () => chatMul();
 export const pdSay = (t, slow, onend) => speak(t, !!slow, onend || null, undefined, pdMul());
@@ -2038,8 +2126,21 @@ export const pdSayEs = (t, onend) => speak(t, false, onend || null, 'es', pdMul(
 export function pdCard(en, es) { const kind = /\s/.test(en.trim()) ? 'frase' : 'palabra', pre = kind === 'frase' ? 's:' : 'w:', key = pre + en.trim().toLowerCase(); if (S.deck[key] || S.deck[pre + en.trim()]) return false; addToDeck([{ key, en: en.trim(), es, kind, lesson: null }]); S.deck[key].src = 'pd'; if (L && L.pd) L.pd.cards++; save(); return true; }
 export function pdHardFrom(r) { const low = (r && r.words || []).filter(w => w.s < 0.6).map(w => ({ word: w.tok.replace(/[.,!?;:"¿¡]/g, ''), note_es: 'Práctica diaria: pronunciación ' + Math.round(w.s * 100) + '%' })).filter(w => w.word.length > 1); if (low.length) { flagHard(low, 'diaria'); if (L && L.pd) L.pd.hard += low.length; } return low.length; }
 /* ---- inicio ---- */
-export function startPD() {
+export async function startPD() {
   const key = dayKey(), it = pdItems(key);
+  // (P7: el paso 2 puede ser la pregunta generada del día; solo se
+  // muestra el spinner transitorio cuando de verdad se va a generar —
+  // caché de hoy vacío + proveedor + errores medidos. Con caché o sin
+  // generación, el inicio es inmediato y estático como hoy.)
+  let gen = null;
+  const cached = pdGenCacheGet();
+  if (cached && cached.day === key) gen = cached.item || null;
+  else if (pdGenAvailable() && pdGenHasData()) {
+    let closeLoading = null;
+    modal(`<div style="text-align:center"><div class="spinner"></div><h2 style="margin:6px 0">🌅 Práctica diaria</h2><p class="small muted">Tuki está preparando tu pregunta de hoy…</p></div>`, (el, close) => { closeLoading = close; });
+    try { gen = await pdGenSpeak(key); } finally { if (closeLoading) closeLoading(); }
+  }
+  if (gen) it.s = gen;
   closeWordPop();
   startLesson(null, 'pd', [{ kind: 'pdl', item: it.l, l: LESSONS[0], step: 1 }, { kind: 'pds', item: it.s, l: LESSONS[0], step: 2 }, { kind: 'pdm', item: it.m, l: LESSONS[0], step: 3 }], 'Práctica diaria');
   if (L) L.pd = { key, ids: [it.l.id, it.s.id, it.m.id], scores: [], cards: 0, hard: 0, miss: 0 };
