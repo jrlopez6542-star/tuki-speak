@@ -1083,6 +1083,107 @@ export async function startPracticeErrors() {
 }
 
 export const numHash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h; };
+
+/* ---- P9 (v2.25.0): revisión semanal "Tu semana con Tuki" ----
+   1 vez por semana, 1 aiJSON sobre los resúmenes/entrevistas de la
+   semana (lunes a hoy) + agregados (S.days, S.ph, errores recurrentes):
+   progreso narrado, 3 focos para la semana siguiente y 1 frase para
+   practicar. Se muestra DENTRO de la tarjeta 🗂️ Historial de Progreso
+   (reglas de densidad R3/R6: sin tarjeta nueva ni sección nueva; el
+   Historial es la única puerta de entrada). Solo aparece con datos:
+   exige mínimo 2 resúmenes en la semana; si no, no se genera nada y no
+   se muestra ni el botón (no inventar progreso). Caché {week, review}
+   en 'tukiSpeak.wkrev' (+ respaldo en memoria): 1 llamada Gemini por
+   semana como máximo; el intento cuenta aunque falle o el JSON no
+   valide. Sin proveedor o con cuota agotada no se llama. No toca el
+   historial existente ni los límites 60/30. */
+export const WEEKLY_REVIEW_CACHE_KEY = 'tukiSpeak.wkrev';
+export let MEM_WKREV = null;
+export function weekKey(d = new Date()) {
+  const t = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  t.setDate(t.getDate() - ((t.getDay() + 6) % 7));
+  return dayKey(t);
+}
+export function weeklyReviewCacheGet() {
+  if (MEM_WKREV) return MEM_WKREV;
+  try { const v = JSON.parse(localStorage.getItem(WEEKLY_REVIEW_CACHE_KEY) || 'null'); if (v && typeof v === 'object') { MEM_WKREV = v; return v; } } catch (e) {}
+  return null;
+}
+export function weeklyReviewCacheSet(v) {
+  MEM_WKREV = v;
+  try { localStorage.setItem(WEEKLY_REVIEW_CACHE_KEY, JSON.stringify(v)); } catch (e) {}
+}
+export function weeklyReviewData() {
+  const wk = weekKey(), today = dayKey();
+  const sums = (S.summaries || []).filter(r => r.date >= wk && r.date <= today);
+  const ivs = (S.interviews || []).filter(r => r.date >= wk && r.date <= today);
+  const days = [];
+  for (let i = 0; i < 7; i++) { const k = dayKey(new Date(Date.now() - i * DAY)); const r = (S.days || {})[k]; if (r) days.push({ k, xp: r.xp || 0, n: r.n || 0, avg: r.n ? Math.round(r.sum / r.n) : null }); }
+  const avgOf = r => { const s = (r.data && r.data.scores) || {}; return (clamp100(s.fluency) + clamp100(s.grammar) + clamp100(s.vocabulary)) / 3; };
+  const scores = sums.length ? { fluency: Math.round(sums.reduce((a, r) => a + clamp100(((r.data && r.data.scores) || {}).fluency), 0) / sums.length), grammar: Math.round(sums.reduce((a, r) => a + clamp100(((r.data && r.data.scores) || {}).grammar), 0) / sums.length), vocabulary: Math.round(sums.reduce((a, r) => a + clamp100(((r.data && r.data.scores) || {}).vocabulary), 0) / sums.length), avg: Math.round(sums.reduce((a, r) => a + avgOf(r), 0) / sums.length) } : null;
+  const errors = [];
+  sums.forEach(r => ((r.data && r.data.mistakes) || []).slice(0, 2).forEach(m => { if (m.correct) errors.push({ said: String(m.said || ''), correct: String(m.correct || '') }); }));
+  const wordCount = {};
+  sums.forEach(r => {
+    const ws = new Set();
+    ((r.data && r.data.mispronounced) || []).forEach(w => w.word && ws.add(String(w.word).toLowerCase()));
+    ((r.data && r.data.mistakes) || []).forEach(m => String(m.correct || '').toLowerCase().replace(/[^a-z' ]/g, ' ').split(/\s+/).filter(t => t.length >= 4).forEach(t => ws.add(t)));
+    ws.forEach(w => { wordCount[w] = (wordCount[w] || 0) + 1; });
+  });
+  const recurring = Object.entries(wordCount).filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([w, n]) => ({ w, n }));
+  const phonemes = Object.entries(S.ph || {}).map(([ipa, r]) => ({ ipa, avg: Math.round(r.sum / r.n), n: r.n }))
+    .filter(p => p.n >= 1 && Number.isFinite(p.avg) && p.avg < 80).sort((a, b) => a.avg - b.avg).slice(0, 2);
+  const interviews = ivs.map(r => ({ role: r.role || '', overall: (r.data && r.data.overall) || 0 }));
+  return { week: wk, sums: sums.length, interviews: interviews.length, days, xp: days.reduce((a, d) => a + d.xp, 0), activeDays: days.length, scores, errors: errors.slice(0, 4), recurring, phonemes, interviewScores: interviews.map(i => i.overall) };
+}
+export function weeklyReviewEligible(d) {
+  const data = d || weeklyReviewData();
+  return data.sums >= 2;
+}
+export function weeklyReviewAvailable() {
+  if (!currentProvider()) return false;
+  if (gemShared()) { const q = aiQuotaToday(); if (q && (q.limit - q.used) <= 0) return false; }
+  return true;
+}
+export const WEEKLY_REVIEW_SYS = `You are "Tuki", a patient English teacher for a Spanish-speaking learner from Colombia. You are given MEASURED data about this learner's week (conversation summaries, interview scores, days active, XP, average scores, recurring errors and weakest phonemes).
+Write a short weekly review. Return ONLY JSON with this exact shape:
+{"progress_es":"<2-3 sentences in Latin American Spanish, using 'tú', narrating the real progress of the week>","focuses":["<focus 1>","<focus 2>","<focus 3>"],"practice":{"en":"<one English sentence to practice>","es":"<its Spanish meaning>"}}
+Rules: progress_es must use ONLY the data given (scores, days active, XP, errors). Never invent progress, scores or activities that are not in the data; if scores are flat or mixed, say so honestly. focuses: exactly 3 short actionable focuses for next week, each tied to a measured weakness (a phoneme, a recurring word, an error type from the data). practice: one English sentence (A1-A2 words, max 14 words) that uses a word from the week's errors or a weak phoneme word, with its Spanish meaning. No offensive content, no TV shows, movies, books, songs or real people.`;
+export function weeklyReviewPrompt(data) {
+  const lines = ['Measured data for this week (use ONLY this):'];
+  lines.push(`Summaries this week: ${data.sums}; interviews: ${data.interviews}`);
+  if (data.scores) lines.push(`Average scores: fluency ${data.scores.fluency}, grammar ${data.scores.grammar}, vocabulary ${data.scores.vocabulary}, overall ${data.scores.avg}`);
+  if (data.interviewScores.length) lines.push(`Interview scores: ${data.interviewScores.join(', ')}`);
+  lines.push(`Active days: ${data.activeDays}/7; total XP this week: ${data.xp}`);
+  if (data.errors.length) lines.push(`Errors this week: ${data.errors.map(e => `said "${e.said}" -> correct "${e.correct}"`).join(' | ')}`);
+  if (data.recurring.length) lines.push(`Recurring words (in 2+ summaries): ${data.recurring.map(r => `${r.w} (${r.n}x)`).join(', ')}`);
+  if (data.phonemes.length) lines.push(`Weakest phonemes: ${data.phonemes.map(p => `${p.ipa} (avg ${p.avg}%, ${p.n} samples)`).join(', ')}`);
+  return lines.join('\n');
+}
+const _wkClean = s => String(s || '').trim().replace(/\s+/g, ' ');
+export function weeklyReviewValidate(d) {
+  if (!d || typeof d !== 'object') return null;
+  const progress_es = _wkClean(d.progress_es);
+  const focuses = Array.isArray(d.focuses) ? d.focuses.map(x => _wkClean(x)) : [];
+  const practice = d.practice && typeof d.practice === 'object' ? { en: _wkClean(d.practice.en), es: _wkClean(d.practice.es) } : null;
+  if (!progress_es || progress_es.length < 20 || progress_es.length > 600) return null;
+  if (focuses.length !== 3 || focuses.some(f => !f || f.length < 5 || f.length > 140)) return null;
+  if (!practice || !practice.en || practice.en.length < 3 || practice.en.length > 140 || !practice.es) return null;
+  return { progress_es, focuses, practice };
+}
+export async function generateWeeklyReview() {
+  const wk = weekKey();
+  const cached = weeklyReviewCacheGet();
+  if (cached && cached.week === wk) return cached.review || null;
+  if (!weeklyReviewAvailable() || !weeklyReviewEligible()) return null;
+  const data = weeklyReviewData();
+  let review = null;
+  try { const d = await aiJSON(WEEKLY_REVIEW_SYS, weeklyReviewPrompt(data), 1800); review = weeklyReviewValidate(d); } catch (e) { review = null; }
+  // (el intento cuenta como la llamada de la semana aunque falle o el
+  // JSON no valide: el cliente no reintenta esta semana)
+  weeklyReviewCacheSet({ week: wk, review });
+  return review;
+}
 export const SENIORITY = { intern: ['Practicante / pasantía', 'internship'], junior: ['Junior', 'junior'], mid: ['Semi-senior', 'mid-level'], senior: ['Senior', 'senior'], lead: ['Líder / gerente', 'lead / manager'] };
 export const IV_END = /end of the interview/i;
 Object.defineProperty(SCENARIOS, '__iv', { enumerable: true, get: () => { const iv = CHAT.iv || {}; return `a professional recruiter conducting a job interview in English for a ${(SENIORITY[iv.sen] || SENIORITY.junior)[1]} ${iv.role || 'office job'} position` } });
