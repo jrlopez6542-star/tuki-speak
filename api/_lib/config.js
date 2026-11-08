@@ -13,6 +13,16 @@ export const limits = () => ({ gemini: int(process.env.LIMIT_GEMINI, 60), live: 
 // Modelos permitidos: los mismos que usa la app (texto con respaldo en cadena; Live)
 export const TEXT_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.0-flash-lite'];
 export const LIVE_MODELS = ['gemini-3.1-flash-live-preview', 'gemini-2.5-flash-native-audio-preview-12-2025', 'gemini-2.5-flash-native-audio-preview-09-2025', 'gemini-live-2.5-flash-preview'];
+// P12 (v2.28.0): visión por claves compartidas. Solo estos modelos
+// multimodales pueden recibir imágenes (inlineData); el resto de la
+// lista blanca de texto NO cambia. La visión cuesta más tokens
+// upstream por llamada que el texto (§5.6 del informe de IA): cada
+// análisis con foto cuenta 1 dentro de las 60/día compartidas (misma
+// cuota que el texto, sin contador propio) y el tamaño está acotado.
+export const VISION_MODELS = ['gemini-2.5-flash', 'gemini-flash-latest'];
+export const VISION_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+export const MAX_IMAGE_B64_CHARS = 2_800_000; // ~2,1 MB decodificados (base64 de 2 MB ≈ 2,67 M caracteres); el cliente redimensiona y rechaza > 2 MB
+export const MAX_GEMINI_BODY_BYTES = 3_000_000; // solo /api/gemini (imagen + JSON); el resto de la API sigue en 200 KB
 
 // Tamaños máximos
 export const MAX_BODY_BYTES = 200_000;       // petición completa
