@@ -265,9 +265,16 @@ textarea.inp:focus{outline:none;border-color:#84d8ff;background:#fff}
 .msg.warn{background:#fff7e6;border:2px solid #ffe0a3;align-self:center;font-size:14px}
 .msg .mini{background:none;border:0;font-size:16px;padding:0 0 0 6px;vertical-align:middle}
 .chatbar{display:flex;gap:8px;align-items:flex-end}
-.chatbar textarea{flex:1;min-height:48px;max-height:120px;border:2px solid var(--line);border-radius:var(--r-md);padding:11px;resize:none}
+.chatbar textarea{flex:1;min-height:48px;max-height:120px;border:2px solid var(--line);border-radius:var(--r-pill);padding:11px 16px;resize:none;overflow-y:auto;transition:border-color .15s,box-shadow .18s var(--ease-out)}
+.chatbar textarea:focus{outline:none;border-color:var(--g);box-shadow:0 0 0 4px rgba(31,164,99,.15),var(--sh-1)}
 .iconbtn{width:48px;height:48px;border-radius:var(--r-md);border:2px solid var(--line);background:#fff;font-size:20px;flex:none;box-shadow:0 3px 0 var(--line);transition:transform .18s var(--spring),box-shadow .18s var(--spring),border-color .15s}
 .iconbtn.rec{background:#ffecec;border-color:#ffb3b3;animation:pulse 1s infinite}
+/* (chat premium Etapa 1, v2.35.0: enviar solo con texto, resorte al tocar,
+   pulso del micrófono mientras graba) */
+.chatbar #csend:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.chatbar #csend:active:not(:disabled){transform:scale(.96)}
+.chatbar #cmic.rec{animation:chatMicPulse 1.2s ease-out infinite}
+@keyframes chatMicPulse{0%{box-shadow:0 0 0 0 rgba(255,75,75,.35)}70%{box-shadow:0 0 0 10px rgba(255,75,75,0)}100%{box-shadow:0 0 0 0 rgba(255,75,75,0)}}
 /* settings */
 .set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:2px solid #f0f3f5}
 .set-row:last-child{border-bottom:0}
@@ -370,7 +377,7 @@ a{color:var(--b-d)}
 [data-contrast=high] .btn,[data-contrast=high] .opt,[data-contrast=high] .tile{border-width:3px}
 [data-contrast=high] a{text-decoration:underline}
 [data-motion=reduce] *,[data-motion=reduce] *::before,[data-motion=reduce] *::after{animation:none!important;transition:none!important}
-@media (prefers-reduced-motion: reduce){.node.current,.start-tip{animation:none}}
+@media (prefers-reduced-motion: reduce){.node.current,.start-tip,.chatbar #cmic.rec{animation:none}.chatbar #cin,.chatbar #csend{transition:none}}
 .banner{position:fixed;left:50%;transform:translateX(-50%);z-index:95;max-width:540px;width:calc(100% - 20px);border-radius:var(--r-md);padding:10px 14px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:10px;justify-content:space-between;box-shadow:0 6px 20px rgba(0,0,0,.18)}
 .banner.net{top:calc(64px + env(safe-area-inset-top));background:#33290f;color:#fff}
 .banner.upd{bottom:calc(84px + env(safe-area-inset-bottom));background:#1f2a33;color:#fff}
