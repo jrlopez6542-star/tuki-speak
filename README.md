@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.37.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.37.1
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.37.1
+- **🔒 Chat con clave propia: historial recortado y reintento acotado (F2)**: con clave propia de Gemini u OpenAI, el chat envía como mucho los últimos 60 mensajes (antes el historial completo; la ruta compartida ya lo recortaba a 100 y P10 ya compactaba a partir de 60, así que la nota de perfil sigue conservando el contexto anterior); y `aiQuick` hace una sola pasada por la cadena de modelos (antes hasta 4 pasadas × 5–6 modelos, cada intento fallido pagado con la propia clave) y `gemini()` un solo intento por modelo. Si todos los modelos están saturados, aparece el aviso de «ocupado» para reintentar después. Sin cambios en el formato de 6 líneas, el flujo base, las cuotas compartidas ni el progreso.
 
 ## Novedades v2.37.0
 - **💬 Estado de Tuki en el chat**: mientras se espera la respuesta de la IA, el chat muestra «Tuki está escribiendo…» con tres puntos animados (reutiliza el indicador «…» que ya aparecía con `CHAT.busy`) y el botón de enviar queda bloqueado hasta que llega la respuesta; con movimiento reducido los puntos quedan estáticos. Sin cambios en el envío, la recepción, las cuotas ni el progreso.
