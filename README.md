@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.39.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.40.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.40.0
+- **📊 Monitoreo de la cuota compartida (solo el dueño)**: el Panel de administrador en Ajustes ahora muestra un resumen agregado del consumo de las claves de Tuki — totales de hoy y de 7 días (Gemini · Live · Azure), usuarios con uso hoy y una tabla por día —, sin endpoint nuevo ni secreto nuevo: resume los documentos de cuota que el panel ya leía (solo el dueño los puede leer). Alerta visible cuando el consumo agregado del día supera un umbral: 🔴 300 llamadas Gemini en el día (= 5 usuarios a tope) o algún usuario en su límite de 60, 🟡 150 llamadas en el día, algún usuario con 55+ o un pico de más del doble de la media de los 6 días previos; sin superar el umbral no aparece ninguna alerta. Sin cambios en la cuota por persona, la tabla por usuario ni el progreso.
 
 ## Novedades v2.39.0
 - **🎭 Práctica y Ajustes llegan a los techos R10 de densidad**: en Práctica, los 9 modos dejan de ser 9 tarjetas y pasan a ser 9 filas dentro de una sola tarjeta «🎭 Modos de práctica», con los mismos destinos, candados y textos (Práctica pasa de 16 a 8 tarjetas visibles, techo 12 ✔); en Ajustes, las 3 tarjetas de mantenimiento — 📦 Modo Offline, 🔄 Actualizaciones y 💾 Datos — se fusionan en una sola tarjeta «📦 Datos y mantenimiento» con 3 secciones, con los mismos botones (Ajustes pasa de 14 a 12 tarjetas, techo 12 ✔). Aprender (10 bloques con datos) y Progreso (9 tarjetas) ya cumplían su techo y no se tocan. Sin cambios en la lógica de los modos, el progreso, el XP ni las claves.
