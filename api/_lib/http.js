@@ -25,7 +25,9 @@ export function corsHeaders(origin) {
 }
 
 // Ejecuta un manejador "puro" ({method, headers, body} → objeto JSON) con CORS y errores uniformes.
-export async function run(req, handler) {
+// opts.maxBodyBytes: tope del cuerpo (por defecto MAX_BODY_BYTES); solo
+// /api/gemini lo sube (P12: la foto en base64 no cabe en 200 KB).
+export async function run(req, handler, opts = {}) {
   const headers = lower(req.headers || {}), origin = headers.origin || '';
   const base = corsHeaders(origin);
   const out = (status, body) => ({ status, headers: { ...base, 'Content-Type': 'application/json; charset=utf-8' }, body });
@@ -33,7 +35,7 @@ export async function run(req, handler) {
   if (req.method === 'OPTIONS') return { status: 204, headers: base, body: null };
   if (req.method !== 'POST') return out(405, { error: { code: 'METHOD', message: MSG.method } });
   try {
-    const body = parseBody(req.body, headers);
+    const body = parseBody(req.body, headers, opts.maxBodyBytes || MAX_BODY_BYTES);
     return out(200, await handler({ headers, body }));
   } catch (e) {
     if (e instanceof HttpError) return out(e.status, { error: { code: e.code, message: e.message, ...(e.extra || {}) } });
@@ -43,30 +45,30 @@ export async function run(req, handler) {
 }
 function lower(h) { const o = {}; for (const [k, v] of Object.entries(h)) o[k.toLowerCase()] = Array.isArray(v) ? v[0] : v; return o; }
 const safeReviver = (k, v) => (k === '__proto__' || k === 'constructor' || k === 'prototype') ? undefined : v;
-function parseBody(b, headers) {
+function parseBody(b, headers, maxBodyBytes = MAX_BODY_BYTES) {
   if (b == null || b === '') return {};
-  if (+headers['content-length'] > MAX_BODY_BYTES) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
+  if (+headers['content-length'] > maxBodyBytes) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
   if (typeof b === 'string' || Buffer.isBuffer(b)) {
-    const s = b.toString(); if (s.length > MAX_BODY_BYTES) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
+    const s = b.toString(); if (s.length > maxBodyBytes) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
     try { return JSON.parse(s, safeReviver); } catch (e) { throw new HttpError(400, 'BAD_JSON', MSG.bad); }
   }
   if (typeof b !== 'object') throw new HttpError(400, 'BAD_JSON', MSG.bad);
-  if (JSON.stringify(b).length > MAX_BODY_BYTES) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
+  if (JSON.stringify(b).length > maxBodyBytes) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
   return b;
 }
 
 // Adaptador para Vercel (req/res de Node)
-export const vercel = handler => async (req, res) => {
+export const vercel = (handler, opts = {}) => async (req, res) => {
   let body = req.body;
-  if (body === undefined && req.method === 'POST' && typeof req.on === 'function') body = await readRaw(req); // sin el parser de Vercel
-  const r = await run({ method: req.method, headers: req.headers, body }, handler);
+  if (body === undefined && req.method === 'POST' && typeof req.on === 'function') body = await readRaw(req, opts.maxBodyBytes || MAX_BODY_BYTES); // sin el parser de Vercel
+  const r = await run({ method: req.method, headers: req.headers, body }, handler, opts);
   res.statusCode = r.status;
   for (const [k, v] of Object.entries(r.headers)) res.setHeader(k, v);
   res.end(r.body == null ? '' : JSON.stringify(r.body));
 };
-function readRaw(req) {
+function readRaw(req, maxBodyBytes = MAX_BODY_BYTES) {
   return new Promise((resolve) => { let n = 0; const chunks = [];
-    req.on('data', c => { n += c.length; if (n <= MAX_BODY_BYTES + 1) chunks.push(c); });
+    req.on('data', c => { n += c.length; if (n <= maxBodyBytes + 1) chunks.push(c); });
     req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
     req.on('error', () => resolve('')); });
 }

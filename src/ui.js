@@ -6,7 +6,7 @@ import { $, $$, avg, colorOf, dayKey, decodeDeep, decodeEnt, esc, hashStr, lev, 
 import { DAY, MAX_HEARTS, S, addToDeck, isDone, recordSpeech, refreshHearts, soundAvg, todayRec } from './state.js';
 import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
 import { L, RENDER, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
-import { AZT, CHAT, LEVELS, LEVEL_KEYS, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tutorSpeed, uid } from './chat.js';
+import { AZT, CHAT, LEVELS, LEVEL_KEYS, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tukiApi, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
 import { TukiDB } from './tuki-db.js';
 import { APP_VERSION, COURSE, LESSON, LESSONS, TAB, TC_LAST_PERSONALIZED, TUKI_OFFLINE_TC, VIEWS, addXP, beep, checkBadges, closeLesson, confetti, decodeAudio, go, isUnlocked, render, save, streakNow, tcGenerate, toast, tukiChirp, tukiFanfare } from './main.js';
@@ -3446,6 +3446,61 @@ export const PHOTO_SCENARIOS = [
   { id: 'street', title: '🏙️ En la calle / transporte', img: '🚌', q: 'How do you usually commute and what do you see around you?', words: ['street', 'traffic', 'building', 'pedestrian', 'bus'] }
 ];
 
+/* ---- P12 (v2.28.0): visión por claves compartidas para la foto ----
+   «Analizar con IA» ya funcionaba solo con clave propia de Gemini
+   (fetch directo a Google). Ahora también funciona con las claves
+   compartidas de Tuki: la foto va a /api/gemini (1 llamada dentro de
+   las 60/día compartidas, sin contador propio) y el servidor solo
+   admite inlineData jpeg/png/webp de máx. ~2 MB con modelo multimodal.
+   La visión cuesta más tokens upstream por llamada que el texto
+   (§5.6 del informe de IA): el límite de tamaño y el contador de
+   60/día son las mitigaciones, y quedan documentados aquí, en el PR
+   y en el README. Consentimiento explícito antes de subir la foto por
+   la ruta compartida (casilla; sin ella no se sube nada). La foto se
+   redimensiona en el cliente (máx. 1024 px, JPEG 0.82) y se rechaza
+   si sigue por encima de 2 MB. El arreglo mínimo F1 (fallback
+   etiquetado como ejemplo genérico) NO se toca. Sin proveedor, la
+   práctica sigue igual con el ejemplo genérico. */
+export const PHOTO_SHARED_MODEL = 'gemini-2.5-flash';
+export const PHOTO_MAX_DIM = 1024;
+export const PHOTO_MAX_BYTES = 2_000_000;
+export const PHOTO_PROMPT = 'Analyze this image for an English learner from Colombia. Identify 5 clear vocabulary words visible in English with their Spanish translation, and ask 1 engaging question in English for the learner to answer. Format: 5 bullet lines "- word: translation", then "QUESTION: your question in English"';
+export function photoSharedAvailable() {
+  if (!gemShared()) return false;
+  const q = aiQuotaToday();
+  if (q && (q.limit - q.used) <= 0) return false;
+  return true;
+}
+export function resizePhoto(dataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const w0 = img.naturalWidth || img.width, h0 = img.naturalHeight || img.height;
+        if (!w0 || !h0) throw new Error('sin tamaño');
+        const scale = Math.min(1, PHOTO_MAX_DIM / Math.max(w0, h0));
+        const w = Math.max(1, Math.round(w0 * scale)), h = Math.max(1, Math.round(h0 * scale));
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        const g = cv.getContext('2d'); if (!g) throw new Error('sin canvas');
+        g.drawImage(img, 0, 0, w, h);
+        cv.toBlob(b => {
+          if (!b) return reject(new Error('sin blob'));
+          if (b.size > PHOTO_MAX_BYTES) return reject(new Error('too big'));
+          const r = new FileReader();
+          r.onload = () => { const du = String(r.result || ''); resolve({ dataUrl: du, mime: 'image/jpeg', b64: du.split(',')[1] || '', bytes: b.size }); };
+          r.onerror = () => reject(new Error('read'));
+          r.readAsDataURL(b);
+        }, 'image/jpeg', 0.82);
+      } catch (e) { reject(e); }
+    };
+    img.onerror = () => reject(new Error('load'));
+    img.src = dataUrl;
+  });
+}
+export async function photoAnalyzeShared(b64, mime) {
+  const d = await tukiApi('gemini', { model: PHOTO_SHARED_MODEL, request: { contents: [{ role: 'user', parts: [{ text: PHOTO_PROMPT }, { inlineData: { mimeType: mime || 'image/jpeg', data: b64 } }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 800 } } });
+  return String((d && d.text) || '').trim();
+}
 export function openPhotoPractice() {
   const hasOwnGemini = !!(S.settings.geminiKey && S.settings.geminiKey.trim());
   modal(`<h2>📷 Describe y Aprende</h2>
@@ -3462,6 +3517,7 @@ export function openPhotoPractice() {
       <div class="row" style="margin-top:8px">
         <button class="btn blue sm block" id="photoAnalyze">🔍 Analizar con IA</button>
       </div>
+      <label id="photoConsentRow" class="small" style="display:none;gap:6px;align-items:flex-start;margin-top:8px;text-align:left"><input type="checkbox" id="photoConsent" style="margin-top:2px"><span>Acepto subir mi foto a las claves de Tuki para analizarla. Solo se usa para este análisis y cuenta en tus 60 llamadas de hoy.</span></label>
     </div>
     <div id="photoResult" style="margin-top:10px"></div>
     
@@ -3482,16 +3538,28 @@ export function openPhotoPractice() {
     <button class="btn ghost block" data-x style="margin-top:14px">Cerrar</button>`, (el, close) => {
     $('[data-x]', el).onclick = close;
     const inp = $('#photoFile', el), wrap = $('#photoPreviewWrap', el), img = $('#photoImg', el), drop = $('#photoDrop', el), res = $('#photoResult', el);
-    let base64Img = null;
+    let base64Img = null, photoB64 = null, photoMime = 'image/jpeg';
+    const photoFallbackNote = () => {
+      if (hasOwnGemini) return 'No pude analizar tu foto: estos objetos son un ejemplo, no lo que hay en tu foto.';
+      if (gemShared()) { const q = aiQuotaToday(); if (q && (q.limit - q.used) <= 0) return 'Llegaste al límite gratis de hoy (60 llamadas de IA): estos objetos son un ejemplo, no lo que hay en tu foto.'; return 'No pude analizar tu foto con las claves de Tuki: estos objetos son un ejemplo, no lo que hay en tu foto.'; }
+      return 'Sin tu clave de Gemini no puedo ver tu foto: estos objetos son un ejemplo, no lo que hay en tu foto.';
+    };
     inp.onchange = e => {
       const f = e.target.files && e.target.files[0];
       if (!f) return;
       const reader = new FileReader();
       reader.onload = ev => {
-        base64Img = ev.target.result;
-        img.src = base64Img;
-        wrap.style.display = 'block';
-        drop.style.display = 'none';
+        resizePhoto(ev.target.result).then(r => {
+          base64Img = r.dataUrl; photoB64 = r.b64; photoMime = r.mime;
+          img.src = base64Img;
+          wrap.style.display = 'block';
+          drop.style.display = 'none';
+          const crow = $('#photoConsentRow', el);
+          if (crow) crow.style.display = (!hasOwnGemini && photoSharedAvailable()) ? 'flex' : 'none';
+          res.innerHTML = '';
+        }).catch(() => {
+          res.innerHTML = '<div class="small">⚠️ No se pudo leer esa foto. Prueba con otra imagen (JPG o PNG, máx. 2 MB).</div>';
+        });
       };
       reader.readAsDataURL(f);
     };
@@ -3501,7 +3569,7 @@ export function openPhotoPractice() {
       try {
         if (hasOwnGemini) {
           const rawB64 = base64Img.split(',')[1], mime = base64Img.split(';')[0].replace('data:', '') || 'image/jpeg';
-          const prompt = 'Analyze this image for an English learner from Colombia. Identify 5 clear vocabulary words visible in English with their Spanish translation, and ask 1 engaging question in English for the learner to answer. Format: 5 bullet lines "- word: translation", then "QUESTION: your question in English"';
+          const prompt = PHOTO_PROMPT;
           const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(S.settings.geminiKey.trim())}`, {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: mime, data: rawB64 } }] }] })
@@ -3515,10 +3583,21 @@ export function openPhotoPractice() {
             if (bChat) bChat.onclick = () => { close(); go('chat'); };
             return;
           }
+        } else if (photoSharedAvailable()) {
+          const consent = $('#photoConsent', el);
+          if (!consent || !consent.checked) { res.innerHTML = '<div class="small">⚠️ Marca la casilla para subir tu foto a las claves de Tuki.</div>'; return; }
+          const txt = await photoAnalyzeShared(photoB64 || base64Img.split(',')[1], photoMime);
+          if (txt) {
+            res.innerHTML = `<div class="tipbox" style="white-space:pre-wrap;font-size:14px">${esc(txt)}</div>
+              <button class="btn primary sm block" style="margin-top:8px" id="goToChatFromPhoto">💬 Practicar esto en conversación</button>`;
+            const bChat = $('#goToChatFromPhoto', el);
+            if (bChat) bChat.onclick = () => { close(); go('chat'); };
+            return;
+          }
         }
         res.innerHTML = `<div class="tipbox small">
           <b>📷 Ejemplo genérico para practicar:</b>
-          <p class="muted" style="margin:4px 0">${hasOwnGemini ? 'No pude analizar tu foto: estos objetos son un ejemplo, no lo que hay en tu foto.' : 'Sin tu clave de Gemini no puedo ver tu foto: estos objetos son un ejemplo, no lo que hay en tu foto.'}</p>
+          <p class="muted" style="margin:4px 0">${photoFallbackNote()}</p>
           <p style="margin:4px 0">• <b>room</b>: habitación<br>• <b>desk</b>: escritorio<br>• <b>screen</b>: pantalla<br>• <b>light</b>: luz / lámpara<br>• <b>window</b>: ventana</p>
           <b>Pregunta para ti:</b>
           <p style="margin:4px 0"><i>"Can you describe what you use the most in this space?"</i></p>

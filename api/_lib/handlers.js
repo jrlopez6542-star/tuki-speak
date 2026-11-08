@@ -1,5 +1,5 @@
 // Manejadores "puros" de la API (se prueban sin red: deps.fetch se puede reemplazar).
-import { TEXT_MODELS, LIVE_MODELS, MAX_INPUT_CHARS, MAX_CONTENTS, MAX_PARTS, MAX_OUTPUT_TOKENS, MAX_OUTPUT_CHARS, GEMINI_BUDGET_MS, MSG } from './config.js';
+import { TEXT_MODELS, VISION_MODELS, VISION_MIME_TYPES, MAX_IMAGE_B64_CHARS, LIVE_MODELS, MAX_INPUT_CHARS, MAX_CONTENTS, MAX_PARTS, MAX_OUTPUT_TOKENS, MAX_OUTPUT_CHARS, GEMINI_BUDGET_MS, MSG } from './config.js';
 import { HttpError } from './http.js';
 import { authorize } from './auth.js';
 import { consume } from './quota.js';
@@ -11,15 +11,42 @@ const isObj = x => x && typeof x === 'object' && !Array.isArray(x);
 const onlyKeys = (o, ks) => Object.keys(o).every(k => ks.includes(k));
 
 // ---- Gemini texto: forma de la petición en lista blanca ----
+// P12 (v2.28.0): además de texto, un mensaje del usuario puede llevar
+// UNA sola imagen (inlineData, jpeg/png/webp, máx. ~2 MB en base64) y
+// solo si el modelo pedido es multimodal (VISION_MODELS). La lista
+// blanca de texto NO se relaja: las partes de texto siguen siendo solo
+// {text}, los caracteres de texto siguen contando para MAX_INPUT_CHARS
+// (la imagen no cuenta como texto) y el resto de límites no cambia.
+// La imagen nunca va en systemInstruction ni en mensajes del modelo.
+const B64_RE = /^[A-Za-z0-9+/]+={0,2}$/;
 export function sanitizeGeminiRequest(body) {
   if (!isObj(body) || !onlyKeys(body, ['model', 'request'])) throw bad();
   const { model, request: q } = body;
   if (typeof model !== 'string' || !TEXT_MODELS.includes(model)) throw new HttpError(400, 'MODEL', MSG.model);
   if (!isObj(q) || !onlyKeys(q, ['systemInstruction', 'contents', 'generationConfig'])) throw bad();
-  let chars = 0;
+  let chars = 0, images = 0;
   const textParts = (parts) => {
     if (!Array.isArray(parts) || !parts.length || parts.length > MAX_PARTS) throw bad();
     return parts.map(p => { if (!isObj(p) || !onlyKeys(p, ['text']) || typeof p.text !== 'string') throw bad(); chars += p.text.length; return { text: p.text }; });
+  };
+  const userParts = (parts) => {
+    if (!Array.isArray(parts) || !parts.length || parts.length > MAX_PARTS) throw bad();
+    let hasText = false, hasImage = false;
+    const mapped = parts.map(p => {
+      if (!isObj(p)) throw bad();
+      if (onlyKeys(p, ['text']) && typeof p.text === 'string') { chars += p.text.length; hasText = true; return { text: p.text }; }
+      if (onlyKeys(p, ['inlineData']) && isObj(p.inlineData) && onlyKeys(p.inlineData, ['mimeType', 'data'])) {
+        const { mimeType, data } = p.inlineData;
+        if (!VISION_MIME_TYPES.includes(mimeType) || typeof data !== 'string' || !data.length || data.length > MAX_IMAGE_B64_CHARS || !B64_RE.test(data)) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
+        if (++images > 1) throw bad();
+        hasImage = true;
+        return { inlineData: { mimeType, data } };
+      }
+      throw bad();
+    });
+    // Una imagen sola, sin texto que diga qué hacer con ella, no se admite.
+    if (hasImage && !hasText) throw bad();
+    return mapped;
   };
   const out = {};
   if (q.systemInstruction != null) {
@@ -29,8 +56,9 @@ export function sanitizeGeminiRequest(body) {
   if (!Array.isArray(q.contents) || !q.contents.length || q.contents.length > MAX_CONTENTS) throw bad();
   out.contents = q.contents.map(c => {
     if (!isObj(c) || !onlyKeys(c, ['role', 'parts']) || !['user', 'model'].includes(c.role)) throw bad();
-    return { role: c.role, parts: textParts(c.parts) };
+    return { role: c.role, parts: c.role === 'user' ? userParts(c.parts) : textParts(c.parts) };
   });
+  if (images && !VISION_MODELS.includes(model)) throw new HttpError(400, 'MODEL', MSG.model);
   if (chars > MAX_INPUT_CHARS) throw new HttpError(413, 'TOO_BIG', MSG.tooBig);
   const g = q.generationConfig == null ? {} : q.generationConfig;
   if (!isObj(g) || !onlyKeys(g, ['temperature', 'maxOutputTokens', 'responseMimeType'])) throw bad();
@@ -39,7 +67,7 @@ export function sanitizeGeminiRequest(body) {
   if (g.maxOutputTokens != null) { if (!Number.isInteger(g.maxOutputTokens) || g.maxOutputTokens < 1) throw bad(); gc.maxOutputTokens = Math.min(g.maxOutputTokens, MAX_OUTPUT_TOKENS); }
   if (g.responseMimeType != null) { if (!['application/json', 'text/plain'].includes(g.responseMimeType)) throw bad(); gc.responseMimeType = g.responseMimeType; }
   out.generationConfig = gc;
-  return { model, request: out };
+  return { model, request: out, hasImage: images > 0 };
 }
 
 async function gemOnce(model, request, key, timeoutMs) {
@@ -56,11 +84,14 @@ async function gemOnce(model, request, key, timeoutMs) {
 
 export async function geminiHandler({ headers, body }) {
   const user = await authorize(headers);
-  const { model, request } = sanitizeGeminiRequest(body);
+  const { model, request, hasImage } = sanitizeGeminiRequest(body);
   const key = process.env.GEMINI_API_KEY; if (!key) throw new HttpError(503, 'CONFIG', MSG.config);
   const q = await consume(user, 'gemini', deps.fetch);
   // Misma cadena de respaldo que la app: el modelo pedido y luego los demás de la lista.
-  const chain = [model, ...TEXT_MODELS].filter((m, i, a) => a.indexOf(m) === i), t0 = Date.now();
+  // Con imagen, la cadena solo usa modelos multimodales (VISION_MODELS):
+  // la imagen nunca se envía a un modelo fuera de esa lista.
+  const pool = hasImage ? VISION_MODELS : TEXT_MODELS;
+  const chain = [model, ...pool].filter((m, i, a) => a.indexOf(m) === i), t0 = Date.now();
   let last = { status: 0 };
   for (let pass = 0; pass < 2; pass++) {
     let transient = false;

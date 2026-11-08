@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.27.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.28.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.28.0
+- **📷 «Analizar con IA» ahora funciona sin clave propia**: la foto se analiza con las claves compartidas de Tuki (1 llamada dentro de tus 60/día, sin contador propio); la foto se redimensiona en tu dispositivo (máx. 1024 px, 2 MB) y solo se sube con tu consentimiento explícito (casilla). La visión cuesta más tokens que el texto, por eso el tamaño y el contador de 60/día son el límite. Sin proveedor, la práctica sigue con el ejemplo genérico etiquetado.
 
 ## Novedades v2.27.0
 - **🎙️ Prueba de nivel con habla libre (opcional)**: al final de la prueba, si quieres, hablas 1 minuto sobre ti con tu consentimiento explícito: Azure evalúa tus fonemas y Gemini resume tu nivel con más detalle y tus 3 primeros focos. 1 token Azure + 1 llamada Gemini, una sola vez por usuario; el audio no se guarda. El nivel sugerido solo se aplica si tú lo aceptas. Sin proveedor, sin Azure o sin micrófono, la prueba termina exactamente como hoy.

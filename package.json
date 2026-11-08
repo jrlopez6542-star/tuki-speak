@@ -1,6 +1,6 @@
 {
   "name": "tuki-speak",
-  "version": "2.27.0",
+  "version": "2.28.0",
   "private": true,
   "type": "module",
   "description": "Tuki Speak: app estática + API mínima en Vercel (claves compartidas)",
