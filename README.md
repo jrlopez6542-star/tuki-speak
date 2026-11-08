@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.28.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.29.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.29.0
+- **🎙️ Pronunciación medida en vivo (opt-in)**: nuevo ajuste «Medir mi pronunciación en vivo» (apagado por defecto) en Ajustes → Evaluación avanzada con Azure. Solo en voz en vivo con Gemini: al cerrar la sesión, Azure evalúa tus 2–3 turnos más largos con tu propia transcripción como referencia y los fonemas débiles alimentan «Practica mis errores» y el Top 2. El audio queda solo en tu dispositivo durante la sesión y se borra al cerrar; a Azure solo llega el fragmento evaluado, con el token vigente (si la sesión supera 10 min se pide otro). El resultado mide consistencia fonémica, no es una nota absoluta. Sin permiso, sin Azure o con OpenAI, la sesión sigue exactamente como hoy.
 
 ## Novedades v2.28.0
 - **📷 «Analizar con IA» ahora funciona sin clave propia**: la foto se analiza con las claves compartidas de Tuki (1 llamada dentro de tus 60/día, sin contador propio); la foto se redimensiona en tu dispositivo (máx. 1024 px, 2 MB) y solo se sube con tu consentimiento explícito (casilla). La visión cuesta más tokens que el texto, por eso el tamaño y el contador de 60/día son el límite. Sin proveedor, la práctica sigue con el ejemplo genérico etiquetado.
