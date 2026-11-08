@@ -1827,10 +1827,10 @@ export function tcFinish() {
   $('#fullInner').innerHTML = `<div class="complete"><div class="mascot tuki-celebrate" id="tcFinishMascot" style="width:120px;height:120px;cursor:pointer" title="¡Toca al Profe Tuki para celebrar!">${MASCOT}</div>
     <h1>¡Ronda completada!</h1><div class="muted">Traduce y completa · ${esc(TC_LV[lv])}</div>
     <div class="scards">
-      <div class="scard scard-celebrate" style="border-color:var(--o);animation-delay:.1s"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)" data-countup="${xp}" data-countup-prefix="+">+${xp}</div></div>
-      <div class="scard scard-celebrate" style="border-color:var(--g);animation-delay:.18s"><div class="t" style="background:var(--g)">A la primera</div><div class="v" style="color:var(--g-d)">${t.first}/${n}</div></div>
-      <div class="scard scard-celebrate" style="border-color:var(--b);animation-delay:.26s"><div class="t" style="background:var(--b)">Dominadas</div><div class="v" style="color:var(--b-d)">${tcMasteredCount()}</div></div>
-      <div class="scard scard-celebrate" style="border-color:#8b5cf6;animation-delay:.34s"><div class="t" style="background:#8b5cf6">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div>
+      <div class="scard scard-celebrate" style="border-color:var(--o-d);animation-delay:.1s"><div class="t" style="background:var(--o-d)">XP</div><div class="v" style="color:var(--o-d)" data-countup="${xp}" data-countup-prefix="+">+${xp}</div></div>
+      <div class="scard scard-celebrate" style="border-color:var(--g-d);animation-delay:.18s"><div class="t" style="background:var(--g-d)">A la primera</div><div class="v" style="color:#15814c">${t.first}/${n}</div></div>
+      <div class="scard scard-celebrate" style="border-color:var(--b-d);animation-delay:.26s"><div class="t" style="background:var(--b-d)">Dominadas</div><div class="v" style="color:#1591cc">${tcMasteredCount()}</div></div>
+      <div class="scard scard-celebrate" style="border-color:#7c3aed;animation-delay:.34s"><div class="t" style="background:#7c3aed">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div>
     </div>
     ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}
     <p>Meta diaria: <b>${Math.min(today, goal)}/${goal} XP</b> ${today >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}${t.rev || L.mistakes ? '<p class="muted small">🃏 Las frases que fallaste quedaron en tus tarjetas de repaso.</p>' : ''}
@@ -2415,10 +2415,10 @@ export function pdFinish() {
   refreshHearts(); let extra = ''; if (S.hearts < MAX_HEARTS) { S.hearts++; extra = '<p class="muted">❤️ ¡Recuperaste una vida!</p>'; }
   const up = addXP(xp), st = pdStreak(); S.pd.best = Math.max(S.pd.best || 0, st); save(); beep('done');
   $('#fullInner').innerHTML = `<div class="complete"><div class="mascot tuki-celebrate" id="pdFinishMascot" style="width:120px;height:120px;cursor:pointer" title="¡Toca al Profe Tuki para celebrar!">${MASCOT}</div><h1>¡Práctica diaria completa!</h1><div class="muted">Escuchaste y hablaste en inglés hoy 🎧🗣️</div>
-    <div class="scards"><div class="scard scard-celebrate" style="border-color:var(--o);animation-delay:.1s"><div class="t" style="background:var(--o)">XP</div><div class="v" style="color:var(--o)" data-countup="${xp}" data-countup-prefix="+">+${xp}</div></div>
-    <div class="scard scard-celebrate" style="border-color:var(--g);animation-delay:.18s"><div class="t" style="background:var(--g)">Pronunciación</div><div class="v" style="color:var(--g-d)">${sc.length ? Math.round(avg(sc)) + '%' : '—'}</div></div>
-    <div class="scard scard-celebrate" style="border-color:#ff9f1c;animation-delay:.26s"><div class="t" style="background:#ff9f1c">Racha diaria</div><div class="v" style="color:#c97a00">🔥 ${st}</div></div>
-    <div class="scard scard-celebrate" style="border-color:#8b5cf6;animation-delay:.34s"><div class="t" style="background:#8b5cf6">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div></div>
+    <div class="scards"><div class="scard scard-celebrate" style="border-color:var(--o-d);animation-delay:.1s"><div class="t" style="background:var(--o-d)">XP</div><div class="v" style="color:var(--o-d)" data-countup="${xp}" data-countup-prefix="+">+${xp}</div></div>
+    <div class="scard scard-celebrate" style="border-color:var(--g-d);animation-delay:.18s"><div class="t" style="background:var(--g-d)">Pronunciación</div><div class="v" style="color:#15814c">${sc.length ? Math.round(avg(sc)) + '%' : '—'}</div></div>
+    <div class="scard scard-celebrate" style="border-color:#b45309;animation-delay:.26s"><div class="t" style="background:#b45309">Racha diaria</div><div class="v" style="color:#c97a00">🔥 ${st}</div></div>
+    <div class="scard scard-celebrate" style="border-color:#7c3aed;animation-delay:.34s"><div class="t" style="background:#7c3aed">Tiempo</div><div class="v" style="color:#8b5cf6">${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}</div></div></div>
     ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}${first ? '' : '<p class="small muted">Repetición: +5 XP (el bono de +15 es una vez al día).</p>'}
     ${p.cards || p.hard ? `<p class="small muted">🃏 ${p.cards} tarjeta(s) nueva(s) · 🎯 ${p.hard} palabra(s) para practicar en «Mis palabras difíciles».</p>` : ''}${extra}
     <p class="small">Vuelve mañana para mantener tu racha de práctica diaria.</p>

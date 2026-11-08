@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.33.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.34.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.34.0
+- **🎨 Paleta refinada con contraste AA**: el verde sigue siendo el primario y no hay rediseño; los botones (principal, azul, naranja, rojo), los gradientes con texto blanco (en vivo, plan, micrófono de TC) y las etiquetas de las tarjetas de fin de lección usan ahora las variantes oscuras de cada acento, que pasan AA 4,5:1; los textos naranja, azul y rojo sobre fondo claro (stats, enlaces, errores, aciertos, placeholders) también suben a AA, y el modo oscuro gana sus tonos claros equivalentes (marca, tabs, enlaces, mensajes de error/éxito, stats). Los 17 colores de unidad se oscurecen en el mismo tono para que el título y la descripción del encabezado pasen AA con texto blanco. Medido con script WCAG: 132 pares reales, 0 por debajo de AA (antes 62 de 122). Sin cambios de estructura, textos ni comportamiento.
 
 ## Novedades v2.33.0
 - **📝 Resumen, Estudio y Prueba de nivel menos cargados**: al final del resumen de conversación queda un solo botón — «🎯 Practicar mis errores» cuando hay errores medidos y proveedor (reutiliza la cola generada del día), y «🎤 Practicar ahora» en caso contrario —; cada palabra mal escuchada lleva un solo botón 🔊 (sin el 🐢). En Estudio, el selector de opciones pasa a ser un buscador con autocompletado sobre las mismas frases del curso. La tarjeta de Prueba de nivel ya desaparecía de Aprender una vez hecha (la entrada permanente sigue en Ajustes → 🎯 Aprendizaje → «Hacer ahora»). Sin cambios en la generación de ejercicios, el XP ni la lógica de errores.
