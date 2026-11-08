@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.25.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.26.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.26.0
+- **💬 Conversaciones largas sin perder el hilo**: al superar 60 mensajes, Tuki resume los 40 primeros en una nota de perfil (errores frecuentes, nivel, temas) y conserva los últimos 20 intactos; 1 llamada por compactación. La nota se puede borrar en Ajustes → 🤖 Conversación con IA.
 
 ## Novedades v2.25.0
 - **📅 Tu semana con Tuki**: dentro de 🗂️ Historial en Progreso, con al menos 2 resúmenes en la semana, 1 revisión con IA: tu progreso narrado, 3 focos para la próxima semana y 1 frase para practicar. 1 llamada por semana como máximo; si no hay suficientes resúmenes, no se genera nada.

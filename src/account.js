@@ -50,6 +50,7 @@ export function sanitizeState(d) {
     else if (want && typeof want === 'object') { if (!v || typeof v !== 'object' || Array.isArray(v)) o[k] = {}; }
   }
   ['placement', 'lastDay'].forEach(k => { if (k in o) o[k] = typeof o[k] === 'string' ? o[k].slice(0, 40) : null; });
+  if ('chatProfile' in o) o.chatProfile = typeof o.chatProfile === 'string' ? o.chatProfile.slice(0, 600) : null; // (P10: nota de perfil del chat largo)
   const objMap = (m, fn) => { for (const k of Object.keys(m || {})) { const e = m[k]; if (!e || typeof e !== 'object' || Array.isArray(e)) delete m[k]; else if (fn) fn(e, k); } };
   if (o.deck) objMap(o.deck, e => { e.en = String(e.en ?? '').slice(0, 400); e.es = String(e.es ?? '').slice(0, 400); ['ef', 'int', 'reps', 'due', 'lapses'].forEach(n => { if (n in e) e[n] = clampNum(e[n]); }); });
   if (o.hard) objMap(o.hard, e => { e.w = String(e.w ?? '').slice(0, 80); e.n = clampNum(e.n); e.t = clampNum(e.t); if (e.note != null) e.note = String(e.note).slice(0, 300); });

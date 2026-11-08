@@ -693,6 +693,7 @@ export async function chatSend(text, hidden = false, conf = 0) {
     const out = prov === 'openai' ? await openaiChat() : await gemini(text);
     if (gen !== CHAT.gen) return;
     CHAT.hist.push({ role: 'model', text: out }); CHAT.busy = false; S.chats = (S.chats || 0) + 1; addXP(1); chatDraw();
+    maybeCompactChat(); // (P10: compacta en segundo plano si el historial supera 60 mensajes)
     if (S.settings.autoplay) speakSeq(tutorSpeechParts(parseTutor(out)), 0, chatMul());
   } catch (e) {
     if (gen !== CHAT.gen) return;
@@ -1195,6 +1196,64 @@ export function modeRules() {
   return '';
 }
 const _chatSystem24 = chatSystem; chatSystem = function () { return _chatSystem24() + modeRules(); };
+
+/* ---- P10 (v2.26.0): compactación del historial de chat largo ----
+   Al superar 60 mensajes, 1 aiQuick resume los primeros 40 en una
+   "nota de perfil" (errores recurrentes, nivel, temas) que se guarda en
+   S.chatProfile y se antepone al system prompt; los mensajes viejos se
+   descartan y se conservan siempre los últimos 20 intactos. La nota se
+   actualiza con la anterior como entrada (acumulativa, máx. 600
+   caracteres), así que nada de lo aprendido se pierde al compactar
+   varias veces. 1 Gemini cada ~20 turnos de conversación larga (el
+   historial vuelve a 20 y tarda 40 mensajes en superar 60). En segundo
+   plano, sin bloquear el chat: si no hay proveedor o se agota la cuota,
+   no se llama y el historial sigue como hoy (la ruta compartida ya lo
+   recorta a los últimos 100). No compacta en vivo ni en entrevista/reto
+   (sus índices y transcripciones no se tocan) y reinicia CHAT.sumFrom
+   para que el resumen use los mensajes conservados. El formato de 6
+   líneas de chatSystem() NO se toca: la nota se añade DESPUÉS de todo
+   el system prompt, como una sección más. La nota se borra en Ajustes
+   → 🤖 Conversación con IA (solo aparece la línea cuando hay nota). */
+export const CHAT_COMPACT_AT = 60, CHAT_COMPACT_KEEP = 20, CHAT_COMPACT_TAKE = 40;
+export function chatProfileText() { return typeof S.chatProfile === 'string' ? S.chatProfile : ''; }
+export function clearChatProfile() { S.chatProfile = null; save(); }
+export function chatCompactAvailable() {
+  if (!currentProvider()) return false;
+  if (gemShared()) { const q = aiQuotaToday(); if (q && (q.limit - q.used) <= 0) return false; }
+  return true;
+}
+export const CHAT_PROFILE_SYS = `You are "Tuki", a patient English teacher for a Spanish-speaking learner from Colombia. You are given the transcript of the FIRST part of a long conversation with this learner, plus the previous profile note if any.
+Write a short "learner profile note" (max 500 characters) in Latin American Spanish (use "tú"). Include ONLY: recurring grammar or vocabulary mistakes with their corrections, pronunciation confusions that repeat, signs of the learner's level, and the topics they talked about. Never invent mistakes, levels or topics that are not in the transcript. If the previous note has facts not contradicted by the new transcript, keep them briefly. Output ONLY the note, no headings, no markdown.`;
+export function chatProfilePrompt(oldMsgs, prev) {
+  const lines = [];
+  if (prev) lines.push(`Previous profile note:\n${prev}`);
+  lines.push(`Transcript (first ${CHAT_COMPACT_TAKE} messages):\n${convoTranscript(oldMsgs)}`);
+  return lines.join('\n\n');
+}
+export async function compactChatHistory() {
+  if (CHAT.compacting) return false;
+  if (CHAT.hist.length <= CHAT_COMPACT_AT) return false;
+  if (LIVE.on || CHAT.scen === '__iv' || CHAT.scen === '__ch') return false;
+  if (!chatCompactAvailable()) return false;
+  CHAT.compacting = true;
+  try {
+    const old = CHAT.hist.slice(0, CHAT_COMPACT_TAKE);
+    const text = await aiQuick(CHAT_PROFILE_SYS, chatProfilePrompt(old, chatProfileText()), { max: 600 });
+    const note = String(text || '').trim().replace(/\s+/g, ' ').slice(0, 600);
+    if (!note || note.length < 20) return false;
+    S.chatProfile = note; save();
+    CHAT.hist = CHAT.hist.slice(-CHAT_COMPACT_KEEP);
+    CHAT.sumFrom = 0;
+    return true;
+  } catch (e) { return false; }
+  finally { CHAT.compacting = false; }
+}
+export function maybeCompactChat() { if (CHAT.hist.length > CHAT_COMPACT_AT) compactChatHistory(); }
+const _chatSystemP10 = chatSystem;
+chatSystem = function () {
+  const base = _chatSystemP10(), p = chatProfileText();
+  return p ? base + `\nLEARNER PROFILE (summary of earlier turns, already corrected — do not correct these again, use it to avoid repeating the same mistakes and to keep the conversation going):\n${p}` : base;
+};
 const _liveSystem24 = liveSystem; liveSystem = function () { return _liveSystem24() + modeRules(); };
 
 export const TOPICS = {
