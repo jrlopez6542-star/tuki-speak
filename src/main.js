@@ -6,7 +6,7 @@ import { VOICES, loadVoices, pickVoice, speak, SR, HAS_SR, curRec, setCurRec, re
 import { L, setL, tokensOf, earEx, sayPairEx, buildLesson, unlockedLessons, buildPractice, startLesson, lessonShell, nextEx, setFoot, footCheck, enableCheck, PRAISE, ENCOURAGE, feedback, earResult, checkEar, RENDER, optionsHTML, bindOptions, SPEAK_TITLES, speakTarget, createMicMeter, doMic, recOnlyActive, recOnlyToggle, compareHTML, bindCompare, onSpeechResult, victoryConfetti, noHeartsModal } from './lessons.js';
 import { SCENARIOS, SCEN_ES, chatChipsFor, CHAT, chatSystem, geminiCall, gemini, parseTutor, TUKI_API, SHARED_TEXT_MODELS, keysLocked, fbSignedIn, fbCanShare, gemShared, azOwn, azShared, noAIMsg, sharedModel, tukiApi, AZT, azAuth, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, azFetch, azureReady, LIVE, LIVE_LABEL, GEMINI_LIVE_MODELS, currentProvider, LEVELS, LEVEL_KEYS, defaultLevel, chatLevel, levelRules, TUTOR_LANGS, tutorLang, langRules, TUTOR_SPEEDS, tutorSpeed, chatMul, speedRules, HELP_COMMANDS, isPerfect, tutorSpeechParts, liveSystem, liveSet, liveUI, liveAppend, liveTurnDone, LIVE_REC, LIVE_REC_MAX_SAMPLES, LIVE_REC_MIN_WORDS, LIVE_REC_MIN_SEC, LIVE_REC_MAX_TURNS, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, Player, WORKLET_SRC, startMicStream, liveErrES, connectGemini, onGeminiMsg, startGeminiLive, listLiveModels, startOpenAIRealtime, onOAIEvent, startLive, stopLive, openaiChat, resetChat, tapWords, quoteTap, msgActs, trHTML, msgText, chatDraw, CACHE_KEYS, MEM_WCACHE, MEM_TCACHE, cacheGet, cacheSet, AIQ, GEM_QUICK_MODELS, aiTransient, aiStatus, aiBusyErr, gemQuickCall, aiQuick, toggleTranslate, errorTutorAvailable, explainError, chatSend, chatMic, fitChat, uid, clamp100, parseJSONLoose, aiJSON, sayBtns, bindSayTap, scoreBarH, convoTranscript, addLearnItems, flagHard, SUM_SYS, ensureSP, sumPendingAdd, summarizeConvo, runPendingSummary, summaryHTML, aiFriendly, openSummarySheet, endConversation, convoPracticeItems, hardWords, hardDrillItems, startHardDrill, numHash, SENIORITY, IV_END, modeRules, TOPICS, todayTopic, chSecs, enterMode, leaveMode, interviewSetup, ivQuestion, reportInterview, interviewHTML, openInterviewSheet, finishInterview, challengeSetup, chLeft, startChTimer, finishChallenge, chStreak, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, customScenarios, addCustomScenario, removeCustomScenario, registerCustomScenarios, sanitizeScenario } from './chat.js';
 import { b64u, unb64u, clampNum, deepClean, sanitizeSettings, sanitizeState, KDF_ITER, LOCK_FIELDS, KEYS_LOCAL, KS, LOCKED, setLocked, kdf, newKS, sealKeys, validBlob, openKeys, ksFromPhrase, keysObj, keysSig, hasAnyKey, phraseStrength, lockApply, lockRelease, getLockSig, setLockSig, applyKeys, setLocalLock, FB_VER, FB_BASE, FB_CFG, FB_HINT, FB_OWNER, CLOUD_META, CLOUD_SCHEMA, SYNC_MIN_MS, SYNC_DEBOUNCE_MS, CLOUD_MAX, syncMin, syncDebounce, FB, AUTH_ERR, authErr, devName, fbLoad, fbFail, localHasData, cloudMeta, setCloudMeta, uref, readMeta, readData, cloudSettings, packProgress, keysForCloud, cloudPush, adoptMerged, cloudFirstSync, askOtherOwner, cloudSync, fbSchedule, fbMarkDirty, fbGoogle, fbEmail, fbReset, fbVerify, fbReload, fbSignOut, unlockPrompt, unlockKeys, createPhrase, changePhrase, forgetPhrase, acMsg, acctHTML, keysHTML, bindAcct, bindKeys } from './account.js';
-import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TUKI_SHOP_ITEMS, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildPlacement, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, initTukiAnimPause, interactWithTuki, initTukiSleepWatch, makeMascotClickable, tukiSleepBusy, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openTukiShopModal, openWordPop, pdCardHTML, pdEvaluate, pdFinish, pdGenAvailable, pdGenCacheGet, pdGenCacheSet, pdGenData, pdGenHasData, pdGenSpeak, pdGenValidate, PD_GEN_CACHE_KEY, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, photoSharedAvailable, photoAnalyzeShared, resizePhoto, placementFinish, placementIntro, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, profileTouch, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEntryHTML, tcEval, tcEx, tcExtract, tcExtractAll, tcExtraHint, tcFailsTotal, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
+import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TUKI_SHOP_ITEMS, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, AD, adminBody, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildPlacement, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, initTukiAnimPause, interactWithTuki, initTukiSleepWatch, makeMascotClickable, tukiSleepBusy, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openTukiShopModal, openWordPop, pdCardHTML, pdEvaluate, pdFinish, pdGenAvailable, pdGenCacheGet, pdGenCacheSet, pdGenData, pdGenHasData, pdGenSpeak, pdGenValidate, PD_GEN_CACHE_KEY, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, photoSharedAvailable, photoAnalyzeShared, resizePhoto, placementFinish, placementIntro, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, profileTouch, quotaAlert, quotaSummary, QUOTA_ALERT, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEntryHTML, tcEval, tcEx, tcExtract, tcExtractAll, tcExtraHint, tcFailsTotal, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
 export { updateMascot, modal, confirmBox, wordsHTML, triggerTukiAnimation, tukiMood, tukiTutorBannerHTML, bindTukiTutorBanner, mouthPanelHTML, phonemeHintHTML, buildVocabLesson, renderVocabLearn, bindExtra, extraResultHTML, errES, httpErr, openWordPop, closeWordPop, azureMic, lsGet, lsSet, buildTopErrorsPractice } from './ui.js';
 export { azFetch, azureReady, errorTutorAvailable, errorTutorHTML, bindErrorTutor, explainError } from './chat.js';
 export { FB, KS, LOCKED } from './account.js';
@@ -1226,7 +1226,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.37.1';
+export const APP_VERSION = '2.40.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -2185,104 +2185,37 @@ VIEWS.practice = function (v) {
   const unlSh = isFeatureUnlocked('shadow'), unlMo = isFeatureUnlocked('mouth'), unlPh = isFeatureUnlocked('photo');
   const unlTr = isFeatureUnlocked('travel'), unlInt = isFeatureUnlocked('interview');
 
-  const srsHtml = `<button class="card pcard ${!unlSrs ? 'locked-card' : ''}" id="srsCard" style="margin-top:10px">
-    <div class="em" style="background:#fff3d6">${unlSrs ? '🧠' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Repaso Inteligente (SRS)</h3>
-        ${unlSrs ? `<span class="srs-pill due">${st.due} hoy</span>` : '<span class="lock-pill">🔒 Bloqueado</span>'}
+  // (densidad R10, v2.39.0: los 9 modos dejan de ser 9 tarjetas y pasan a
+  // ser 9 filas dentro de UNA tarjeta "🎭 Modos de práctica". Mismos
+  // destinos, mismos candados y mismos textos; solo cambia la
+  // presentación. Práctica pasa de 16 a 8 tarjetas visibles (techo 12).)
+  const modes = [
+    { id: 'srsCard', unl: unlSrs, icon: '🧠', bg: '#fff3d6', title: 'Repaso Inteligente (SRS)', pill: unlSrs ? `<span class="srs-pill due">${st.due} hoy</span>` : '<span class="lock-pill">🔒 Bloqueado</span>', extra: unlSrs ? `<div class="srs-stats"><span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span><span class="srs-pill mat">🏆 ${st.mature} dominadas</span></div>` : '', desc: 'Algoritmo SM-2 · repasa en el momento exacto antes de olvidar' },
+    { id: 'handsFreeCard', unl: unlHf, icon: '🎧', bg: '#e0f2fe', title: 'Modo Manos Libres', pill: unlHf ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla' },
+    { id: 'missionsCard', unl: unlMi, icon: '🎯', bg: '#fef3c7', title: 'Misiones de Conversación Real', pill: unlMi ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: '8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)' },
+    { id: 'shadowCard', unl: unlSh, icon: '🎙️', bg: '#e8f4fd', title: 'Modo Shadowing', pill: unlSh ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha e imita frases con entonación nativa y habla conectada' },
+    { id: 'mouthCard', unl: unlMo, icon: '👄', bg: '#f3fbf7', title: 'Guía Fonética y Bocas', pill: unlMo ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)' },
+    { id: 'photoCard', unl: unlPh, icon: '📷', bg: '#fdf2f8', title: 'Describe la Foto / Objeto', pill: unlPh ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Práctica multimodal con tu cámara o fotos para ganar vocabulario' },
+    { id: 'travelCard', unl: unlTr, icon: '✈️', bg: '#e0f2fe', title: 'Guía de Viaje y Supervivencia', pill: unlTr ? '<span class="novice-badge">🌱 Novato & Viajes</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol' },
+    { id: 'interviewCard', unl: unlInt, icon: '💼', bg: '#fef3c7', title: 'Simulador de Entrevista Laboral', pill: unlInt ? '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática' },
+    { id: 'shopCard', unl: true, icon: '🛍️', bg: '#dcfce7', title: 'Tienda y Armario de Tuki', pill: `<span class="novice-badge" style="background:#fef3c7;color:#b45309">🪙 ${S.coins || 0} monedas</span>`, extra: '', desc: 'Viste a Tuki con birrete, corona, gafas, corbatín, bufanda o capa usando tus monedas ganadas' },
+  ];
+  const modesHtml = `<div class="card" id="modesCard" style="margin-top:10px">
+    <h3 style="margin:0 0 2px">🎭 Modos de práctica</h3>
+    <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 9 modos</div>
+    ${modes.map(m => `<button class="mode-row ${!m.unl ? 'locked-card' : ''}" id="${m.id}">
+      <div class="em" style="background:${m.bg}">${m.unl ? m.icon : '🔒'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="row between"><h3 style="margin:0 0 2px">${m.title}</h3>${m.pill}</div>
+        ${m.extra}
+        <div class="muted small">${m.desc}</div>
       </div>
-      <div class="srs-stats">
-        <span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span>
-        <span class="srs-pill mat">🏆 ${st.mature} dominadas</span>
-      </div>
-      <div class="muted small">Algoritmo SM-2 · repasa en el momento exacto antes de olvidar</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlHf ? 'locked-card' : ''}" id="handsFreeCard" style="margin-top:10px">
-    <div class="em" style="background:#e0f2fe">${unlHf ? '🎧' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Modo Manos Libres</h3>
-        ${!unlHf ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlMi ? 'locked-card' : ''}" id="missionsCard" style="margin-top:10px">
-    <div class="em" style="background:#fef3c7">${unlMi ? '🎯' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Misiones de Conversación Real</h3>
-        ${!unlMi ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlSh ? 'locked-card' : ''}" id="shadowCard" style="margin-top:10px">
-    <div class="em" style="background:#e8f4fd">${unlSh ? '🎙️' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Modo Shadowing</h3>
-        ${!unlSh ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">Escucha e imita frases con entonación nativa y habla conectada</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlMo ? 'locked-card' : ''}" id="mouthCard" style="margin-top:10px">
-    <div class="em" style="background:#f3fbf7">${unlMo ? '👄' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Guía Fonética y Bocas</h3>
-        ${!unlMo ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlPh ? 'locked-card' : ''}" id="photoCard" style="margin-top:10px">
-    <div class="em" style="background:#fdf2f8">${unlPh ? '📷' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Describe la Foto / Objeto</h3>
-        ${!unlPh ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">Práctica multimodal con tu cámara o fotos para ganar vocabulario</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlTr ? 'locked-card' : ''}" id="travelCard" style="margin-top:10px">
-    <div class="em" style="background:#e0f2fe">${unlTr ? '✈️' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Guía de Viaje y Supervivencia</h3>
-        ${!unlTr ? '<span class="lock-pill">🔒 Bloqueado</span>' : '<span class="novice-badge">🌱 Novato & Viajes</span>'}
-      </div>
-      <div class="muted small">Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlInt ? 'locked-card' : ''}" id="interviewCard" style="margin-top:10px">
-    <div class="em" style="background:#fef3c7">${unlInt ? '💼' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Simulador de Entrevista Laboral</h3>
-        ${!unlInt ? '<span class="lock-pill">🔒 Bloqueado</span>' : '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>'}
-      </div>
-      <div class="muted small">Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática</div>
-    </div>
-  </button>
-  <button class="card pcard" id="shopCard" style="margin-top:10px;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border-color:#86efac">
-    <div class="em" style="background:#dcfce7">🛍️</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Tienda y Armario de Tuki</h3>
-        <span class="novice-badge" style="background:#fef3c7;color:#b45309">🪙 ${S.coins || 0} monedas</span>
-      </div>
-      <div class="muted small">Viste a Tuki con birrete, corona, gafas, corbatín, bufanda o capa usando tus monedas ganadas</div>
-    </div>
-  </button>`;
+    </button>`).join('')}
+  </div>`;
 
   const tc = $('#tcPractice', v);
-  if (tc) tc.insertAdjacentHTML('afterend', srsHtml);
-  else v.insertAdjacentHTML('beforeend', srsHtml);
+  if (tc) tc.insertAdjacentHTML('afterend', modesHtml);
+  else v.insertAdjacentHTML('beforeend', modesHtml);
 
   const bSrs = $('#srsCard', v); if (bSrs) bSrs.onclick = () => { if (!isFeatureUnlocked('srs')) return showLockedFeatureModal('srs'); startReview(); };
   const bHf = $('#handsFreeCard', v); if (bHf) bHf.onclick = () => { if (!isFeatureUnlocked('handsfree')) return showLockedFeatureModal('handsfree'); openHandsFreeModal(); };
@@ -2413,44 +2346,54 @@ const _settings212 = VIEWS.settings;
 VIEWS.settings = function (v) {
   _settings212(v);
   const dataCard = $('#reset', v)?.closest('.card');
-  const updHtml = `<div class="card" id="updCard" style="margin-top:14px">
-    <div class="row between">
-      <div>
-        <h3 style="margin:0 0 2px">🔄 Actualizaciones</h3>
-        <div class="small muted">Versión instalada: <b>v${APP_VERSION}</b></div>
+  // (densidad R10, v2.39.0: las 3 tarjetas de mantenimiento — 📦 Modo
+  // Offline, 🔄 Actualizaciones y 💾 Datos — se fusionan en UNA tarjeta
+  // "📦 Datos y mantenimiento" con 3 secciones. Mismos botones, mismos
+  // ids y mismos textos; los nodos de Datos se MUEVEN (no se recrean)
+  // para conservar los handlers ya ligados en la vista base. Ajustes
+  // pasa de 14 a 12 tarjetas (techo 12).)
+  const maintHtml = `<div class="card" id="maintCard" style="margin-top:14px">
+    <h3 style="margin:0 0 2px">📦 Datos y mantenimiento</h3>
+    <div class="maint-sec">
+      <div class="row between">
+        <div>
+          <h3 style="margin:0 0 2px;font-size:16px">📦 Modo Offline y Almacenamiento</h3>
+          <div class="small muted">Base de datos local <b>IndexedDB (TukiDB)</b></div>
+        </div>
+        <span class="pill ok" id="offlineBadge">⚡ Listo Offline</span>
       </div>
-      <button class="btn blue sm" id="btnCheckUpdate">🔄 Buscar actualizaciones</button>
-    </div>
-    <div class="small muted" style="margin-top:6px" id="updStatus">Toca para comprobar si hay una nueva versión disponible e instalarla de inmediato.</div>
-  </div>`;
-
-  const offHtml = `<div class="card offline-card" id="offlineCard" style="margin-top:14px">
-    <div class="row between">
-      <div>
-        <h3 style="margin:0 0 2px">📦 Modo Offline y Almacenamiento</h3>
-        <div class="small muted">Base de datos local <b>IndexedDB (TukiDB)</b></div>
+      <div class="offline-kpis">
+        <div class="offline-kpi"><span class="val" id="offKpiTc">—</span><span class="lbl">Frases offline</span></div>
+        <div class="offline-kpi"><span class="val" id="offKpiAudio">—</span><span class="lbl">Audios en caché</span></div>
+        <div class="offline-kpi"><span class="val" id="offKpiWords">—</span><span class="lbl">Palabras guardadas</span></div>
       </div>
-      <span class="pill ok" id="offlineBadge">⚡ Listo Offline</span>
+      <div class="offline-progress-bar" id="offlineBar"><div class="offline-progress-fill" id="offlineFill"></div></div>
+      <div class="small muted" style="margin:6px 0 10px" id="offlineStatus">Estudia sin gastar datos y sin conexión a internet (avión, metro, zonas rurales).</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <button class="btn blue sm" id="btnOfflinePreload">📥 Sincronizar y precargar modo sin conexión</button>
+        <button class="btn ghost sm" id="btnOfflineClear">🧹 Liberar audios</button>
+      </div>
     </div>
-    <div class="offline-kpis">
-      <div class="offline-kpi"><span class="val" id="offKpiTc">—</span><span class="lbl">Frases offline</span></div>
-      <div class="offline-kpi"><span class="val" id="offKpiAudio">—</span><span class="lbl">Audios en caché</span></div>
-      <div class="offline-kpi"><span class="val" id="offKpiWords">—</span><span class="lbl">Palabras guardadas</span></div>
+    <div class="maint-sec">
+      <div class="row between">
+        <div>
+          <h3 style="margin:0 0 2px;font-size:16px">🔄 Actualizaciones</h3>
+          <div class="small muted">Versión instalada: <b>v${APP_VERSION}</b></div>
+        </div>
+        <button class="btn blue sm" id="btnCheckUpdate">🔄 Buscar actualizaciones</button>
+      </div>
+      <div class="small muted" style="margin-top:6px" id="updStatus">Toca para comprobar si hay una nueva versión disponible e instalarla de inmediato.</div>
     </div>
-    <div class="offline-progress-bar" id="offlineBar"><div class="offline-progress-fill" id="offlineFill"></div></div>
-    <div class="small muted" style="margin:6px 0 10px" id="offlineStatus">Estudia sin gastar datos y sin conexión a internet (avión, metro, zonas rurales).</div>
-    <div class="row" style="gap:8px;flex-wrap:wrap">
-      <button class="btn blue sm" id="btnOfflinePreload">📥 Sincronizar y precargar modo sin conexión</button>
-      <button class="btn ghost sm" id="btnOfflineClear">🧹 Liberar audios</button>
-    </div>
+    <div class="maint-sec" id="maintDataSec"></div>
   </div>`;
 
   if (dataCard) {
-    dataCard.insertAdjacentHTML('beforebegin', offHtml);
-    dataCard.insertAdjacentHTML('beforebegin', updHtml);
+    dataCard.insertAdjacentHTML('beforebegin', maintHtml);
+    const sec = $('#maintDataSec', v);
+    while (dataCard.firstChild) sec.appendChild(dataCard.firstChild);
+    dataCard.remove();
   } else {
-    v.insertAdjacentHTML('beforeend', offHtml);
-    v.insertAdjacentHTML('beforeend', updHtml);
+    v.insertAdjacentHTML('beforeend', maintHtml);
   }
 
   const bUpd = $('#btnCheckUpdate', v);
@@ -2516,4 +2459,4 @@ buildPlan = function () {
 const _planCard30 = planCardHTML;
 planCardHTML = function () { const base = _planCard30(); if (!practiceErrorsHasData()) return base; return base.replace('</div>\n    <button class="btn orange', '<span class="plan-step">🎯 Tus errores</span></div>\n    <button class="btn orange'); };
 
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, finishLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), liveAppend, liveTurnDone, endConversation, summarizeConvo, summaryHTML, openSummarySheet, interviewHTML, openInterviewSheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, pdGenSpeak, pdGenData, pdGenHasData, pdGenAvailable, pdGenValidate, pdGenCacheGet, pdGenCacheSet, PD_GEN_CACHE_KEY, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, errorTutorAvailable, explainError, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, runPendingSummary, sumPendingAdd, startTC, tcEval, tcEx, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, azureReady, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, countUpAll, phonemeHintHTML, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, initTukiSleepWatch, initTukiAnimPause, makeMascotClickable, tukiSleepBusy, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, TukiDB, updateOfflineCardStats, runOfflinePreload, customScenarios, addCustomScenario, removeCustomScenario, sanitizeScenario, registerCustomScenarios, ensure29, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, tcHardWords, tcWordsInItems, tcExtraHint, tcFailsTotal, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, buildPlacement, placementFinish, setL, photoSharedAvailable, photoAnalyzeShared, resizePhoto, LIVE_REC, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, get tcLastPersonalized() { return TC_LAST_PERSONALIZED; }, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, finishLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), liveAppend, liveTurnDone, endConversation, summarizeConvo, summaryHTML, openSummarySheet, interviewHTML, openInterviewSheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, pdGenSpeak, pdGenData, pdGenHasData, pdGenAvailable, pdGenValidate, pdGenCacheGet, pdGenCacheSet, PD_GEN_CACHE_KEY, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, errorTutorAvailable, explainError, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, runPendingSummary, sumPendingAdd, startTC, tcEval, tcEx, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, azureReady, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, countUpAll, phonemeHintHTML, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, initTukiSleepWatch, initTukiAnimPause, makeMascotClickable, tukiSleepBusy, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, TukiDB, updateOfflineCardStats, runOfflinePreload, customScenarios, addCustomScenario, removeCustomScenario, sanitizeScenario, registerCustomScenarios, ensure29, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, tcHardWords, tcWordsInItems, tcExtraHint, tcFailsTotal, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, buildPlacement, placementFinish, setL, photoSharedAvailable, photoAnalyzeShared, resizePhoto, quotaSummary, quotaAlert, QUOTA_ALERT, adminBody, adminHTML, AD, LIVE_REC, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, get tcLastPersonalized() { return TC_LAST_PERSONALIZED; }, version: APP_VERSION };

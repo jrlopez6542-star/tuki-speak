@@ -2688,6 +2688,69 @@ export async function adminLoad() {
   const rows = r => r.ok ? r.ok.docs.map(d => ({ id: d.id, ...d.data() })) : null;
   return { today, from, at: Date.now(), profiles: rows(pr), quota: rows(qu), feedback: rows(fb), errs: [pr, qu, fb].map(r => r.err ? fsCode(r.err) || 'error' : '') };
 }
+/* Resumen de consumo agregado de la cuota compartida (v2.40.0, ítem 4).
+   Solo lo ve el dueño (panel de administrador; las reglas de Firestore solo
+   permiten leer quota/* al dueño). Sin endpoint nuevo, sin secreto nuevo y
+   sin exponer nada nuevo: resume las filas que adminLoad() ya trae
+   (quota/{día}_{uid}, últimos 7 días). El resumen es agregado (totales y
+   conteos); la tabla por usuario que ya existía no cambia.
+   Umbrales (el consumo agregado no tiene tope propio en la API: solo existe
+   el límite de 60 Gemini/día por persona, api/_lib/config.js):
+   - GEMINI_DAY_HIGH 300 = 5 usuarios a tope (60 c/u) en un día.
+   - GEMINI_DAY_WARN 150 = 2,5 usuarios a tope.
+   - NEAR_LIMIT 55 / AT_LIMIT 60: un usuario cerca de quedarse sin IA hoy
+     (a 60 el servidor ya responde 429 hasta mañana).
+   - Pico: hoy más del doble de la media diaria de los 6 días previos
+     (y al menos SPIKE_MIN llamadas), para cazar subidas bruscas aunque el
+     total absoluto aún no llegue al umbral. */
+export const QUOTA_ALERT = { GEMINI_DAY_WARN: 150, GEMINI_DAY_HIGH: 300, NEAR_LIMIT: 55, AT_LIMIT: 60, SPIKE_MIN: 100, SPIKE_X: 2 };
+const qNum = v => { const n = +v || 0; return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0; };
+const qDayKeys = (from, today) => { const out = []; const t0 = Date.parse(from + 'T12:00:00Z'), t1 = Date.parse(today + 'T12:00:00Z');
+  if (!Number.isFinite(t0) || !Number.isFinite(t1) || t1 < t0 || (t1 - t0) / 86400e3 > 31) return [today];
+  for (let t = t0; t <= t1; t += 86400e3) out.push(new Date(t).toISOString().slice(0, 10)); return out; };
+export function quotaSummary(quotaRows, today, from) {
+  const days = qDayKeys(from || today, today), byDay = days.map(day => ({ day, gemini: 0, live: 0, azure: 0 }));
+  const at = Object.fromEntries(byDay.map(d => [d.day, d]));
+  const perUidToday = {}; // uid -> gemini hoy (para usuarios en el límite)
+  (Array.isArray(quotaRows) ? quotaRows : []).forEach(q => {
+    if (!q || typeof q.id !== 'string') return;
+    const i = q.id.indexOf('_'); if (i < 0) return;
+    const day = q.id.slice(0, i), uid = q.id.slice(i + 1), d = at[day];
+    if (!d || !uid) return;
+    const v = [qNum(q.gemini), qNum(q.live), qNum(q.azure)];
+    v.forEach((n, k) => { d[['gemini', 'live', 'azure'][k]] += n; });
+    if (day === today) perUidToday[uid] = (perUidToday[uid] || 0) + v[0];
+  });
+  const sum = a => a.reduce((s, d) => ({ gemini: s.gemini + d.gemini, live: s.live + d.live, azure: s.azure + d.azure }), { gemini: 0, live: 0, azure: 0 });
+  const todayRow = at[today] || { gemini: 0, live: 0, azure: 0 };
+  const prev = byDay.filter(d => d.day !== today), prevAvg = prev.length ? prev.reduce((s, d) => s + d.gemini, 0) / prev.length : 0;
+  const gemToday = Object.values(perUidToday);
+  return { today: { ...todayRow }, week: sum(byDay), byDay,
+    usersToday: gemToday.filter(n => n > 0).length,
+    usersAtLimit: gemToday.filter(n => n >= QUOTA_ALERT.AT_LIMIT).length,
+    usersNearLimit: gemToday.filter(n => n >= QUOTA_ALERT.NEAR_LIMIT && n < QUOTA_ALERT.AT_LIMIT).length,
+    prevAvgGemini: prevAvg };
+}
+export function quotaAlert(s) {
+  const lines = []; let level = 'ok';
+  const high = m => { level = 'high'; lines.push(m); }, warn = m => { if (level === 'ok') level = 'warn'; lines.push(m); };
+  if (s.usersAtLimit > 0) high(`🔴 ${s.usersAtLimit} ${s.usersAtLimit === 1 ? 'usuario llegó' : 'usuarios llegaron'} a su límite de 60 llamadas Gemini hoy (sin IA hasta mañana).`);
+  else if (s.usersNearLimit > 0) warn(`🟡 ${s.usersNearLimit} ${s.usersNearLimit === 1 ? 'usuario tiene' : 'usuarios tienen'} 55+ llamadas Gemini hoy (cerca del límite de 60).`);
+  if (s.today.gemini >= QUOTA_ALERT.GEMINI_DAY_HIGH) high(`🔴 Consumo agregado alto: ${s.today.gemini} llamadas Gemini hoy (umbral ${QUOTA_ALERT.GEMINI_DAY_HIGH} = 5 usuarios a tope).`);
+  else if (s.today.gemini >= QUOTA_ALERT.GEMINI_DAY_WARN) warn(`🟡 Consumo agregado en aviso: ${s.today.gemini} llamadas Gemini hoy (umbral de aviso ${QUOTA_ALERT.GEMINI_DAY_WARN}).`);
+  if (s.today.gemini >= QUOTA_ALERT.SPIKE_MIN && s.prevAvgGemini > 0 && s.today.gemini > QUOTA_ALERT.SPIKE_X * s.prevAvgGemini)
+    warn(`🟡 Pico de consumo: hoy (${s.today.gemini} Gemini) es más del doble de la media diaria de los 6 días previos (${Math.round(s.prevAvgGemini)}).`);
+  return { level, lines };
+}
+export function quotaSummaryHTML(s) {
+  const a = quotaAlert(s);
+  const banner = a.level === 'ok' ? '' : `<div class="msg ${a.level === 'high' ? 'err' : 'warn'}" role="alert" style="max-width:100%;margin:6px 0">${a.lines.map(esc).join('<br>')}</div>`;
+  const fmtDay = d => { const [y, m, dd] = d.split('-').map(Number); return new Date(Date.UTC(y, m - 1, dd)).toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }); };
+  return `${banner}<p class="small" style="margin:6px 0"><b>Hoy: ${s.today.gemini} Gemini · ${s.today.live} Live · ${s.today.azure} Azure</b> (${s.usersToday} ${s.usersToday === 1 ? 'usuario' : 'usuarios'} con uso) · 7 días: ${s.week.gemini} Gemini · ${s.week.live} Live · ${s.week.azure} Azure</p>
+    <table class="ad-tbl" id="adUseDays"><thead><tr><th>Día</th><th>Gemini</th><th>Live</th><th>Azure</th></tr></thead><tbody>
+    ${[...s.byDay].reverse().map(d => `<tr><td>${esc(fmtDay(d.day))}</td><td>${d.gemini}</td><td>${d.live}</td><td>${d.azure}</td></tr>`).join('')}
+    </tbody></table>`;
+}
 export function adminBody() {
   const D = AD.data; if (!D) return '';
   if (D.errs.every(e => e)) return `<div class="msg err small">⚠️ ${D.errs.includes('permission-denied') ? 'Todavía no se pueden leer los datos: publica las reglas nuevas de Firestore en la consola de Firebase.' : 'No se pudieron cargar los datos. Revisa tu conexión e inténtalo de nuevo.'}</div>`;
@@ -2709,6 +2772,7 @@ export function adminBody() {
     <div class="ad-list" id="adUserList">${users.map(p => `<div class="ad-item"><b>${esc(p.name || '—')}</b> <span class="muted">${esc(p.email || '')}</span>
       <div class="small muted">${esc(PROV_ES[p.provider] || p.provider || '—')} · Primer ingreso: ${esc(fmtDT(tsMs(p.firstSeen)))} · Última actividad: ${esc(fmtDT(tsMs(p.lastActive)))} · v${esc(p.app || '?')}</div></div>`).join('') || '<p class="small muted">Aún no hay perfiles.</p>'}</div>
     <h4>Uso de las claves de Tuki</h4><div class="small muted">Gemini · Live · Azure — hoy y últimos 7 días (${esc(D.from)} a ${esc(D.today)})</div>${err(1)}
+    ${Q ? quotaSummaryHTML(quotaSummary(Q, D.today, D.from)) : ''}
     <table class="ad-tbl" id="adUse"><thead><tr><th>Usuario</th><th>Hoy</th><th>7 días</th></tr></thead><tbody>
     ${uids.map(uid => { const u = use[uid], p = byUid[uid]; const own = !u && p && p.mode === 'own';
       return `<tr><td>${who(uid)}</td>${own ? '<td colspan="2" class="muted">claves propias</td>' : `<td>${u ? trip(u.t) : '0 · 0 · 0'}</td><td>${u ? trip(u.w) : '0 · 0 · 0'}</td>`}</tr>`; }).join('')}
