@@ -237,6 +237,10 @@ textarea.inp:focus{outline:none;border-color:#84d8ff;background:#fff}
 .chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;color:var(--mute);transition:border-color .15s,color .15s}
 .chip:hover{border-color:var(--b);color:var(--b-d)}
 .chip.active{border-color:var(--g);color:var(--g-d);background:var(--g-l)}
+/* (chat premium Etapa 2, v2.36.0: sugerencias rápidas encima de la barra) */
+.chat-chips{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 8px}
+.chat-chips .chip{transition:transform .18s var(--spring),border-color .15s,color .15s}
+.chat-chips .chip:active{transform:scale(.96)}
 .search{width:100%;border:2px solid var(--line);border-radius:var(--r-md);padding:11px 12px;background:#fff}
 .wlist{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .witem{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--line);border-radius:var(--r-md);padding:10px 12px}
@@ -377,7 +381,7 @@ a{color:var(--b-d)}
 [data-contrast=high] .btn,[data-contrast=high] .opt,[data-contrast=high] .tile{border-width:3px}
 [data-contrast=high] a{text-decoration:underline}
 [data-motion=reduce] *,[data-motion=reduce] *::before,[data-motion=reduce] *::after{animation:none!important;transition:none!important}
-@media (prefers-reduced-motion: reduce){.node.current,.start-tip,.chatbar #cmic.rec{animation:none}.chatbar #cin,.chatbar #csend{transition:none}}
+@media (prefers-reduced-motion: reduce){.node.current,.start-tip,.chatbar #cmic.rec{animation:none}.chatbar #cin,.chatbar #csend,.chat-chips .chip{transition:none}}
 .banner{position:fixed;left:50%;transform:translateX(-50%);z-index:95;max-width:540px;width:calc(100% - 20px);border-radius:var(--r-md);padding:10px 14px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:10px;justify-content:space-between;box-shadow:0 6px 20px rgba(0,0,0,.18)}
 .banner.net{top:calc(64px + env(safe-area-inset-top));background:#33290f;color:#fff}
 .banner.upd{bottom:calc(84px + env(safe-area-inset-bottom));background:#1f2a33;color:#fff}

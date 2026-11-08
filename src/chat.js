@@ -16,6 +16,15 @@ import { save, toast, modal, go, render, addXP, checkBadges, errES, httpErr, FB,
 
 export const SCENARIOS = { free: 'a friendly casual chat about the learner\'s day, hobbies and plans', restaurant: 'a waiter at a restaurant in New York; the learner is the customer', airport: 'an airline check-in agent at the airport; the learner is a passenger' };
 export const SCEN_ES = { free: 'Charla libre', restaurant: 'Restaurante', airport: 'Aeropuerto' };
+/* (chat premium Etapa 2, v2.36.0: 3 frases fijas para empezar, según el
+   escenario; textos fijos, 0 llamadas extra a la IA. Los escenarios
+   personalizados (custom:*) usan las genéricas de 'free'.) */
+export const CHAT_CHIPS = {
+  free: ['Hi! How are you today?', 'I had a great weekend.', 'Ask me about my hobbies.'],
+  restaurant: ['A table for two, please.', 'Can I see the menu?', 'The bill, please.'],
+  airport: ['I want to check in.', 'I have one suitcase.', 'Is my flight on time?'],
+};
+export const chatChipsFor = scen => CHAT_CHIPS[scen] || CHAT_CHIPS.free;
 
 /* ---- P4 (v2.21.0): escenarios de roleplay definidos por el usuario ---- */
 // Los escenarios personalizados viven en S.settings.customScenarios
