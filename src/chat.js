@@ -8,8 +8,8 @@
 // Las funciones de main.js que se usan aquí se importan desde './main.js' (import circular;
 // solo se usan dentro de funciones, nunca en top-level, igual que en state.js/audio.js/lessons.js).
 import { $, $$, esc, decodeEnt, decodeDeep, shuffle, pick, sample, clamp, avg, dayKey, dayDiff, normText, lev, charSim, align, simScore, colorOf, typedMatch, scoreSpeech, scorePair, sleep, hashStr, b64FromBytes, f32ToB64 } from './utils.js';
-import { S, DAY, addToDeck } from './state.js';
-import { speak, speakSeq, recognize, stopRecognize, SR, HAS_SR, curRec, SR_ERR, Rec, MicCap, canSpeak, stopAudio, azureSTT, openaiSTT, StreamResampler } from './audio.js';
+import { S, DAY, addToDeck, recordSpeech } from './state.js';
+import { speak, speakSeq, recognize, stopRecognize, SR, HAS_SR, curRec, SR_ERR, Rec, MicCap, canSpeak, stopAudio, azureSTT, openaiSTT, azureAssess, encodeWAV, StreamResampler } from './audio.js';
 import { startLesson } from './lessons.js';
 import { TukiDB } from './tuki-db.js';
 import { save, toast, modal, go, render, addXP, checkBadges, errES, httpErr, FB, KS, LOCKED, TAB, LESSON, LESSONS, openWordPop, closeWordPop, buildTopErrorsPractice } from './main.js';
@@ -310,9 +310,10 @@ export function liveUI() { liveSet(LIVE.state); const b = $('#liveBtn'); if (b) 
 export function liveAppend(role, text) {
   if (!text) return; const idx = LIVE.cur[role];
   if (idx != null && CHAT.hist[idx]) CHAT.hist[idx].text += text; else { CHAT.hist.push({ role, text, live: true }); LIVE.cur[role] = CHAT.hist.length - 1; if (role === 'user') LIVE.userTurns++; }
+  if (role === 'user' && LIVE_REC.on) { const i = LIVE.cur.user; if (i != null && (!LIVE_REC.open || LIVE_REC.open.histIdx !== i)) liveRecTurnStart(i); }
   chatDraw();
 }
-export function liveTurnDone() { LIVE.cur = {}; }
+export function liveTurnDone() { LIVE.cur = {}; if (LIVE_REC.on) liveRecTurnEnd(); }
 export const Player = {
   ctx: null, t: 0, srcs: new Set(),
   ensure() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); if (this.ctx.state === 'suspended') this.ctx.resume(); },
@@ -438,14 +439,15 @@ export async function startLive() {
     if (prov === 'gemini') {
       Player.ensure();
       await startGeminiLive();
-      LIVE.mic = await startMicStream(f32 => { if (LIVE.ws && LIVE.ws.readyState === 1) LIVE.ws.send(JSON.stringify({ realtimeInput: { audio: { data: f32ToB64(f32), mimeType: 'audio/pcm;rate=16000' } } })); });
+      liveRecStart(); // 3b: solo con opt-in y Azure; si no, la sesión sigue como hoy
+      LIVE.mic = await startMicStream(f32 => { if (LIVE.ws && LIVE.ws.readyState === 1) LIVE.ws.send(JSON.stringify({ realtimeInput: { audio: { data: f32ToB64(f32), mimeType: 'audio/pcm;rate=16000' } } })); liveRecPush(f32); });
       LIVE.sendText = t => { CHAT.hist.push({ role: 'user', text: t, live: true }); chatDraw(); LIVE.ws.send(JSON.stringify({ realtimeInput: { text: t } })); };
       LIVE.ws.send(JSON.stringify({ realtimeInput: { text: '(Start the roleplay now: greet me briefly and ask the first question.)' } }));
     } else await startOpenAIRealtime();
     if (LIVE.on) liveSet('listening');
   } catch (e) {
     const msg = prov === 'gemini' ? liveErrES(e) : errES(e, 'OpenAI Realtime');
-    stopLive(true); liveSet('error');
+    stopLive(true); liveRecReset(); liveSet('error');
     CHAT.err = `No se pudo iniciar la voz en vivo: ${msg} Puedes seguir con el modo alternativo: escribe o dicta con 🎤 en el chat de texto.`; chatDraw();
   }
 }
@@ -829,6 +831,7 @@ export function summaryHTML(rec) {
     ${d.new_words.length ? `<h3>🆕 Palabras y frases nuevas</h3><div class="nw">${d.new_words.map(w => `<div class="nwi" data-ctx="${esc(w.en)}"><b>${tapWords(w.en)}</b> <span class="muted small">— ${esc(w.es || '')}</span> ${sayBtns(w.en)}</div>`).join('')}</div>` : ''}
     ${d.mispronounced.length ? `<h3>🗣️ Para pronunciar mejor</h3>${d.mispronounced.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtns(w.word)} <div class="small muted">${esc(w.note_es || '')}</div></div>`).join('')}` : ''}
     ${(d.misheard || []).length ? `<h3>🎧 Pronunciación en vivo (${d.misheard.length} ${d.misheard.length === 1 ? 'palabra' : 'palabras'})</h3><p class="small muted">Estas palabras el reconocedor las entendió mal o las repetiste con duda, según la transcripción de esta sesión. Es una pista de pronunciación, no una nota: no es una evaluación fonémica con audio como la de las lecciones con Azure, ni una calificación absoluta.</p>${d.misheard.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtns(w.word)}${w.heard_as ? ` <span class="small muted">— se entendió como «${esc(w.heard_as)}»</span>` : ''} <div class="small muted">${esc(w.note_es || '')}</div></div>`).join('')}` : ''}
+    ${d.livePron ? `<h3>🎙️ Pronunciación medida en vivo</h3><p class="small muted">Medido con Azure sobre ${d.livePron.turns} ${d.livePron.turns === 1 ? 'turno' : 'turnos'} de tu voz en esta sesión, con tu propia transcripción como referencia. Mide consistencia fonémica y detecta fonemas débiles: no es una nota absoluta.</p>${d.livePron.pct != null ? `<div class="sumbars">${scoreBarH('Pronunciación', d.livePron.pct)}</div>` : ''}${(d.livePron.weak || []).length ? `<p class="small">Fonemas a practicar: ${d.livePron.weak.map(w => `<b>/${esc(w.p)}/</b> ${w.s}/100`).join(' · ')}</p>` : ''}${(d.livePron.words || []).length ? `<div class="nw">${d.livePron.words.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtns(w.word)} <span class="small muted">${w.s}/100</span></div>`).join('')}</div>` : ''}` : ''}
     ${d.tips_es.length ? `<h3>🎯 Consejos</h3><ul class="small">${d.tips_es.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
     ${rec.added ? `<div class="tipbox small">🃏 Se agregaron <b>${rec.added}</b> tarjetas a tu mazo y al <b>Plan de hoy</b>.</div>` : ''}${levelSuggestHTML(sug)}</div>`;
 }
@@ -851,6 +854,7 @@ export function openSummarySheet(promiseOrRec, title) {
     document.addEventListener('tuki-ai-status', onStatus);
     const loading = () => { pb.classList.add('hidden'); pb.disabled = true; $('#sumBody', el).innerHTML = `<div class="sumcard"><h2>📝 Resumen</h2><p class="muted">${esc(title || '')}</p><div class="spinner"></div><p class="small muted" style="text-align:center" id="sumStatus" aria-live="polite">Tuki está analizando tu conversación…</p></div>`; };
     const show = rec => {
+      el.dataset.sumId = rec.id || '';
       $('#sumBody', el).innerHTML = summaryHTML(rec); bindSayTap(el); if ($('#lvlSuggest', el)) bindLevelSuggest(el, levelSuggestion());
       const items = [...rec.data.mistakes.map(m => m.correct), ...rec.data.new_words.map(w => w.en)];
       pb.disabled = !items.length; pb.classList.toggle('hidden', !items.length);
@@ -875,10 +879,124 @@ export function endConversation(reason) {
   const userTurns = msgs.filter(m => m.role === 'user' && !m.hidden).length, wasLive = msgs.some(m => m.live);
   if (CHAT.scen === '__iv') return finishInterview(msgs, userTurns);
   if (CHAT.scen === '__ch') return finishChallenge(msgs, userTurns, wasLive);
-  if (userTurns >= 2 && S.settings.autoSummary !== false && currentProvider()) openSummarySheet(summarizeConvo(msgs, { title: SCEN_ES[CHAT.scen] || 'Conversación', mode: 'chat', live: wasLive }), SCEN_ES[CHAT.scen]);
+  let sumPr = null;
+  if (userTurns >= 2 && S.settings.autoSummary !== false && currentProvider()) { sumPr = summarizeConvo(msgs, { title: SCEN_ES[CHAT.scen] || 'Conversación', mode: 'chat', live: wasLive }); openSummarySheet(sumPr, SCEN_ES[CHAT.scen]); }
+  livePronMaybeEvaluate(sumPr); // 3b: evalúa la voz grabada (si la hubo) y la adjunta al resumen; sin grabación, no hace nada
 }
 const _resetChat24 = resetChat; resetChat = function () { _resetChat24(); CHAT.sumFrom = 0; };
 const _stopLive24 = stopLive; stopLive = function (silent) { const was = LIVE.on; _stopLive24(silent); if (was && !silent) endConversation('live'); };
+
+/* ---- 3b (v2.29.0): puntaje en vivo con grabación opt-in + Azure ----
+   Ajuste opt-in apagado por defecto (S.settings.livePronOptIn, en
+   Ajustes → 🔬 Evaluación avanzada con Azure). Solo en voz en vivo con
+   Gemini: los chunks PCM de 16 kHz que ya entrega startMicStream() se
+   acumulan en local solo durante la sesión (nunca se guardan ni se
+   suben salvo a Azure para la evaluación, como hoy en las lecciones) y
+   se descartan de memoria al cerrar (livePronMaybeEvaluate toma los
+   turnos y libera el buffer). Al cerrar, se evalúan con Azure los 2–3
+   turnos más largos del usuario usando su propia transcripción como
+   referencia (azureAssess, con el token Azure vigente que ya cachea
+   AZT vía azFetch; si la sesión supera los 10 min, azAuth pide otro
+   token solo, 2 unidades de 100/día como mucho). Sin tocar el
+   streaming en vivo (la grabación es un consumidor pasivo más del
+   chunk, sin latencia extra), liveSystem() ni la cuota de Live. Los
+   fonemas débiles alimentan S.ph y el Top 2 vía recordSpeech('live').
+   Sin consentimiento, sin Azure o con OpenAI Realtime, la sesión sigue
+   exactamente como hoy (3a). El resultado se guarda en el resumen
+   (rec.data.livePron) y se muestra en la hoja con la advertencia
+   metodológica: mide consistencia fonémica y detecta fonemas débiles,
+   no es una nota absoluta. */
+export const LIVE_REC = { on: false, chunks: [], samples: 0, stored: 0, turns: [], open: null };
+export const LIVE_REC_MAX_SAMPLES = 5 * 60 * 16000; // 5 min de audio a 16 kHz mono
+export const LIVE_REC_MIN_WORDS = 3, LIVE_REC_MIN_SEC = 2, LIVE_REC_MAX_TURNS = 3;
+export function liveRecReset() { LIVE_REC.on = false; LIVE_REC.chunks = []; LIVE_REC.samples = 0; LIVE_REC.stored = 0; LIVE_REC.turns = []; LIVE_REC.open = null; }
+export function liveRecStart() {
+  liveRecReset();
+  if (S.settings.livePronOptIn && azureReady()) LIVE_REC.on = true;
+  return LIVE_REC.on;
+}
+export function liveRecPush(f32) {
+  if (!LIVE_REC.on || !f32 || !f32.length) return;
+  LIVE_REC.samples += f32.length;
+  if (LIVE_REC.stored < LIVE_REC_MAX_SAMPLES) { LIVE_REC.chunks.push(f32.slice(0)); LIVE_REC.stored += f32.length; }
+}
+export function liveRecTurnStart(histIdx) {
+  if (!LIVE_REC.on) return;
+  liveRecTurnEnd();
+  LIVE_REC.open = { start: LIVE_REC.samples, end: null, histIdx, text: '' };
+}
+export function liveRecTurnEnd() {
+  if (!LIVE_REC.on || !LIVE_REC.open) return;
+  const t = LIVE_REC.open; t.end = LIVE_REC.samples;
+  t.text = String(((CHAT.hist[t.histIdx] || {}).text) || '').trim();
+  LIVE_REC.turns.push(t); LIVE_REC.open = null;
+}
+export function liveRecTrim(f32) { // recorta el silencio inicial/final, con pre/post-roll
+  let a = 0, b = f32.length;
+  while (a < b && Math.abs(f32[a]) < 0.02) a++;
+  while (b > a && Math.abs(f32[b - 1]) < 0.02) b--;
+  a = Math.max(0, a - 3200); b = Math.min(f32.length, b + 4800);
+  return f32.slice(a, b);
+}
+export function liveRecPickTurns(turns, stored) {
+  return (turns || []).map(t => ({ ...t, words: String(t.text || '').split(/\s+/).filter(Boolean).length, dur: ((t.end || 0) - (t.start || 0)) / 16000 }))
+    .filter(t => t.words >= LIVE_REC_MIN_WORDS && t.dur >= LIVE_REC_MIN_SEC && (t.end || 0) <= (stored || 0))
+    .sort((a, b) => b.dur - a.dur).slice(0, LIVE_REC_MAX_TURNS);
+}
+export function livePronWeak(results) { // fonemas débiles agregados (como placementFreeWeak, s<70)
+  const agg = {};
+  (results || []).forEach(az => (az.words || []).forEach(w => (w.ph || []).forEach(p => { if (p.s < 70) { const a = agg[p.p] || (agg[p.p] = { n: 0, sum: 0 }); a.n++; a.sum += p.s; } })));
+  return Object.entries(agg).map(([p, a]) => ({ p, s: Math.round(a.sum / a.n) })).sort((a, b) => a.s - b.s).slice(0, 3);
+}
+export function livePronWeakWords(results) { // palabras con peor puntaje medido (s<70), máx. 4
+  const agg = {};
+  (results || []).forEach(az => (az.words || []).forEach(w => { const k = String(w.tok || '').toLowerCase(); if (!k || k.length < 2) return; const a = agg[k] || (agg[k] = { word: w.tok, n: 0, sum: 0 }); a.n++; a.sum += Math.round((w.s || 0) * 100); }));
+  return Object.values(agg).map(a => ({ word: a.word, s: Math.round(a.sum / a.n) })).filter(w => w.s < 70).sort((a, b) => a.s - b.s).slice(0, 4);
+}
+export async function livePronEvaluate(turns, chunks, summaryPromise) {
+  let total = 0; (chunks || []).forEach(c => total += c.length);
+  if (!total) return null;
+  const picked = liveRecPickTurns(turns, total);
+  if (!picked.length) return null;
+  const buf = new Float32Array(total); let o = 0; chunks.forEach(c => { buf.set(c, o); o += c.length; });
+  const results = [];
+  for (const t of picked) {
+    try {
+      const seg = liveRecTrim(buf.slice(Math.max(0, t.start || 0), Math.min(buf.length, t.end || 0)));
+      if (seg.length < 16000) continue; // menos de 1 s de voz tras recortar
+      const az = await azureAssess(t.text, encodeWAV(seg, 16000));
+      results.push(az);
+      recordSpeech('live', az); // alimenta S.ph, S.wd (Top 2) y S.snd['live']
+    } catch (e) { /* un turno fallido no bloquea los demás */ }
+  }
+  if (!results.length) return null;
+  const res = { pct: Math.round(results.reduce((a, r) => a + (r.pct || 0), 0) / results.length), turns: results.length, weak: livePronWeak(results), words: livePronWeakWords(results) };
+  if (summaryPromise) {
+    try { const rec = await summaryPromise; if (rec && rec.data) { rec.data.livePron = res; save(); livePronSheetUpdate(rec); } } catch (e) {}
+  }
+  return res;
+}
+export function livePronMaybeEvaluate(summaryPromise) {
+  if (!LIVE_REC.on && !LIVE_REC.turns.length && !LIVE_REC.open) return null;
+  liveRecTurnEnd();
+  const turns = LIVE_REC.turns, chunks = LIVE_REC.chunks;
+  liveRecReset(); // el audio se borra de memoria al cerrar; la evaluación usa la copia tomada aquí y la libera al terminar
+  if (!turns.length || !chunks.length) return null;
+  return livePronEvaluate(turns, chunks, summaryPromise).catch(() => null);
+}
+export function livePronSheetUpdate(rec) { // re-renderiza la hoja del resumen si sigue abierta mostrando este rec
+  try {
+    if (!rec) return;
+    const body = document.querySelector('.sumsheet #sumBody');
+    if (!body) return;
+    const sheet = body.closest('.sheet');
+    if (!sheet || sheet.dataset.sumId !== rec.id) return;
+    body.innerHTML = summaryHTML(rec);
+    bindSayTap(sheet);
+    const lvl = sheet.querySelector('#lvlSuggest');
+    if (lvl) bindLevelSuggest(sheet, levelSuggestion());
+  } catch (e) {}
+}
 
 /* Plan de hoy y Práctica con lo aprendido en conversaciones y palabras difíciles */
 export function convoPracticeItems(n) { return S.convoItems.filter(c => Date.now() - c.ts < 14 * DAY).slice(0, n).map(c => ({ kind: 'speak', variant: c.kind === 'frase' ? 'sentence' : 'word', l: LESSONS[0], text: c.en, es: c.es, cardKey: S.deck[(c.kind === 'frase' ? 's:' : 'w:') + c.en.toLowerCase()] ? (c.kind === 'frase' ? 's:' : 'w:') + c.en.toLowerCase() : undefined })); }
