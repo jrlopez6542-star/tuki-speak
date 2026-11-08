@@ -1226,7 +1226,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.34.0';
+export const APP_VERSION = '2.35.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1418,7 +1418,7 @@ VIEWS.chat = v => {
       <div class="chatsel"><select class="field" id="level" aria-label="Nivel de inglés" title="Nivel de inglés de la conversación">${LEVEL_KEYS.map(k => `<option value="${k}" ${k === lv ? 'selected' : ''}>${LEVELS[k].label}</option>`).join('')}</select><select class="field" id="tlang" aria-label="Idioma del tutor" title="Idioma del tutor">${Object.keys(TUTOR_LANGS).map(k => `<option value="${k}" ${k === tutorLang() ? 'selected' : ''}>${TUTOR_LANGS[k].label}</option>`).join('')}</select></div>
     </div>
     <div class="chatlog" id="log" aria-live="polite"></div>
-    <div class="chatbar"><button class="iconbtn" id="cmic" title="Dictar (modo alternativo)">🎤</button><textarea id="cin" placeholder="Escribe en inglés (o usa 🎤)…" rows="1" aria-label="Mensaje"></textarea><button class="iconbtn" id="csend" title="Enviar">➤</button></div>
+    <div class="chatbar"><button class="iconbtn" id="cmic" title="Dictar (modo alternativo)">🎤</button><textarea id="cin" placeholder="Escribe en inglés (o usa 🎤)…" rows="1" aria-label="Mensaje"></textarea><button class="iconbtn" id="csend" title="Enviar" disabled>➤</button></div>
     <div class="livedock">
       <div class="livestat"><span class="live-dot ${LIVE.state}" id="ldot"></span><b id="lstate">${LIVE_LABEL[LIVE.state]}</b><span class="meter" aria-hidden="true"><i id="lmeter"></i></span></div>
       <button class="livebtn ${LIVE.on ? 'on' : ''}" id="liveBtn" title="Voz a voz en tiempo real con ${prov === 'gemini' ? 'Gemini Live' : 'OpenAI Realtime'}">${LIVE.on ? '⏹ Terminar conversación' : '🎙️ Hablar en vivo'}</button>
@@ -1451,9 +1451,17 @@ VIEWS.chat = v => {
   $('#tspeed').onchange = e => { S.settings.tutorSpeed = e.target.value; save(); const n = TUTOR_SPEEDS[e.target.value].name; if (LIVE.on) { toast(`🐢 Velocidad ${n}: reconectando la voz en vivo…`, 2600); stopLive(true); resetChat(); chatDraw(); startLive(); } else { toast(`🐢 Velocidad de Tuki: ${n}`); chatDraw(true); } };
   $('#newc').onclick = () => { if (LIVE.on) stopLive(); startText(); };
   $('#liveBtn').onclick = () => LIVE.on ? stopLive() : startLive();
-  const cin = $('#cin'); $('#csend').onclick = () => { const t = cin.value.trim(); cin.value = ''; chatSend(t); };
-  cin.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#csend').click(); } };
+  const cin = $('#cin'), csend = $('#csend');
+  // (chat premium Etapa 1, v2.35.0: enviar solo con texto, auto-grow con
+  // tope de 120px; sin tocar chatSend ni chatMic)
+  const syncSend = () => { csend.disabled = !cin.value.trim(); };
+  const fitCin = () => { cin.style.height = 'auto'; cin.style.height = Math.min(cin.scrollHeight, 120) + 'px'; };
+  const growCin = () => { syncSend(); fitCin(); };
+  csend.onclick = () => { const t = cin.value.trim(); if (!t) return; cin.value = ''; syncSend(); fitCin(); chatSend(t); };
+  cin.oninput = growCin;
+  cin.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (cin.value.trim()) csend.click(); } };
   $('#cmic').onclick = () => chatMic($('#cmic'));
+  growCin();
   chatDraw(); liveUI(); fitChat();
 };
 const _render = render; let _lastTab = null; render = function () { const v = $('#view'); v.classList.toggle('chatmode', TAB === 'chat'); _render(); if (TAB !== _lastTab) { _lastTab = TAB; v.classList.remove('view-enter'); void v.offsetWidth; v.classList.add('view-enter'); } if (TAB === 'chat') fitChat(); };
