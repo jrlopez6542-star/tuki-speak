@@ -350,7 +350,8 @@ export function keysHTML() {
     <div class="set-row"><div><label for="kpLock">Bloquear claves con la frase en este dispositivo</label><div class="desc">Solo se guarda la versión cifrada; te pediremos la frase una vez cada vez que abras la app.</div></div><label class="switch"><input type="checkbox" id="kpLock" ${LOCKED ? 'checked' : ''}><span></span></label></div>
     <div class="row wrap"><button class="btn ghost sm" id="kpChange">🔁 Cambiar frase</button><button class="btn ghost sm" id="kpForgot">Olvidé mi frase</button></div>`;
   return `<div class="card" id="keysCard"><h3>🔐 Frase de seguridad para tus claves</h3>
-    <p class="small muted">Protege tus claves de Gemini, OpenAI y Azure con cifrado AES-256 (PBKDF2, ${KDF_ITER.toLocaleString('es-CO')} iteraciones). Nunca van en la exportación ni en los registros.</p>${body}<div class="ac-msg small" id="kpMsg" role="status"></div></div>`;
+    <p class="small muted">Protege tus claves de Gemini, OpenAI y Azure con cifrado AES-256.</p>
+    <details class="small muted" style="margin:-4px 0 8px"><summary>¿Por qué?</summary>Cifrado AES-256 (PBKDF2, ${KDF_ITER.toLocaleString('es-CO')} iteraciones). Nunca van en la exportación ni en los registros.</details>${body}<div class="ac-msg small" id="kpMsg" role="status"></div></div>`;
 }
 export function bindAcct(root) {
   const card = $('#acctCard', root) || $('#acctCard'); if (!card) return;
