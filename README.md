@@ -8,6 +8,9 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 ## Novedades v2.39.0
 - **🎭 Práctica y Ajustes llegan a los techos R10 de densidad**: en Práctica, los 9 modos dejan de ser 9 tarjetas y pasan a ser 9 filas dentro de una sola tarjeta «🎭 Modos de práctica», con los mismos destinos, candados y textos (Práctica pasa de 16 a 8 tarjetas visibles, techo 12 ✔); en Ajustes, las 3 tarjetas de mantenimiento — 📦 Modo Offline, 🔄 Actualizaciones y 💾 Datos — se fusionan en una sola tarjeta «📦 Datos y mantenimiento» con 3 secciones, con los mismos botones (Ajustes pasa de 14 a 12 tarjetas, techo 12 ✔). Aprender (10 bloques con datos) y Progreso (9 tarjetas) ya cumplían su techo y no se tocan. Sin cambios en la lógica de los modos, el progreso, el XP ni las claves.
 
+## Novedades v2.37.1
+- **🔒 Chat con clave propia: historial recortado y reintento acotado (F2)**: con clave propia de Gemini u OpenAI, el chat envía como mucho los últimos 60 mensajes (antes el historial completo; la ruta compartida ya lo recortaba a 100 y P10 ya compactaba a partir de 60, así que la nota de perfil sigue conservando el contexto anterior); y `aiQuick` hace una sola pasada por la cadena de modelos (antes hasta 4 pasadas × 5–6 modelos, cada intento fallido pagado con la propia clave) y `gemini()` un solo intento por modelo. Si todos los modelos están saturados, aparece el aviso de «ocupado» para reintentar después. Sin cambios en el formato de 6 líneas, el flujo base, las cuotas compartidas ni el progreso.
+
 ## Novedades v2.37.0
 
 ## Novedades v2.36.0

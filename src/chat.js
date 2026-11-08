@@ -96,20 +96,27 @@ export async function gemini(userText) {
   const contents = CHAT.hist.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
   if (gemShared()) return (await tukiApi('gemini', { model: sharedModel(pref), request: { systemInstruction: { parts: [{ text: chatSystem() }] }, contents: contents.slice(-100), generationConfig: { temperature: 0.7, maxOutputTokens: 800 } } })).text;
   const key = S.settings.geminiKey.trim();
+  /* (F2, v2.37.1: con clave propia también se recorta el historial al
+     enviar — antes iba CHAT.hist completo; la ruta compartida ya lo
+     recortaba a los últimos 100. Se envían como mucho los últimos
+     CHAT_COMPACT_AT (60) mensajes: P10 compacta a partir de 60 y la
+     nota de perfil en chatSystem() conserva el contexto anterior.) */
+  const ownContents = contents.slice(-CHAT_COMPACT_AT);
   const models = [pref, 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest'].filter((m, i, a) => m && a.indexOf(m) === i);
   let lastErr;
   for (const model of models) {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      try {
-        const out = await geminiCall(key, model, contents);
-        if (model !== pref) { S.settings.model = model; save(); }
-        return out;
-      } catch (e) {
-        lastErr = e;
-        if (e.status === 400 || e.status === 401 || e.status === 403) throw e; // clave inválida: no sirve reintentar
-        if (e.status === 429 || e.status >= 500) await new Promise(r => setTimeout(r, 1200));
-        if (!(e.status >= 500) || attempt === 1) break; // 404/429/vacío: pasar al siguiente modelo
-      }
+    try {
+      const out = await geminiCall(key, model, ownContents);
+      if (model !== pref) { S.settings.model = model; save(); }
+      return out;
+    } catch (e) {
+      lastErr = e;
+      if (e.status === 400 || e.status === 401 || e.status === 403) throw e; // clave inválida: no sirve reintentar
+      /* (F2, v2.37.1: un solo intento por modelo — antes, ante un 5xx,
+         se reintentaba el mismo modelo y cada intento es una llamada
+         que el usuario paga con su propia clave. El fallback es pasar
+         al siguiente modelo de la cadena, no repetir el mismo.) */
+      if (e.status === 429 || e.status >= 500) await new Promise(r => setTimeout(r, 1200));
     }
   }
   throw lastErr;
@@ -476,7 +483,11 @@ export function stopLive(silent) {
 
 export async function openaiChat() {
   const s = S.settings, model = s.openaiModel || 'gpt-4o-mini';
-  const body = { model, messages: [{ role: 'system', content: chatSystem() }, ...CHAT.hist.map(m => ({ role: m.role === 'model' ? 'assistant' : 'user', content: m.text }))], max_completion_tokens: 600 };
+  /* (F2, v2.37.1: igual que gemini() con clave propia — antes iba
+     CHAT.hist completo; ahora como mucho los últimos CHAT_COMPACT_AT
+     (60) mensajes, con la nota de perfil de P10 en chatSystem() como
+     contexto de los turnos anteriores.) */
+  const body = { model, messages: [{ role: 'system', content: chatSystem() }, ...CHAT.hist.slice(-CHAT_COMPACT_AT).map(m => ({ role: m.role === 'model' ? 'assistant' : 'user', content: m.text }))], max_completion_tokens: 600 };
   if (!/^(o\d|gpt-5)/.test(model)) body.temperature = 0.7;
   const res = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { Authorization: 'Bearer ' + s.openaiKey.trim(), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (!res.ok) throw await httpErr(res);
@@ -588,25 +599,28 @@ export async function aiQuick(system, prompt, opts = {}) {
     aiStatus(''); throw aiBusyErr(last, 'OpenAI');
   }
   const models = [AIQ.good, S.settings.model || 'gemini-2.5-flash', ...GEM_QUICK_MODELS].filter((m, i, a) => m && a.indexOf(m) === i), N = models.length;
+  /* (F2, v2.37.1: con clave propia, UNA sola pasada por la cadena de
+     modelos — antes eran hasta 4 pasadas × 5-6 modelos dentro de 25 s
+     y cada intento fallido por saturación es una llamada que el usuario
+     paga con su propia clave. Cada modelo se prueba como mucho una
+     vez: el fallback ante saturación es pasar al siguiente modelo, no
+     repetir la cadena. Si todos están saturados se devuelve el aviso
+     de "ocupado" (aiBusyErr) y el usuario reintenta cuando quiera.
+     Con claves compartidas no cambia nada: 1 llamada al proxy.) */
   let last = null;
-  for (let pass = 0; pass < 4; pass++) {
-    let transient = false;
-    for (let i = 0; i < N; i++) {
-      if (last) { if (left() <= 0) break; aiStatus(pass ? `Gemini sigue ocupado, reintentando… (${i + 1}/${N})` : `Gemini está ocupado, probando otro modelo… (${i + 1}/${N})`); }
-      try {
-        const t = await gemQuickCall(models[i], system, prompt, max, opts.json, Math.max(15000, left() + 5000));
-        if (t) { AIQ.good = models[i]; aiStatus(''); return out(t); }
-        last = new Error('Respuesta vacía del modelo.'); last.status = 0;
-      } catch (e) {
-        last = e;
-        if (e instanceof TypeError && !e.status) { aiStatus(''); throw e; }
-        if (e.status === 404) continue;
-        if (aiTransient(e)) { transient = true; if (left() > 0) await sleep(Math.min(AIQ.base, Math.max(0, left()))); continue; }
-        aiStatus(''); throw e;
-      }
+  for (let i = 0; i < N; i++) {
+    if (last) { if (left() <= 0) break; aiStatus(`Gemini está ocupado, probando otro modelo… (${i + 1}/${N})`); }
+    try {
+      const t = await gemQuickCall(models[i], system, prompt, max, opts.json, Math.max(15000, left() + 5000));
+      if (t) { AIQ.good = models[i]; aiStatus(''); return out(t); }
+      last = new Error('Respuesta vacía del modelo.'); last.status = 0;
+    } catch (e) {
+      last = e;
+      if (e instanceof TypeError && !e.status) { aiStatus(''); throw e; }
+      if (e.status === 404) continue;
+      if (aiTransient(e)) { if (left() > 0) await sleep(Math.min(AIQ.base, Math.max(0, left()))); continue; }
+      aiStatus(''); throw e;
     }
-    if (!transient || left() <= 0) break;
-    aiStatus('Gemini sigue ocupado, esperando un momento para reintentar…'); await sleep(Math.min(AIQ.base * 2 * (pass + 1), Math.max(0, left())));
   }
   aiStatus('');
   if (aiTransient(last)) throw aiBusyErr(last, 'Gemini');
