@@ -1078,6 +1078,9 @@ VIEWS.progress = v => {
   const rows = LESSONS.map(l => ({ l, a: soundAvg(l.id), n: (S.snd[l.id] || []).length, e: S.ear[l.id] }));
   const withData = rows.filter(r => r.a !== null);
   const weakest = withData.slice().sort((a, b) => a.a - b.a).filter(r => r.a < 90).slice(0, 3);
+  // (densidad PR C, v2.32.0, ítem 8: las barras se agrupan por unidad
+  // para el <details> de la sección "Sonidos" fusionada.)
+  const soundUnits = []; rows.forEach(r => { let g = soundUnits.find(g => g.ui === r.l.ui); if (!g) { g = { ui: r.l.ui, title: r.l.unit.title, rows: [] }; soundUnits.push(g); } g.rows.push(r); });
   const wwords = Object.entries(S.wd).filter(([k, r]) => r.n).map(([k, r]) => ({ k, disp: r.disp || k, a: Math.round(r.sum / r.n), n: r.n })).sort((a, b) => a.a - b.a).slice(0, 10);
   const top5 = getTop5Errors();
   // (fix qa-text-data: getTop5Errors rellena con 5 sugerencias fijas cuando
@@ -1137,9 +1140,11 @@ VIEWS.progress = v => {
 
     <div class="card"><h3>💡 Recomendación</h3><p style="margin:0">${rec}</p>${weakest.length ? `<button class="btn primary sm" style="margin-top:10px" data-drill="${weakest[0].l.id}">Practicar ${esc(weakest[0].l.title)}</button>` : ''}</div>
     <div class="card"><h3>Últimos 14 días</h3><div class="small muted">Línea verde: puntaje promedio de voz · barras: XP</div>${chart}</div>
-    <div class="card"><h3>Puntaje por sonido</h3><div class="small muted" style="margin-bottom:10px">Promedio de tus últimos 10 intentos de voz por lección.</div><div class="bars">
-      ${rows.map(r => `<div class="bar"><span title="${esc(r.l.title)}">${r.l.icon} ${esc(r.l.type ? r.l.title.split(' ').slice(-2).join(' ') : '/' + r.l.sound + '/')}</span><div class="tr"><i style="width:${r.a || 0}%;background:${r.a === null ? '#eef1f3' : r.a >= 80 ? 'var(--g)' : r.a >= 60 ? 'var(--o)' : 'var(--r)'}"></i></div><span>${r.a === null ? '—' : r.a + '%'}</span></div>`).join('')}</div></div>
-    ${weakest.length ? `<div class="card"><h3>Sonidos más débiles</h3>${weakest.map(r => `<div class="row between" style="padding:6px 0"><span>${r.l.icon} <b>${esc(r.l.title)}</b> <span class="pill">${r.a}%</span></span><button class="btn ghost sm" data-drill="${r.l.id}">Practicar</button></div>`).join('')}</div>` : ''}
+    <div class="card" id="soundsCard"><h3>🔊 Sonidos</h3>
+      <div id="soundsChips"></div>
+      ${weakest.length ? `<div class="small muted" style="margin:6px 0 2px">Sonidos más débiles</div>${weakest.map(r => `<div class="row between" style="padding:6px 0"><span>${r.l.icon} <b>${esc(r.l.title)}</b> <span class="pill">${r.a}%</span></span><button class="btn ghost sm" data-drill="${r.l.id}">Practicar</button></div>`).join('')}` : ''}
+      <details style="margin-top:10px"><summary><b>Puntaje por sonido</b> <span class="small muted">· promedio de tus últimos 10 intentos de voz por lección</span></summary><div class="bars" style="margin-top:8px">
+      ${soundUnits.map(u => `<div class="small" style="margin:10px 0 4px"><b>Unidad ${u.ui + 1} · ${esc(u.title)}</b></div>${u.rows.map(r => `<div class="bar"><span title="${esc(r.l.title)}">${r.l.icon} ${esc(r.l.type ? r.l.title.split(' ').slice(-2).join(' ') : '/' + r.l.sound + '/')}</span><div class="tr"><i style="width:${r.a || 0}%;background:${r.a === null ? '#eef1f3' : r.a >= 80 ? 'var(--g)' : r.a >= 60 ? 'var(--o)' : 'var(--r)'}"></i></div><span>${r.a === null ? '—' : r.a + '%'}</span></div>`).join('')}`).join('')}</div></details></div>
     <div class="card"><h3>Palabras para repetir</h3>${wwords.length ? `<div class="chips">${wwords.map(w => `<span class="wd ${colorOf(w.a / 100)}" data-say="${esc(w.disp)}">${esc(w.disp)} · ${w.a}%</span>`).join('')}</div><button class="btn blue sm" id="ww">🔁 Practicar estas palabras</button>` : '<div class="muted small">Aún no hay datos. Haz ejercicios de voz.</div>'}</div>
     <p class="muted small">ℹ️ ${azureReady() ? 'Con Azure activo, los ejercicios usan evaluación fonema por fonema (precisión, fluidez, integridad y prosodia). Sin Azure, ' : ''}el puntaje compara, palabra por palabra, lo que el reconocedor de voz del navegador entendió con la frase objetivo (usando su confianza y alternativas). No es un análisis fonético por sonido como el de apps de pago; úsalo como guía y complementa con "Grabar y comparar".</p>`;
   $$('[data-drill]', v).forEach(b => b.onclick = () => { const l = LESSON[b.dataset.drill]; startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); });
@@ -1203,7 +1208,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.31.0';
+export const APP_VERSION = '2.32.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1339,10 +1344,18 @@ VIEWS.progress = v => {
   $('.kpis', v).insertAdjacentHTML('afterend', `<div class="card"><h3>📆 Esta semana</h3>
     <div class="kpis" style="margin:6px 0 0"><div class="kpi"><span>XP</span><b>${a.xp}${delta(a.xp, b.xp)}</b></div><div class="kpi"><span>Minutos</span><b>${a.min}${delta(a.min, b.min)}</b></div><div class="kpi"><span>Intentos de voz</span><b>${a.n}${delta(a.n, b.n)}</b></div><div class="kpi"><span>Días activos</span><b>${a.act}/7</b></div></div>
     <div class="small muted">Promedio de voz: ${a.avg == null ? '—' : a.avg + '%'} (semana anterior: ${b.avg == null ? '—' : b.avg + '%'}) · 🧊 Protectores de racha: ${S.freezes || 0}</div>
-    <div class="week" style="margin-bottom:22px">${days.map(d => `<div style="height:${Math.max(3, d.xp / mx * 100)}%" title="${d.xp} XP"><span>${d.l}</span></div>`).join('')}</div></div>
-    ${phs.length ? `<div class="card"><h3>🔬 Fonemas más débiles (Azure)</h3><div class="chips">${phs.map(p => `<span class="ph ${colorOf(p.a / 100)}" style="font-size:16px;padding:4px 8px" title="${p.n} intentos">/${esc(p.p)}/ · ${p.a}</span>`).join('')}</div><div class="small muted">${esc(PH_TIPS[phs[0].p] || '')}</div></div>` : ''}`);
+    <div class="week" style="margin-bottom:22px">${days.map(d => `<div style="height:${Math.max(3, d.xp / mx * 100)}%" title="${d.xp} XP"><span>${d.l}</span></div>`).join('')}</div></div>`);
+  // (densidad PR C, v2.32.0, ítem 8: los chips de fonemas (Azure) ya no
+  // son una tarjeta aparte: van como resumen arriba de la sección
+  // "Sonidos" fusionada. Si no existiera ese hueco, se mantiene la
+  // tarjeta de antes como respaldo.)
+  const sc = $('#soundsChips', v);
+  if (phs.length && sc) sc.innerHTML = `<div class="small muted" style="margin-bottom:4px">🔬 Fonemas más débiles (Azure)</div><div class="chips">${phs.map(p => `<span class="ph ${colorOf(p.a / 100)}" style="font-size:16px;padding:4px 8px" title="${p.n} intentos">/${esc(p.p)}/ · ${p.a}</span>`).join('')}</div><div class="small muted">${esc(PH_TIPS[phs[0].p] || '')}</div>`;
+  else if (phs.length) $('.kpis', v).insertAdjacentHTML('afterend', `<div class="card"><h3>🔬 Fonemas más débiles (Azure)</h3><div class="chips">${phs.map(p => `<span class="ph ${colorOf(p.a / 100)}" style="font-size:16px;padding:4px 8px" title="${p.n} intentos">/${esc(p.p)}/ · ${p.a}</span>`).join('')}</div><div class="small muted">${esc(PH_TIPS[phs[0].p] || '')}</div></div>`);
   const last = v.lastElementChild;
-  last.insertAdjacentHTML('beforebegin', `<div class="card"><h3>🏅 Insignias (${Object.keys(S.badges).length}/${BADGES.length})</h3><div class="badges">${BADGES.map(b => `<div class="badge ${S.badges[b.id] ? '' : 'off'}" title="${esc(b.d)}"><span class="i">${b.i}</span>${esc(b.t)}<div class="small muted" style="font-weight:600">${esc(b.d)}</div></div>`).join('')}</div></div>`);
+  // (densidad PR C, v2.32.0, ítem 9: las 24 insignias quedan plegadas
+  // bajo un <details>; el encabezado con el conteo sigue visible.)
+  last.insertAdjacentHTML('beforebegin', `<div class="card"><h3>🏅 Insignias (${Object.keys(S.badges).length}/${BADGES.length})</h3><details><summary><b>Ver las ${BADGES.length} insignias</b></summary><div class="badges" style="margin-top:8px">${BADGES.map(b => `<div class="badge ${S.badges[b.id] ? '' : 'off'}" title="${esc(b.d)}"><span class="i">${b.i}</span>${esc(b.t)}<div class="small muted" style="font-weight:600">${esc(b.d)}</div></div>`).join('')}</div></details></div>`);
 };
 
 /* =================== RACHA: modal con protectores =================== */
@@ -1680,16 +1693,17 @@ VIEWS.chat = v => {
   fitChat();
 };
 
-/* Aprender: tarjetas del reto diario y la entrevista */
+/* Aprender: tarjeta de la entrevista (densidad PR C, v2.32.0, ítem 7:
+   la tarjeta "Reto diario" del dúo se quita — el reto ya está en
+   "Retos de Hoy" (bloque 2) — y queda solo la entrevista.) */
 const _learn24 = VIEWS.learn;
 VIEWS.learn = v => {
   _learn24(v);
-  const t = todayTopic(), done = S.challenges[dayKey()], cs = chStreak();
-  const html = `<div class="duo2"><button class="card mcard ch" id="chCard"><div class="mc-ic">${done ? '✅' : '⏱️'}</div><div><b>Reto diario · 5 min</b><div class="small muted">${esc(t.en)}</div><div class="small">${done ? '¡Completado hoy!' : '+20 XP'}${cs ? ` · 🔥 ${cs}` : ''}</div></div></button>
+  const html = `<div class="duo2">
     <button class="card mcard iv" id="ivCard"><div class="mc-ic">🧑‍💼</div><div><b>Entrevista de trabajo</b><div class="small muted">Simulador con informe</div><div class="small">${S.interviews.length ? 'Última: ' + S.interviews[0].data.overall + '/100' : '5, 8 o 12 preguntas'}</div></div></button></div>`;
   const anchor = $('.plan-card', v) || $('.card.goal', v);
   if (anchor) anchor.insertAdjacentHTML('afterend', html); else v.insertAdjacentHTML('afterbegin', html);
-  $('#chCard', v).onclick = challengeSetup; $('#ivCard', v).onclick = interviewSetup;
+  $('#ivCard', v).onclick = interviewSetup;
 };
 /* Progreso: historial */
 function historyHTML() {
