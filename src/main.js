@@ -1226,7 +1226,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.36.0';
+export const APP_VERSION = '2.37.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1455,7 +1455,8 @@ VIEWS.chat = v => {
   const cin = $('#cin'), csend = $('#csend');
   // (chat premium Etapa 1, v2.35.0: enviar solo con texto, auto-grow con
   // tope de 120px; sin tocar chatSend ni chatMic)
-  const syncSend = () => { csend.disabled = !cin.value.trim(); };
+  // (chat premium Etapa 3, v2.37.0: también bloqueado mientras Tuki escribe)
+  const syncSend = () => { csend.disabled = CHAT.busy || !cin.value.trim(); };
   const fitCin = () => { cin.style.height = 'auto'; cin.style.height = Math.min(cin.scrollHeight, 120) + 'px'; };
   const growCin = () => { syncSend(); fitCin(); };
   csend.onclick = () => { const t = cin.value.trim(); if (!t) return; cin.value = ''; syncSend(); fitCin(); chatSend(t); };
