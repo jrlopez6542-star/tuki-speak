@@ -2591,7 +2591,7 @@ export function tvRenderBody() {
         <div style="font-weight:700;margin-bottom:4px">✨ Desbloquea las voces naturales de Azure gratis</div>
         <div class="small muted" style="margin-bottom:10px">Inicia sesión con tu cuenta de Google para usar gratis las voces humanas de alta calidad (Salomé colombiana, Jenny, etc.) con el cupo diario de Tuki.</div>
         <div class="row wrap" style="gap:8px">
-          <button class="btn gbtn sm" id="tvLoginGoogle"><span class="g">G</span> Continuar con Google</button>
+          <button class="linkbtn" id="tvGoAcct">Usar la IA gratis →</button>
           <button class="btn ghost sm" id="tvGoAz">Tengo mi propia clave</button>
         </div>
       </div>` : `<p class="small tvhint">🔑 Para usarlas agrega tu clave y región gratis de Azure (plan F0) en «Evaluación avanzada con Azure». <button class="btn ghost sm" id="tvGoAz">Ir a la clave</button></p>`
@@ -2601,24 +2601,24 @@ export function tvRenderBody() {
   $$('input[name=tvSel]', box).forEach(inp => inp.onchange = () => { const r = TV.rows[+inp.value]; if (r) tvSelect(r.id, tl); });
   $$('.tvplay', box).forEach(b => b.onclick = () => tvPlay(+b.dataset.play));
   const go = $('#tvGoAz', box); if (go) go.onclick = () => { const k = $('#azKey'); if (k) { k.scrollIntoView({ block: 'center', behavior: 'smooth' }); k.focus({ preventScroll: true }); } };
-  const bG = $('#tvLoginGoogle', box);
-  if (bG) bG.onclick = async () => {
-    bG.disabled = true;
-    try { await fbGoogle(); render(); }
-    catch (e) { toast(authErr(e)); }
-    finally { if (document.body.contains(bG)) bG.disabled = false; }
-  };
+  // (densidad PR B, v2.31.0, ítem 3: el único "Continuar con Google" de
+  // Ajustes vive en la tarjeta 👤 Cuenta; aquí solo un enlace que
+  // desplaza hasta ella.)
+  const bG = $('#tvGoAcct', box);
+  if (bG) bG.onclick = () => { const c = $('#acctCard'); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
   tvBtns();
   if (ready) tvLoadLive();
 }
 export function tvCardHTML() {
-  return `<div class="card" id="tvCard"><h3>🗣️ Voz de Tuki <span class="pill">Gratis</span></h3>
+  // (densidad PR B, v2.31.0, ítem 5: la demostración de voces queda
+  // plegada por defecto bajo <details>; nada cambia de lógica.)
+  return `<div class="card" id="tvCard"><details><summary><h3 style="display:inline">🗣️ Voz de Tuki <span class="pill">Gratis</span></h3></summary>
     <p class="small muted">Elige cómo suena Tuki y toca <b>▶ Escuchar</b> para oír un ejemplo (a la velocidad «${esc(TUTOR_SPEEDS[tutorSpeed()].name)}»). La voz elegida se usa en el chat, Traduce y completa, Práctica diaria, las lecciones y la repetición lenta.</p>
     <div class="seg tvseg" role="tablist" aria-label="Idioma de la voz"><button data-tvl="es" role="tab">Español (explicaciones)</button><button data-tvl="en" role="tab">Inglés (frases)</button></div>
     <div id="tvBody"></div>
     <div id="tvMsg" class="small" role="status" aria-live="polite" style="margin-top:6px"></div>
     <p class="small muted" id="tvHelp" style="margin-top:8px">💡 Todo es gratis: las voces del teléfono no usan internet ni clave. Las voces Azure usan tu recurso gratuito <b>F0</b>, que incluye <b>0,5 millones de caracteres de voz neural al mes</b> (precios oficiales de Microsoft, verificado el 27 sep 2026). Tuki guarda en memoria cada ejemplo que escuchas para no gastar de nuevo.</p>
-  </div>`;
+  </details></div>`;
 }
 if ('speechSynthesis' in window) { try { speechSynthesis.addEventListener('voiceschanged', () => { if (TAB === 'settings' && $('#tvBody')) tvRenderBody(); }); } catch (e) {} }
 

@@ -1203,7 +1203,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.30.0';
+export const APP_VERSION = '2.31.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1444,7 +1444,8 @@ VIEWS.settings = v => {
     ${sw('recordVoice', s.recordVoice, 'Grabar mi voz en ejercicios', 'Para escucharte y ver tu onda. En algunos Android puede interferir con el reconocimiento de Chrome.')}
   </div>
   <div class="card"><h3>🔬 Evaluación avanzada con Azure <span class="pill">${azShared() ? 'Activo con tu cuenta' : (azOwn() ? 'Con tu clave' : 'Opcional')}</span></h3>
-    <p class="small muted">Con <b>Azure AI Speech</b> obtienes puntaje <b>fonema por fonema</b> con IPA, fluidez, integridad y prosodia, y consejos precisos de pronunciación. La clave se guarda solo en este dispositivo.</p>
+    <p class="small muted">Puntaje <b>fonema por fonema</b> con Azure AI Speech.</p>
+    <details class="small muted" style="margin:-4px 0 8px"><summary>¿Por qué?</summary>Con Azure AI Speech obtienes puntaje fonema por fonema con IPA, fluidez, integridad y prosodia, y consejos precisos de pronunciación. La clave se guarda solo en este dispositivo.</details>
     ${sw('livePronOptIn', s.livePronOptIn, 'Medir mi pronunciación en vivo', 'Solo en voz en vivo con Gemini. Tu voz se envía a Azure solo para medirla y se borra al cerrar.')}
     <details class="small muted" style="margin:-4px 0 8px"><summary>Qué se hace con tu audio</summary>Al terminar la sesión, Azure evalúa tus 2–3 turnos más largos con tu propia transcripción como referencia. El audio queda solo en este dispositivo durante la sesión y se borra al cerrar; a Azure solo llega el fragmento evaluado, como en las lecciones. Mide consistencia fonémica y fonemas débiles, no es una nota absoluta. Sin Azure o sin este permiso, la sesión sigue igual que hoy.</details>
     ${azShared() ? '<p class="small" style="color:var(--g-d);font-weight:700">✅ Activo con tu cuenta de Tuki: evaluación fonema por fonema gratis con cupo diario.</p>' : ''}
@@ -1459,7 +1460,7 @@ VIEWS.settings = v => {
     ${!fbSignedIn() && !s.geminiKey && !s.openaiKey ? `<div class="tvhint" style="background:var(--card-hover, rgba(0,0,0,0.03));padding:12px;border-radius:12px;border:1px solid var(--border, rgba(0,0,0,0.08));margin-bottom:12px">
       <div style="font-weight:700;margin-bottom:4px">✨ Usa la IA gratis sin configurar claves</div>
       <div class="small muted" style="margin-bottom:8px">Inicia sesión con Google para tener acceso a Gemini y Gemini Live gratis con el cupo diario de Tuki.</div>
-      <button class="btn gbtn sm" id="aiLoginGoogle"><span class="g">G</span> Continuar con Google</button>
+      <button class="linkbtn" id="aiGoAcct">Usar la IA gratis →</button>
     </div>` : ''}
     <div class="set-row"><div><label for="chatProvider">Proveedor</label></div><select class="field" id="chatProvider" style="max-width:200px">${opt([['gemini', 'Gemini (gratis)'], ['openai', 'OpenAI (pago)']], s.chatProvider)}</select></div>
     <div class="set-row"><div><label for="chatLevel">Nivel de la conversación</label><div class="desc">Ajusta vocabulario, velocidad y correcciones del tutor</div></div><select class="field" id="chatLevel" style="max-width:200px">${opt(LEVEL_KEYS.map(k => [k, LEVELS[k].label]), chatLevel())}</select></div>
@@ -1472,7 +1473,8 @@ VIEWS.settings = v => {
     <div class="row" style="margin-top:8px"><input class="field" id="lmodel" placeholder="Modelo de voz en vivo" value="${esc(s.liveModel)}" list="lmodels" aria-label="Modelo Gemini Live"><datalist id="lmodels">${[...GEMINI_LIVE_MODELS, ...(S.liveModels || [])].filter((x, i, a) => a.indexOf(x) === i).map(m => `<option value="${esc(m)}">`).join('')}</datalist><select class="field" id="lvoice" style="max-width:120px" aria-label="Voz Gemini Live">${opt(GEM_VOICES, s.liveVoice)}</select></div>
     <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="gsave">Guardar</button><button class="btn ghost sm" id="gdetect">Detectar modelos</button><button class="btn ghost sm" id="gdel">Borrar clave</button></div><div id="gmsg" class="small" style="margin-top:8px"></div>
     <h3 style="margin-top:14px;font-size:16px">💳 OpenAI (pago)</h3>
-    <p class="small muted">Tu clave de <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>. ⚠️ Sin servidor propio, la clave se usa <b>directamente desde este dispositivo</b> (para la voz en vivo se genera una clave temporal con ella). Úsala solo en tu propio teléfono o computador, con límite de gasto configurado en OpenAI.</p>
+    <p class="small muted">Tu clave de <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>. Se usa directamente desde este dispositivo.</p>
+    <details class="small muted" style="margin:-4px 0 8px"><summary>¿Por qué?</summary>⚠️ Sin servidor propio, la clave se usa directamente desde este dispositivo (para la voz en vivo se genera una clave temporal con ella). Úsala solo en tu propio teléfono o computador, con límite de gasto configurado en OpenAI.</details>
     <input class="field" id="okey" type="password" placeholder="sk-…" value="${esc(s.openaiKey)}" autocomplete="off" aria-label="Clave de OpenAI">
     <div class="row" style="margin-top:8px"><input class="field" id="omodel" value="${esc(s.openaiModel)}" list="omodels" aria-label="Modelo de chat OpenAI"><datalist id="omodels"><option value="gpt-4o-mini"><option value="gpt-4.1-mini"><option value="gpt-4.1-nano"><option value="gpt-4o"></datalist><input class="field" id="rtmodel" value="${esc(s.realtimeModel)}" list="rtmodels" aria-label="Modelo Realtime"><datalist id="rtmodels"><option value="gpt-realtime"><option value="gpt-realtime-mini"></datalist></div>
     <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="osave">Guardar</button><button class="btn ghost sm" id="otest">Probar conexión</button><button class="btn ghost sm" id="odel">Borrar clave</button></div><div id="omsg" class="small" style="margin-top:8px"></div>
@@ -1524,8 +1526,11 @@ VIEWS.settings = v => {
     catch (e) { azMsg.textContent = '❌ ' + errES(e, 'Azure') + (e.status === 401 ? ' Verifica que la región coincida con la de tu recurso.' : ''); }
   };
   // Gemini
-  const aiG = $('#aiLoginGoogle', v);
-  if (aiG) aiG.onclick = async () => { aiG.disabled = true; try { await fbGoogle(); render(); } catch (e) { toast(authErr(e)); } finally { if (document.body.contains(aiG)) aiG.disabled = false; } };
+  // (densidad PR B, v2.31.0, ítem 3: el único "Continuar con Google" de
+  // Ajustes vive en la tarjeta 👤 Cuenta; aquí solo un enlace que
+  // desplaza hasta ella.)
+  const aiG = $('#aiGoAcct', v);
+  if (aiG) aiG.onclick = () => { const c = $('#acctCard', v); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
   const gmsg = $('#gmsg');
   $('#gsave').onclick = () => { set('geminiKey', $('#gkey').value.trim()); set('model', $('#gmodel').value.trim() || 'gemini-2.5-flash'); set('liveModel', $('#lmodel').value.trim() || GEMINI_LIVE_MODELS[0]); CHAT.hist = []; gmsg.textContent = S.settings.geminiKey ? '✅ Guardado. Ve a la pestaña IA.' : 'Clave vacía: Gemini queda desactivado.'; };
   $('#gdel').onclick = () => { set('geminiKey', ''); $('#gkey').value = ''; gmsg.textContent = 'Clave borrada.'; };
@@ -2058,7 +2063,11 @@ const _fbRefresh211 = fbRefreshUI; fbRefreshUI = function () { _fbRefresh211(); 
 const _settings211 = VIEWS.settings;
 VIEWS.settings = v => {
   _settings211(v);
-  const ac = $('#acctCard', v); if (ac) ac.insertAdjacentHTML('afterend', adminHTML() + fbkCardHTML());
+  const ac = $('#acctCard', v); if (ac) ac.insertAdjacentHTML('afterend', adminHTML());
+  // (densidad PR B, v2.31.0, ítem 4: "Enviar comentarios" deja de ser la
+  // 2ª tarjeta y pasa al pie, junto al pie de versión.)
+  const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
+  if (foot) foot.insertAdjacentHTML('beforebegin', fbkCardHTML()); else v.insertAdjacentHTML('beforeend', fbkCardHTML());
   $('#fbkOpen', v).onclick = openFeedback; bindAdmin(v);
 };
 

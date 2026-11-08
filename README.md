@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.30.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.31.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.31.0
+- **⚙️ Ajustes menos cargados**: un solo botón «Continuar con Google» en Ajustes, en la tarjeta 👤 Cuenta; los de «Voz de Tuki» y «Conversación con IA» pasan a ser un enlace «Usar la IA gratis →» que desplaza hasta Cuenta. «💬 Enviar comentarios» deja de ser la 2ª tarjeta y pasa al pie, junto al pie de versión. «🗣️ Voz de Tuki» queda plegada por defecto (sus 14 botones «▶ Escuchar» ya no ocupan pantalla al abrir Ajustes). Los párrafos largos de Azure, OpenAI y Frase de seguridad se recortan a 1 línea con el detalle bajo «¿Por qué?». Sin cambios de lógica: iniciar sesión, las claves y las voces funcionan igual. ⚠️ Ajustes sigue en 14 tarjetas (techo R10: 12); llegar a 12 exigiría fusionar tarjetas de mantenimiento, fuera del alcance de estos ítems.
 
 ## Novedades v2.30.0
 - **🎤 Práctica menos cargada**: en Práctica, los dos Shadowing se fusionan en uno solo («Modo Shadowing», mismo desbloqueo de 6 lecciones); y las entradas de errores se agrupan en una sola tarjeta «🎯 Tus errores» con 2 acciones: «Repasar mis errores» (práctica estática de siempre) y «✨ Practicar con IA» (ejercicios generados con tus errores medidos, solo cuando hay datos y proveedor). «Mis palabras difíciles» sigue con su lista desplegable y «De tus conversaciones» queda dentro de la misma tarjeta. El botón «Entrenar mis 5 puntos débiles» de Progreso no se mueve. Sin cambios en el progreso, el XP ni la lógica de errores.
