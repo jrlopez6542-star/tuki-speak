@@ -993,14 +993,14 @@ VIEWS.learn = v => {
 VIEWS.practice = v => {
   const anyDone = Object.keys(S.done).length > 0;
   const weakWords = buildPractice('words').length;
-  // (Top 2: "Practica mis errores" — con IA cuando hay datos medidos y
-  // proveedor; sin eso, la misma tarjeta abre la práctica actual sin IA)
-  const peData = practiceErrorsHasData(), peAI = practiceErrorsAIAvailable();
+  // (densidad PR A, v2.30.0: la tarjeta base "Shadowing" se elimina —
+  // queda "Modo Shadowing" (misma clave de desbloqueo 'shadow',
+  // 6 lecciones, Unidad 2) con su modal; y "Practica mis errores"
+  // vive ahora en la tarjeta "🎯 Tus errores" de arriba, con sus
+  // 2 acciones. Sin cambios de destino ni de lógica.)
   const cards = [
     ['weak', '🎯', '#ffe8e8', 'Repaso de sonidos débiles', 'Mezcla los sonidos donde tienes menor puntaje. +1 vida.'],
-    ['errors', '🎯', '#fff3d6', 'Practica mis errores', peData && peAI ? '✨ La IA crea 6–8 ejercicios nuevos con tus errores de hoy.' : peData ? 'Ejercicios nuevos con tus errores (la IA no está disponible ahora).' : 'Repaso de tus errores frecuentes; con IA cuando tengas errores medidos.'],
     ['pairs', '👂', '#e3f4ff', 'Pares mínimos rápidos', 'ship/sheep, best/vest… escucha, elige y dilo.'],
-    ['shadow', '🪞', '#efe6ff', 'Shadowing', 'Escucha frases a velocidad normal y lenta, imítalas y recibe puntaje.'],
     ['words', '🔁', '#fff3d6', 'Palabras para repetir', weakWords ? `${weakWords} palabras con puntaje bajo.` : 'Aparecerán aquí las palabras que te cuesten.'],
     ['studio', '🎙️', '#e3f8ec', 'Estudio: grabar y comparar', 'Grábate y escúchate junto al modelo nativo. Escribe cualquier frase.'],
     ['chat', '💬', '#e8f0ff', 'Conversación con IA (opcional)', S.settings.geminiKey || gemShared() ? 'Roleplay por voz con tutor que corrige.' : 'Requiere una clave gratuita de Gemini en Ajustes.']
@@ -1024,7 +1024,6 @@ VIEWS.practice = v => {
     if (!isFeatureUnlocked(k)) return showLockedFeatureModal(k);
     if (k === 'studio') return go('studio');
     if (k === 'chat') return go('chat');
-    if (k === 'errors') return startPracticeErrors();
     const q = buildPractice(k);
     if (!q.length) return toast(k === 'words' ? 'Aún no hay palabras débiles. ¡Haz una lección con voz!' : 'Completa una lección primero.');
     startLesson(null, 'practice', q, b.querySelector('h3').textContent);
@@ -1204,7 +1203,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.29.0';
+export const APP_VERSION = '2.30.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1616,12 +1615,30 @@ const _practice24 = VIEWS.practice;
 VIEWS.practice = v => {
   _practice24(v);
   const hw = hardWords(), ci = S.convoItems.filter(c => Date.now() - c.ts < 14 * DAY);
+  // (densidad PR A, v2.30.0: las entradas de errores de Práctica —
+  // "Mis palabras difíciles" (con su <details>), "De tus conversaciones"
+  // y "Practica mis errores" — se agrupan en UNA tarjeta "🎯 Tus errores"
+  // con 2 acciones. El botón "Entrenar mis 5 puntos débiles" de Progreso
+  // queda donde está: sacarlo de Progreso cambiaría esa vista. Sin cambios
+  // de lógica: la acción estática es el mismo fallback de
+  // startPracticeErrors (buildTopErrorsPractice) y la acción con IA llama
+  // a startPracticeErrors tal cual, solo visible con datos y proveedor.)
+  const peData = practiceErrorsHasData(), peAI = practiceErrorsAIAvailable();
   const h2 = $('h2', v).nextElementSibling;
-  h2.insertAdjacentHTML('afterend', `<button class="card pcard" id="hardBtn"><div class="em" style="background:#ffe3ea">🎯</div><div><h3 style="margin:0 0 2px">Mis palabras difíciles${hw.length ? ` (${hw.length})` : ''}</h3><div class="muted small">${hw.length ? `${hw.slice(0, 5).map(h => esc(h.w)).join(', ')}${hw.length > 5 ? '…' : ''} · ${azureReady() ? 'puntaje por fonemas con Azure' : 'puntaje con el reconocimiento del navegador'}` : 'Aquí aparecerán las palabras que pronuncies mal en lecciones y conversaciones.'}</div></div></button>
-    ${ci.length ? `<button class="card pcard" id="convoBtn"><div class="em" style="background:#e6f0ff">🗂️</div><div><h3 style="margin:0 0 2px">De tus conversaciones (${ci.length})</h3><div class="muted small">Correcciones y palabras nuevas de tus resúmenes.</div></div></button>` : ''}
-    ${hw.length ? `<details class="card hardlist"><summary><b>Ver mis palabras difíciles</b></summary>${hw.slice(0, 30).map(h => `<div class="witem"><button class="spk" data-say="${esc(h.w)}">🔊</button><div style="min-width:0"><div class="en">${esc(h.w)}</div><div class="es small">${h.last == null ? 'Sin practicar' : 'Último: ' + h.last + '%'}${h.src === 'convo' || h.src === 'both' ? ' · 💬 de una conversación' : ''}${h.note ? ' · ' + esc(h.note) : ''}</div></div><button class="spk slow" data-unhard="${esc(h.key)}" title="Quitar">✕</button></div>`).join('')}</details>` : ''}`);
-  $('#hardBtn').onclick = startHardDrill;
-  const cb = $('#convoBtn'); if (cb) cb.onclick = () => startLesson(null, 'practice', convoPracticeItems(8), 'De tus conversaciones');
+  h2.insertAdjacentHTML('afterend', `<div class="card" id="errorsCard">
+    <h3 style="margin:0">🎯 Tus errores${hw.length ? ` (${hw.length})` : ''}</h3>
+    <div class="muted small" style="margin-top:4px">${hw.length ? `${hw.slice(0, 5).map(h => esc(h.w)).join(', ')}${hw.length > 5 ? '…' : ''} · ${azureReady() ? 'puntaje por fonemas con Azure' : 'puntaje con el reconocimiento del navegador'}` : 'Aquí aparecerán las palabras que pronuncies mal en lecciones y conversaciones.'}</div>
+    ${hw.length ? `<details class="hardlist" style="border-top:1px solid var(--line);margin-top:10px;padding-top:6px"><summary><b>Ver mis palabras difíciles</b></summary>${hw.slice(0, 30).map(h => `<div class="witem"><button class="spk" data-say="${esc(h.w)}">🔊</button><div style="min-width:0"><div class="en">${esc(h.w)}</div><div class="es small">${h.last == null ? 'Sin practicar' : 'Último: ' + h.last + '%'}${h.src === 'convo' || h.src === 'both' ? ' · 💬 de una conversación' : ''}${h.note ? ' · ' + esc(h.note) : ''}</div></div><button class="spk slow" data-unhard="${esc(h.key)}" title="Quitar">✕</button></div>`).join('')}</details>` : ''}
+    ${ci.length ? `<button class="btn ghost sm block" id="errorsConvoBtn" style="margin-top:10px">🗂️ De tus conversaciones (${ci.length})</button><div class="muted small">Correcciones y palabras nuevas de tus resúmenes.</div>` : ''}
+    <div class="row wrap" style="margin-top:10px;gap:8px">
+      <button class="btn primary" id="errorsReviewBtn">Repasar mis errores</button>
+      ${peData && peAI ? '<button class="btn orange" id="errorsAIBtn">✨ Practicar con IA</button>' : ''}
+    </div>
+    ${peData && !peAI ? '<div class="muted small" style="margin-top:6px">Ejercicios nuevos con tus errores (la IA no está disponible ahora).</div>' : ''}
+  </div>`);
+  $('#errorsReviewBtn').onclick = () => { const q = buildTopErrorsPractice(); if (q.length) startLesson(null, 'practice', q, '🎯 Refuerzo: Top 5 Errores'); else toast('No hay errores críticos registrados.'); };
+  const ab = $('#errorsAIBtn'); if (ab) ab.onclick = () => startPracticeErrors();
+  const cb = $('#errorsConvoBtn'); if (cb) cb.onclick = () => startLesson(null, 'practice', convoPracticeItems(8), 'De tus conversaciones');
   $$('[data-unhard]', v).forEach(b => b.onclick = () => { const k = b.dataset.unhard; if (S.wd[k]) S.wd[k].last = 100; Object.keys(S.hard).forEach(w => { if (normText(w).join(' ') === k) delete S.hard[w]; }); save(); VIEWS.practice(v); });
 };
 

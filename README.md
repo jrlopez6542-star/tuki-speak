@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.29.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.30.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.30.0
+- **🎤 Práctica menos cargada**: en Práctica, los dos Shadowing se fusionan en uno solo («Modo Shadowing», mismo desbloqueo de 6 lecciones); y las entradas de errores se agrupan en una sola tarjeta «🎯 Tus errores» con 2 acciones: «Repasar mis errores» (práctica estática de siempre) y «✨ Practicar con IA» (ejercicios generados con tus errores medidos, solo cuando hay datos y proveedor). «Mis palabras difíciles» sigue con su lista desplegable y «De tus conversaciones» queda dentro de la misma tarjeta. El botón «Entrenar mis 5 puntos débiles» de Progreso no se mueve. Sin cambios en el progreso, el XP ni la lógica de errores.
 
 ## Novedades v2.29.0
 - **🎙️ Pronunciación medida en vivo (opt-in)**: nuevo ajuste «Medir mi pronunciación en vivo» (apagado por defecto) en Ajustes → Evaluación avanzada con Azure. Solo en voz en vivo con Gemini: al cerrar la sesión, Azure evalúa tus 2–3 turnos más largos con tu propia transcripción como referencia y los fonemas débiles alimentan «Practica mis errores» y el Top 2. El audio queda solo en tu dispositivo durante la sesión y se borra al cerrar; a Azure solo llega el fragmento evaluado, con el token vigente (si la sesión supera 10 min se pide otro). El resultado mide consistencia fonémica, no es una nota absoluta. Sin permiso, sin Azure o con OpenAI, la sesión sigue exactamente como hoy.
