@@ -1226,7 +1226,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.37.0';
+export const APP_VERSION = '2.39.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -2185,104 +2185,37 @@ VIEWS.practice = function (v) {
   const unlSh = isFeatureUnlocked('shadow'), unlMo = isFeatureUnlocked('mouth'), unlPh = isFeatureUnlocked('photo');
   const unlTr = isFeatureUnlocked('travel'), unlInt = isFeatureUnlocked('interview');
 
-  const srsHtml = `<button class="card pcard ${!unlSrs ? 'locked-card' : ''}" id="srsCard" style="margin-top:10px">
-    <div class="em" style="background:#fff3d6">${unlSrs ? '🧠' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Repaso Inteligente (SRS)</h3>
-        ${unlSrs ? `<span class="srs-pill due">${st.due} hoy</span>` : '<span class="lock-pill">🔒 Bloqueado</span>'}
+  // (densidad R10, v2.39.0: los 9 modos dejan de ser 9 tarjetas y pasan a
+  // ser 9 filas dentro de UNA tarjeta "🎭 Modos de práctica". Mismos
+  // destinos, mismos candados y mismos textos; solo cambia la
+  // presentación. Práctica pasa de 16 a 8 tarjetas visibles (techo 12).)
+  const modes = [
+    { id: 'srsCard', unl: unlSrs, icon: '🧠', bg: '#fff3d6', title: 'Repaso Inteligente (SRS)', pill: unlSrs ? `<span class="srs-pill due">${st.due} hoy</span>` : '<span class="lock-pill">🔒 Bloqueado</span>', extra: unlSrs ? `<div class="srs-stats"><span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span><span class="srs-pill mat">🏆 ${st.mature} dominadas</span></div>` : '', desc: 'Algoritmo SM-2 · repasa en el momento exacto antes de olvidar' },
+    { id: 'handsFreeCard', unl: unlHf, icon: '🎧', bg: '#e0f2fe', title: 'Modo Manos Libres', pill: unlHf ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla' },
+    { id: 'missionsCard', unl: unlMi, icon: '🎯', bg: '#fef3c7', title: 'Misiones de Conversación Real', pill: unlMi ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: '8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)' },
+    { id: 'shadowCard', unl: unlSh, icon: '🎙️', bg: '#e8f4fd', title: 'Modo Shadowing', pill: unlSh ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha e imita frases con entonación nativa y habla conectada' },
+    { id: 'mouthCard', unl: unlMo, icon: '👄', bg: '#f3fbf7', title: 'Guía Fonética y Bocas', pill: unlMo ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)' },
+    { id: 'photoCard', unl: unlPh, icon: '📷', bg: '#fdf2f8', title: 'Describe la Foto / Objeto', pill: unlPh ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Práctica multimodal con tu cámara o fotos para ganar vocabulario' },
+    { id: 'travelCard', unl: unlTr, icon: '✈️', bg: '#e0f2fe', title: 'Guía de Viaje y Supervivencia', pill: unlTr ? '<span class="novice-badge">🌱 Novato & Viajes</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol' },
+    { id: 'interviewCard', unl: unlInt, icon: '💼', bg: '#fef3c7', title: 'Simulador de Entrevista Laboral', pill: unlInt ? '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática' },
+    { id: 'shopCard', unl: true, icon: '🛍️', bg: '#dcfce7', title: 'Tienda y Armario de Tuki', pill: `<span class="novice-badge" style="background:#fef3c7;color:#b45309">🪙 ${S.coins || 0} monedas</span>`, extra: '', desc: 'Viste a Tuki con birrete, corona, gafas, corbatín, bufanda o capa usando tus monedas ganadas' },
+  ];
+  const modesHtml = `<div class="card" id="modesCard" style="margin-top:10px">
+    <h3 style="margin:0 0 2px">🎭 Modos de práctica</h3>
+    <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 9 modos</div>
+    ${modes.map(m => `<button class="mode-row ${!m.unl ? 'locked-card' : ''}" id="${m.id}">
+      <div class="em" style="background:${m.bg}">${m.unl ? m.icon : '🔒'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="row between"><h3 style="margin:0 0 2px">${m.title}</h3>${m.pill}</div>
+        ${m.extra}
+        <div class="muted small">${m.desc}</div>
       </div>
-      <div class="srs-stats">
-        <span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span>
-        <span class="srs-pill mat">🏆 ${st.mature} dominadas</span>
-      </div>
-      <div class="muted small">Algoritmo SM-2 · repasa en el momento exacto antes de olvidar</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlHf ? 'locked-card' : ''}" id="handsFreeCard" style="margin-top:10px">
-    <div class="em" style="background:#e0f2fe">${unlHf ? '🎧' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Modo Manos Libres</h3>
-        ${!unlHf ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlMi ? 'locked-card' : ''}" id="missionsCard" style="margin-top:10px">
-    <div class="em" style="background:#fef3c7">${unlMi ? '🎯' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Misiones de Conversación Real</h3>
-        ${!unlMi ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlSh ? 'locked-card' : ''}" id="shadowCard" style="margin-top:10px">
-    <div class="em" style="background:#e8f4fd">${unlSh ? '🎙️' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Modo Shadowing</h3>
-        ${!unlSh ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">Escucha e imita frases con entonación nativa y habla conectada</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlMo ? 'locked-card' : ''}" id="mouthCard" style="margin-top:10px">
-    <div class="em" style="background:#f3fbf7">${unlMo ? '👄' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Guía Fonética y Bocas</h3>
-        ${!unlMo ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlPh ? 'locked-card' : ''}" id="photoCard" style="margin-top:10px">
-    <div class="em" style="background:#fdf2f8">${unlPh ? '📷' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Describe la Foto / Objeto</h3>
-        ${!unlPh ? '<span class="lock-pill">🔒 Bloqueado</span>' : ''}
-      </div>
-      <div class="muted small">Práctica multimodal con tu cámara o fotos para ganar vocabulario</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlTr ? 'locked-card' : ''}" id="travelCard" style="margin-top:10px">
-    <div class="em" style="background:#e0f2fe">${unlTr ? '✈️' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Guía de Viaje y Supervivencia</h3>
-        ${!unlTr ? '<span class="lock-pill">🔒 Bloqueado</span>' : '<span class="novice-badge">🌱 Novato & Viajes</span>'}
-      </div>
-      <div class="muted small">Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol</div>
-    </div>
-  </button>
-  <button class="card pcard ${!unlInt ? 'locked-card' : ''}" id="interviewCard" style="margin-top:10px">
-    <div class="em" style="background:#fef3c7">${unlInt ? '💼' : '🔒'}</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Simulador de Entrevista Laboral</h3>
-        ${!unlInt ? '<span class="lock-pill">🔒 Bloqueado</span>' : '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>'}
-      </div>
-      <div class="muted small">Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática</div>
-    </div>
-  </button>
-  <button class="card pcard" id="shopCard" style="margin-top:10px;background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border-color:#86efac">
-    <div class="em" style="background:#dcfce7">🛍️</div>
-    <div style="flex:1">
-      <div class="row between">
-        <h3 style="margin:0 0 2px">Tienda y Armario de Tuki</h3>
-        <span class="novice-badge" style="background:#fef3c7;color:#b45309">🪙 ${S.coins || 0} monedas</span>
-      </div>
-      <div class="muted small">Viste a Tuki con birrete, corona, gafas, corbatín, bufanda o capa usando tus monedas ganadas</div>
-    </div>
-  </button>`;
+    </button>`).join('')}
+  </div>`;
 
   const tc = $('#tcPractice', v);
-  if (tc) tc.insertAdjacentHTML('afterend', srsHtml);
-  else v.insertAdjacentHTML('beforeend', srsHtml);
+  if (tc) tc.insertAdjacentHTML('afterend', modesHtml);
+  else v.insertAdjacentHTML('beforeend', modesHtml);
 
   const bSrs = $('#srsCard', v); if (bSrs) bSrs.onclick = () => { if (!isFeatureUnlocked('srs')) return showLockedFeatureModal('srs'); startReview(); };
   const bHf = $('#handsFreeCard', v); if (bHf) bHf.onclick = () => { if (!isFeatureUnlocked('handsfree')) return showLockedFeatureModal('handsfree'); openHandsFreeModal(); };
@@ -2413,44 +2346,54 @@ const _settings212 = VIEWS.settings;
 VIEWS.settings = function (v) {
   _settings212(v);
   const dataCard = $('#reset', v)?.closest('.card');
-  const updHtml = `<div class="card" id="updCard" style="margin-top:14px">
-    <div class="row between">
-      <div>
-        <h3 style="margin:0 0 2px">🔄 Actualizaciones</h3>
-        <div class="small muted">Versión instalada: <b>v${APP_VERSION}</b></div>
+  // (densidad R10, v2.39.0: las 3 tarjetas de mantenimiento — 📦 Modo
+  // Offline, 🔄 Actualizaciones y 💾 Datos — se fusionan en UNA tarjeta
+  // "📦 Datos y mantenimiento" con 3 secciones. Mismos botones, mismos
+  // ids y mismos textos; los nodos de Datos se MUEVEN (no se recrean)
+  // para conservar los handlers ya ligados en la vista base. Ajustes
+  // pasa de 14 a 12 tarjetas (techo 12).)
+  const maintHtml = `<div class="card" id="maintCard" style="margin-top:14px">
+    <h3 style="margin:0 0 2px">📦 Datos y mantenimiento</h3>
+    <div class="maint-sec">
+      <div class="row between">
+        <div>
+          <h3 style="margin:0 0 2px;font-size:16px">📦 Modo Offline y Almacenamiento</h3>
+          <div class="small muted">Base de datos local <b>IndexedDB (TukiDB)</b></div>
+        </div>
+        <span class="pill ok" id="offlineBadge">⚡ Listo Offline</span>
       </div>
-      <button class="btn blue sm" id="btnCheckUpdate">🔄 Buscar actualizaciones</button>
-    </div>
-    <div class="small muted" style="margin-top:6px" id="updStatus">Toca para comprobar si hay una nueva versión disponible e instalarla de inmediato.</div>
-  </div>`;
-
-  const offHtml = `<div class="card offline-card" id="offlineCard" style="margin-top:14px">
-    <div class="row between">
-      <div>
-        <h3 style="margin:0 0 2px">📦 Modo Offline y Almacenamiento</h3>
-        <div class="small muted">Base de datos local <b>IndexedDB (TukiDB)</b></div>
+      <div class="offline-kpis">
+        <div class="offline-kpi"><span class="val" id="offKpiTc">—</span><span class="lbl">Frases offline</span></div>
+        <div class="offline-kpi"><span class="val" id="offKpiAudio">—</span><span class="lbl">Audios en caché</span></div>
+        <div class="offline-kpi"><span class="val" id="offKpiWords">—</span><span class="lbl">Palabras guardadas</span></div>
       </div>
-      <span class="pill ok" id="offlineBadge">⚡ Listo Offline</span>
+      <div class="offline-progress-bar" id="offlineBar"><div class="offline-progress-fill" id="offlineFill"></div></div>
+      <div class="small muted" style="margin:6px 0 10px" id="offlineStatus">Estudia sin gastar datos y sin conexión a internet (avión, metro, zonas rurales).</div>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <button class="btn blue sm" id="btnOfflinePreload">📥 Sincronizar y precargar modo sin conexión</button>
+        <button class="btn ghost sm" id="btnOfflineClear">🧹 Liberar audios</button>
+      </div>
     </div>
-    <div class="offline-kpis">
-      <div class="offline-kpi"><span class="val" id="offKpiTc">—</span><span class="lbl">Frases offline</span></div>
-      <div class="offline-kpi"><span class="val" id="offKpiAudio">—</span><span class="lbl">Audios en caché</span></div>
-      <div class="offline-kpi"><span class="val" id="offKpiWords">—</span><span class="lbl">Palabras guardadas</span></div>
+    <div class="maint-sec">
+      <div class="row between">
+        <div>
+          <h3 style="margin:0 0 2px;font-size:16px">🔄 Actualizaciones</h3>
+          <div class="small muted">Versión instalada: <b>v${APP_VERSION}</b></div>
+        </div>
+        <button class="btn blue sm" id="btnCheckUpdate">🔄 Buscar actualizaciones</button>
+      </div>
+      <div class="small muted" style="margin-top:6px" id="updStatus">Toca para comprobar si hay una nueva versión disponible e instalarla de inmediato.</div>
     </div>
-    <div class="offline-progress-bar" id="offlineBar"><div class="offline-progress-fill" id="offlineFill"></div></div>
-    <div class="small muted" style="margin:6px 0 10px" id="offlineStatus">Estudia sin gastar datos y sin conexión a internet (avión, metro, zonas rurales).</div>
-    <div class="row" style="gap:8px;flex-wrap:wrap">
-      <button class="btn blue sm" id="btnOfflinePreload">📥 Sincronizar y precargar modo sin conexión</button>
-      <button class="btn ghost sm" id="btnOfflineClear">🧹 Liberar audios</button>
-    </div>
+    <div class="maint-sec" id="maintDataSec"></div>
   </div>`;
 
   if (dataCard) {
-    dataCard.insertAdjacentHTML('beforebegin', offHtml);
-    dataCard.insertAdjacentHTML('beforebegin', updHtml);
+    dataCard.insertAdjacentHTML('beforebegin', maintHtml);
+    const sec = $('#maintDataSec', v);
+    while (dataCard.firstChild) sec.appendChild(dataCard.firstChild);
+    dataCard.remove();
   } else {
-    v.insertAdjacentHTML('beforeend', offHtml);
-    v.insertAdjacentHTML('beforeend', updHtml);
+    v.insertAdjacentHTML('beforeend', maintHtml);
   }
 
   const bUpd = $('#btnCheckUpdate', v);
