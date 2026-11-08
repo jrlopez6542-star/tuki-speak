@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.32.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.33.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.33.0
+- **📝 Resumen, Estudio y Prueba de nivel menos cargados**: al final del resumen de conversación queda un solo botón — «🎯 Practicar mis errores» cuando hay errores medidos y proveedor (reutiliza la cola generada del día), y «🎤 Practicar ahora» en caso contrario —; cada palabra mal escuchada lleva un solo botón 🔊 (sin el 🐢). En Estudio, el selector de opciones pasa a ser un buscador con autocompletado sobre las mismas frases del curso. La tarjeta de Prueba de nivel ya desaparecía de Aprender una vez hecha (la entrada permanente sigue en Ajustes → 🎯 Aprendizaje → «Hacer ahora»). Sin cambios en la generación de ejercicios, el XP ni la lógica de errores.
 
 ## Novedades v2.32.0
 - **📚 Aprender y Progreso menos cargados**: en Aprender, el dúo Reto diario/Entrevista queda solo con la entrevista (el reto ya está en «Retos de Hoy»): el dúo pasa de 2 tarjetas a 1, sin cambiar el número de bloques antes del camino (10 con datos, techo R10: 10 ✔); en Progreso, las 3 vistas de fonemas («Puntaje por sonido», «Sonidos más débiles» y «Fonemas más débiles (Azure)») se fusionan en una sola sección «🔊 Sonidos», con los chips de fonemas como resumen arriba, los sonidos débiles con su botón Practicar, y las 50 barras agrupadas por unidad bajo un desplegable; y las 24 insignias quedan plegadas bajo un desplegable. Sin cambios en puntajes, prácticas ni insignias. Progreso pasa de 11 a 9 tarjetas con datos (techo R10: 10 ✔).

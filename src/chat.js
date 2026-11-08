@@ -725,6 +725,9 @@ export const clamp100 = x => Math.max(0, Math.min(100, Math.round(+x || 0)));
 export function parseJSONLoose(t) { const s = String(t || '').replace(/^```(?:json)?\s*|\s*```$/g, ''); try { return JSON.parse(s); } catch (e) { const m = s.match(/\{[\s\S]*\}/); if (m) return JSON.parse(m[0]); throw new Error('La IA no devolvió un resultado válido. Intenta de nuevo.'); } }
 export async function aiJSON(system, prompt, max = 1800) { return decodeDeep(parseJSONLoose(await aiQuick(system, prompt, { max, json: true }))); }
 export function sayBtns(t) { return `<button class="mini" data-say-n="${esc(t)}" title="Escuchar">🔊</button><button class="mini" data-say-slow="${esc(t)}" title="Lento">🐢</button>`; }
+/* (densidad PR D, v2.33.0, ítem 10: una sola escucha por palabra mal
+   escuchada en el resumen — sin el 🐢, que duplicaba el botón por ítem) */
+export function sayBtn1(t) { return `<button class="mini" data-say-n="${esc(t)}" title="Escuchar">🔊</button>`; }
 export function bindSayTap(root) {
   $$('[data-say-n]', root).forEach(b => b.onclick = e => { e.stopPropagation(); speak(b.dataset.sayN, false, null, b.dataset.lang === 'es' ? 'es' : undefined, chatMul()); });
   $$('[data-say-slow]', root).forEach(b => b.onclick = e => { e.stopPropagation(); speak(b.dataset.saySlow, true); });
@@ -830,7 +833,7 @@ export function summaryHTML(rec) {
     <h3>✏️ Errores (${d.mistakes.length})</h3>${d.mistakes.length ? d.mistakes.map(m => `<div class="mist" data-ctx="${esc(m.correct)}"><div class="said">✗ ${esc(m.said || '')}</div><div class="good">✓ ${tapWords(m.correct)} ${sayBtns(m.correct)}</div><div class="small">💡 ${esc(m.explain_es || '')}</div></div>`).join('') : '<p class="small muted">¡No se detectaron errores importantes! 🎉</p>'}
     ${d.new_words.length ? `<h3>🆕 Palabras y frases nuevas</h3><div class="nw">${d.new_words.map(w => `<div class="nwi" data-ctx="${esc(w.en)}"><b>${tapWords(w.en)}</b> <span class="muted small">— ${esc(w.es || '')}</span> ${sayBtns(w.en)}</div>`).join('')}</div>` : ''}
     ${d.mispronounced.length ? `<h3>🗣️ Para pronunciar mejor</h3>${d.mispronounced.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtns(w.word)} <div class="small muted">${esc(w.note_es || '')}</div></div>`).join('')}` : ''}
-    ${(d.misheard || []).length ? `<h3>🎧 Pronunciación en vivo (${d.misheard.length} ${d.misheard.length === 1 ? 'palabra' : 'palabras'})</h3><p class="small muted">Estas palabras el reconocedor las entendió mal o las repetiste con duda, según la transcripción de esta sesión. Es una pista de pronunciación, no una nota: no es una evaluación fonémica con audio como la de las lecciones con Azure, ni una calificación absoluta.</p>${d.misheard.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtns(w.word)}${w.heard_as ? ` <span class="small muted">— se entendió como «${esc(w.heard_as)}»</span>` : ''} <div class="small muted">${esc(w.note_es || '')}</div></div>`).join('')}` : ''}
+    ${(d.misheard || []).length ? `<h3>🎧 Pronunciación en vivo (${d.misheard.length} ${d.misheard.length === 1 ? 'palabra' : 'palabras'})</h3><p class="small muted">Estas palabras el reconocedor las entendió mal o las repetiste con duda, según la transcripción de esta sesión. Es una pista de pronunciación, no una nota: no es una evaluación fonémica con audio como la de las lecciones con Azure, ni una calificación absoluta.</p>${d.misheard.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtn1(w.word)}${w.heard_as ? ` <span class="small muted">— se entendió como «${esc(w.heard_as)}»</span>` : ''} <div class="small muted">${esc(w.note_es || '')}</div></div>`).join('')}` : ''}
     ${d.livePron ? `<h3>🎙️ Pronunciación medida en vivo</h3><p class="small muted">Medido con Azure sobre ${d.livePron.turns} ${d.livePron.turns === 1 ? 'turno' : 'turnos'} de tu voz en esta sesión, con tu propia transcripción como referencia. Mide consistencia fonémica y detecta fonemas débiles: no es una nota absoluta.</p>${d.livePron.pct != null ? `<div class="sumbars">${scoreBarH('Pronunciación', d.livePron.pct)}</div>` : ''}${(d.livePron.weak || []).length ? `<p class="small">Fonemas a practicar: ${d.livePron.weak.map(w => `<b>/${esc(w.p)}/</b> ${w.s}/100`).join(' · ')}</p>` : ''}${(d.livePron.words || []).length ? `<div class="nw">${d.livePron.words.map(w => `<div class="nwi"><b>${esc(w.word)}</b> ${sayBtns(w.word)} <span class="small muted">${w.s}/100</span></div>`).join('')}</div>` : ''}` : ''}
     ${d.tips_es.length ? `<h3>🎯 Consejos</h3><ul class="small">${d.tips_es.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
     ${rec.added ? `<div class="tipbox small">🃏 Se agregaron <b>${rec.added}</b> tarjetas a tu mazo y al <b>Plan de hoy</b>.</div>` : ''}${levelSuggestHTML(sug)}</div>`;
@@ -842,14 +845,9 @@ export function aiFriendly(e, what) {
   return 'No se pudo generar ' + (what || 'el resumen') + ' en este momento.';
 }
 export function openSummarySheet(promiseOrRec, title) {
-  modal(`<div id="sumBody"></div><div class="row" style="margin-top:10px"><button class="btn ghost block" data-x>Cerrar</button><button class="btn primary block hidden" id="sumPractice" disabled>🎤 Practicar ahora</button><button class="btn ghost block hidden" id="sumPracticeErrors">🎯 Practica mis errores</button></div>`, (el, close) => {
+  modal(`<div id="sumBody"></div><div class="row" style="margin-top:10px"><button class="btn ghost block" data-x>Cerrar</button><button class="btn primary block hidden" id="sumPractice" disabled>🎤 Practicar ahora</button></div>`, (el, close) => {
     $('[data-x]', el).onclick = close; el.closest('.overlay').classList.add('sumsheet');
     const pb = $('#sumPractice', el);
-    const peBtn = $('#sumPracticeErrors', el);
-    // (Top 2: al final del resumen, practicar los errores con IA cuando hay
-    // datos medidos suficientes; sin IA o sin datos el botón no aparece y el
-    // flujo del resumen no cambia)
-    if (peBtn && practiceErrorsHasData()) { peBtn.classList.remove('hidden'); peBtn.onclick = () => { close(); startPracticeErrors(); }; }
     const onStatus = ev => { if (!document.body.contains(el)) return document.removeEventListener('tuki-ai-status', onStatus); const st = $('#sumStatus', el); if (st && ev.detail) st.textContent = ev.detail; };
     document.addEventListener('tuki-ai-status', onStatus);
     const loading = () => { pb.classList.add('hidden'); pb.disabled = true; $('#sumBody', el).innerHTML = `<div class="sumcard"><h2>📝 Resumen</h2><p class="muted">${esc(title || '')}</p><div class="spinner"></div><p class="small muted" style="text-align:center" id="sumStatus" aria-live="polite">Tuki está analizando tu conversación…</p></div>`; };
@@ -857,8 +855,19 @@ export function openSummarySheet(promiseOrRec, title) {
       el.dataset.sumId = rec.id || '';
       $('#sumBody', el).innerHTML = summaryHTML(rec); bindSayTap(el); if ($('#lvlSuggest', el)) bindLevelSuggest(el, levelSuggestion());
       const items = [...rec.data.mistakes.map(m => m.correct), ...rec.data.new_words.map(w => w.en)];
-      pb.disabled = !items.length; pb.classList.toggle('hidden', !items.length);
-      pb.onclick = () => { close(); startLesson(null, 'practice', items.slice(0, 8).map(t => ({ kind: 'speak', variant: /\s/.test(t) ? 'sentence' : 'word', l: LESSONS[0], text: t, es: '' })), 'Práctica de tu conversación'); };
+      // (densidad PR D, v2.33.0, ítem 10: un solo botón final — "🎯 Practicar
+      // mis errores" cuando hay datos medidos y proveedor (reutiliza la cola
+      // generada del día, vía startPracticeErrors), y "🎤 Practicar ahora"
+      // en caso contrario; sin ítems ni datos, no hay botón, como antes)
+      if (practiceErrorsHasData() && practiceErrorsAIAvailable()) {
+        pb.textContent = '🎯 Practicar mis errores';
+        pb.disabled = false; pb.classList.remove('hidden');
+        pb.onclick = () => { close(); startPracticeErrors(); };
+      } else {
+        pb.textContent = '🎤 Practicar ahora';
+        pb.disabled = !items.length; pb.classList.toggle('hidden', !items.length);
+        pb.onclick = () => { close(); startLesson(null, 'practice', items.slice(0, 8).map(t => ({ kind: 'speak', variant: /\s/.test(t) ? 'sentence' : 'word', l: LESSONS[0], text: t, es: '' })), 'Práctica de tu conversación'); };
+      }
     };
     const fail = e => {
       if (!document.body.contains(el)) return;

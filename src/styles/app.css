@@ -275,6 +275,14 @@ textarea.inp:focus{outline:none;border-color:#84d8ff;background:#fff}
 .set-row .desc{font-size:13px;color:var(--mute);font-weight:600}
 .field{width:100%;border:2px solid var(--line);border-radius:var(--r-md);padding:10px 12px;background:#fff}
 select.field{appearance:auto}
+/* (densidad PR D, v2.33.0, ítem 11: buscador con autocompletado de Estudio —
+   sustituye al <select> de 458 opciones; la lista es desplazable en móvil) */
+.st-search{position:relative;flex:1;min-width:0}
+.st-sug{position:absolute;left:0;right:0;top:calc(100% + 4px);max-height:240px;overflow-y:auto;background:var(--card);border:2px solid var(--line);border-radius:var(--r-md);box-shadow:var(--sh-1);z-index:30}
+.st-sug-item{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid #f0f3f5;padding:10px 12px;font-size:15px;color:inherit;cursor:pointer}
+.st-sug-item:last-child{border-bottom:0}
+.st-sug-item:hover,.st-sug-item:focus-visible{background:#f0f7f2;outline:none}
+.st-sug-more{padding:8px 12px;color:var(--mute)}
 input[type=range]{width:160px;accent-color:var(--g)}
 .switch{position:relative;width:52px;height:30px;flex:none}
 .switch input{opacity:0;width:0;height:0}

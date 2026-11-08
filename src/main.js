@@ -1040,7 +1040,7 @@ VIEWS.studio = v => {
   v.innerHTML = `<button class="btn ghost sm" id="back">← Práctica</button><h2 style="margin-top:12px">🎙️ Estudio: grabar y comparar</h2>
     <p class="muted small">1) Escucha el modelo · 2) Grábate · 3) Compara tu voz con el modelo · 4) Evalúa con el reconocedor (Chrome).</p>
     <div class="card"><label class="small muted" for="stText">Frase o palabra</label><textarea class="inp" id="stText" style="min-height:70px">${esc(STUDIO_PRESET() || pick(opts))}</textarea>
-    <div class="row wrap" style="margin-top:8px"><button class="btn ghost sm" id="rnd">🎲 Otra frase</button><select class="field" id="stSel" style="flex:1;min-width:0"><option value="">— Elegir del curso —</option>${opts.map(o => `<option>${esc(o)}</option>`).join('')}</select></div></div>
+    <div class="row wrap" style="margin-top:8px"><button class="btn ghost sm" id="rnd">🎲 Otra frase</button><div class="st-search"><input class="field" id="stSearch" type="search" placeholder="🔍 Buscar frase del curso…" autocomplete="off" aria-label="Buscar frase del curso" aria-expanded="false" aria-controls="stSug"><div id="stSug" class="st-sug" hidden></div></div></div></div>
     <div class="card"><div class="target" id="tgt"></div>
       <div class="cmp"><button class="btn blue sm" id="m1">🔊 Modelo</button><button class="btn ghost sm" id="m2">🐢 Lento</button>
       ${Rec.supported ? `<button class="btn red sm" id="rec">⏺ Grabar</button><button class="btn orange sm" id="me" disabled>▶️ Mi voz</button><button class="btn ghost sm" id="ab" disabled>🔁 Modelo → Mi voz</button>` : '<span class="small muted">Grabación no disponible en este navegador.</span>'}</div>
@@ -1051,7 +1051,25 @@ VIEWS.studio = v => {
   upd(); $('#stText').oninput = upd;
   $('#back').onclick = () => go('practice');
   $('#rnd').onclick = () => { $('#stText').value = pick(opts); upd(); $('#res').innerHTML = ''; };
-  $('#stSel').onchange = e => { if (e.target.value) { $('#stText').value = e.target.value; upd(); $('#res').innerHTML = ''; } };
+  // (densidad PR D, v2.33.0, ítem 11: buscador con autocompletado sobre las
+  // mismas 457 frases del curso — sustituye al <select> #stSel, que no se
+  // podía recorrer en móvil. Al elegir una opción hace exactamente lo mismo
+  // que hacía el select: pone la frase en el campo y limpia el resultado.)
+  const stSearch = $('#stSearch'), stSug = $('#stSug');
+  const stPick = val => { $('#stText').value = val; upd(); $('#res').innerHTML = ''; stSearch.value = val; stSug.hidden = true; stSearch.setAttribute('aria-expanded', 'false'); };
+  const stRender = () => {
+    const q = stSearch.value.trim().toLowerCase();
+    const matches = q ? opts.filter(o => o.toLowerCase().includes(q)) : [];
+    if (!matches.length) { stSug.hidden = true; stSug.innerHTML = ''; stSearch.setAttribute('aria-expanded', 'false'); return; }
+    const shown = matches.slice(0, 50);
+    stSug.innerHTML = shown.map(o => `<button type="button" class="st-sug-item" data-v="${esc(o)}">${esc(o)}</button>`).join('') + (matches.length > shown.length ? `<div class="small muted st-sug-more">…y ${matches.length - shown.length} más de ${matches.length}; afina la búsqueda</div>` : '');
+    stSug.hidden = false; stSearch.setAttribute('aria-expanded', 'true');
+  };
+  stSearch.addEventListener('input', stRender);
+  stSearch.addEventListener('focus', stRender);
+  stSearch.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const first = stSug.querySelector('.st-sug-item'); if (first) stPick(first.dataset.v); } else if (e.key === 'Escape') { stSug.hidden = true; stSearch.setAttribute('aria-expanded', 'false'); } });
+  stSug.addEventListener('click', e => { const b = e.target.closest('.st-sug-item'); if (b) stPick(b.dataset.v); });
+  stSearch.addEventListener('blur', () => setTimeout(() => { stSug.hidden = true; stSearch.setAttribute('aria-expanded', 'false'); }, 150));
   $('#m1').onclick = () => speak(txt()); $('#m2').onclick = () => speak(txt(), true);
   let myUrl = null;
   const rb = $('#rec'); if (rb) rb.onclick = () => recOnlyToggle(rb, url => { myUrl = url; $('#me').disabled = !url; $('#ab').disabled = !url; rb.innerHTML = '⏺ Grabar de nuevo'; });
@@ -1208,7 +1226,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.32.0';
+export const APP_VERSION = '2.33.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
