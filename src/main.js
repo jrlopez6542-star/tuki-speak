@@ -823,7 +823,7 @@ export function finishLesson() {
     <h1>${unitCompleted ? '🏆 ¡Unidad Conquistada!' : isPerfect ? '¡Lección Perfecta!' : L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
     ${badges.length ? `<div class="victory-badges">${badges.join('')}</div>` : ''}
     ${unitCompleted ? `<div class="unit-summary">Resumen de la unidad: <b>${L.l.unit.lessons.length} lecciones</b> · Trofeo <b>+50 🪙</b> · <b>+25 XP</b> de unidad</div>` : ''}
-    <div class="tuki-speech" style="margin:6px auto 12px;max-width:340px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700">
+    <div class="tuki-speech" style="margin:6px auto 12px;max-width:340px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:var(--fs-small);font-weight:700">
       🦜 <b>Profe Tuki:</b> «${finishQuote}»
     </div>
     <div class="muted">${esc(L.title)}</div>
@@ -935,7 +935,7 @@ VIEWS.learn = v => {
   }
 
   html += `<div class="card goal"><div class="ring" style="--p:${p}" data-t="${Math.min(t, goal)}/${goal}"></div><div style="flex:1"><h3>Meta diaria</h3><div class="muted small">${t >= goal ? '🎉 ¡Meta cumplida! Sigue si quieres.' : `Te faltan ${goal - t} XP hoy.`}</div>
-    ${due ? `<button class="btn blue sm" style="margin-top:8px" id="dueBtn">🃏 Repasar ${due} tarjeta${due > 1 ? 's' : ''}</button>` : ''}</div></div>`;
+    ${due ? `<button class="btn ghost sm" style="margin-top:var(--sp-2)" id="dueBtn">🃏 Repasar ${due} tarjeta${due > 1 ? 's' : ''}</button>` : ''}</div></div>`;
   if (!canSpeak()) html += `<div class="notice">⚠️ Este navegador no tiene reconocimiento de voz: podrás escuchar, grabarte y comparar, pero no recibir puntaje (o configura Azure en Ajustes). Para la experiencia completa usa <b>Google Chrome</b> (Android o computador) o Edge.</div>`;
   COURSE.forEach((u, ui) => {
     const done = u.lessons.filter(l => isDone(l.id)).length;
@@ -1037,13 +1037,13 @@ VIEWS.studio = v => {
   // selector la repetía — p. ej. "please", "thank you", "help", "support"
   // dos veces. Se deduplica conservando el orden de primera aparición.)
   const opts = [...new Set(all)];
-  v.innerHTML = `<button class="btn ghost sm" id="back">← Práctica</button><h2 style="margin-top:12px">🎙️ Estudio: grabar y comparar</h2>
+  v.innerHTML = `<button class="btn ghost sm" id="back">← Práctica</button><h2 style="margin-top:var(--sp-3)">🎙️ Estudio: grabar y comparar</h2>
     <p class="muted small">1) Escucha el modelo · 2) Grábate · 3) Compara tu voz con el modelo · 4) Evalúa con el reconocedor (Chrome).</p>
     <div class="card"><label class="small muted" for="stText">Frase o palabra</label><textarea class="inp" id="stText" style="min-height:70px">${esc(STUDIO_PRESET() || pick(opts))}</textarea>
-    <div class="row wrap" style="margin-top:8px"><button class="btn ghost sm" id="rnd">🎲 Otra frase</button><div class="st-search"><input class="field" id="stSearch" type="search" placeholder="🔍 Buscar frase del curso…" autocomplete="off" aria-label="Buscar frase del curso" aria-expanded="false" aria-controls="stSug"><div id="stSug" class="st-sug" hidden></div></div></div></div>
+    <div class="row wrap" style="margin-top:var(--sp-2)"><button class="btn ghost sm" id="rnd">🎲 Otra frase</button><div class="st-search"><input class="field" id="stSearch" type="search" placeholder="🔍 Buscar frase del curso…" autocomplete="off" aria-label="Buscar frase del curso" aria-expanded="false" aria-controls="stSug"><div id="stSug" class="st-sug" hidden></div></div></div></div>
     <div class="card"><div class="target" id="tgt"></div>
-      <div class="cmp"><button class="btn blue sm" id="m1">🔊 Modelo</button><button class="btn ghost sm" id="m2">🐢 Lento</button>
-      ${Rec.supported ? `<button class="btn red sm" id="rec">⏺ Grabar</button><button class="btn orange sm" id="me" disabled>▶️ Mi voz</button><button class="btn ghost sm" id="ab" disabled>🔁 Modelo → Mi voz</button>` : '<span class="small muted">Grabación no disponible en este navegador.</span>'}</div>
+      <div class="cmp"><button class="btn ghost sm" id="m1">🔊 Modelo</button><button class="btn ghost sm" id="m2">🐢 Lento</button>
+      ${Rec.supported ? `<button class="btn red sm" id="rec">⏺ Grabar</button><button class="btn ghost sm" id="me" disabled>▶️ Mi voz</button><button class="btn ghost sm" id="ab" disabled>🔁 Modelo → Mi voz</button>` : '<span class="small muted">Grabación no disponible en este navegador.</span>'}</div>
       ${canSpeak() ? `<button class="mic" id="mic" style="margin-top:14px">🎯 Evaluar pronunciación</button>` : `<div class="notice">Evaluación automática no disponible: usa Chrome.</div>`}
       <div id="res"></div></div>`;
   const txt = () => $('#stText').value.trim() || 'Hello';
@@ -1139,7 +1139,7 @@ VIEWS.progress = v => {
         ${top5.map((err, i) => `
           <div class="top-error-item">
             <div style="display:flex;align-items:center;gap:8px;min-width:0">
-              <span style="font-weight:900;color:var(--mute);font-size:13px;width:18px">${i + 1}.</span>
+              <span style="font-weight:900;color:var(--mute);font-size:var(--fs-small);width:18px">${i + 1}.</span>
               <button class="spk sm" data-say-n="${esc(err.word.replace(/\(.*\)/, '').trim())}" title="Escuchar">🔊</button>
               <div style="min-width:0">
                 <div style="font-weight:800;font-size:14px;color:var(--ink)">${esc(err.word)} ${err.sound ? `<span class="pill" style="font-size:11px;padding:1px 6px">${esc(err.sound)}</span>` : ''}</div>
@@ -1147,23 +1147,23 @@ VIEWS.progress = v => {
               </div>
             </div>
             <div style="text-align:right;flex:none">
-              ${err.isSuggested ? '<span class="pill">Sugerencia</span>' : `<span style="font-weight:900;font-size:13px;color:${err.score >= 75 ? 'var(--g-d)' : err.score >= 60 ? 'var(--o-d)' : 'var(--r-d)'}">${err.score}%</span>`}
+              ${err.isSuggested ? '<span class="pill">Sugerencia</span>' : `<span style="font-weight:900;font-size:var(--fs-small);color:${err.score >= 75 ? 'var(--g-d)' : err.score >= 60 ? 'var(--o-d)' : 'var(--r-d)'}">${err.score}%</span>`}
             </div>
           </div>`).join('')}
       </div>
-      <button class="btn red block" id="trainErrorsBtn" style="margin-top:12px;font-weight:900;background:#dc2626;box-shadow:0 4px 0 #991b1b">
+      <button class="btn primary block" id="trainErrorsBtn" style="margin-top:var(--sp-3);font-weight:900">
         🚀 Entrenar mis 5 puntos débiles (3 min)
       </button>
     </div>
 
-    <div class="card"><h3>💡 Recomendación</h3><p style="margin:0">${rec}</p>${weakest.length ? `<button class="btn primary sm" style="margin-top:10px" data-drill="${weakest[0].l.id}">Practicar ${esc(weakest[0].l.title)}</button>` : ''}</div>
+    <div class="card"><h3>💡 Recomendación</h3><p style="margin:0">${rec}</p>${weakest.length ? `<button class="btn ghost sm" style="margin-top:10px" data-drill="${weakest[0].l.id}">Practicar ${esc(weakest[0].l.title)}</button>` : ''}</div>
     <div class="card"><h3>Últimos 14 días</h3><div class="small muted">Línea verde: puntaje promedio de voz · barras: XP</div>${chart}</div>
     <div class="card" id="soundsCard"><h3>🔊 Sonidos</h3>
       <div id="soundsChips"></div>
       ${weakest.length ? `<div class="small muted" style="margin:6px 0 2px">Sonidos más débiles</div>${weakest.map(r => `<div class="row between" style="padding:6px 0"><span>${r.l.icon} <b>${esc(r.l.title)}</b> <span class="pill">${r.a}%</span></span><button class="btn ghost sm" data-drill="${r.l.id}">Practicar</button></div>`).join('')}` : ''}
-      <details style="margin-top:10px"><summary><b>Puntaje por sonido</b> <span class="small muted">· promedio de tus últimos 10 intentos de voz por lección</span></summary><div class="bars" style="margin-top:8px">
+      <details style="margin-top:10px"><summary><b>Puntaje por sonido</b> <span class="small muted">· promedio de tus últimos 10 intentos de voz por lección</span></summary><div class="bars" style="margin-top:var(--sp-2)">
       ${soundUnits.map(u => `<div class="small" style="margin:10px 0 4px"><b>Unidad ${u.ui + 1} · ${esc(u.title)}</b></div>${u.rows.map(r => `<div class="bar"><span title="${esc(r.l.title)}">${r.l.icon} ${esc(r.l.type ? r.l.title.split(' ').slice(-2).join(' ') : '/' + r.l.sound + '/')}</span><div class="tr"><i style="width:${r.a || 0}%;background:${r.a === null ? '#eef1f3' : r.a >= 80 ? 'var(--g)' : r.a >= 60 ? 'var(--o)' : 'var(--r)'}"></i></div><span>${r.a === null ? '—' : r.a + '%'}</span></div>`).join('')}`).join('')}</div></details></div>
-    <div class="card"><h3>Palabras para repetir</h3>${wwords.length ? `<div class="chips">${wwords.map(w => `<span class="wd ${colorOf(w.a / 100)}" data-say="${esc(w.disp)}">${esc(w.disp)} · ${w.a}%</span>`).join('')}</div><button class="btn blue sm" id="ww">🔁 Practicar estas palabras</button>` : '<div class="muted small">Aún no hay datos. Haz ejercicios de voz.</div>'}</div>
+    <div class="card"><h3>Palabras para repetir</h3>${wwords.length ? `<div class="chips">${wwords.map(w => `<span class="wd ${colorOf(w.a / 100)}" data-say="${esc(w.disp)}">${esc(w.disp)} · ${w.a}%</span>`).join('')}</div><button class="btn ghost sm" id="ww">🔁 Practicar estas palabras</button>` : '<div class="muted small">Aún no hay datos. Haz ejercicios de voz.</div>'}</div>
     <p class="muted small">ℹ️ ${azureReady() ? 'Con Azure activo, los ejercicios usan evaluación fonema por fonema (precisión, fluidez, integridad y prosodia). Sin Azure, ' : ''}el puntaje compara, palabra por palabra, lo que el reconocedor de voz del navegador entendió con la frase objetivo (usando su confianza y alternativas). No es un análisis fonético por sonido como el de apps de pago; úsalo como guía y complementa con "Grabar y comparar".</p>`;
   $$('[data-drill]', v).forEach(b => b.onclick = () => { const l = LESSON[b.dataset.drill]; startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); });
   const ww = $('#ww'); if (ww) ww.onclick = () => { const q = buildPractice('words'); q.length ? startLesson(null, 'practice', q, 'Palabras para repetir') : toast('Todas tus palabras tienen buen puntaje. 🎉'); };
@@ -1215,7 +1215,7 @@ function nextCard() {
   $('.flash-in').onclick = e => { if (e.target.closest('button')) return; $('#flash').classList.contains('flipped') ? $('#flash').classList.remove('flipped') : flip(); };
   $('#c1').onclick = () => speak(card.en); $('#c2').onclick = () => speak(card.en, true);
   $('#primaryBtn').onclick = flip;
-  const cs = $('#csay'); if (cs) cs.onclick = () => doMic(cs, (alts, url, az) => { const r = az || scoreSpeech(card.en, alts); recordSpeech(card.lesson, r); $('#cres').innerHTML = `<div class="target" style="font-size:18px">${wordsHTML(card.en, r.words)}</div><b>${r.pct}%</b> · escuché «${esc(r.heard)}»`; }, card.en);
+  const cs = $('#csay'); if (cs) cs.onclick = () => doMic(cs, (alts, url, az) => { const r = az || scoreSpeech(card.en, alts); recordSpeech(card.lesson, r); $('#cres').innerHTML = `<div class="target" style="font-size:var(--fs-section)">${wordsHTML(card.en, r.words)}</div><b>${r.pct}%</b> · escuché «${esc(r.heard)}»`; }, card.en);
   if (S.settings.autoplay) setTimeout(() => speak(card.en), 250);
   function showRate() {
     const f = $('#lfoot'); f.style.display = 'block';
@@ -1226,7 +1226,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.42.0';
+export const APP_VERSION = '2.44.1';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1268,7 +1268,7 @@ function planCardHTML() {
   const done = S.plans && S.plans[dayKey()], due = dueCards().length, cur = currentLesson();
   return `<div class="card plan-card"><div class="row between"><div><h3 style="margin:0">📅 Plan de hoy · ~10 min</h3><div class="muted small">${done ? '✅ ¡Completado hoy! Puedes repetirlo.' : 'Sesión automática hecha para ti.'}</div></div><div style="font-size:34px">${done ? '🏆' : '🎯'}</div></div>
     <div class="plan-steps"><span class="plan-step">🎯 Sonidos débiles</span><span class="plan-step">🃏 ${Math.min(4, due)} tarjetas</span><span class="plan-step">👂 Pares mínimos</span>${cur ? `<span class="plan-step">⭐ ${esc(cur.title)}</span>` : ''}</div>
-    <button class="btn orange block" id="planBtn">${done ? 'Repetir plan' : 'Empezar plan de hoy'}</button></div>`;
+    <button class="btn primary block" id="planBtn">${done ? 'Repetir plan' : 'Empezar plan de hoy'}</button></div>`;
 }
 const _finishLesson = finishLesson;
 finishLesson = function () {
@@ -1276,7 +1276,7 @@ finishLesson = function () {
   const wasPlan = L.mode === 'plan';
   if (wasPlan) { S.plans = S.plans || {}; S.plans[dayKey()] = 1; }
   _finishLesson();
-  if (wasPlan) { const cur = currentLesson(); if (cur) { const b = document.createElement('button'); b.className = 'btn blue'; b.style.minWidth = '220px'; b.textContent = '⭐ Lección nueva: ' + cur.title; b.onclick = () => { closeLesson(); startLesson(cur); }; $('.complete').appendChild(b); } }
+  if (wasPlan) { const cur = currentLesson(); if (cur) { const b = document.createElement('button'); b.className = 'btn ghost'; b.style.minWidth = '220px'; b.textContent = '⭐ Lección nueva: ' + cur.title; b.onclick = () => { closeLesson(); startLesson(cur); }; $('.complete').appendChild(b); } }
   checkBadges();
 };
 
@@ -1344,7 +1344,7 @@ const _learn = VIEWS.learn;
 VIEWS.learn = v => {
   _learn(v);
   const g = $('.card.goal', v);
-  const cta = S.placement == null || S.placement === 'skipped' && !Object.keys(S.done).length ? `<div class="card row between"><div><b>🧭 Prueba de nivel</b><div class="small muted">3 minutos para empezar en la unidad correcta.</div></div><button class="btn blue sm" id="plBtn">Hacer</button></div>` : '';
+  const cta = S.placement == null || S.placement === 'skipped' && !Object.keys(S.done).length ? `<div class="card row between"><div><b>🧭 Prueba de nivel</b><div class="small muted">3 minutos para empezar en la unidad correcta.</div></div><button class="btn ghost sm" id="plBtn">Hacer</button></div>` : '';
   g.insertAdjacentHTML('afterend', planCardHTML() + cta);
   $('#planBtn').onclick = () => { const q = buildPlan(); q.length ? startLesson(null, 'plan', q, 'Plan de hoy') : toast('Completa una lección primero.'); };
   const pb = $('#plBtn'); if (pb) pb.onclick = placementIntro;
@@ -1368,12 +1368,12 @@ VIEWS.progress = v => {
   // "Sonidos" fusionada. Si no existiera ese hueco, se mantiene la
   // tarjeta de antes como respaldo.)
   const sc = $('#soundsChips', v);
-  if (phs.length && sc) sc.innerHTML = `<div class="small muted" style="margin-bottom:4px">🔬 Fonemas más débiles (Azure)</div><div class="chips">${phs.map(p => `<span class="ph ${colorOf(p.a / 100)}" style="font-size:16px;padding:4px 8px" title="${p.n} intentos">/${esc(p.p)}/ · ${p.a}</span>`).join('')}</div><div class="small muted">${esc(PH_TIPS[phs[0].p] || '')}</div>`;
-  else if (phs.length) $('.kpis', v).insertAdjacentHTML('afterend', `<div class="card"><h3>🔬 Fonemas más débiles (Azure)</h3><div class="chips">${phs.map(p => `<span class="ph ${colorOf(p.a / 100)}" style="font-size:16px;padding:4px 8px" title="${p.n} intentos">/${esc(p.p)}/ · ${p.a}</span>`).join('')}</div><div class="small muted">${esc(PH_TIPS[phs[0].p] || '')}</div></div>`);
+  if (phs.length && sc) sc.innerHTML = `<div class="small muted" style="margin-bottom:4px">🔬 Fonemas más débiles (Azure)</div><div class="chips">${phs.map(p => `<span class="ph ${colorOf(p.a / 100)}" style="font-size:var(--fs-body);padding:4px 8px" title="${p.n} intentos">/${esc(p.p)}/ · ${p.a}</span>`).join('')}</div><div class="small muted">${esc(PH_TIPS[phs[0].p] || '')}</div>`;
+  else if (phs.length) $('.kpis', v).insertAdjacentHTML('afterend', `<div class="card"><h3>🔬 Fonemas más débiles (Azure)</h3><div class="chips">${phs.map(p => `<span class="ph ${colorOf(p.a / 100)}" style="font-size:var(--fs-body);padding:4px 8px" title="${p.n} intentos">/${esc(p.p)}/ · ${p.a}</span>`).join('')}</div><div class="small muted">${esc(PH_TIPS[phs[0].p] || '')}</div></div>`);
   const last = v.lastElementChild;
   // (densidad PR C, v2.32.0, ítem 9: las 24 insignias quedan plegadas
   // bajo un <details>; el encabezado con el conteo sigue visible.)
-  last.insertAdjacentHTML('beforebegin', `<div class="card"><h3>🏅 Insignias (${Object.keys(S.badges).length}/${BADGES.length})</h3><details><summary><b>Ver las ${BADGES.length} insignias</b></summary><div class="badges" style="margin-top:8px">${BADGES.map(b => `<div class="badge ${S.badges[b.id] ? '' : 'off'}" title="${esc(b.d)}"><span class="i">${b.i}</span>${esc(b.t)}<div class="small muted" style="font-weight:600">${esc(b.d)}</div></div>`).join('')}</div></details></div>`);
+  last.insertAdjacentHTML('beforebegin', `<div class="card"><h3>🏅 Insignias (${Object.keys(S.badges).length}/${BADGES.length})</h3><details><summary><b>Ver las ${BADGES.length} insignias</b></summary><div class="badges" style="margin-top:var(--sp-2)">${BADGES.map(b => `<div class="badge ${S.badges[b.id] ? '' : 'off'}" title="${esc(b.d)}"><span class="i">${b.i}</span>${esc(b.t)}<div class="small muted" style="font-weight:600">${esc(b.d)}</div></div>`).join('')}</div></details></div>`);
 };
 
 /* =================== RACHA: modal con protectores =================== */
@@ -1431,7 +1431,7 @@ VIEWS.chat = v => {
   // P4 (v2.21.0): crear/borrar escenarios propios dentro del selector
   // existente; sin pestaña ni tarjeta nueva, solo aparece al elegirlo.
   const openCustomScenario = () => {
-    modal(`<h2>✏️ Crear escenario</h2><p class="muted small">Describe una situación para practicar (máx. 120 caracteres, máx. 5 guardados).</p><input class="field" id="csText" maxlength="120" placeholder="en el médico explicando síntomas" aria-label="Descripción del escenario"><div class="row" style="margin-top:10px"><button class="btn primary block" data-save>Guardar y usar</button><button class="btn ghost block" data-x>Cancelar</button></div><div id="csList" style="margin-top:12px"></div>`, (el, close) => {
+    modal(`<h2>✏️ Crear escenario</h2><p class="muted small">Describe una situación para practicar (máx. 120 caracteres, máx. 5 guardados).</p><input class="field" id="csText" maxlength="120" placeholder="en el médico explicando síntomas" aria-label="Descripción del escenario"><div class="row" style="margin-top:10px"><button class="btn primary block" data-save>Guardar y usar</button><button class="btn ghost block" data-x>Cancelar</button></div><div id="csList" style="margin-top:var(--sp-3)"></div>`, (el, close) => {
       const drawList = () => {
         $('#csList', el).innerHTML = customScenarios().length ? customScenarios().map((t, i) => `<div class="row" style="justify-content:space-between;margin-top:6px"><span class="small">✏️ ${esc(t)}</span><button class="mini" data-del="${i}" aria-label="Borrar escenario">✕</button></div>`).join('') : '<p class="muted small" style="margin-top:6px">Aún no tienes escenarios propios.</p>';
         $$('[data-del]', el).forEach(b => b.onclick = () => { removeCustomScenario(+b.dataset.del); drawList(); VIEWS.chat(v); toast('Escenario borrado.'); });
@@ -1479,14 +1479,17 @@ VIEWS.settings = v => {
   const azStatus = azureReady() ? ' (activo)' : (fbSignedIn() ? ' (falta clave)' : ' (inicia sesión)');
   v.innerHTML = `<h2>Ajustes ⚙️</h2>
   <div class="card"><h3>🔊 Voz y audio</h3>
-    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['auto', 'Automática' + (azureReady() ? ' (Azure neural)' : ' (Dispositivo)')], ['azure', 'Azure neural' + azStatus], ['device', 'Dispositivo (sin internet)'], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine || 'auto')}</select></div>
-    <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent" style="max-width:200px">${opt([['en-US', 'Estadounidense (en-US)'], ['en-GB', 'Británico (en-GB)']], s.accent)}</select></div>
-    <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice" style="max-width:200px"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
-    <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice" style="max-width:200px">${opt(AZ_VOICES, s.azureVoice)}</select></div>
-    <div class="set-row"><div><label for="openaiVoice">Voz OpenAI</label><div class="desc">También se usa en la voz en vivo de OpenAI</div></div><select class="field" id="openaiVoice" style="max-width:200px">${opt(OA_VOICES, s.openaiVoice)}</select></div>
     <div class="set-row"><div><label for="rate">Velocidad</label><div class="desc" id="rateV">${(+s.rate).toFixed(2)}×</div></div><div class="row"><input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="${s.rate}"><button class="spk" id="tRate" aria-label="Probar voz">🔊</button></div></div>
-    ${sw('autoplay', s.autoplay, 'Reproducir audio automáticamente')}${sw('sound', s.sound, 'Sonidos de efectos')}${sw('haptics', s.haptics, 'Vibración (móvil)', 'Vibra al acertar o fallar')}
+    ${sw('autoplay', s.autoplay, 'Reproducir audio automáticamente')}${sw('sound', s.sound, 'Sonidos de efectos')}
     ${sw('recordVoice', s.recordVoice, 'Grabar mi voz en ejercicios', 'Para escucharte y ver tu onda. En algunos Android puede interferir con el reconocimiento de Chrome.')}
+    <details id="voiceMore"><summary>Más opciones de voz</summary>
+      <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['auto', 'Automática' + (azureReady() ? ' (Azure neural)' : ' (Dispositivo)')], ['azure', 'Azure neural' + azStatus], ['device', 'Dispositivo (sin internet)'], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine || 'auto')}</select></div>
+      <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent" style="max-width:200px">${opt([['en-US', 'Estadounidense (en-US)'], ['en-GB', 'Británico (en-GB)']], s.accent)}</select></div>
+      <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice" style="max-width:200px"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+      <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice" style="max-width:200px">${opt(AZ_VOICES, s.azureVoice)}</select></div>
+      <div class="set-row"><div><label for="openaiVoice">Voz OpenAI</label><div class="desc">También se usa en la voz en vivo de OpenAI</div></div><select class="field" id="openaiVoice" style="max-width:200px">${opt(OA_VOICES, s.openaiVoice)}</select></div>
+      ${sw('haptics', s.haptics, 'Vibración (móvil)', 'Vibra al acertar o fallar')}
+    </details>
   </div>
   <div class="card"><h3>🔬 Evaluación avanzada con Azure <span class="pill">${azShared() ? 'Activo con tu cuenta' : (azOwn() ? 'Con tu clave' : 'Opcional')}</span></h3>
     <p class="small muted">Puntaje <b>fonema por fonema</b> con Azure AI Speech.</p>
@@ -1496,8 +1499,8 @@ VIEWS.settings = v => {
     ${azShared() ? '<p class="small" style="color:var(--g-d);font-weight:700">✅ Activo con tu cuenta de Tuki: evaluación fonema por fonema gratis con cupo diario.</p>' : ''}
     ${!azureReady() && !fbSignedIn() ? '<div class="notice small" style="margin-bottom:10px">💡 <b>Usa la evaluación gratis:</b> Si inicias sesión con Google abajo en <b>Cuenta</b>, Tuki activará la evaluación por fonemas gratis sin que tengas que crear claves.</div>' : ''}
     <input class="field" id="azKey" type="password" placeholder="Clave propia de Azure Speech (opcional)" value="${esc(s.azureKey)}" autocomplete="off" aria-label="Clave de Azure">
-    <input class="field" id="azRegion" placeholder="Región (ej. eastus, westeurope, brazilsouth)" value="${esc(s.azureRegion)}" style="margin-top:8px" aria-label="Región de Azure" list="azRegions"><datalist id="azRegions">${['eastus', 'eastus2', 'westus', 'westus2', 'centralus', 'southcentralus', 'brazilsouth', 'canadacentral', 'westeurope', 'northeurope', 'uksouth', 'francecentral', 'southeastasia', 'japaneast', 'australiaeast', 'centralindia'].map(r => `<option value="${r}">`).join('')}</datalist>
-    <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="azSave">Guardar</button><button class="btn ghost sm" id="azTest">Probar conexión</button><button class="btn ghost sm" id="azDel">Borrar</button></div><div id="azMsg" class="small" style="margin-top:8px">${azShared() ? '✅ Usando la cuenta de Tuki (límite diario).' : (azOwn() ? '✅ Azure activo: los ejercicios de voz usan evaluación por fonemas.' : '')}</div>
+    <input class="field" id="azRegion" placeholder="Región (ej. eastus, westeurope, brazilsouth)" value="${esc(s.azureRegion)}" style="margin-top:var(--sp-2)" aria-label="Región de Azure" list="azRegions"><datalist id="azRegions">${['eastus', 'eastus2', 'westus', 'westus2', 'centralus', 'southcentralus', 'brazilsouth', 'canadacentral', 'westeurope', 'northeurope', 'uksouth', 'francecentral', 'southeastasia', 'japaneast', 'australiaeast', 'centralindia'].map(r => `<option value="${r}">`).join('')}</datalist>
+    <div class="row wrap" style="margin-top:10px"><button class="btn ghost sm" id="azSave">Guardar</button><button class="btn ghost sm" id="azTest">Probar conexión</button><button class="btn ghost sm" id="azDel">Borrar</button></div><div id="azMsg" class="small" style="margin-top:var(--sp-2)">${azShared() ? '✅ Usando la cuenta de Tuki (límite diario).' : (azOwn() ? '✅ Azure activo: los ejercicios de voz usan evaluación por fonemas.' : '')}</div>
   </div>
   <div class="card"><h3>🤖 Conversación con IA <span class="pill">${gemShared() ? 'Activo con tu cuenta' : (s.geminiKey || s.openaiKey ? 'Con tu clave' : 'Opcional')}</span></h3>
     <p class="small" id="aiMode">${esc(aiModeText())}</p>
@@ -1511,33 +1514,39 @@ VIEWS.settings = v => {
     <div class="set-row"><div><label for="chatLevel">Nivel de la conversación</label><div class="desc">Ajusta vocabulario, velocidad y correcciones del tutor</div></div><select class="field" id="chatLevel" style="max-width:200px">${opt(LEVEL_KEYS.map(k => [k, LEVELS[k].label]), chatLevel())}</select></div>
     <div class="set-row"><div><label for="tutorSpeed">Velocidad de Tuki</label><div class="desc">Frases más cortas, pausas y voz más lenta</div></div><select class="field" id="tutorSpeed" style="max-width:200px">${opt(Object.keys(TUTOR_SPEEDS).map(k => [k, TUTOR_SPEEDS[k].label]), tutorSpeed())}</select></div>
     <div class="set-row"><div><label for="tutorLang">Idioma del tutor</label><div class="desc">Bilingüe: conversa en inglés y te explica las correcciones en español</div></div><select class="field" id="tutorLang" style="max-width:200px">${opt(Object.keys(TUTOR_LANGS).map(k => [k, TUTOR_LANGS[k].label]), tutorLang())}</select></div>
-    <h3 style="margin-top:10px;font-size:16px">✨ Google Gemini (gratis con límites)</h3>
+    <details id="gemKey"${s.geminiKey ? ' open' : ''}><summary>Clave propia de Gemini</summary>
+    <h3 style="margin-top:10px;font-size:var(--fs-body)">✨ Google Gemini (gratis con límites)</h3>
     <p class="small muted">Clave gratuita en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Se usa para el chat y para la <b>voz en vivo (Gemini Live)</b>.</p>
     <input class="field" id="gkey" type="password" placeholder="AIza…" value="${esc(s.geminiKey)}" autocomplete="off" aria-label="Clave de Gemini">
-    <div class="row" style="margin-top:8px"><input class="field" id="gmodel" placeholder="Modelo de chat" value="${esc(s.model)}" list="gmodels" aria-label="Modelo de chat Gemini"><datalist id="gmodels"><option value="gemini-2.5-flash"><option value="gemini-2.5-flash-lite"><option value="gemini-flash-latest"></datalist></div>
-    <div class="row" style="margin-top:8px"><input class="field" id="lmodel" placeholder="Modelo de voz en vivo" value="${esc(s.liveModel)}" list="lmodels" aria-label="Modelo Gemini Live"><datalist id="lmodels">${[...GEMINI_LIVE_MODELS, ...(S.liveModels || [])].filter((x, i, a) => a.indexOf(x) === i).map(m => `<option value="${esc(m)}">`).join('')}</datalist><select class="field" id="lvoice" style="max-width:120px" aria-label="Voz Gemini Live">${opt(GEM_VOICES, s.liveVoice)}</select></div>
-    <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="gsave">Guardar</button><button class="btn ghost sm" id="gdetect">Detectar modelos</button><button class="btn ghost sm" id="gdel">Borrar clave</button></div><div id="gmsg" class="small" style="margin-top:8px"></div>
-    <h3 style="margin-top:14px;font-size:16px">💳 OpenAI (pago)</h3>
+    <div class="row" style="margin-top:var(--sp-2)"><input class="field" id="gmodel" placeholder="Modelo de chat" value="${esc(s.model)}" list="gmodels" aria-label="Modelo de chat Gemini"><datalist id="gmodels"><option value="gemini-2.5-flash"><option value="gemini-2.5-flash-lite"><option value="gemini-flash-latest"></datalist></div>
+    <div class="row" style="margin-top:var(--sp-2)"><input class="field" id="lmodel" placeholder="Modelo de voz en vivo" value="${esc(s.liveModel)}" list="lmodels" aria-label="Modelo Gemini Live"><datalist id="lmodels">${[...GEMINI_LIVE_MODELS, ...(S.liveModels || [])].filter((x, i, a) => a.indexOf(x) === i).map(m => `<option value="${esc(m)}">`).join('')}</datalist><select class="field" id="lvoice" style="max-width:120px" aria-label="Voz Gemini Live">${opt(GEM_VOICES, s.liveVoice)}</select></div>
+    <div class="row wrap" style="margin-top:10px"><button class="btn ghost sm" id="gsave">Guardar</button><button class="btn ghost sm" id="gdetect">Detectar modelos</button><button class="btn ghost sm" id="gdel">Borrar clave</button></div><div id="gmsg" class="small" style="margin-top:var(--sp-2)"></div>
+    </details>
+    <details id="oaKey"${s.openaiKey ? ' open' : ''}><summary>Clave propia de OpenAI</summary>
+    <h3 style="margin-top:14px;font-size:var(--fs-body)">💳 OpenAI (pago)</h3>
     <p class="small muted">Tu clave de <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com</a>. Se usa directamente desde este dispositivo.</p>
     <details class="small muted" style="margin:-4px 0 8px"><summary>¿Por qué?</summary>⚠️ Sin servidor propio, la clave se usa directamente desde este dispositivo (para la voz en vivo se genera una clave temporal con ella). Úsala solo en tu propio teléfono o computador, con límite de gasto configurado en OpenAI.</details>
     <input class="field" id="okey" type="password" placeholder="sk-…" value="${esc(s.openaiKey)}" autocomplete="off" aria-label="Clave de OpenAI">
-    <div class="row" style="margin-top:8px"><input class="field" id="omodel" value="${esc(s.openaiModel)}" list="omodels" aria-label="Modelo de chat OpenAI"><datalist id="omodels"><option value="gpt-4o-mini"><option value="gpt-4.1-mini"><option value="gpt-4.1-nano"><option value="gpt-4o"></datalist><input class="field" id="rtmodel" value="${esc(s.realtimeModel)}" list="rtmodels" aria-label="Modelo Realtime"><datalist id="rtmodels"><option value="gpt-realtime"><option value="gpt-realtime-mini"></datalist></div>
-    <div class="row wrap" style="margin-top:10px"><button class="btn primary sm" id="osave">Guardar</button><button class="btn ghost sm" id="otest">Probar conexión</button><button class="btn ghost sm" id="odel">Borrar clave</button></div><div id="omsg" class="small" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:var(--sp-2)"><input class="field" id="omodel" value="${esc(s.openaiModel)}" list="omodels" aria-label="Modelo de chat OpenAI"><datalist id="omodels"><option value="gpt-4o-mini"><option value="gpt-4.1-mini"><option value="gpt-4.1-nano"><option value="gpt-4o"></datalist><input class="field" id="rtmodel" value="${esc(s.realtimeModel)}" list="rtmodels" aria-label="Modelo Realtime"><datalist id="rtmodels"><option value="gpt-realtime"><option value="gpt-realtime-mini"></datalist></div>
+    <div class="row wrap" style="margin-top:10px"><button class="btn ghost sm" id="osave">Guardar</button><button class="btn ghost sm" id="otest">Probar conexión</button><button class="btn ghost sm" id="odel">Borrar clave</button></div><div id="omsg" class="small" style="margin-top:var(--sp-2)"></div>
+    </details>
     ${S.chatProfile ? `<div class="set-row"><div><label>Nota de perfil del chat</label><div class="desc">Tuki recuerda tus errores frecuentes de conversaciones largas.</div></div><button class="btn ghost sm" id="chatProfileDel">Borrar nota</button></div>` : ''}
   </div>
   <div class="card"><h3>🎯 Aprendizaje</h3>
     <div class="set-row"><div><label for="learnerLevel">Nivel de aprendizaje</label><div class="desc">Ajusta guía fonética, frases y velocidad</div></div><select class="field" id="learnerLevel" style="max-width:200px">${opt([['novice', '🌱 Novato (Desde cero)'], ['intermediate', '⚡ Intermedio'], ['advanced', '🚀 Avanzado']], s.learnerLevel || 'novice')}</select></div>
     <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal" style="max-width:200px">${opt([[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']], s.goal)}</select></div>
-    <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:200px">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
-    ${sw('freeMode', s.freeMode, 'Modo libre (desbloquear todo)', 'Desactiva el orden secuencial tipo Duolingo y desbloquea todas las lecciones y prácticas')}
     <div class="set-row"><div><label>Prueba de nivel</label><div class="desc">${S.placement && typeof S.placement === 'object' ? 'Última: ' + S.placement.date + ' · ' + S.placement.score : 'Aún no la has hecho'}</div></div><button class="btn ghost sm" id="replace">Hacer ahora</button></div>
     <div class="set-row"><div><label>Reconocimiento de voz</label><div class="desc">${azureReady() ? 'Azure (fonemas) ✅' : HAS_SR ? 'Navegador (por palabras) ✅' : 'No disponible ❌ — usa Chrome/Edge o configura Azure'}</div></div><button class="btn ghost sm" id="testMic" ${canSpeak() ? '' : 'disabled'}>Probar 🎤</button></div>
+    <details id="learnMore"><summary>Más opciones de aprendizaje</summary>
+      <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:200px">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
+      ${sw('freeMode', s.freeMode, 'Modo libre (desbloquear todo)', 'Desactiva el orden secuencial tipo Duolingo y desbloquea todas las lecciones y prácticas')}
+    </details>
   </div>
   <div class="card"><h3>⏰ Recordatorio diario</h3>
     ${sw('remindOn', s.remindOn, 'Notificación local y push', 'Aviso diario interactivo para no perder tu racha')}
     <div class="set-row"><div><label for="remindTime">Hora</label></div><input type="time" class="field" id="remindTime" value="${esc(s.remindTime)}" style="max-width:140px"></div>
-    <div class="row" style="margin-top:8px;gap:8px">
-      <button class="btn blue sm" id="btnTestNotify">🔔 Probar notificación</button>
+    <div class="row" style="margin-top:var(--sp-2);gap:8px">
+      <button class="btn ghost sm" id="btnTestNotify">🔔 Probar notificación</button>
       <button class="btn ghost sm" id="ics">📅 Calendario (.ics)</button>
     </div>
   </div>
@@ -1549,7 +1558,7 @@ VIEWS.settings = v => {
   <div class="card"><h3>💾 Datos</h3>
     <div class="row wrap"><button class="btn ghost sm" id="exp">⬇️ Exportar progreso</button><label class="btn ghost sm" style="margin:0">⬆️ Importar<input type="file" id="imp" accept="application/json" hidden></label></div>
     <p class="small muted">Las claves nunca se incluyen en la exportación.</p>
-    <button class="btn red block" id="reset" style="margin-top:8px">Borrar todo mi progreso</button>
+    <button class="btn red block" id="reset" style="margin-top:var(--sp-2)">Borrar todo mi progreso</button>
   </div>
   <p class="muted small" style="text-align:center">Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.</p>`;
   const set = (k, val) => { S.settings[k] = val; save(); };
@@ -1679,12 +1688,12 @@ VIEWS.practice = v => {
   const h2 = $('h2', v).nextElementSibling;
   h2.insertAdjacentHTML('afterend', `<div class="card" id="errorsCard">
     <h3 style="margin:0">🎯 Tus errores${hw.length ? ` (${hw.length})` : ''}</h3>
-    <div class="muted small" style="margin-top:4px">${hw.length ? `${hw.slice(0, 5).map(h => esc(h.w)).join(', ')}${hw.length > 5 ? '…' : ''} · ${azureReady() ? 'puntaje por fonemas con Azure' : 'puntaje con el reconocimiento del navegador'}` : 'Aquí aparecerán las palabras que pronuncies mal en lecciones y conversaciones.'}</div>
+    <div class="muted small" style="margin-top:var(--sp-1)">${hw.length ? `${hw.slice(0, 5).map(h => esc(h.w)).join(', ')}${hw.length > 5 ? '…' : ''} · ${azureReady() ? 'puntaje por fonemas con Azure' : 'puntaje con el reconocimiento del navegador'}` : 'Aquí aparecerán las palabras que pronuncies mal en lecciones y conversaciones.'}</div>
     ${hw.length ? `<details class="hardlist" style="border-top:1px solid var(--line);margin-top:10px;padding-top:6px"><summary><b>Ver mis palabras difíciles</b></summary>${hw.slice(0, 30).map(h => `<div class="witem"><button class="spk" data-say="${esc(h.w)}">🔊</button><div style="min-width:0"><div class="en">${esc(h.w)}</div><div class="es small">${h.last == null ? 'Sin practicar' : 'Último: ' + h.last + '%'}${h.src === 'convo' || h.src === 'both' ? ' · 💬 de una conversación' : ''}${h.note ? ' · ' + esc(h.note) : ''}</div></div><button class="spk slow" data-unhard="${esc(h.key)}" title="Quitar">✕</button></div>`).join('')}</details>` : ''}
     ${ci.length ? `<button class="btn ghost sm block" id="errorsConvoBtn" style="margin-top:10px">🗂️ De tus conversaciones (${ci.length})</button><div class="muted small">Correcciones y palabras nuevas de tus resúmenes.</div>` : ''}
     <div class="row wrap" style="margin-top:10px;gap:8px">
       <button class="btn primary" id="errorsReviewBtn">Repasar mis errores</button>
-      ${peData && peAI ? '<button class="btn orange" id="errorsAIBtn">✨ Practicar con IA</button>' : ''}
+      ${peData && peAI ? '<button class="btn ghost" id="errorsAIBtn">✨ Practicar con IA</button>' : ''}
     </div>
     ${peData && !peAI ? '<div class="muted small" style="margin-top:6px">Ejercicios nuevos con tus errores (la IA no está disponible ahora).</div>' : ''}
   </div>`);
@@ -1946,15 +1955,15 @@ VIEWS.practice = v => {
 const _buildPlan25 = buildPlan;
 buildPlan = function () { const base = _buildPlan25(); if (!base.length) return base; if (!isFeatureUnlocked('tc')) return base; const it = tcPick(1, tcLevel())[0]; return it ? [...base.slice(0, 9), tcEx(it)] : base; };
 const _planCard25 = planCardHTML;
-planCardHTML = function () { const base = _planCard25(); if (!isFeatureUnlocked('tc')) return base; return base.replace('</div>\n    <button class="btn orange', '<span class="plan-step">✍️ Traduce y completa</span></div>\n    <button class="btn orange'); };
+planCardHTML = function () { const base = _planCard25(); if (!isFeatureUnlocked('tc')) return base; return base.replace('</div>\n    <button class="btn primary', '<span class="plan-step">✍️ Traduce y completa</span></div>\n    <button class="btn primary'); };
 const _progress25 = VIEWS.progress;
 VIEWS.progress = v => {
   _progress25(v);
   const t = S.tc, per = Object.keys(TC_LV).map(k => ({ k, m: tcMasteredCount(k), n: tcAll().filter(x => x.lv === k).length })), tries = Object.values(t.items).reduce((a, r) => a + r.n, 0);
   const html = `<div class="card" id="tcStats"><h3>✍️ Traduce y completa</h3>
     <div class="kpis" style="margin:6px 0 0"><div class="kpi"><span>Dominadas</span><b>${tcMasteredCount()}</b></div><div class="kpi"><span>A la primera</span><b>${tries ? Math.round(t.first / tries * 100) + '%' : '—'}</b></div><div class="kpi"><span>Rondas</span><b>${t.sessions}</b></div><div class="kpi"><span>XP ganado</span><b>${t.xp}</b></div></div>
-    ${per.map(p => `<div class="row between small" style="margin-top:8px"><b>${esc(TC_LV[p.k])}</b><span class="muted">${p.m}/${p.n}</span></div><div class="pbar" style="height:10px;margin-top:4px"><i style="width:${p.n ? Math.round(p.m / p.n * 100) : 0}%"></i></div>`).join('')}
-    <div class="small muted" style="margin-top:8px">Una frase queda dominada cuando la aciertas a la primera y sin pista dos veces seguidas.</div></div>`;
+    ${per.map(p => `<div class="row between small" style="margin-top:var(--sp-2)"><b>${esc(TC_LV[p.k])}</b><span class="muted">${p.m}/${p.n}</span></div><div class="pbar" style="height:10px;margin-top:var(--sp-1)"><i style="width:${p.n ? Math.round(p.m / p.n * 100) : 0}%"></i></div>`).join('')}
+    <div class="small muted" style="margin-top:var(--sp-2)">Una frase queda dominada cuando la aciertas a la primera y sin pista dos veces seguidas.</div></div>`;
   const k = $('.kpis', v); if (k) (k.nextElementSibling || k).insertAdjacentHTML('afterend', html); else v.insertAdjacentHTML('beforeend', html);
 };
 BADGES.push(
@@ -2114,7 +2123,7 @@ const _fbRefresh211 = fbRefreshUI; fbRefreshUI = function () { _fbRefresh211(); 
 const _settings211 = VIEWS.settings;
 VIEWS.settings = v => {
   _settings211(v);
-  const ac = $('#acctCard', v); if (ac) ac.insertAdjacentHTML('afterend', adminHTML());
+  const ac = $('#acctCard', v); if (ac) ac.insertAdjacentHTML('beforeend', adminHTML());
   // (densidad PR B, v2.31.0, ítem 4: "Enviar comentarios" deja de ser la
   // 2ª tarjeta y pasa al pie, junto al pie de versión.)
   const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
@@ -2362,7 +2371,7 @@ VIEWS.settings = function (v) {
     <div class="maint-sec">
       <div class="row between">
         <div>
-          <h3 style="margin:0 0 2px;font-size:16px">📦 Modo Offline y Almacenamiento</h3>
+          <h3 style="margin:0 0 2px;font-size:var(--fs-body)">📦 Modo Offline y Almacenamiento</h3>
           <div class="small muted">Base de datos local <b>IndexedDB (TukiDB)</b></div>
         </div>
         <span class="pill ok" id="offlineBadge">⚡ Listo Offline</span>
@@ -2375,17 +2384,17 @@ VIEWS.settings = function (v) {
       <div class="offline-progress-bar" id="offlineBar"><div class="offline-progress-fill" id="offlineFill"></div></div>
       <div class="small muted" style="margin:6px 0 10px" id="offlineStatus">Estudia sin gastar datos y sin conexión a internet (avión, metro, zonas rurales).</div>
       <div class="row" style="gap:8px;flex-wrap:wrap">
-        <button class="btn blue sm" id="btnOfflinePreload">📥 Sincronizar y precargar modo sin conexión</button>
+        <button class="btn ghost sm" id="btnOfflinePreload">📥 Sincronizar y precargar modo sin conexión</button>
         <button class="btn ghost sm" id="btnOfflineClear">🧹 Liberar audios</button>
       </div>
     </div>
     <div class="maint-sec">
       <div class="row between">
         <div>
-          <h3 style="margin:0 0 2px;font-size:16px">🔄 Actualizaciones</h3>
+          <h3 style="margin:0 0 2px;font-size:var(--fs-body)">🔄 Actualizaciones</h3>
           <div class="small muted">Versión instalada: <b>v${APP_VERSION}</b></div>
         </div>
-        <button class="btn blue sm" id="btnCheckUpdate">🔄 Buscar actualizaciones</button>
+        <button class="btn ghost sm" id="btnCheckUpdate">🔄 Buscar actualizaciones</button>
       </div>
       <div class="small muted" style="margin-top:6px" id="updStatus">Toca para comprobar si hay una nueva versión disponible e instalarla de inmediato.</div>
     </div>
@@ -2433,7 +2442,6 @@ const LEVEL_RANK = { basic: 0, personal: 1, advanced: 2 };
 function settingsCardLevel(card) {
   const id = card.id || '';
   if (id === 'acctCard') return 'basic';
-  if (id === 'adminCard') return 'advanced';
   if (id === 'keysCard') return 'advanced';
   if (id === 'tvCard') return 'personal';
   if (id === 'maintCard') return 'advanced';
@@ -2463,18 +2471,27 @@ function applySettingsLevel(v) {
     b.classList.toggle('active', b.dataset.slevel === settingsLevel);
     b.setAttribute('aria-pressed', String(b.dataset.slevel === settingsLevel));
   });
+  // (PR2: los <details> "Más opciones" nacen cerrados en Básico y abiertos
+  // en Personalización y Avanzado; el filtro los abre/cierra con el nivel.)
+  const openMore = LEVEL_RANK[settingsLevel] >= 1;
+  for (const d of view.querySelectorAll('#voiceMore, #learnMore')) d.open = openMore;
+  // (PR3: el admin vive como <details> dentro de Cuenta, no como tarjeta;
+  // el filtro lo oculta en Básico/Personalización y lo muestra en Avanzado.)
+  const ad = $('#adminCard', view);
+  if (ad) { ad.dataset.level = 'advanced'; ad.hidden = LEVEL_RANK[settingsLevel] < 2; }
 }
 const _settings213 = VIEWS.settings;
 VIEWS.settings = function (v) {
   _settings213(v);
   // (PR1: reordenar las tarjetas según la propuesta §2.3, moviendo los
-  // nodos — no se recrean, así los handlers ya ligados se conservan. La
-  // tarjeta de administrador se mantiene después de Cuenta.)
+  // nodos — no se recrean, así los handlers ya ligados se conservan. PR3:
+  // el admin vive dentro de Cuenta como <details> y viaja con ella, así
+  // que ya no aparece en esta lista.)
   const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
   const byId = id => document.getElementById(id);
   const byH3 = re => [...v.querySelectorAll(':scope > .card')].find(c => re.test((c.querySelector('h3') || {}).textContent || ''));
   const order = [
-    byId('acctCard'), byId('adminCard'), byH3(/Aprendizaje/), byH3(/Voz y audio/),
+    byId('acctCard'), byH3(/Aprendizaje/), byH3(/Voz y audio/),
     byH3(/Apariencia/), byH3(/Recordatorio/), byH3(/Resúmenes/), byId('tvCard'),
     byH3(/Frase de seguridad/), byH3(/Evaluación avanzada/), byH3(/Conversación con IA/),
     byId('maintCard'), byId('fbkCard'),
@@ -2557,6 +2574,6 @@ buildPlan = function () {
   return plan.slice(0, 10);
 };
 const _planCard30 = planCardHTML;
-planCardHTML = function () { const base = _planCard30(); if (!practiceErrorsHasData()) return base; return base.replace('</div>\n    <button class="btn orange', '<span class="plan-step">🎯 Tus errores</span></div>\n    <button class="btn orange'); };
+planCardHTML = function () { const base = _planCard30(); if (!practiceErrorsHasData()) return base; return base.replace('</div>\n    <button class="btn primary', '<span class="plan-step">🎯 Tus errores</span></div>\n    <button class="btn primary'); };
 
 window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, finishLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), liveAppend, liveTurnDone, endConversation, summarizeConvo, summaryHTML, openSummarySheet, interviewHTML, openInterviewSheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, pdGenSpeak, pdGenData, pdGenHasData, pdGenAvailable, pdGenValidate, pdGenCacheGet, pdGenCacheSet, PD_GEN_CACHE_KEY, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, errorTutorAvailable, explainError, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, runPendingSummary, sumPendingAdd, startTC, tcEval, tcEx, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, azureReady, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, countUpAll, phonemeHintHTML, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, initTukiSleepWatch, initTukiAnimPause, makeMascotClickable, tukiSleepBusy, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, TukiDB, updateOfflineCardStats, runOfflinePreload, customScenarios, addCustomScenario, removeCustomScenario, sanitizeScenario, registerCustomScenarios, ensure29, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, tcHardWords, tcWordsInItems, tcExtraHint, tcFailsTotal, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, buildPlacement, placementFinish, setL, photoSharedAvailable, photoAnalyzeShared, resizePhoto, quotaSummary, quotaAlert, QUOTA_ALERT, adminBody, adminHTML, AD, LIVE_REC, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, get tcLastPersonalized() { return TC_LAST_PERSONALIZED; }, hideSplash, version: APP_VERSION };
