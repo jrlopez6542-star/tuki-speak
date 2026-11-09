@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.41.1
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.42.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.42.0
+- **⚙️ Ajustes con filtro por nivel**: Ajustes ahora se ordena para principiantes — primero Cuenta, Aprendizaje, Voz y audio, Apariencia, Recordatorio y Resúmenes; después Voz de Tuki; y al final Frase de seguridad, Evaluación avanzada con Azure, Conversación con IA y Datos y mantenimiento, con Enviar comentarios siempre al pie. Encima de las tarjetas hay un selector «Ver: Básico · Personalización · Avanzado» (Básico por defecto) que solo muestra u oculta tarjetas, sin pestañas ni pantallas nuevas; los enlaces internos («Usar la IA gratis →», «Ir a la clave») cambian primero el filtro al nivel de la tarjeta destino. Sin cambios en los controles, las claves, las cuotas ni el progreso.
 
 ## Novedades v2.41.1
 - **🟢 Fondo del splash en la PWA instalada**: la v2.41.0 ya servía el manifest con `background_color` `#1fa463`, pero el service worker seguía en v26 y precacheaba el manifest viejo, así que la app instalada seguía mostrando el splash con fondo casi blanco. Ahora la caché del service worker sube a v27 (y el SW cambia de bytes), el navegador detecta la actualización al abrir la app, el SW nuevo precachea el manifest con el fondo verde y el splash del sistema se vuelve verde, sin el cuadro. Sin cambios en el resto de la app.
