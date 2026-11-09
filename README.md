@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.41.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.41.1
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.41.1
+- **🟢 Fondo del splash en la PWA instalada**: la v2.41.0 ya servía el manifest con `background_color` `#1fa463`, pero el service worker seguía en v26 y precacheaba el manifest viejo, así que la app instalada seguía mostrando el splash con fondo casi blanco. Ahora la caché del service worker sube a v27 (y el SW cambia de bytes), el navegador detecta la actualización al abrir la app, el SW nuevo precachea el manifest con el fondo verde y el splash del sistema se vuelve verde, sin el cuadro. Sin cambios en el resto de la app.
 
 ## Novedades v2.41.0
 - **🚀 Pantalla de entrada sin cuadro**: al abrir la app instalada (PWA) ya no se ve el cuadro verde con Tuki sobre fondo casi blanco: el `background_color` del manifest pasa a `#1fa463` (el verde exacto del icono, verificado píxel a píxel), así que el icono se funde con el fondo y solo se ve Tuki sobre verde. Además, la app muestra su propia pantalla de carga al instante — Tuki (el SVG de la mascota, con fondo transparente, sin cuadro ni marco), «Tuki Speak», una frase corta y puntos animados — sobre verde de marca a pantalla completa, que se retira sola tras el primer render, con entrada suave y movimiento reducido respetado; si la app no arranca, se oculta sola a los ~8 s y nunca bloquea la entrada. ⚠️ Cambiar el manifest puede requerir reinstalar o actualizar la PWA instalada para ver el cambio en el splash del sistema. Sin cambios en el progreso, el curso, las cuotas ni la voz.
