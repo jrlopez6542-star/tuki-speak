@@ -1,6 +1,35 @@
+/* =================== SISTEMA VISUAL — TOKENS (Fase 1, PR 1.1) ===================
+   Escala tipográfica (audit. §3): título 22–24 · sección 17–18 · cuerpo 15–16 ·
+   pequeño 12–13. Base 16 px (html/body). Una sola h2 por destino, h3 por sección.
+     --fs-title:22px (h2) · --fs-section:18px (h3) · --fs-body:16px (base) ·
+     --fs-body-sm:15px (cuerpo secundario) · --fs-small:13px (.small) ·
+     --fs-tiny:12px (texto mínimo).
+   Escala de espaciado: --sp-1:4px · --sp-2:8px · --sp-3:12px · --sp-4:16px ·
+   --sp-6:24px. Una sola medida de separación entre bloques por destino.
+   Breakpoints con nombre (audit. §5.2; var() no puede usarse en @media, así
+   que los valores viven en las consultas, no en variables):
+     sm 400px (max-width: práctica diaria) · md 600px (hojas/modales) ·
+     lg 900px (solo centrar y respirar: más aire lateral en escritorio, sin
+     cambiar la columna de 560 px).
+   Excepciones documentadas (heredadas, sin cambio visual en esta PR):
+     - .card margin-bottom:14px (separación entre bloques): se unifica a
+       --sp-3 (12px) en PR 1.3 (tarjetas y superficies), no aquí.
+     - font-size:14px (intermedio heredado, 28 usos) y 11px (etiquetas de la
+       tabbar): no forman parte de la escala declarada; se mantienen.
+     - Tamaños de display 30–42px (nodos, números grandes): fuera de escala.
+     - .fb h3 (título de resultado de lección) se normaliza a --fs-section
+       en esta PR: era 21px, casi igual que h2 (22px); es el único cambio
+       visual de jerarquía junto a .unit-head h3 y .pd-home h3 (19px→18px).
+   Colores: sin cambios (contraste AA 132/132, informe
+   ~/workspace/tuki-colors/contrast-after.md). applyPrefs() (main.js:1324)
+   sigue intacto; fontScale y temas no se tocan. */
 :root{
   --g:#1fa463; --g-d:#0e6b3d; --g-l:#d9f5e6; --o:#ff9f1c; --o-d:#b45309; --r:#ff4b4b; --r-d:#c1272d; --r-l:#ffe1e1;
   --b:#1cb0f6; --b-d:#0b6fa3; --y:#ffd23f; --ink:#26323d; --mute:#5b6b78; --line:#e3e8ec; --bg:#f7faf8; --card:#fff;
+  /* Tipografía (escala declarada, §3): título / sección / cuerpo / cuerpo-secundario / pequeño / mínimo */
+  --fs-title:22px; --fs-section:18px; --fs-body:16px; --fs-body-sm:15px; --fs-small:13px; --fs-tiny:12px;
+  /* Espaciado (escala 4/8/12/16/24) */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-6:24px;
   --rad:20px; --r-sm:12px; --r-md:18px; --r-lg:20px; --r-xl:24px; --r-pill:999px; --spring:cubic-bezier(.34,1.56,.64,1); --spring-soft:cubic-bezier(.3,1.4,.5,1); --ease-out:cubic-bezier(.22,1,.36,1); --sh:0 2px 0 var(--line); --sh-1:0 1px 2px rgba(15,23,42,.05),0 4px 12px rgba(15,23,42,.06); --sh-2:0 2px 6px rgba(15,23,42,.06),0 10px 24px rgba(15,23,42,.09); --sh-3:0 8px 16px rgba(15,23,42,.10),0 24px 48px rgba(15,23,42,.14);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -109,11 +138,11 @@ main{flex:1;padding:14px 14px 96px}
 .btn[disabled]{background:#e5e9ec!important;color:#aab4bc!important;box-shadow:0 4px 0 #d4dade!important;cursor:not-allowed;transform:none}
 .btn.block{width:100%}
 .btn.sm{padding:8px 12px;font-size:13px;border-radius:var(--r-sm)}
-.card{background:var(--card);border:2px solid var(--line);border-radius:var(--rad);padding:16px;margin-bottom:14px;box-shadow:var(--sh-1)}
+.card{background:var(--card);border:2px solid var(--line);border-radius:var(--rad);padding:var(--sp-4);margin-bottom:14px;box-shadow:var(--sh-1)} /* PR 1.1: padding por token (16px, sin cambio); margin-bottom 14px heredado, se unifica a --sp-3 en PR 1.3 */
 h1,h2,h3{margin:0 0 8px;line-height:1.2}
-h2{font-size:22px} h3{font-size:18px}
+h2{font-size:var(--fs-title)} h3{font-size:var(--fs-section)}
 .muted{color:var(--mute)}
-.small{font-size:13px}
+.small{font-size:var(--fs-small)}
 .row{display:flex;align-items:center;gap:10px}
 .between{justify-content:space-between}
 .wrap{flex-wrap:wrap}
@@ -124,7 +153,7 @@ h2{font-size:22px} h3{font-size:18px}
 /* course map */
 .unit{margin:6px 0 26px}
 .unit-head{border-radius:var(--rad);padding:16px;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 4px 0 rgba(0,0,0,.15)}
-.unit-head h3{margin:0 0 2px;font-size:19px}
+.unit-head h3{margin:0 0 2px;font-size:var(--fs-section)}
 .unit-head p{margin:0;opacity:.95;font-size:14px}
 .unit-head .guide{background:rgba(0,0,0,.18);border:2px solid rgba(255,255,255,.5);color:#fff;border-radius:var(--r-sm);padding:8px 10px;font-weight:900;font-size:13px;white-space:nowrap}
 .unit-head .guide:hover{background:rgba(0,0,0,.28)}
@@ -144,6 +173,11 @@ h2{font-size:22px} h3{font-size:18px}
 .overlay{position:fixed;inset:0;background:rgba(20,30,40,.55);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .25s ease-out}
 .sheet{background:#fff;width:100%;max-width:560px;border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 18px;padding-bottom:calc(20px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:up .32s var(--spring);box-shadow:var(--sh-3)}
 @media(min-width:600px){.overlay{align-items:center}.sheet{border-radius:var(--r-xl)}}
+/* PR 1.1 — breakpoint lg (900px, §5.2): solo centrar y respirar en escritorio.
+   Más aire lateral (14px→24px) sin cambiar la columna de contenido (560px).
+   Se aplica a main en general: el ámbito por vista (Inicio y Tutor IA) se
+   afina en Fase 3, cuando los destinos tengan su propia navegación. */
+@media(min-width:900px){main{padding-left:var(--sp-6);padding-right:var(--sp-6)}}
 @keyframes up{from{transform:translateY(40px) scale(.98);opacity:.5}to{transform:translateY(0) scale(1);opacity:1}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .tipbox{background:#f3fbf7;border:2px solid #cdeedb;border-radius:var(--r-md);padding:12px 14px;margin:10px 0}
@@ -200,7 +234,7 @@ textarea.inp:focus{outline:none;border-color:#84d8ff;background:#fff}
 .lfoot.ok{background:#d7ffb8;border-top-color:#d7ffb8}
 .lfoot.bad{background:var(--r-l);border-top-color:var(--r-l)}
 .fb{flex:1 1 260px;min-width:0}
-.fb h3{font-size:21px;margin:0 0 4px;display:flex;align-items:center;gap:8px}
+.fb h3{font-size:var(--fs-section);margin:0 0 4px;display:flex;align-items:center;gap:8px} /* PR 1.1: 21px→18px, jerarquía (un h3 no debe casi igualar a h2) */
 .lfoot.ok .fb h3{color:#2f6b00} .lfoot.bad .fb h3{color:#c62828}
 .fb .ans{font-weight:800;margin:2px 0 4px}
 .lfoot.ok .fb{color:#2f6b00} .lfoot.bad .fb{color:#c62828}
@@ -338,7 +372,7 @@ a{color:var(--b-d)}
 .mode-row{display:flex;gap:12px;align-items:center;cursor:pointer;text-align:left;width:100%;background:none;border:0;border-top:1px solid var(--line);padding:10px 2px}
 .mode-row:first-of-type{border-top:0}
 .mode-row .em{font-size:28px;width:46px;height:46px;border-radius:var(--r-md);display:grid;place-items:center;flex:none}
-.mode-row h3{font-size:15px}
+.mode-row h3{font-size:var(--fs-body-sm)}
 .maint-sec{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}
 .maint-sec:first-of-type{border-top:0;margin-top:10px;padding-top:0}
 /* ===== v2: accesibilidad, tema oscuro, nuevas vistas ===== */
@@ -486,7 +520,7 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 /* v2.4 */
 .spinner{width:36px;height:36px;border:4px solid var(--line);border-top-color:var(--g);border-radius:50%;margin:18px auto 6px;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 .sumsheet .sheet{max-height:92vh}
-.sumcard h3{margin:14px 0 6px;font-size:16px}
+.sumcard h3{margin:14px 0 6px;font-size:var(--fs-body)}
 .sumscore{min-width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;background:var(--g-l);color:var(--g-d);border:3px solid var(--g)}
 .sumbars{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
 .mist,.ivq{border:2px solid var(--line);border-radius:var(--r-md);padding:9px 11px;margin:6px 0;background:var(--card)}
@@ -603,7 +637,7 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 /* v2.7 Práctica diaria */
 .pd-home{border:2px solid #ffc800;background:linear-gradient(135deg,#fff8e1,#fff);box-shadow:0 4px 0 #ffc800}
 .pd-home.done{border-color:var(--g);box-shadow:0 4px 0 var(--g);background:linear-gradient(135deg,#eaffd9,#fff)}
-.pd-home h3{font-size:19px}
+.pd-home h3{font-size:var(--fs-section)}
 .pd-streak{font-weight:900;color:#8a5a00;background:#fff1c2;border-radius:999px;padding:6px 10px;white-space:nowrap}
 .pd-chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 12px}
 .pd-chips span{font-size:13px;font-weight:800;border:2px solid var(--line);border-radius:999px;padding:5px 10px;background:var(--card);color:var(--ink)}
@@ -660,6 +694,12 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .seg button.active{background:var(--b-d);color:#fff}
 /* v2.42.0 Filtro de Ajustes por nivel: 3 etiquetas caben en 360 px */
 #settingsLevel button{font-size:14px;padding:10px 4px;min-width:0}
+/* v2.43.0 Divulgación progresiva en Ajustes: filas plegables "Más opciones" */
+#voiceMore summary, #learnMore summary, #adminCard summary{cursor:pointer;padding:12px 0;font-weight:700}
+/* v2.44.1 Divulgación progresiva en Ajustes: bloques de clave propia plegables */
+#gemKey summary, #oaKey summary{cursor:pointer;padding:12px 0;font-weight:700}
+/* v2.44.0 Panel de administrador dentro de Cuenta: separación visual dentro de la tarjeta */
+#adminCard{margin-top:12px;border-top:1px solid var(--line);padding-top:4px}
 #acctCard .field,#keysCard .field{margin-bottom:8px;font-size:16px;min-height:46px}
 .linkbtn{background:none;border:0;color:var(--b-d);font-weight:800;padding:8px 2px;text-decoration:underline;font-size:14px}
 .ac-user{display:flex;align-items:center;gap:12px;margin:6px 0 10px}
