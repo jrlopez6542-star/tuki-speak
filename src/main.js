@@ -1226,7 +1226,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.41.1';
+export const APP_VERSION = '2.42.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1575,7 +1575,9 @@ VIEWS.settings = v => {
   // Ajustes vive en la tarjeta 👤 Cuenta; aquí solo un enlace que
   // desplaza hasta ella.)
   const aiG = $('#aiGoAcct', v);
-  if (aiG) aiG.onclick = () => { const c = $('#acctCard', v); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+  // (PR1, regla R-3: el enlace interno cambia primero el filtro al nivel
+  // de la tarjeta destino — Cuenta es Básico — y luego desplaza.)
+  if (aiG) aiG.onclick = () => { const lv = $('#settingsLevel [data-slevel="basic"]', v); if (lv) lv.click(); const c = $('#acctCard', v); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
   const gmsg = $('#gmsg');
   $('#gsave').onclick = () => { set('geminiKey', $('#gkey').value.trim()); set('model', $('#gmodel').value.trim() || 'gemini-2.5-flash'); set('liveModel', $('#lmodel').value.trim() || GEMINI_LIVE_MODELS[0]); CHAT.hist = []; gmsg.textContent = S.settings.geminiKey ? '✅ Guardado. Ve a la pestaña IA.' : 'Clave vacía: Gemini queda desactivado.'; };
   $('#gdel').onclick = () => { set('geminiKey', ''); $('#gkey').value = ''; gmsg.textContent = 'Clave borrada.'; };
@@ -2063,6 +2065,9 @@ export function fbRefreshUI() {
   const aq = $('#aiQuota'); if (aq) aq.textContent = aiQuotaText();
   const a = $('#acctCard'); if (a) { a.outerHTML = acctHTML(); bindAcct(document); }
   const k = $('#keysCard'); if (k && !(document.activeElement && k.contains(document.activeElement))) { k.outerHTML = keysHTML(); bindKeys(document); }
+  // (PR1: las tarjetas reemplazadas pierden hidden/data-level; reaplicar
+  // el filtro de nivel para que no aparezcan tarjetas de otro nivel.)
+  applySettingsLevel();
 }
 const _settings28 = VIEWS.settings;
 VIEWS.settings = v => {
@@ -2406,6 +2411,93 @@ VIEWS.settings = function (v) {
   if (bOffClear) bOffClear.onclick = () => clearOfflineAudio(bOffClear);
 
   updateOfflineCardStats();
+};
+
+/* =================== v2.42.0 FILTRO DE AJUSTES POR NIVEL (PR1 rediseño UX) =================== */
+// (PR1, propuesta §2: Ajustes muestra un selector de visibilidad
+// "Ver: Básico · Personalización · Avanzado" y reordena las tarjetas en el
+// orden de la propuesta. El filtro NO es navegación ni pestañas: solo
+// muestra/oculta tarjetas con hidden, en la misma vista y sin cambiar la
+// URL ni la posición de scroll. La selección vive solo en memoria (sin
+// localStorage). Es el ÚLTIMO wrapper de VIEWS.settings, así que corre
+// después de todas las inserciones de tarjetas de versiones anteriores.)
+let settingsLevel = 'basic';
+// (PR1: el filtro es acumulativo — cada nivel muestra las tarjetas de su
+// nivel Y las de los niveles anteriores; Avanzado muestra las 12.)
+const LEVEL_RANK = { basic: 0, personal: 1, advanced: 2 };
+// Nivel de cada tarjeta, por identidad (id cuando existe; si no, h3).
+// Orden de la propuesta §2.3: Cuenta, Aprendizaje, Voz y audio, Apariencia,
+// Recordatorio, Resúmenes (Básico); Voz de Tuki (Personalización); Frase de
+// seguridad, Evaluación avanzada con Azure, Conversación con IA, Datos y
+// mantenimiento (Avanzado); Enviar comentarios siempre visible (pie).
+function settingsCardLevel(card) {
+  const id = card.id || '';
+  if (id === 'acctCard') return 'basic';
+  if (id === 'adminCard') return 'advanced';
+  if (id === 'keysCard') return 'advanced';
+  if (id === 'tvCard') return 'personal';
+  if (id === 'maintCard') return 'advanced';
+  if (id === 'fbkCard') return 'always';
+  const h = (card.querySelector('h3') || {}).textContent || '';
+  if (/Aprendizaje/.test(h)) return 'basic';
+  if (/Voz y audio/.test(h)) return 'basic';
+  if (/Apariencia/.test(h)) return 'basic';
+  if (/Recordatorio/.test(h)) return 'basic';
+  if (/Resúmenes/.test(h)) return 'basic';
+  if (/Frase de seguridad/.test(h)) return 'advanced';
+  if (/Evaluación avanzada/.test(h)) return 'advanced';
+  if (/Conversación con IA/.test(h)) return 'advanced';
+  return null;
+}
+function applySettingsLevel(v) {
+  const view = v || $('#view');
+  if (!view) return;
+  const cards = [...view.querySelectorAll(':scope > .card')];
+  for (const card of cards) {
+    const lv = settingsCardLevel(card);
+    if (lv) card.dataset.level = lv;
+    card.hidden = !!(lv && lv !== 'always' && LEVEL_RANK[lv] > LEVEL_RANK[settingsLevel]);
+  }
+  const seg = $('#settingsLevel', view);
+  if (seg) [...seg.querySelectorAll('button')].forEach(b => {
+    b.classList.toggle('active', b.dataset.slevel === settingsLevel);
+    b.setAttribute('aria-pressed', String(b.dataset.slevel === settingsLevel));
+  });
+}
+const _settings213 = VIEWS.settings;
+VIEWS.settings = function (v) {
+  _settings213(v);
+  // (PR1: reordenar las tarjetas según la propuesta §2.3, moviendo los
+  // nodos — no se recrean, así los handlers ya ligados se conservan. La
+  // tarjeta de administrador se mantiene después de Cuenta.)
+  const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
+  const byId = id => document.getElementById(id);
+  const byH3 = re => [...v.querySelectorAll(':scope > .card')].find(c => re.test((c.querySelector('h3') || {}).textContent || ''));
+  const order = [
+    byId('acctCard'), byId('adminCard'), byH3(/Aprendizaje/), byH3(/Voz y audio/),
+    byH3(/Apariencia/), byH3(/Recordatorio/), byH3(/Resúmenes/), byId('tvCard'),
+    byH3(/Frase de seguridad/), byH3(/Evaluación avanzada/), byH3(/Conversación con IA/),
+    byId('maintCard'), byId('fbkCard'),
+  ];
+  for (const card of order) {
+    if (!card) continue;
+    if (foot) foot.insertAdjacentElement('beforebegin', card);
+    else v.appendChild(card);
+  }
+  // (PR1: filtro de visibilidad; se inserta tras el <h2>, encima de la
+  // primera tarjeta. Reutiliza el patrón .seg existente.)
+  const h2 = v.querySelector('h2');
+  if (h2 && !$('#settingsLevel', v)) {
+    h2.insertAdjacentHTML('afterend', `<div class="seg" id="settingsLevel" role="group" aria-label="Ver ajustes por nivel">
+      <button type="button" data-slevel="basic" aria-pressed="true">Básico</button>
+      <button type="button" data-slevel="personal" aria-pressed="false">Personalización</button>
+      <button type="button" data-slevel="advanced" aria-pressed="false">Avanzado</button>
+    </div>`);
+    $('#settingsLevel', v).querySelectorAll('button').forEach(b => {
+      b.onclick = () => { settingsLevel = b.dataset.slevel; applySettingsLevel(v); };
+    });
+  }
+  applySettingsLevel(v);
 };
 
 
