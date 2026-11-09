@@ -1,9 +1,15 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.42.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.44.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.44.0
+- **👑 Panel de administrador dentro de Cuenta (solo el dueño)**: el panel deja de ser una tarjeta separada y pasa a ser un desplegable «👑 Panel de administrador» dentro de la tarjeta 👤 Cuenta, cerrado por defecto y visible solo en el nivel Avanzado del filtro. Conserva todos sus controles (KPIs, usuarios, uso de claves, comentarios, «Ver datos»/«Actualizar») y sus verificaciones de permisos. Ajustes queda en 12 tarjetas también para el dueño (techo R10 ✔). Sin cambios en los datos, las cuotas ni el resto de Ajustes.
+
+## Novedades v2.43.0
+- **⚙️ Ajustes más ligeros con «Más opciones»**: las tarjetas Voz y audio y Aprendizaje muestran solo lo esencial y guardan el resto en un desplegable «Más opciones» (motor y voces de TTS, acento, voz de Azure/OpenAI y vibración; exigencia de pronunciación y modo libre). En Básico nacen cerrados y en Personalización y Avanzado nacen abiertos, según el filtro de nivel de la v2.42.0. Sin cambios en los controles, sus valores ni su funcionamiento.
 
 ## Novedades v2.42.0
 - **⚙️ Ajustes con filtro por nivel**: Ajustes ahora se ordena para principiantes — primero Cuenta, Aprendizaje, Voz y audio, Apariencia, Recordatorio y Resúmenes; después Voz de Tuki; y al final Frase de seguridad, Evaluación avanzada con Azure, Conversación con IA y Datos y mantenimiento, con Enviar comentarios siempre al pie. Encima de las tarjetas hay un selector «Ver: Básico · Personalización · Avanzado» (Básico por defecto) que solo muestra u oculta tarjetas, sin pestañas ni pantallas nuevas; los enlaces internos («Usar la IA gratis →», «Ir a la clave») cambian primero el filtro al nivel de la tarjeta destino. Sin cambios en los controles, las claves, las cuotas ni el progreso.

@@ -2784,8 +2784,8 @@ export function adminBody() {
       <div class="ad-txt">${esc(f.text || '')}</div><div class="small muted">${esc(f.name || f.email || f.uid || '')}${f.name && f.email ? ' · ' + esc(f.email) : ''} · ${esc(fmtDT(tsMs(f.createdAt)))} · v${esc(f.version || '?')}</div></div>`).join('') || '<p class="small muted">Aún no hay comentarios.</p>'}</div>
     <div class="small muted" style="margin-top:8px">Actualizado: ${esc(fmtDT(D.at))}</div>`;
 }
-export const adminHTML = () => isAdmin() ? `<div class="card" id="adminCard"><h3>👑 Panel de administrador</h3>
-  <button class="btn ${AD.data ? 'ghost' : 'primary'}" id="adLoad" ${AD.busy ? 'disabled' : ''}>${AD.busy ? '⏳ Cargando…' : AD.data ? '🔄 Actualizar' : '📊 Ver datos'}</button><div id="adBody">${adminBody()}</div></div>` : '';
+export const adminHTML = () => isAdmin() ? `<details id="adminCard"><summary>👑 Panel de administrador</summary>
+  <button class="btn ${AD.data ? 'ghost' : 'primary'}" id="adLoad" ${AD.busy ? 'disabled' : ''}>${AD.busy ? '⏳ Cargando…' : AD.data ? '🔄 Actualizar' : '📊 Ver datos'}</button><div id="adBody">${adminBody()}</div></details>` : '';
 export function bindAdmin(root) {
   const b = $('#adLoad', root || document); if (!b) return;
   b.onclick = async () => {
@@ -2798,15 +2798,20 @@ export function adminRefresh() {
   const a = $('#adminCard'), h = adminHTML();
   if (!h) { if (a) a.remove(); AD.data = null; return; }
   // (PR1: el reemplazo por outerHTML pierde hidden/data-level; conservar
-  // el estado del filtro de nivel.)
+  // el estado del filtro de nivel. PR3: el reemplazo también pierde el
+  // estado abierto/cerrado del <details>; conservarlo para que pulsar
+  // "Ver datos" no pliegue el panel mientras carga.)
   const wasHidden = !!a?.hidden;
-  if (a) a.outerHTML = h; else { const ac = $('#acctCard'); if (!ac) return; ac.insertAdjacentHTML('afterend', h); }
+  const wasOpen = !!a?.open;
+  // (PR3: el admin vive dentro de #acctCard, no como tarjeta separada.)
+  if (a) a.outerHTML = h; else { const ac = $('#acctCard'); if (!ac) return; ac.insertAdjacentHTML('beforeend', h); }
   bindAdmin(document);
   const na = $('#adminCard');
   if (na) {
     const active = $('#settingsLevel button.active');
     na.hidden = active ? active.dataset.slevel !== 'advanced' : wasHidden;
     na.dataset.level = 'advanced';
+    na.open = wasOpen;
   }
 }
 export const fbkCardHTML = () => `<div class="card" id="fbkCard"><button class="btn ghost block" id="fbkOpen">💬 Enviar comentarios</button></div>`;
