@@ -1226,7 +1226,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.42.0';
+export const APP_VERSION = '2.43.0';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1479,14 +1479,17 @@ VIEWS.settings = v => {
   const azStatus = azureReady() ? ' (activo)' : (fbSignedIn() ? ' (falta clave)' : ' (inicia sesión)');
   v.innerHTML = `<h2>Ajustes ⚙️</h2>
   <div class="card"><h3>🔊 Voz y audio</h3>
-    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['auto', 'Automática' + (azureReady() ? ' (Azure neural)' : ' (Dispositivo)')], ['azure', 'Azure neural' + azStatus], ['device', 'Dispositivo (sin internet)'], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine || 'auto')}</select></div>
-    <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent" style="max-width:200px">${opt([['en-US', 'Estadounidense (en-US)'], ['en-GB', 'Británico (en-GB)']], s.accent)}</select></div>
-    <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice" style="max-width:200px"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
-    <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice" style="max-width:200px">${opt(AZ_VOICES, s.azureVoice)}</select></div>
-    <div class="set-row"><div><label for="openaiVoice">Voz OpenAI</label><div class="desc">También se usa en la voz en vivo de OpenAI</div></div><select class="field" id="openaiVoice" style="max-width:200px">${opt(OA_VOICES, s.openaiVoice)}</select></div>
     <div class="set-row"><div><label for="rate">Velocidad</label><div class="desc" id="rateV">${(+s.rate).toFixed(2)}×</div></div><div class="row"><input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="${s.rate}"><button class="spk" id="tRate" aria-label="Probar voz">🔊</button></div></div>
-    ${sw('autoplay', s.autoplay, 'Reproducir audio automáticamente')}${sw('sound', s.sound, 'Sonidos de efectos')}${sw('haptics', s.haptics, 'Vibración (móvil)', 'Vibra al acertar o fallar')}
+    ${sw('autoplay', s.autoplay, 'Reproducir audio automáticamente')}${sw('sound', s.sound, 'Sonidos de efectos')}
     ${sw('recordVoice', s.recordVoice, 'Grabar mi voz en ejercicios', 'Para escucharte y ver tu onda. En algunos Android puede interferir con el reconocimiento de Chrome.')}
+    <details id="voiceMore"><summary>Más opciones de voz</summary>
+      <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['auto', 'Automática' + (azureReady() ? ' (Azure neural)' : ' (Dispositivo)')], ['azure', 'Azure neural' + azStatus], ['device', 'Dispositivo (sin internet)'], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine || 'auto')}</select></div>
+      <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent" style="max-width:200px">${opt([['en-US', 'Estadounidense (en-US)'], ['en-GB', 'Británico (en-GB)']], s.accent)}</select></div>
+      <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice" style="max-width:200px"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+      <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice" style="max-width:200px">${opt(AZ_VOICES, s.azureVoice)}</select></div>
+      <div class="set-row"><div><label for="openaiVoice">Voz OpenAI</label><div class="desc">También se usa en la voz en vivo de OpenAI</div></div><select class="field" id="openaiVoice" style="max-width:200px">${opt(OA_VOICES, s.openaiVoice)}</select></div>
+      ${sw('haptics', s.haptics, 'Vibración (móvil)', 'Vibra al acertar o fallar')}
+    </details>
   </div>
   <div class="card"><h3>🔬 Evaluación avanzada con Azure <span class="pill">${azShared() ? 'Activo con tu cuenta' : (azOwn() ? 'Con tu clave' : 'Opcional')}</span></h3>
     <p class="small muted">Puntaje <b>fonema por fonema</b> con Azure AI Speech.</p>
@@ -1528,10 +1531,12 @@ VIEWS.settings = v => {
   <div class="card"><h3>🎯 Aprendizaje</h3>
     <div class="set-row"><div><label for="learnerLevel">Nivel de aprendizaje</label><div class="desc">Ajusta guía fonética, frases y velocidad</div></div><select class="field" id="learnerLevel" style="max-width:200px">${opt([['novice', '🌱 Novato (Desde cero)'], ['intermediate', '⚡ Intermedio'], ['advanced', '🚀 Avanzado']], s.learnerLevel || 'novice')}</select></div>
     <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal" style="max-width:200px">${opt([[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']], s.goal)}</select></div>
-    <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:200px">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
-    ${sw('freeMode', s.freeMode, 'Modo libre (desbloquear todo)', 'Desactiva el orden secuencial tipo Duolingo y desbloquea todas las lecciones y prácticas')}
     <div class="set-row"><div><label>Prueba de nivel</label><div class="desc">${S.placement && typeof S.placement === 'object' ? 'Última: ' + S.placement.date + ' · ' + S.placement.score : 'Aún no la has hecho'}</div></div><button class="btn ghost sm" id="replace">Hacer ahora</button></div>
     <div class="set-row"><div><label>Reconocimiento de voz</label><div class="desc">${azureReady() ? 'Azure (fonemas) ✅' : HAS_SR ? 'Navegador (por palabras) ✅' : 'No disponible ❌ — usa Chrome/Edge o configura Azure'}</div></div><button class="btn ghost sm" id="testMic" ${canSpeak() ? '' : 'disabled'}>Probar 🎤</button></div>
+    <details id="learnMore"><summary>Más opciones de aprendizaje</summary>
+      <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:200px">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
+      ${sw('freeMode', s.freeMode, 'Modo libre (desbloquear todo)', 'Desactiva el orden secuencial tipo Duolingo y desbloquea todas las lecciones y prácticas')}
+    </details>
   </div>
   <div class="card"><h3>⏰ Recordatorio diario</h3>
     ${sw('remindOn', s.remindOn, 'Notificación local y push', 'Aviso diario interactivo para no perder tu racha')}
@@ -2463,6 +2468,10 @@ function applySettingsLevel(v) {
     b.classList.toggle('active', b.dataset.slevel === settingsLevel);
     b.setAttribute('aria-pressed', String(b.dataset.slevel === settingsLevel));
   });
+  // (PR2: los <details> "Más opciones" nacen cerrados en Básico y abiertos
+  // en Personalización y Avanzado; el filtro los abre/cierra con el nivel.)
+  const openMore = LEVEL_RANK[settingsLevel] >= 1;
+  for (const d of view.querySelectorAll('#voiceMore, #learnMore')) d.open = openMore;
 }
 const _settings213 = VIEWS.settings;
 VIEWS.settings = function (v) {

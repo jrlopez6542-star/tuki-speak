@@ -660,6 +660,8 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .seg button.active{background:var(--b-d);color:#fff}
 /* v2.42.0 Filtro de Ajustes por nivel: 3 etiquetas caben en 360 px */
 #settingsLevel button{font-size:14px;padding:10px 4px;min-width:0}
+/* v2.43.0 Divulgación progresiva en Ajustes: filas plegables "Más opciones" */
+#voiceMore summary, #learnMore summary{cursor:pointer;padding:12px 0;font-weight:700}
 #acctCard .field,#keysCard .field{margin-bottom:8px;font-size:16px;min-height:46px}
 .linkbtn{background:none;border:0;color:var(--b-d);font-weight:800;padding:8px 2px;text-decoration:underline;font-size:14px}
 .ac-user{display:flex;align-items:center;gap:12px;margin:6px 0 10px}
