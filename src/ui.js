@@ -4,7 +4,7 @@
 // no se puede reasignar. ui.js importa esos nombres desde './main.js' y solo los usa dentro de funciones.
 import { $, $$, avg, colorOf, dayKey, decodeDeep, decodeEnt, esc, hashStr, lev, normText, pick, scoreSpeech, shuffle, sleep } from './utils.js';
 import { DAY, MAX_HEARTS, S, addToDeck, isDone, recordSpeech, refreshHearts, soundAvg, todayRec } from './state.js';
-import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
+import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, isMicPermErr, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
 import { L, RENDER, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
 import { AZT, CHAT, LEVELS, LEVEL_KEYS, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tukiApi, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
@@ -248,7 +248,7 @@ export function addCoins(n, reason = '') {
    reducido pone el total de inmediato. El valor final ya está escrito en
    el HTML, así que si el elemento se desmonta a mitad de animación el
    número mostrado sigue siendo el correcto. */
-export function countUp(el, dur = 750) {
+export function countUp(el, dur = 900) {
   if (!el) return;
   const to = Number(el.dataset.countup);
   if (!Number.isFinite(to)) return;
@@ -344,7 +344,7 @@ export function modal(html, onMount) {
   onMount && onMount(ov.firstElementChild, close); return close;
 }
 export function confirmBox(title, text, okLabel, onOk, danger) {
-  modal(`<h2>${esc(title)}</h2><p class="muted">${esc(text)}</p><div class="row" style="margin-top:16px"><button class="btn ghost block" data-x>Cancelar</button><button class="btn ${danger ? 'red' : 'primary'} block" data-ok>${esc(okLabel)}</button></div>`,
+  modal(`<h2>${esc(title)}</h2><p class="muted">${esc(text)}</p><div class="row" style="margin-top:var(--sp-4)"><button class="btn ghost block" data-x>Cancelar</button><button class="btn ${danger ? 'red' : 'primary'} block" data-ok>${esc(okLabel)}</button></div>`,
     (el, close) => { $('[data-x]', el).onclick = close; $('[data-ok]', el).onclick = () => { close(); onOk(); }; });
 }
 /* ---- Guía fonética figurada en español para principiantes ---- */
@@ -636,24 +636,24 @@ export function openTukiCompanionModal(phrase) {
     notifBlock = `<div class="notice small" style="margin:10px 0">ℹ️ Tu navegador no soporta notificaciones locales.</div>`;
   } else if (notifState === 'default') {
     notifBlock = `
-      <div style="background:var(--card-hover, #f0fdf4);border:2px dashed #86efac;border-radius:16px;padding:14px;margin:12px 0;text-align:center">
+      <div style="background:var(--card-hover, #f0fdf4);border:2px dashed #86efac;border-radius:16px;padding:14px;margin:var(--sp-3) 0;text-align:center">
         <div style="font-weight:900;font-size:14px;color:var(--g-d);margin-bottom:4px">🔔 ¿Cuidamos tu racha diaria?</div>
         <div class="small muted" style="margin-bottom:10px">Permítele a Tuki enviarte un recordatorio a las <b>${S.settings.remindTime || '19:00'}</b> para que nunca pierdas tu progreso.</div>
         <button class="btn primary sm block" id="btnCompanionNotif">🔔 Activar recordatorios de racha</button>
       </div>`;
   } else if (notifState === 'denied') {
     notifBlock = `
-      <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:14px;padding:10px 12px;margin:12px 0;font-size:12px;color:#991b1b;text-align:left">
+      <div style="background:#fef2f2;border:1.5px solid #fecaca;border-radius:14px;padding:10px 12px;margin:var(--sp-3) 0;font-size:var(--fs-tiny);color:#991b1b;text-align:left">
         ⚠️ <b>Notificaciones bloqueadas:</b> Para que Tuki pueda avisarte, toca el icono del candado 🔒 en la barra superior de tu navegador y activa "Notificaciones".
       </div>`;
   } else {
     notifBlock = `
-      <div style="background:var(--card-hover, #f0fdf4);border:1.5px solid #86efac;border-radius:14px;padding:10px 12px;margin:12px 0;display:flex;align-items:center;justify-content:space-between">
+      <div style="background:var(--card-hover, #f0fdf4);border:1.5px solid #86efac;border-radius:14px;padding:10px 12px;margin:var(--sp-3) 0;display:flex;align-items:center;justify-content:space-between">
         <div style="text-align:left">
-          <div style="font-weight:800;font-size:13px;color:var(--g-d)">✅ Recordatorios diarios activos</div>
+          <div style="font-weight:800;font-size:var(--fs-small);color:var(--g-d)">✅ Recordatorios diarios activos</div>
           <div class="small muted">Te avisaré cada día a las <b>${S.settings.remindTime || '19:00'}</b></div>
         </div>
-        <button class="btn ghost sm" id="btnTestCompanionNotif" style="padding:6px 10px;font-size:12px">Probar 🔔</button>
+        <button class="btn ghost sm" id="btnTestCompanionNotif" style="padding:6px 10px;font-size:var(--fs-tiny)">Probar 🔔</button>
       </div>`;
   }
 
@@ -663,7 +663,7 @@ export function openTukiCompanionModal(phrase) {
         ${MASCOT}
       </div>
       <h2 style="margin:0 0 4px">¡Hola, soy Tuki! 🦜✨</h2>
-      <div class="tuki-speech" style="margin:8px auto 14px;max-width:320px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13px;font-weight:700">
+      <div class="tuki-speech" style="margin:8px auto 14px;max-width:320px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 14px;font-size:var(--fs-small);font-weight:700">
         «${esc(phrase)}»
       </div>
       <div class="row" style="justify-content:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
@@ -676,7 +676,7 @@ export function openTukiCompanionModal(phrase) {
     ${notifBlock}
 
     <div class="row wrap" style="gap:8px;margin-top:14px">
-      <button class="btn blue block" id="btnCompanionShop">🛍️ Vestir a Tuki (Armario)</button>
+      <button class="btn ghost block" id="btnCompanionShop">🛍️ Vestir a Tuki (Armario)</button>
       <button class="btn ghost block" data-x>¡Entendido!</button>
     </div>
   `;
@@ -815,8 +815,8 @@ export function lessonSheet(l) {
     modal(`<div style="text-align:center"><div style="font-size:54px">🔒</div>
       <h2>Lección bloqueada</h2>
       <p class="muted">Sigue el orden de la ruta (estilo Duolingo) para avanzar paso a paso y dominar tu pronunciación.</p>
-      ${cur ? `<div class="tipbox" style="margin:12px 0;text-align:left"><b>Lección actual:</b> ${cur.icon} ${esc(cur.title)} <span class="small muted">(${esc(cur.unit.title)})</span></div>` : ''}
-      <div class="row" style="margin-top:16px">
+      ${cur ? `<div class="tipbox" style="margin:var(--sp-3) 0;text-align:left"><b>Lección actual:</b> ${cur.icon} ${esc(cur.title)} <span class="small muted">(${esc(cur.unit.title)})</span></div>` : ''}
+      <div class="row" style="margin-top:var(--sp-4)">
         <button class="btn ghost block" data-x>Cerrar</button>
         ${cur ? `<button class="btn primary block" data-cur>Ir a la lección actual 🚀</button>` : ''}
       </div></div>`,
@@ -829,9 +829,10 @@ export function lessonSheet(l) {
   }
   modal(`<div class="row"><div style="font-size:40px">${l.icon}</div><div><div class="muted small">${esc(l.unit.title)} · Lección ${l.li + 1}</div><h2 style="margin:0">${esc(l.title)}</h2>${!l.type ? `<div class="ipa">/${esc(l.sound)}/</div>` : ''}</div></div>
     <div class="tipbox small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</div>${mouthPanelHTML(l.id, true)}
-    ${d && d.placed && !d.times ? '<p class="small muted">✅ Aprobada en la prueba de nivel</p>' : d ? `<p class="small muted">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : ''}
+    ${tukiTutorBannerHTML({ title: 'Profe Tuki 🦜', msg: l.id === 'sh-ch' ? 'Hoy entrenamos el oído y la boca: /ʃ/ suave contra /tʃ/. ¡Tú puedes!' : `Hoy entrenamos el oído y la boca${l.sound ? ': /' + l.sound + '/' : ''}. ¡Tú puedes!` })}
+    ${d && d.placed && !d.times ? '<p class="small muted">✅ Aprobada en la prueba de nivel</p>' : d ? `<p class="small muted">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : `<p class="small muted">Completada 0 veces${cur && cur.id === l.id ? ` · Es tu lección actual (${LESSONS.indexOf(l) + 1}/${LESSONS.length})` : ''}</p>`}
     <button class="btn primary block" data-go>${d ? 'Repetir lección' : 'Empezar lección'} (+10 XP)</button>${d ? '<button class="btn ghost block" style="margin-top:10px" data-drill>🎯 Práctica de este sonido</button>' : ''}`,
-    (el, close) => { const g = $('[data-go]', el); if (g) g.onclick = () => { close(); startLesson(l); }; const dr = $('[data-drill]', el); if (dr) dr.onclick = () => { close(); startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); }; });
+    (el, close) => { bindTukiTutorBanner(el); const g = $('[data-go]', el); if (g) g.onclick = () => { close(); startLesson(l); }; const dr = $('[data-drill]', el); if (dr) dr.onclick = () => { close(); startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); }; });
 }
 export function guideSheet(u) {
   modal(`<h2>📘 ${esc(u.title)}</h2>${u.lessons.map(l => `<div class="tipbox"><b>${l.icon} ${esc(l.title)}</b> ${!l.type ? `<span class="ipa">/${esc(l.sound)}/</span>` : ''}<p class="small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>${l.mouth ? `<p class="small"><b>👄</b> ${esc(l.mouth)}</p>` : ''}</div>`).join('')}<button class="btn primary block" data-x>Cerrar</button>`, (el, c) => $('[data-x]', el).onclick = c);
@@ -874,11 +875,11 @@ export function showLockedFeatureModal(id) {
   modal(`<div style="text-align:center"><div style="font-size:54px">🔒</div>
     <h2>Práctica bloqueada</h2>
     <p class="muted">Para desbloquear <b>${esc(rule.title)}</b>, avanza en el <b>Modo Aprender</b> como en Duolingo.</p>
-    <div class="tipbox" style="margin:12px 0;text-align:left">
+    <div class="tipbox" style="margin:var(--sp-3) 0;text-align:left">
       <div><b>Requisito:</b> Completar ${rule.reqLessons} lecciones (te faltan <b>${needed}</b>).</div>
-      <div class="small muted" style="margin-top:4px">Se desbloquea al avanzar por la <b>${rule.unit}</b>.</div>
+      <div class="small muted" style="margin-top:var(--sp-1)">Se desbloquea al avanzar por la <b>${rule.unit}</b>.</div>
     </div>
-    <div class="row" style="margin-top:16px">
+    <div class="row" style="margin-top:var(--sp-4)">
       <button class="btn ghost block" data-x>Entendido</button>
       <button class="btn primary block" data-go-learn>Ir a Aprender 🚀</button>
     </div></div>`,
@@ -978,7 +979,7 @@ export async function httpErr(res) { let d = {}; try { d = await res.clone().jso
 export let STUDIO_TEXT = null; export const STUDIO_PRESET = () => { const t = STUDIO_TEXT; STUDIO_TEXT = null; return t; };
 
 export let LAST_REC = null;
-export async function azureMic(btn, onResult, target) {
+export async function azureMic(btn, onResult, target, hooks) {
   btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando (Azure)… toca para terminar';
   const micMeter = createMicMeter(btn);
   try {
@@ -994,6 +995,15 @@ export async function azureMic(btn, onResult, target) {
     onResult(az.alts, url, az);
   } catch (e) {
     micMeter.destroy();
+    /* ---- M03 PR 6.2: un rechazo de permiso no queda en toast
+       silencioso ni cae a WebSR (volvería a pedir permiso): deriva a
+       la misma rama degradada de la lección. Sin hooks (otros usos),
+       el error se propaga para que doMic lo gestione. ---- */
+    if (isMicPermErr(e)) {
+      btn.classList.remove('rec'); btn.innerHTML = '🎤 Toca para hablar de nuevo';
+      if (hooks && hooks.onNoPerm) { hooks.onNoPerm(); return; }
+      throw e;
+    }
     const isLimit = e.status === 429 || (e.detail && /limit|cuota/i.test(e.detail)) || (e.message && /429/i.test(e.message));
     const auth = e.status === 401 || e.status === 403 || isLimit || e instanceof TypeError || !!(e.shared && e.fatal);
     if (auth && HAS_SR) window.__azOff = true;
@@ -1004,7 +1014,7 @@ export async function azureMic(btn, onResult, target) {
     }
     if (auth && HAS_SR) {
       btn.classList.remove('rec');
-      return doMic(btn, onResult, target);
+      return doMic(btn, onResult, target, hooks);
     }
   } finally {
     micMeter.destroy();
@@ -1030,7 +1040,7 @@ export function bindExtra(root, r, target, url, ex) {
 /* VISUALIZACIÓN: ONDA Y TONO -> ver src/audio.js (decodeAudio/drawViz quedan aqui) */
 
 export async function drawViz(box, target, url) {
-  box.innerHTML = `<div class="small muted" style="margin-top:8px">🔵 Modelo nativo</div><canvas id="cvM"></canvas><div class="small muted" style="margin-top:6px">🟠 Tu voz</div><canvas id="cvU"></canvas><div class="small" id="intoMsg" style="margin-top:6px"></div>`;
+  box.innerHTML = `<div class="small muted" style="margin-top:var(--sp-2)">🔵 Modelo nativo</div><canvas id="cvM"></canvas><div class="small muted" style="margin-top:6px">🟠 Tu voz</div><canvas id="cvU"></canvas><div class="small" id="intoMsg" style="margin-top:6px"></div>`;
   const msg = []; let dirU = null;
   try {
     if (cloudTTSReady()) { const d = await decodeAudio(await cloudTTSBlob(target, false)); drawTrack($('#cvM', box), d, pitchTrack(d), '#1591cc'); }
@@ -1088,7 +1098,7 @@ export const MOUTHS = {
   'novice-courtesy': [{ t: 'dental', lips: 'neutral', o: .2, v: 0, air: 1, cap: 'Thank: lengua entre los dientes' }, { t: 'high-front', lips: 'spread', o: .1, v: 1, cap: 'Please: alarga "plíiiz"' }],
   'novice-survival': [{ t: 'mid-central', lips: 'neutral', o: .3, v: 1, cap: 'Habla despacio con calma y ritmo relajado' }]
 };
-export function mouthPanelHTML(id, compact) { const m = MOUTHS[id]; if (!m) return ''; return `<div class="mouths" ${compact ? 'style="margin-top:4px"' : ''}>${m.map(c => `<div class="mouth">${mouthSVG(c)}</div>`).join('')}</div>`; }
+export function mouthPanelHTML(id, compact) { const m = MOUTHS[id]; if (!m) return ''; return `<div class="mouths" ${compact ? 'style="margin-top:var(--sp-1)"' : ''}>${m.map(c => `<div class="mouth">${mouthSVG(c)}</div>`).join('')}</div>`; }
 
 /* =================== LECCIONES DE VOCABULARIO =================== */
 export function buildVocabLesson(l, mode = 'lesson') {
@@ -1196,12 +1206,12 @@ export async function placementFreeFinish(cap) {
   return { transcript, az, ai, aiErr };
 }
 export function placementFreeHTML() {
-  return `<div class="card" style="max-width:420px;width:100%;text-align:left;margin-top:12px"><h3 style="margin:0 0 4px">🎙️ Habla libre (opcional, 1 minuto)</h3>
+  return `<div class="card" style="max-width:420px;width:100%;text-align:left;margin-top:var(--sp-3)"><h3 style="margin:0 0 4px">🎙️ Habla libre (opcional, 1 minuto)</h3>
     <p class="small" style="margin:0 0 6px">¿Quieres afinar tu nivel? Habla 1 minuto sobre ti y Tuki te dirá tu nivel con más detalle y tus 3 primeros focos.</p>
     <p class="small muted" style="margin:0 0 6px"><b>Tema:</b> ${esc(PLACEMENT_FREE_TOPIC)}</p>
     <label class="small" style="display:flex;gap:6px;align-items:flex-start;margin:6px 0"><input type="checkbox" id="plFreeConsent" style="margin-top:2px"><span>Acepto que mi voz se envíe a Azure para evaluar mi pronunciación y a Gemini para el resumen. El audio no se guarda.</span></label>
-    <div class="row" style="margin-top:8px"><button class="btn primary sm" id="plFreeRec" type="button">🎙️ Grabar 1 minuto</button><button class="btn ghost sm" id="plFreeSkip" type="button">No, gracias</button></div>
-    <div class="small" id="plFreeStatus" style="margin-top:8px" aria-live="polite"></div></div>`;
+    <div class="row" style="margin-top:var(--sp-2)"><button class="btn primary sm" id="plFreeRec" type="button">🎙️ Grabar 1 minuto</button><button class="btn ghost sm" id="plFreeSkip" type="button">No, gracias</button></div>
+    <div class="small" id="plFreeStatus" style="margin-top:var(--sp-2)" aria-live="polite"></div></div>`;
 }
 export function placementFreeResultHTML(res) {
   const ai = res.ai, weak = placementFreeWeak(res.az);
@@ -1210,13 +1220,13 @@ export function placementFreeResultHTML(res) {
   const az = res.az ? `<p class="small" style="margin:0 0 4px"><b>Pronunciación (Azure): ${res.az.pct}/100</b>${weak.length ? ` · fonemas a practicar: ${weak.map(w => `/${esc(w.p)}/ ${w.s}`).join(', ')}` : ''}.</p>` : '';
   const note = `<p class="small muted" style="margin:0">La pronunciación se midió contra tu propia transcripción: detecta fonemas débiles, no es una nota absoluta.</p>`;
   const aiNote = ai ? `<p class="small muted" style="margin:4px 0 0">La IA puede equivocarse.</p>` : `<p class="small" style="margin:4px 0 0">⚠️ ${esc(res.aiErr || 'No se pudo hacer el resumen con IA.')}</p><button class="btn ghost sm" id="plFreeRetry" type="button" style="margin-top:6px">🔄 Reintentar el resumen con IA</button>`;
-  const apply = ai && ai.level !== chatLevel() ? `<div class="row" style="margin-top:8px"><button class="btn primary sm" id="plFreeApply" type="button">✅ Usar este nivel en el chat</button><button class="btn ghost sm" id="plFreeKeep" type="button">Mantener mi nivel</button></div>` : '';
+  const apply = ai && ai.level !== chatLevel() ? `<div class="row" style="margin-top:var(--sp-2)"><button class="btn primary sm" id="plFreeApply" type="button">✅ Usar este nivel en el chat</button><button class="btn ghost sm" id="plFreeKeep" type="button">Mantener mi nivel</button></div>` : '';
   return `<h3 style="margin:0 0 6px">🎙️ Tu habla libre</h3>${lvl}${az}${note}${aiNote}${apply}`;
 }
 export function bindPlacementFreeResult(root, res) {
   if (!root || !res) return;
   const apply = $('#plFreeApply', root), keep = $('#plFreeKeep', root), retry = $('#plFreeRetry', root);
-  if (apply) apply.onclick = () => { S.settings.chatLevel = res.ai.level; save(); root.innerHTML = placementFreeResultHTML(res) + `<p class="small" style="margin-top:8px"><b>✅ Nivel del chat: ${esc(LEVELS[res.ai.level].label)}.</b></p>`; bindPlacementFreeResult(root, res); toast(`🎚️ Nivel del chat: ${LEVELS[res.ai.level].label}`); };
+  if (apply) apply.onclick = () => { S.settings.chatLevel = res.ai.level; save(); root.innerHTML = placementFreeResultHTML(res) + `<p class="small" style="margin-top:var(--sp-2)"><b>✅ Nivel del chat: ${esc(LEVELS[res.ai.level].label)}.</b></p>`; bindPlacementFreeResult(root, res); toast(`🎚️ Nivel del chat: ${LEVELS[res.ai.level].label}`); };
   if (keep) keep.onclick = () => { const box = root.querySelector('#plFreeApply'); if (box) box.parentElement.remove(); toast('De acuerdo, sigues en tu nivel actual.'); };
   if (retry) retry.onclick = async () => {
     retry.disabled = true; retry.textContent = '⏳ Tuki está pensando…';
@@ -1304,7 +1314,7 @@ export function renderDict(v) {
   const res = DICT.filter(d => !q || (d.en + ' ' + d.es + ' ' + d.src).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(q));
   v.innerHTML = `${wordsToggleHTML()}<h2>Diccionario y frases 📖</h2><p class="muted small">${DICT.length} palabras y frases del curso con audio. Busca en inglés o en español.</p>
     <input class="search" id="dq" placeholder="Buscar (ej. «think», «cuenta», «meeting»)…" value="${esc(dictQ)}">
-    <div class="small muted" style="margin:8px 0">${res.length} resultado${res.length === 1 ? '' : 's'}${res.length > 80 ? ' (mostrando 80)' : ''}</div>
+    <div class="small muted" style="margin:var(--sp-2) 0">${res.length} resultado${res.length === 1 ? '' : 's'}${res.length > 80 ? ' (mostrando 80)' : ''}</div>
     <div class="wlist">${res.slice(0, 80).map((d, i) => `<div class="witem dict-item"><button class="spk" data-say-n="${esc(d.en)}">🔊</button><div style="min-width:0"><div class="en">${esc(d.en)}</div><div class="es">${esc(d.es)} · <span class="small">${esc(d.src)}</span></div></div><div class="acts"><button class="spk slow" data-say="${esc(d.en)}" title="Lento">🐢</button><button class="spk snail" data-snail="${esc(d.en)}" title="Modo Caracol (Sílaba por sílaba)">🐌</button><button class="spk slow" data-add="${i}" title="Agregar a tarjetas">${S.deck[d.key] ? '✓' : '➕'}</button><button class="spk slow" data-studio="${esc(d.en)}" title="Practicar pronunciación">🎙️</button></div></div>`).join('') || '<div class="empty">Sin resultados.</div>'}</div>`;
   bindWordsToggle(v);
   const dq = $('#dq'); dq.oninput = e => { dictQ = e.target.value; const p = e.target.selectionStart; renderDict(v); const n = $('#dq'); n.focus(); n.setSelectionRange(p, p); };
@@ -1349,7 +1359,7 @@ export async function openWordPop(word, context, anchor) {
       ${info && info.ipa ? `<div class="wp-ipa">${esc(info.ipa)}</div>` : ''}
       <div class="wp-es">${info ? (info.err ? '⚠️ ' + esc(info.err) : '🇪🇸 ' + esc(info.es)) : '🇪🇸 Buscando significado…'}</div>
       ${info && info.src === 'dict' ? '<div class="small muted">Del diccionario del curso</div>' : info && !info.err ? '<div class="small muted">Traducción de la IA (en contexto)</div>' : ''}
-      <div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap"><button class="mini" data-p="n">🔊</button><button class="mini" data-p="s">🐢</button><button class="mini" data-p="snail" title="Modo Caracol (Sílaba por sílaba)">🐌</button><button class="btn primary sm" data-add ${!info || info.err || inDeck ? 'disabled' : ''}>${inDeck ? '✓ En tus tarjetas' : '➕ Agregar a mis tarjetas'}</button></div>`;
+      <div class="row" style="gap:6px;margin-top:var(--sp-2);flex-wrap:wrap"><button class="mini" data-p="n">🔊</button><button class="mini" data-p="s">🐢</button><button class="mini" data-p="snail" title="Modo Caracol (Sílaba por sílaba)">🐌</button><button class="btn primary sm" data-add ${!info || info.err || inDeck ? 'disabled' : ''}>${inDeck ? '✓ En tus tarjetas' : '➕ Agregar a mis tarjetas'}</button></div>`;
     $('[data-x]', pop).onclick = closeWordPop;
     $('[data-p="n"]', pop).onclick = () => speak(word, false, null, undefined, chatMul());
     $('[data-p="s"]', pop).onclick = () => speak(word, true);
@@ -1834,7 +1844,7 @@ export function tcFinish() {
     </div>
     ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}
     <p>Meta diaria: <b>${Math.min(today, goal)}/${goal} XP</b> ${today >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}${t.rev || L.mistakes ? '<p class="muted small">🃏 Las frases que fallaste quedaron en tus tarjetas de repaso.</p>' : ''}
-    <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button><button class="btn blue" id="tcAgain" style="min-width:220px">🔁 Otra ronda</button></div>`;
+    <button class="btn primary" id="primaryBtn" style="min-width:220px;margin-top:10px">Continuar</button><button class="btn ghost" id="tcAgain" style="min-width:220px">🔁 Otra ronda</button></div>`;
   $('#primaryBtn').onclick = closeLesson; $('#tcAgain').onclick = () => { closeLesson(); startTC({ lv }); };
   countUpAll($('#fullInner'));
   const tfm = $('#tcFinishMascot');
@@ -1851,7 +1861,7 @@ export function tcSetup() {
     <div class="small muted" style="font-weight:800">Nivel</div><div class="chips tc-lvchips" id="tcLv">${Object.keys(TC_LV).map(k => `<button class="chip ${k === lv0 ? 'active' : ''}" data-lv="${k}">${esc(TC_LV[k])} <span class="small">${tcMasteredCount(k)}/${tcAll().filter(x => x.lv === k).length}</span></button>`).join('')}</div>
     <div class="small muted">Números = frases dominadas / total. Las dominadas salen menos.</div>
     <div class="row" style="margin-top:14px;gap:8px;flex-wrap:wrap"><button class="btn primary block" id="tcGo">Empezar (${TC_SESSION} frases)</button><button class="btn ghost block" id="tcAI">✨ Más frases con IA</button></div>
-    ${currentProvider() ? '' : '<div class="small muted" style="margin-top:8px">Para frases nuevas con IA y explicaciones de cualquier respuesta, agrega una clave gratuita de Gemini en Ajustes.</div>'}`,
+    ${currentProvider() ? '' : '<div class="small muted" style="margin-top:var(--sp-2)">Para frases nuevas con IA y explicaciones de cualquier respuesta, agrega una clave gratuita de Gemini en Ajustes.</div>'}`,
     (el, close) => {
       $$('[data-lv]', el).forEach(b => b.onclick = () => { S.settings.tcLevel = b.dataset.lv; save(); $$('[data-lv]', el).forEach(x => x.classList.toggle('active', x === b)); });
       $('#tcGo', el).onclick = () => { close(); startTC({ lv: tcLevel() }); };
@@ -1860,7 +1870,7 @@ export function tcSetup() {
 }
 export function tcEntryHTML(id) {
   const lv = tcLevel(), tot = tcAll().length, m = tcMasteredCount();
-  return `<button class="card tc-entry" id="${id}"><div class="row between" style="align-items:flex-start"><div><h3 style="margin:0">✍️ Traduce y completa</h3><div class="small muted">Frases reales, falsos amigos y phrasal verbs · ${esc(TC_LV[lv])}</div></div><span class="pill">${m}/${tot} dominadas</span></div>
+  return `<button class="card tc-entry action" id="${id}"><div class="row between" style="align-items:flex-start"><div><h3 style="margin:0">✍️ Traduce y completa</h3><div class="small muted">Frases reales, falsos amigos y phrasal verbs · ${esc(TC_LV[lv])}</div></div><span class="pill">${m}/${tot} dominadas</span></div>
     <div class="tc-prev"><div>¿Qué, estás <span class="tc-hl">loco</span>?</div><div>What, are you <span class="tc-fake"></span>?</div></div>
     <div class="small" style="margin-top:6px;font-weight:800;color:var(--b-d)">Empezar →</div></button>`;
 }
@@ -2433,7 +2443,7 @@ export function pdCardHTML() {
   const done = S.pd.days[dayKey()] && S.pd.days[dayKey()].done, st = pdStreak();
   return `<div class="card pd-home ${done ? 'done' : ''}" id="pdCard"><div class="row between" style="align-items:flex-start"><div><h3 style="margin:0">${done ? '✅' : '🌅'} Práctica diaria · 3–5 min</h3><div class="small muted">${done ? '¡Hecha hoy! Vuelve mañana.' : 'Escucha y habla con 3 ejercicios cortos.'}</div></div><div class="pd-streak" title="Días seguidos">🔥 ${st}</div></div>
     <div class="pd-chips"><span>👂 Escuchar</span><span>🗣️ Hablar</span><span>🔀 Mixto</span></div>
-    <button class="btn ${done ? 'ghost' : 'primary'} block pd-go" id="pdGo">${done ? '🔁 Repetir' : '▶️ Empezar'}</button></div>`;
+    <button class="btn ghost block pd-go" id="pdGo">${done ? '🔁 Repetir' : '▶️ Empezar'}</button></div>`;
 }
 
 export const safeReviver = (k, v) => (k === '__proto__' || k === 'constructor' || k === 'prototype') ? undefined : v;
@@ -2619,7 +2629,7 @@ export function tvCardHTML() {
     <div class="seg tvseg" role="tablist" aria-label="Idioma de la voz"><button data-tvl="es" role="tab">Español (explicaciones)</button><button data-tvl="en" role="tab">Inglés (frases)</button></div>
     <div id="tvBody"></div>
     <div id="tvMsg" class="small" role="status" aria-live="polite" style="margin-top:6px"></div>
-    <p class="small muted" id="tvHelp" style="margin-top:8px">💡 Todo es gratis: las voces del teléfono no usan internet ni clave. Las voces Azure usan tu recurso gratuito <b>F0</b>, que incluye <b>0,5 millones de caracteres de voz neural al mes</b> (precios oficiales de Microsoft, verificado el 27 sep 2026). Tuki guarda en memoria cada ejemplo que escuchas para no gastar de nuevo.</p>
+    <p class="small muted" id="tvHelp" style="margin-top:var(--sp-2)">💡 Todo es gratis: las voces del teléfono no usan internet ni clave. Las voces Azure usan tu recurso gratuito <b>F0</b>, que incluye <b>0,5 millones de caracteres de voz neural al mes</b> (precios oficiales de Microsoft, verificado el 27 sep 2026). Tuki guarda en memoria cada ejemplo que escuchas para no gastar de nuevo.</p>
   </details></div>`;
 }
 if ('speechSynthesis' in window) { try { speechSynthesis.addEventListener('voiceschanged', () => { if (TAB === 'settings' && $('#tvBody')) tvRenderBody(); }); } catch (e) {} }
@@ -2782,10 +2792,10 @@ export function adminBody() {
     <h4>Comentarios</h4>${err(2)}
     <div class="ad-list" id="adFeedback">${FBK.map(f => `<div class="ad-item"><div class="ad-st" aria-label="${+f.stars || 0} de 5">${'★'.repeat(Math.max(0, Math.min(5, +f.stars || 0)))}<span class="muted">${'★'.repeat(5 - Math.max(0, Math.min(5, +f.stars || 0)))}</span></div>
       <div class="ad-txt">${esc(f.text || '')}</div><div class="small muted">${esc(f.name || f.email || f.uid || '')}${f.name && f.email ? ' · ' + esc(f.email) : ''} · ${esc(fmtDT(tsMs(f.createdAt)))} · v${esc(f.version || '?')}</div></div>`).join('') || '<p class="small muted">Aún no hay comentarios.</p>'}</div>
-    <div class="small muted" style="margin-top:8px">Actualizado: ${esc(fmtDT(D.at))}</div>`;
+    <div class="small muted" style="margin-top:var(--sp-2)">Actualizado: ${esc(fmtDT(D.at))}</div>`;
 }
-export const adminHTML = () => isAdmin() ? `<div class="card" id="adminCard"><h3>👑 Panel de administrador</h3>
-  <button class="btn ${AD.data ? 'ghost' : 'primary'}" id="adLoad" ${AD.busy ? 'disabled' : ''}>${AD.busy ? '⏳ Cargando…' : AD.data ? '🔄 Actualizar' : '📊 Ver datos'}</button><div id="adBody">${adminBody()}</div></div>` : '';
+export const adminHTML = () => isAdmin() ? `<details id="adminCard"><summary>👑 Panel de administrador</summary>
+  <button class="btn ${AD.data ? 'ghost' : 'primary'}" id="adLoad" ${AD.busy ? 'disabled' : ''}>${AD.busy ? '⏳ Cargando…' : AD.data ? '🔄 Actualizar' : '📊 Ver datos'}</button><div id="adBody">${adminBody()}</div></details>` : '';
 export function bindAdmin(root) {
   const b = $('#adLoad', root || document); if (!b) return;
   b.onclick = async () => {
@@ -2798,15 +2808,20 @@ export function adminRefresh() {
   const a = $('#adminCard'), h = adminHTML();
   if (!h) { if (a) a.remove(); AD.data = null; return; }
   // (PR1: el reemplazo por outerHTML pierde hidden/data-level; conservar
-  // el estado del filtro de nivel.)
+  // el estado del filtro de nivel. PR3: el reemplazo también pierde el
+  // estado abierto/cerrado del <details>; conservarlo para que pulsar
+  // "Ver datos" no pliegue el panel mientras carga.)
   const wasHidden = !!a?.hidden;
-  if (a) a.outerHTML = h; else { const ac = $('#acctCard'); if (!ac) return; ac.insertAdjacentHTML('afterend', h); }
+  const wasOpen = !!a?.open;
+  // (PR3: el admin vive dentro de #acctCard, no como tarjeta separada.)
+  if (a) a.outerHTML = h; else { const ac = $('#acctCard'); if (!ac) return; ac.insertAdjacentHTML('beforeend', h); }
   bindAdmin(document);
   const na = $('#adminCard');
   if (na) {
     const active = $('#settingsLevel button.active');
     na.hidden = active ? active.dataset.slevel !== 'advanced' : wasHidden;
     na.dataset.level = 'advanced';
+    na.open = wasOpen;
   }
 }
 export const fbkCardHTML = () => `<div class="card" id="fbkCard"><button class="btn ghost block" id="fbkOpen">💬 Enviar comentarios</button></div>`;
@@ -2994,7 +3009,7 @@ export function openMissionsModal() {
               <h3 style="margin:0 0 4px">${esc(m.es)}</h3>
               <span class="pill ${allDone ? 'ok' : 'blue'}">${allDone ? '✅ Cumplida' : `${done}/${m.goals.length}`}</span>
             </div>
-            <ul style="margin:6px 0 10px 18px;padding:0;font-size:12px;color:var(--mute);line-height:1.4">
+            <ul style="margin:6px 0 10px 18px;padding:0;font-size:var(--fs-tiny);color:var(--mute);line-height:1.4">
               ${m.goals.map(g => `<li>${esc(g)}</li>`).join('')}
             </ul>
             <button class="btn primary sm" data-start-mission="${k}">Iniciar misión 🚀</button>
@@ -3043,7 +3058,7 @@ export function openShadowingModal() {
       </div>
       <div class="small" style="color:var(--b-d)">💡 ${esc(item.tip)}</div>
       <div class="row" style="margin-top:6px">
-        <button class="btn blue block" id="shSpkNormal">🔊 Velocidad normal</button>
+        <button class="btn ghost block" id="shSpkNormal">🔊 Velocidad normal</button>
         <button class="btn ghost block" id="shSpkSlow">🐢 Lento (0.75x)</button>
       </div>
     </div>
@@ -3067,9 +3082,9 @@ export function openShadowingModal() {
         const r = az || scoreSpeech(item.en, alts);
         const pct = r.pct || 0;
         const col = pct >= 80 ? 'var(--g-d)' : pct >= 50 ? '#b27b00' : 'var(--r)';
-        res.innerHTML = `<div style="font-size:18px;font-weight:900;color:${col}">Puntaje: ${pct}%</div>
+        res.innerHTML = `<div style="font-size:var(--fs-section);font-weight:900;color:${col}">Puntaje: ${pct}%</div>
           <div class="muted">Dijiste: «${esc(r.heard || '—')}»</div>
-          ${pct >= 80 ? '<div style="color:var(--g-d);margin-top:4px">🌟 ¡Excelente ritmo y pronunciación! +10 XP</div>' : '<div class="muted" style="margin-top:4px">Escucha el modelo de nuevo y prueba a conectar las palabras.</div>'}`;
+          ${pct >= 80 ? '<div style="color:var(--g-d);margin-top:var(--sp-1)">🌟 ¡Excelente ritmo y pronunciación! +10 XP</div>' : '<div class="muted" style="margin-top:var(--sp-1)">Escucha el modelo de nuevo y prueba a conectar las palabras.</div>'}`;
         if (pct >= 80) {
           beep('fanfare');
           addXP(10);
@@ -3172,7 +3187,7 @@ export function openHandsFreeModal() {
       </div>
     </div>
 
-    <div class="row between" style="margin-top:8px">
+    <div class="row between" style="margin-top:var(--sp-2)">
       <div class="row" style="gap:6px">
         <button class="chip ${hfSpeed === 1.0 ? 'active' : ''}" id="hfSpd1">1.0x</button>
         <button class="chip ${hfSpeed === 0.8 ? 'active' : ''}" id="hfSpdSlow">0.8x 🐢</button>
@@ -3193,7 +3208,7 @@ export function openHandsFreeModal() {
       <button class="iconbtn" id="hfNext" title="Siguiente" style="font-size:20px;width:48px;height:48px">⏭</button>
     </div>
 
-    <div class="row between small" style="margin-top:12px">
+    <div class="row between small" style="margin-top:var(--sp-3)">
       <span class="pill" id="hfCompletedPill">🏆 ${hfCompleted} completadas</span>
       <button class="btn ghost sm" data-x>Cerrar</button>
     </div>`, (el, close) => {
@@ -3420,7 +3435,7 @@ export function openMouthGuide(key) {
   const g = MOUTH_GUIDES[key] || MOUTH_GUIDES.th;
   modal(`<h2>👄 Posición de la boca</h2>
     <h3>${esc(g.title)}</h3>
-    <div style="display:flex;justify-content:center;margin:12px 0">
+    <div style="display:flex;justify-content:center;margin:var(--sp-3) 0">
       <div style="width:160px;height:160px;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:8px">
         ${mouthSVG(g.config)}
       </div>
@@ -3443,7 +3458,7 @@ export function openMouthSelector() {
     <p class="muted small">Elige el sonido que más te cuesta para ver cómo posicionar la lengua, los labios y los dientes:</p>
     <div class="wlist">
       ${Object.entries(MOUTH_GUIDES).map(([k, g]) => `
-        <button class="card pcard" data-mg="${k}" style="padding:10px 14px">
+        <button class="card pcard action" data-mg="${k}" style="padding:10px 14px">
           <div class="em" style="background:#eef6ff;font-size:24px">👄</div>
           <div>
             <b>${esc(g.title)}</b>
@@ -3461,6 +3476,10 @@ export function openMouthSelector() {
 // 5. MICRO-INTERACCIONES: SONIDOS SINTETIZADOS Y CONFETTI CANVAS
 
 export function canvasConfetti() {
+  // (M03 PR 6.3: sin confetti de canvas con movimiento reducido; el
+  // canvas usa rAF, no animación CSS, así que la regla global
+  // prefers-reduced-motion del CSS no lo apagaba)
+  if (tukiMoodReduced()) return;
   const cv = document.createElement('canvas');
   cv.className = 'cv-confetti';
   cv.width = window.innerWidth;
@@ -3589,18 +3608,18 @@ export function openPhotoPractice() {
     </label>
     <div id="photoPreviewWrap" style="display:none;text-align:center">
       <img id="photoImg" class="photo-preview" alt="Vista previa">
-      <div class="row" style="margin-top:8px">
-        <button class="btn blue sm block" id="photoAnalyze">🔍 Analizar con IA</button>
+      <div class="row" style="margin-top:var(--sp-2)">
+        <button class="btn primary sm block" id="photoAnalyze">🔍 Analizar con IA</button>
       </div>
-      <label id="photoConsentRow" class="small" style="display:none;gap:6px;align-items:flex-start;margin-top:8px;text-align:left"><input type="checkbox" id="photoConsent" style="margin-top:2px"><span>Acepto subir mi foto a las claves de Tuki para analizarla. Solo se usa para este análisis y cuenta en tus 60 llamadas de hoy.</span></label>
+      <label id="photoConsentRow" class="small" style="display:none;gap:6px;align-items:flex-start;margin-top:var(--sp-2);text-align:left"><input type="checkbox" id="photoConsent" style="margin-top:2px"><span>Acepto subir mi foto a las claves de Tuki para analizarla. Solo se usa para este análisis y cuenta en tus 60 llamadas de hoy.</span></label>
     </div>
     <div id="photoResult" style="margin-top:10px"></div>
     
-    <div style="margin-top:16px">
+    <div style="margin-top:var(--sp-4)">
       <b>O elige un escenario para describir:</b>
-      <div class="wlist" style="margin-top:8px">
+      <div class="wlist" style="margin-top:var(--sp-2)">
         ${PHOTO_SCENARIOS.map(s => `
-          <button class="card pcard" data-ps="${s.id}" style="padding:10px 14px">
+          <button class="card pcard action" data-ps="${s.id}" style="padding:10px 14px">
             <div class="em" style="background:#fff3d6;font-size:24px">${s.img}</div>
             <div>
               <b>${esc(s.title)}</b>
@@ -3653,7 +3672,7 @@ export function openPhotoPractice() {
           const txt = d.candidates && d.candidates[0] && d.candidates[0].content.parts[0].text;
           if (txt) {
             res.innerHTML = `<div class="tipbox" style="white-space:pre-wrap;font-size:14px">${esc(txt)}</div>
-              <button class="btn primary sm block" style="margin-top:8px" id="goToChatFromPhoto">💬 Practicar esto en conversación</button>`;
+              <button class="btn primary sm block" style="margin-top:var(--sp-2)" id="goToChatFromPhoto">💬 Practicar esto en conversación</button>`;
             const bChat = $('#goToChatFromPhoto', el);
             if (bChat) bChat.onclick = () => { close(); go('chat'); };
             return;
@@ -3664,7 +3683,7 @@ export function openPhotoPractice() {
           const txt = await photoAnalyzeShared(photoB64 || base64Img.split(',')[1], photoMime);
           if (txt) {
             res.innerHTML = `<div class="tipbox" style="white-space:pre-wrap;font-size:14px">${esc(txt)}</div>
-              <button class="btn primary sm block" style="margin-top:8px" id="goToChatFromPhoto">💬 Practicar esto en conversación</button>`;
+              <button class="btn primary sm block" style="margin-top:var(--sp-2)" id="goToChatFromPhoto">💬 Practicar esto en conversación</button>`;
             const bChat = $('#goToChatFromPhoto', el);
             if (bChat) bChat.onclick = () => { close(); go('chat'); };
             return;
@@ -3677,7 +3696,7 @@ export function openPhotoPractice() {
           <b>Pregunta para ti:</b>
           <p style="margin:4px 0"><i>"Can you describe what you use the most in this space?"</i></p>
         </div>
-        <button class="btn primary sm block" style="margin-top:8px" id="goToChatFromPhoto">💬 Practicar esto en conversación</button>`;
+        <button class="btn primary sm block" style="margin-top:var(--sp-2)" id="goToChatFromPhoto">💬 Practicar esto en conversación</button>`;
         const bChat = $('#goToChatFromPhoto', el);
         if (bChat) bChat.onclick = () => { close(); go('chat'); };
       } catch (err) {
@@ -3692,7 +3711,7 @@ export function openPhotoPractice() {
         modal(`<h2>${sc.img} ${esc(sc.title)}</h2>
           <div class="tipbox">
             <b>Pregunta de práctica:</b>
-            <p style="font-size:16px;margin:6px 0">“${esc(sc.q)}”</p>
+            <p style="font-size:var(--fs-body);margin:6px 0">“${esc(sc.q)}”</p>
             <div class="row"><button class="spk" id="scSpk">🔊</button><span class="small muted">Escuchar pregunta</span></div>
           </div>
           <b>Vocabulario clave:</b>
@@ -4028,7 +4047,7 @@ export function openTravelGuideModal() {
         ${cat.phrases.map((item, idx) => `
           <div class="travel-item">
             <div class="row between">
-              <b style="font-size:15px;color:var(--ink)">${esc(item.en)}</b>
+              <b style="font-size:var(--fs-body-sm);color:var(--ink)">${esc(item.en)}</b>
               <div class="acts">
                 <button class="spk" data-say-n="${esc(item.en)}" title="Escuchar">🔊</button>
                 <button class="spk slow" data-say="${esc(item.en)}" title="Lento">🐢</button>
@@ -4037,7 +4056,7 @@ export function openTravelGuideModal() {
             </div>
             <div class="small muted" style="margin-top:3px">🇪🇸 ${esc(item.es)}</div>
             <div class="travel-phon">🗣️ Como suena: <i>«${esc(item.pron)}»</i></div>
-            <div class="row between" style="margin-top:8px">
+            <div class="row between" style="margin-top:var(--sp-2)">
               <button class="btn ghost sm" data-mic-travel="${idx}">🎙️ Practicar mi voz</button>
               <div id="travRes_${idx}" class="small"></div>
             </div>
@@ -4135,17 +4154,17 @@ export function openInterviewSimulatorModal() {
         <span class="novice-badge">Pregunta ${curInterviewQIdx + 1} de ${role.questions.length}</span>
         <button class="spk" id="btnSpkIntQ">🔊 Escuchar</button>
       </div>
-      <h3 style="margin:8px 0;font-size:17px;color:var(--ink)">“${esc(qItem.q)}”</h3>
+      <h3 style="margin:var(--sp-2) 0;font-size:17px;color:var(--ink)">“${esc(qItem.q)}”</h3>
       <div class="small muted">🇪🇸 ${esc(qItem.es)}</div>
-      <div class="tipbox" style="margin-top:8px;font-size:12px">💡 <b>Consejo:</b> ${esc(qItem.tip)}</div>
+      <div class="tipbox" style="margin-top:var(--sp-2);font-size:var(--fs-tiny)">💡 <b>Consejo:</b> ${esc(qItem.tip)}</div>
     </div>
 
     <div class="card" style="margin-top:10px;text-align:center">
       <div class="small muted" style="margin-bottom:8px">Responde en inglés hablando con tu micrófono o escribiendo:</div>
       <textarea id="intAnswerText" class="field" rows="3" placeholder="O escribe tu respuesta aquí para evaluarla…"></textarea>
-      <div class="row" style="margin-top:8px">
+      <div class="row" style="margin-top:var(--sp-2)">
         <button class="btn primary block" id="btnIntMic">🎙️ Grabar Respuesta</button>
-        <button class="btn blue block" id="btnIntEval">📊 Evaluar (1-10)</button>
+        <button class="btn ghost block" id="btnIntEval">📊 Evaluar (1-10)</button>
       </div>
     </div>
 
@@ -4238,7 +4257,7 @@ export function openInterviewSimulatorModal() {
           <b>${pron}/10</b>
         </div>
 
-        <div class="tipbox" style="margin-top:10px;font-size:13px">
+        <div class="tipbox" style="margin-top:10px;font-size:var(--fs-small)">
           <b>🌟 Feedback de Tuki:</b><br>
           ${avgScore >= 8 ? '¡Excelente respuesta! Tienes buen impacto profesional y transmites seguridad.' : avgScore >= 6 ? 'Buena base. Intenta añadir más conectores (like "Moreover", "Specifically", "In addition") para sonar más natural.' : 'Respuesta muy corta. Desarrolla tu idea explicando un ejemplo concreto de tu experiencia.'}
         </div>
@@ -4267,8 +4286,8 @@ export function renderDailyChestsAndQuests() {
   return `<div class="chest-card" id="dailyChestCard">
     <div class="row between">
       <div>
-        <h3 style="margin:0;color:#92400e">🎁 Cofre Diario de Recompensas</h3>
-        <div class="small" style="color:#b45309">
+        <h3 class="chest-title">🎁 Cofre Diario de Recompensas</h3>
+        <div class="small chest-sub">
           ${isChestClaimed ? '✅ ¡Cofre de hoy reclamado! Vuelve mañana.' : isGoalMet ? '✨ ¡Meta cumplida! Abre tu cofre ahora.' : `Meta de hoy: ${Math.min(today.xp, goal)}/${goal} XP para abrir.`}
         </div>
       </div>
@@ -4286,7 +4305,7 @@ export function renderDailyChestsAndQuests() {
 
     <div class="quest-item">
       <div style="flex:1">
-        <div class="row between"><span style="font-weight:700;font-size:13px">🗣️ Pronuncia 3 frases</span><span class="small" style="font-weight:800;color:#d97706">+20 🪙</span></div>
+        <div class="row between"><span style="font-weight:700;font-size:var(--fs-small)">🗣️ Pronuncia 3 frases</span><span class="small coin-amt">+20 🪙</span></div>
         <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round(((today.n || 0) / 3) * 100))}%"></div></div>
       </div>
       <button class="btn sm ${q1Claimed ? 'ghost' : questVozDone ? 'primary' : 'ghost'}" data-claim-q="q1" ${q1Claimed || !questVozDone ? 'disabled' : ''}>
@@ -4296,7 +4315,7 @@ export function renderDailyChestsAndQuests() {
 
     <div class="quest-item">
       <div style="flex:1">
-        <div class="row between"><span style="font-weight:700;font-size:13px">🎯 Cumple tu meta diaria de XP</span><span class="small" style="font-weight:800;color:#d97706">+30 🪙</span></div>
+        <div class="row between"><span style="font-weight:700;font-size:var(--fs-small)">🎯 Cumple tu meta diaria de XP</span><span class="small coin-amt">+30 🪙</span></div>
         <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round((today.xp / goal) * 100))}%"></div></div>
       </div>
       <button class="btn sm ${q2Claimed ? 'ghost' : questGoalDone ? 'primary' : 'ghost'}" data-claim-q="q2" ${q2Claimed || !questGoalDone ? 'disabled' : ''}>
@@ -4306,7 +4325,7 @@ export function renderDailyChestsAndQuests() {
 
     <div class="quest-item">
       <div style="flex:1">
-        <div class="row between"><span style="font-weight:700;font-size:13px">⏱️ Practica al menos 1 minuto</span><span class="small" style="font-weight:800;color:#d97706">+20 🪙</span></div>
+        <div class="row between"><span style="font-weight:700;font-size:var(--fs-small)">⏱️ Practica al menos 1 minuto</span><span class="small coin-amt">+20 🪙</span></div>
         <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round((Math.min(60, today.sec || 0) / 60) * 100))}%"></div></div>
       </div>
       <button class="btn sm ${q3Claimed ? 'ghost' : questPracDone ? 'primary' : 'ghost'}" data-claim-q="q3" ${q3Claimed || !questPracDone ? 'disabled' : ''}>

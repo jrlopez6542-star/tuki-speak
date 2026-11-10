@@ -13,8 +13,8 @@
 // de funciones, nunca en top-level de este archivo.
 import { $, $$, esc, shuffle, pick, sample, avg, scoreSpeech, scorePair, colorOf, typedMatch, normText, align } from './utils.js';
 import { S, loseHeart, nextHeartIn, recordEar, recordSpeech, refreshHearts, sm2, soundAvg } from './state.js';
-import { HAS_SR, MicCap, Rec, SR_ERR, canSpeak, curRec, recognize, speak, stopAudio, stopRecognize } from './audio.js';
-import { LESSON, LESSONS, azureMic, azureReady, beep, bindExtra, bindTukiTutorBanner, buildVocabLesson, closeLesson, confetti, confirmBox, errorTutorHTML, bindErrorTutor, extraResultHTML, finishLesson, isUnlocked, modal, mouthPanelHTML, phonemeHintHTML, renderVocabLearn, save, toast, tukiMood, tukiTutorBannerHTML, wordsHTML } from './main.js';
+import { HAS_SR, MicCap, Rec, SR_ERR, canSpeak, curRec, isMicPermErr, recognize, speak, stopAudio, stopRecognize } from './audio.js';
+import { LESSON, LESSONS, azureMic, azureReady, beep, bindExtra, bindTukiTutorBanner, buildVocabLesson, closeLesson, confetti, confirmBox, errorTutorHTML, bindErrorTutor, extraResultHTML, finishLesson, isUnlocked, modal, mouthPanelHTML, mouthSVG, MOUTHS, phonemeHintHTML, renderVocabLearn, save, toast, tukiMood, tukiTutorBannerHTML, wordsHTML } from './main.js';
 
 export const tokensOf = s => s.replace(/[¿¡?!.,;:"]/g, '').split(/\s+/).filter(Boolean);
 export function earEx(l, i, P, Q) { return P ? { kind: 'pick', l, pair: P[i % P.length], side: Math.random() < .5 ? 0 : 1 } : { kind: 'quiz', l, q: Q[i % Q.length] }; }
@@ -89,17 +89,59 @@ export function startLesson(l, mode = 'lesson', queue = null, title = '') {
 }
 export function lessonShell() {
   const pct = Math.round(L.done / L.total * 100);
-  return `<div class="lhead"><button class="xbtn" id="xLesson" aria-label="Salir">✕</button><div class="pbar"><i style="width:${pct}%"></i></div>${L.mode === 'lesson' ? `<div class="lhearts">❤️ ${S.hearts}</div>` : `<div class="lhearts" style="color:var(--b-d)">🎯</div>`}</div>
+  return `<div class="lhead"><button class="xbtn" id="xLesson" aria-label="Salir">✕</button><div class="pbar" role="progressbar" aria-label="Progreso de la lección" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div>${L.mode === 'lesson' ? `<div class="lhearts" aria-label="Vidas restantes: ${S.hearts}">❤️ ${S.hearts}</div>` : `<div class="lhearts" style="color:var(--b-d)">🎯</div>`}</div>
   <div class="lbody" id="lbody"></div><div class="lfoot" id="lfoot" aria-live="polite"></div>`;
+}
+/* ---- M03 PR 6.1: chip discreto de tipo de ejercicio (D-M03-3) ----
+   Sin número de etapa (D-M03-1): solo el tipo, en el cuerpo del paso. */
+export const EX_TYPE_LABEL = { learn: ['📖', 'Aprender'], pick: ['👂', 'Oído'], quiz: ['👂', 'Oído'], order: ['👂', 'Oído'], ltype: ['👂', 'Oído'], speak: ['🎙️', 'Voz'], saypair: ['🎙️', 'Voz'], shadow: ['🎙️', 'Voz'], dialog: ['🎙️', 'Voz'] };
+export function exTypeChip(ex) { const k = EX_TYPE_LABEL[ex.kind] || ['📖', 'Aprender']; return `<span class="ex-type-chip" data-ex-chip="${esc(ex.kind)}">${k[0]} ${k[1]}</span>`; }
+/* Tarjetas de sonido del learn: una por diagrama de boca (MOUTHS), con IPA
+   y etiqueta de pairLabels y descripción derivada del pie del diagrama.
+   Sin datos inventados: si no hay diagramas, no hay tarjetas. */
+export function soundCardsHTML(l) {
+  const mouths = (MOUTHS && MOUTHS[l.id]) || [];
+  if (!mouths.length) return '';
+  const labels = l.pairLabels || [];
+  const cards = mouths.slice(0, 2).map((c, i) => {
+    const lab = labels[i] || '';
+    const mIpa = lab.match(/^(\/[^/]+\/)\s*(.*)$/);
+    const capIpa = (c.cap || '').match(/^(\/[^/]+\/)\s*:?\s*(.*)$/);
+    const ipa = mIpa ? mIpa[1] : (capIpa ? capIpa[1] : '');
+    const labTxt = mIpa ? mIpa[2] : '';
+    const descRaw = capIpa ? capIpa[2] : (c.cap || '');
+    const desc = descRaw ? descRaw.charAt(0).toUpperCase() + descRaw.slice(1) : '';
+    return `<div class="sound-card"><div class="sc-top">${ipa ? `<span class="sc-ipa">${esc(ipa)}</span>` : ''}${labTxt ? `<span class="sc-lab">${esc(labTxt)}</span>` : ''}</div>${desc ? `<p>${esc(desc)}</p>` : ''}<div class="mouth">${mouthSVG(c)}</div></div>`;
+  }).join('');
+  return `<div class="sound-cards">${cards}</div>`;
+}
+/* Par destacado del learn: el primer par mínimo cuyas dos palabras están
+   entre los ejemplos de la lección (para sh-ch: wash/watch). */
+export function highlightPairHTML(l) {
+  if (!l.pairs || !l.ex) return '';
+  const exWords = new Set(l.ex.map(w => w[0].toLowerCase()));
+  const p = l.pairs.find(pr => exWords.has(pr[0].toLowerCase()) && exWords.has(pr[1].toLowerCase()));
+  if (!p) return '';
+  return `<div class="pair-highlight"><span>${esc(p[0])}</span><span class="vs">vs</span><span>${esc(p[1])}</span></div>`;
 }
 // =================== INTERACTIVIDAD Y ANIMACIONES DE TUKI (TIPO DUOLINGO) ===================
 export function nextEx() {
   if (!L) return;
   if (!L.queue.length) return finishLesson();
   L.cur = L.queue.shift(); L.cur.attempt = null; L.cur.sel = null;
+  rerenderCur();
+}
+/* ---- M03 PR 6.2: re-render del paso actual sin avanzar ----
+   Misma presentación que al entrar al paso (cabecera, chip, banner,
+   pie), sin tocar la cola ni L.done. Lo usa el reintento tras un error
+   de reconocimiento: el siguiente intento evalúa de nuevo. */
+export function rerenderCur() {
+  if (!L || !L.cur) return;
   $('#fullInner').innerHTML = lessonShell();
   $('#xLesson').onclick = () => confirmBox('¿Salir de la lección?', 'Perderás el progreso de esta lección.', 'Salir', closeLesson, true);
   (RENDER[L.cur.kind])(L.cur, $('#lbody'));
+  // (M03 PR 6.1: chip discreto de tipo al inicio del cuerpo del paso)
+  const lb0 = $('#lbody'); if (lb0) lb0.insertAdjacentHTML('afterbegin', exTypeChip(L.cur));
   bindTukiTutorBanner($('#lbody'));
   // (fase premium, etapa 3: entrada suave por ejercicio; #lbody es un nodo
   // nuevo en cada nextEx, así que la animación corre una vez por ejercicio
@@ -204,19 +246,30 @@ RENDER.learn = (ex, body) => {
       <button class="btn blue" id="playAll">▶️ Escuchar diálogo</button>`;
     $('#playAll').onclick = () => { let i = 0; const nxt = () => { if (i < l.lines.length && L) speak(l.lines[i++][1], false, nxt); }; nxt(); };
   } else {
+    // (M03 PR 6.1: estructura del mockup M03-A S2 — tipbox «La idea»,
+    // tarjetas de sonido con diagrama de boca, par destacado, tipbox de
+    // boca, ejemplos con 🔊/🐢 y pares mínimos con 🔊 por palabra. Sin
+    // enlace a Guía Fonética (D-M03-2), sin «Ver boca» ni «Consejo».)
+    const isShCh = l.id === 'sh-ch';
+    const bannerMsg = isShCh ? 'Dos sonidos que se parecen, pero cambian el significado. Primero la boca; después, a practicar.' : l.expl;
     body.innerHTML = `<div class="badge-new">NUEVO SONIDO</div><div class="ex-title">${l.icon} ${esc(l.title)} <span class="ipa">/${esc(l.sound)}/</span></div>
       ${tukiTutorBannerHTML({
         title: 'Profe Tuki · Fonética 👄',
-        msg: l.expl,
-        sub: l.mouth ? 'Boca y lengua: ' + l.mouth : '',
-        speakText: l.expl + (l.mouth ? '. Colocación de la boca: ' + l.mouth : '')
+        msg: bannerMsg,
+        sub: isShCh ? '' : (l.mouth ? 'Boca y lengua: ' + l.mouth : ''),
+        speakText: bannerMsg + (!isShCh && l.mouth ? '. Colocación de la boca: ' + l.mouth : '')
       })}
-      <div class="tipbox"><b>👄 Boca y lengua:</b> ${esc(l.mouth)}</div>${mouthPanelHTML(l.id)}
-      <h3>Ejemplos (toca para escuchar)</h3>
+      <div class="tipbox"><span class="tt">💡 La idea</span>${esc(l.expl)}</div>
+      ${soundCardsHTML(l)}
+      ${highlightPairHTML(l)}
+      <div class="tipbox"><span class="tt">👄 Boca y lengua:</span>${esc(l.mouth)}</div>
+      <h3>Palabras de ejemplo</h3>
       <div class="wlist">${l.ex.map(w => `<div class="witem"><button class="spk" data-say-n="${esc(w[0])}">🔊</button><div><div class="en">${esc(w[0])}</div><div class="es">${esc(w[1])}</div></div><button class="spk slow" data-say="${esc(w[0])}" style="margin-left:auto" title="Lento">🐢</button></div>`).join('')}</div>
-      ${l.pairs ? `<h3 style="margin-top:14px">Pares mínimos</h3><div class="chips">${l.pairs.map(p => `<button class="chip" data-pair="${esc(p.join('|'))}">${esc(p[0])} · ${esc(p[1])}</button>`).join('')}</div>` : ''}`;
+      ${l.pairs ? `<h3 style="margin-top:14px">Pares mínimos: escucha la diferencia</h3><div class="wlist">${l.pairs.map(p => {
+        const tr = p.map(w => { const f = l.ex.find(x => x[0].toLowerCase() === w.toLowerCase()); return f ? f[1] : ''; }).filter(Boolean).join(' · ');
+        return `<div class="witem"><div><div class="en">${esc(p[0])} · ${esc(p[1])}</div>${tr ? `<div class="es">${esc(tr)}</div>` : ''}</div><button class="spk" data-say-n="${esc(p[0])}" style="margin-left:auto" aria-label="Escuchar ${esc(p[0])}">🔊</button><button class="spk" data-say-n="${esc(p[1])}" aria-label="Escuchar ${esc(p[1])}">🔊</button></div>`;
+      }).join('')}</div>` : ''}`;
     $$('[data-say-n]', body).forEach(b => b.onclick = () => speak(b.dataset.sayN));
-    $$('[data-pair]', body).forEach(b => b.onclick = () => { const [a, c] = b.dataset.pair.split('|'); speak(a, false, () => setTimeout(() => speak(c), 250)); });
   }
   setFoot(`<span class="muted small">${L.mode === 'lesson' ? 'Lección ' + (l.li + 1) + ' · ' + esc(l.unit.title) : ''}</span><button class="btn primary" id="primaryBtn">¡Entendido!</button>`);
   $('#primaryBtn').onclick = () => { L.done++; nextEx(); };
@@ -327,12 +380,16 @@ RENDER.speak = RENDER.shadow = RENDER.dialog = RENDER.saypair = (ex, body) => {
   $('#skipBtn').onclick = () => { L.done++; nextEx(); };
   if (canSpeak()) {
     $('#micArea').innerHTML = `<button class="mic" id="mic">🎤 Toca para hablar</button>`;
-    $('#mic').onclick = () => doMic($('#mic'), (alts, url, az) => onSpeechResult(ex, target, alts, url, az), target);
+    $('#mic').onclick = () => doMic($('#mic'), (alts, url, az) => onSpeechResult(ex, target, alts, url, az), target, { onNoPerm: () => renderNoPerm(ex, target), onNoSpeech: () => renderSpeechError(ex) });
   } else {
-    $('#micArea').innerHTML = `<div class="notice">⚠️ Tu navegador no soporta reconocimiento de voz, así que no puedo darte un puntaje. <b>Chrome</b> (Android o computador) o Edge funcionan mejor. Mientras tanto puedes grabarte y comparar con el modelo.</div>
+    /* ---- M03 PR 6.2 (S4-02): copy armonizado con el mockup ----
+       «Tu navegador no soporta reconocimiento de voz» (lead exacto del
+       mockup), «Grabar mi voz» en el botón y «Tu grabación está lista»
+       al completar. Regla intacta: sin puntaje, sin recordSpeech. */
+    $('#micArea').innerHTML = `<div class="notice">🎙️ <b>Tu navegador no soporta reconocimiento de voz.</b><br> Puedes grabar tu voz y compararla con el modelo. <b>Chrome</b> (Android o computador) o Edge funcionan mejor. Sin puntaje automático: escúchate y compara.</div>
       ${Rec.supported ? `<button class="mic" id="recOnly">⏺ Grabar mi voz</button>` : ''}`;
     const rb = $('#recOnly'); if (rb) rb.onclick = () => recOnlyToggle(rb, url => {
-      $('#res').innerHTML = compareHTML(target, url);
+      $('#res').innerHTML = `<div style="font-weight:900;font-size:17px;margin:6px 0">Tu grabación está lista 🎧</div>` + compareHTML(target, url);
       bindCompare(target, url);
       setFoot(`<button class="btn ghost" id="skipBtn">Necesito practicar</button><button class="btn primary" id="primaryBtn">👍 Sonó parecido</button>`);
       $('#skipBtn').onclick = () => { L.done++; nextEx(); }; $('#primaryBtn').onclick = () => { L.done++; nextEx(); };
@@ -386,15 +443,55 @@ export function createMicMeter(btn) {
   };
 }
 
-export async function doMic(btn, onResult, target) {
-  if (curRec) { stopRecognize(); return; }
+/* ---- M03 PR 6.2: estados de voz (S4) ---- */
+/* Rama sin permiso (D-M03-5): aviso persistente con el copy aprobado del
+   mockup M03-A (S4) y modo escucha. El paso avanza con L.done++ sin
+   puntaje (sin L.speak.push, sin recordSpeech) y sin perder ❤️.
+   «Continuar sin micrófono» vive en el cuerpo y en el pie fijo;
+   «Saltar este ejercicio» también avanza sin puntaje. */
+export const NO_PERM_COPY = '🎙️ Sin permiso de micrófono. No diste permiso para usar el micrófono, así que este ejercicio pasa a modo escucha: oye el modelo y repite en voz alta para ti. No quedas bloqueado y no pierdes vidas. Si quieres practicar con puntaje, activa el micrófono en el candado de la barra de direcciones.';
+export function renderNoPerm(ex, target) {
+  const go = () => { L.done++; nextEx(); };
+  $('#micArea').innerHTML = `<div class="notice no-perm" role="alert"><b>🎙️ Sin permiso de micrófono.</b><br> No diste permiso para usar el micrófono, así que este ejercicio pasa a <b>modo escucha</b>: oye el modelo y repite en voz alta para ti. <b>No quedas bloqueado</b> y no pierdes vidas.<br> Si quieres practicar con puntaje, activa el micrófono en el candado de la barra de direcciones.
+    <div class="row" style="margin-top:10px;flex-wrap:wrap"><button class="btn blue sm" id="npListen">🔊 Escuchar</button><button class="btn ghost sm" id="npSlow">🐢 Lento</button></div>
+    <button class="btn primary block" id="npContinue" style="margin-top:10px">Continuar sin micrófono</button></div>`;
+  $('#npListen').onclick = () => speak(target);
+  $('#npSlow').onclick = () => speak(target, true);
+  $('#npContinue').onclick = go;
+  setFoot(`<button class="btn primary" id="primaryBtn">Continuar sin micrófono</button><button class="btn ghost" id="npSkipFoot">Saltar este ejercicio</button>`);
+  $('#primaryBtn').onclick = go;
+  $('#npSkipFoot').onclick = go;
+}
+/* Error de reconocimiento (S4): «No te escuché». «Intentar de nuevo»
+   re-renderiza el paso (el siguiente intento evalúa) y «Saltar» avanza
+   sin puntaje ni ❤️. El texto es SR_ERR['no-speech'] (mismo que el
+   toast anterior, ahora persistente con salida). */
+export function renderSpeechError(ex) {
+  setFoot(`<div class="fb" aria-live="polite"><h3>🎙️ No te escuché</h3><div class="exp">${esc(SR_ERR['no-speech'])}</div></div>
+    <div class="row"><button class="btn ghost" id="errSkip">Saltar</button><button class="btn primary" id="primaryBtn">Intentar de nuevo</button></div>`, 'bad');
+  $('#errSkip').onclick = () => { L.done++; nextEx(); };
+  $('#primaryBtn').onclick = () => rerenderCur();
+}
+
+let micManualStop = false;
+export async function doMic(btn, onResult, target, hooks) {
+  /* ---- M03 PR 6.2: parada manual del micrófono (segundo toque) ----
+     El recognize() pendiente rechaza con 'no-speech'; no es un error y
+     no muestra el panel. La marca la consume ese catch y se limpia. */
+  if (curRec) { micManualStop = true; stopRecognize(); return; }
   if (MicCap.active) { MicCap.stop(); return; }
   speechSynthesis && speechSynthesis.cancel(); stopAudio();
-  if (target && azureReady()) return azureMic(btn, onResult, target);
+  const onNoPerm = hooks && hooks.onNoPerm, onNoSpeech = hooks && hooks.onNoSpeech;
+  const degraded = () => { if (onNoPerm) onNoPerm(); else toast(SR_ERR['not-allowed'], 4000); };
+  if (target && azureReady()) {
+    try { await azureMic(btn, onResult, target, hooks); }
+    catch (e) { if (isMicPermErr(e)) degraded(); /* azureMic ya avisó del resto */ }
+    return;
+  }
   if (!HAS_SR) { toast(SR_ERR.unsupported + ' Usa Chrome o configura Azure en Ajustes.', 4000); return; }
   btn.classList.add('rec'); btn.innerHTML = '🔴 Escuchando… habla ahora';
   const micMeter = createMicMeter(btn);
-  let recOn = false, stream = null, anCtx = null, animId = null;
+  let recOn = false, stream = null, anCtx = null, animId = null, gumPerm = false;
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
@@ -410,16 +507,36 @@ export async function doMic(btn, onResult, target) {
         animId = requestAnimationFrame(loop);
       };
       loop();
-    } catch (e) {}
+    } catch (e) { gumPerm = isMicPermErr(e); }
+  }
+  if (gumPerm) {
+    /* Permiso denegado en el medidor: no intentar recognize() (volvería
+       a fallar con 'not-allowed'); derivar directo a la rama degradada. */
+    if (animId) cancelAnimationFrame(animId);
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    if (anCtx) anCtx.close().catch(() => {});
+    micMeter.destroy();
+    btn.classList.remove('rec');
+    btn.innerHTML = '🎤 Toca para hablar de nuevo';
+    degraded();
+    return;
   }
   if (S.settings.recordVoice && Rec.supported) { try { await Rec.start(); recOn = true; } catch (e) {} }
   try {
-    const alts = await recognize();
+    /* ---- M03 PR 6.2 (D-PEND-06, opción A): estado «Evaluando…» ----
+       En cuanto el reconocedor entrega el resultado, la etiqueta pasa a
+       «⏳ Evaluando…» hasta que onSpeechResult renderiza. Sin retardo
+       artificial y sin tocar scoreSpeech/scorePair. El finally devuelve
+       la etiqueta a «Toca para hablar de nuevo» (M-11). */
+    const alts = await recognize(() => { btn.innerHTML = '⏳ Evaluando…'; });
     const url = recOn ? await Rec.stop() : null;
     onResult(alts, url);
   } catch (err) {
     if (recOn) await Rec.stop();
-    toast(SR_ERR[err] || ('Error de voz: ' + err), 3500);
+    if (micManualStop) micManualStop = false;
+    else if (isMicPermErr(err)) degraded();
+    else if (err === 'no-speech' && onNoSpeech) onNoSpeech();
+    else toast(SR_ERR[err] || ('Error de voz: ' + err), 3500);
   } finally {
     if (animId) cancelAnimationFrame(animId);
     if (stream) stream.getTracks().forEach(t => t.stop());
@@ -486,6 +603,11 @@ export function onSpeechResult(ex, target, alts, url0, az) {
 
 /* ---- fin de lección ---- */
 export function victoryConfetti(waves = 3) {
+  // (M03 PR 6.3: sin confetti con movimiento reducido — ajuste de
+  // accesibilidad o preferencia del sistema; el CSS ya apaga las
+  // animaciones DOM, pero sin esta guarda las piezas se crearían igual)
+  if (S.settings.reduceMotion) return;
+  try { if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) {}
   for (let w = 0; w < waves; w++) {
     setTimeout(() => {
       const c = document.createElement('div');
