@@ -2668,14 +2668,12 @@ export function tvRenderBody() {
     ${devSec}`;
   $$('input[name=tvSel]', box).forEach(inp => inp.onchange = () => { const r = TV.rows[+inp.value]; if (r) tvSelect(r.id, tl); });
   $$('.tvplay', box).forEach(b => b.onclick = () => tvPlay(+b.dataset.play));
-  const go = $('#tvGoAz', box); if (go) go.onclick = () => { const lv = $('#settingsLevel [data-slevel="advanced"]'); if (lv) lv.click(); const k = $('#azKey'); if (k) { k.scrollIntoView({ block: 'center', behavior: 'smooth' }); k.focus({ preventScroll: true }); } };
-  // (densidad PR B, v2.31.0, ítem 3: el único "Continuar con Google" de
-  // Ajustes vive en la tarjeta 👤 Cuenta; aquí solo un enlace que
-  // desplaza hasta ella.)
+  // (M05-R1: la clave de Azure vive en Ajustes → Opciones avanzadas; el
+  // enlace abre esa subpantalla y desplaza hasta la clave. Cuenta vive
+  // en Perfil, no en Ajustes.)
+  const goAz = $('#tvGoAz', box); if (goAz) goAz.onclick = () => { const row = document.querySelector('[data-m05sub-open="avanzadas"]'); if (row) row.click(); setTimeout(() => { const k = $('#azKey'); if (k) { k.scrollIntoView({ block: 'center', behavior: 'smooth' }); k.focus({ preventScroll: true }); } }, 60); };
   const bG = $('#tvGoAcct', box);
-  // (PR1, regla R-3: el enlace interno cambia primero el filtro al nivel
-  // de la tarjeta destino — Cuenta es Básico — y luego desplaza.)
-  if (bG) bG.onclick = () => { const lv = $('#settingsLevel [data-slevel="basic"]'); if (lv) lv.click(); const c = $('#acctCard'); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+  if (bG) bG.onclick = () => go('profile');
   tvBtns();
   if (ready) tvLoadLive();
 }
@@ -2865,17 +2863,18 @@ export function bindAdmin(root) {
 export function adminRefresh() {
   const a = $('#adminCard'), h = adminHTML();
   if (!h) { if (a) a.remove(); AD.data = null; return; }
-  // (PR1: el reemplazo por outerHTML pierde hidden/data-level; conservar
-  // el estado del filtro de nivel.)
+  // (M05-R1: sin filtro de nivel — la tarjeta conserva su visibilidad
+  // anterior; si aún no existe, va a Opciones avanzadas del hub.)
   const wasHidden = !!a?.hidden;
-  if (a) a.outerHTML = h; else { const ac = $('#acctCard'); if (!ac) return; ac.insertAdjacentHTML('afterend', h); }
+  if (a) a.outerHTML = h;
+  else {
+    const adv = document.querySelector('[data-m05sub="avanzadas"]');
+    if (adv) adv.insertAdjacentHTML('beforeend', h);
+    else { const ac = $('#acctCard'); if (!ac) return; ac.insertAdjacentHTML('afterend', h); }
+  }
   bindAdmin(document);
   const na = $('#adminCard');
-  if (na) {
-    const active = $('#settingsLevel button.active');
-    na.hidden = active ? active.dataset.slevel !== 'advanced' : wasHidden;
-    na.dataset.level = 'advanced';
-  }
+  if (na) na.hidden = wasHidden;
 }
 export const fbkCardHTML = () => `<div class="card" id="fbkCard"><button class="btn ghost block" id="fbkOpen">💬 Enviar comentarios</button></div>`;
 

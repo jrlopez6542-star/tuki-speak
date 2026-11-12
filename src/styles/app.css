@@ -659,7 +659,6 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .seg button{flex:1;border:0;background:transparent;padding:10px;font-weight:800;color:var(--mute);font-size:15px}
 .seg button.active{background:#4b2868;color:#fff}
 /* v2.42.0 Filtro de Ajustes por nivel: 3 etiquetas caben en 360 px */
-#settingsLevel button{font-size:14px;padding:10px 4px;min-width:0}
 #acctCard .field,#keysCard .field{margin-bottom:8px;font-size:16px;min-height:46px}
 .linkbtn{background:none;border:0;color:var(--b-d);font-weight:800;padding:8px 2px;text-decoration:underline;font-size:14px}
 .ac-user{display:flex;align-items:center;gap:12px;margin:6px 0 10px}
@@ -1135,3 +1134,76 @@ html[data-theme="dark"] .ch-line{stroke:#d7f36a}
 html[data-theme="dark"] .ch-dot{fill:#d7f36a}
 html[data-theme="dark"] .ch-bar{fill:#603584}
 html[data-theme="dark"] .tuki-tutor-banner{background:#241b31;border-color:#4a3868}
+
+/* =================== M05-R1: APRENDER (CAMINO) + AJUSTES (HUB) =================== */
+/* ---- Aprender: héroe Plan de hoy ---- */
+.m05-hero{margin:0 0 12px;background:linear-gradient(135deg,#3a1c55,#512a70);color:#eadff1;border-radius:20px;padding:14px;box-shadow:0 6px 16px rgba(43,23,65,.35)}
+.m05-hero h2{margin:0;font-size:17px;color:#fff}
+.m05-hero-sub{font-size:12px;opacity:.85;margin:2px 0 10px}
+.m05-goal{display:flex;gap:12px;align-items:center}
+.m05-hero .ring{background:conic-gradient(#9acb19 calc(var(--p)*1%),rgba(255,255,255,.25) 0)}
+.m05-goal-copy{flex:1;min-width:0}
+.m05-xp-line{font-weight:900;font-size:14px;color:#fff}
+.m05-chest-line{font-size:12px;opacity:.9;margin-top:2px}
+/* La tarjeta del plan y la de Práctica diaria viven DENTRO del héroe. */
+.m05-hero .plan-card{margin:10px 0 0}
+.m05-hero .plan-steps{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.m05-hero .plan-step{background:rgba(255,255,255,.16);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:700;color:#fff}
+.m05-hero .pd-home{margin:10px 0 0;background:transparent;border:2px solid rgba(255,255,255,.5);box-shadow:none;color:#fff}
+.m05-hero .pd-home h3{color:#fff;font-size:16px}
+.m05-hero .pd-home .muted{color:rgba(255,255,255,.85)}
+.m05-hero .pd-home .pd-chips span{background:rgba(255,255,255,.16);border-color:transparent;color:#fff}
+.m05-hero .pd-home .btn.primary{background:#fff;color:#4b2868;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.m05-hero .pd-home .btn.ghost{background:transparent;border-color:rgba(255,255,255,.6);color:#fff;box-shadow:none}
+.m05-hero .pd-home.done{border-color:var(--g);background:rgba(31,164,99,.18)}
+.m05-course-count{margin:12px 12px 0;font-size:13px;font-weight:800;color:var(--mute);text-align:center}
+/* ---- Aprender: camino con 17 mundos ---- */
+.m05-path{padding:4px 0 8px}
+.world{margin:10px 0;padding:10px 0 14px;position:relative;border-radius:20px;background:linear-gradient(180deg,color-mix(in srgb,var(--uc) 16%,var(--bg)),color-mix(in srgb,var(--uc) 32%,var(--bg)))}
+.world .motifs{position:absolute;inset:0;overflow:hidden;pointer-events:none;font-size:26px;opacity:.5}
+.world .motifs span{position:absolute}
+.world-div{display:flex;align-items:center;gap:8px;margin:0 12px 4px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 10px;position:relative;z-index:1}
+.world-div .udot{width:14px;height:14px;border-radius:50%;flex:none;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.world-div .ut{flex:1;min-width:0}
+.world-div .ut b{font-size:13px;display:block;line-height:1.25}
+.world-div .ut span{font-size:11px;color:var(--mute)}
+.m05-uring{width:34px;height:34px;flex:none}
+.m05-uring .bg{stroke:var(--line)}
+.m05-uring .fg{stroke-linecap:round}
+.m05-uring text{fill:var(--ink);font-weight:900;font-size:9px}
+.mini-btn{font:inherit;font-size:11px;font-weight:800;border:2px solid var(--line);background:var(--card2,var(--card));color:var(--ink);border-radius:999px;padding:6px 9px;cursor:pointer;min-height:36px;white-space:nowrap}
+.nodes{display:flex;flex-direction:column;align-items:center;gap:34px;position:relative;z-index:1;padding-top:10px}
+/* ---- Aprender: espejo de modos de práctica ---- */
+.m05-practice{margin:12px 0}
+#modesExtra .duo2{display:block;margin:0 0 10px}
+#modesExtra .tc-entry{margin-top:10px}
+/* ---- Ajustes: héroe ---- */
+.m05-set-hero{margin:0 0 12px;background:linear-gradient(135deg,#4b2868,#603584);color:#fff;border-radius:20px;padding:14px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 16px rgba(43,23,65,.35)}
+.m05-set-hero-copy{flex:1;min-width:0}
+.m05-set-hero h2{margin:0;font-size:24px;color:#fff}
+.m05-set-hero p{margin:4px 0 0;font-size:13px;opacity:.92}
+.m05-status-line{margin-top:10px;font-size:12px;font-weight:800;background:rgba(255,255,255,.16);border-radius:999px;padding:6px 10px;display:inline-block}
+.m05-tuki-hero{width:104px;height:104px;flex:none;position:relative}
+.m05-tuki-img{width:100%;height:100%;border-radius:50%;overflow:hidden;border:3px solid var(--lime);background:#fff}
+.m05-tuki-img img{width:100%;height:100%;display:block;object-fit:cover}
+.m05-phones{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);pointer-events:none}
+/* ---- Ajustes: hub de 7 filas ---- */
+.m05-hub{display:flex;flex-direction:column;gap:10px}
+.m05-hub-row{display:flex;gap:12px;align-items:center;width:100%;text-align:left;font:inherit;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px;cursor:pointer;color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.m05-hub-ic{width:48px;height:48px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;font-size:26px;background:#efe6f7}
+html[data-theme="dark"] .m05-hub-ic{background:#30243d}
+.m05-hub-tx{flex:1;min-width:0}
+.m05-hub-tx b{font-size:15px;display:block}
+.m05-hub-tx span{font-size:12px;color:var(--mute);line-height:1.35;display:block}
+.m05-chev{font-size:22px;color:var(--plum2);flex:none}
+.m05-badge-av{font-size:10px;font-weight:900;background:var(--lav);color:#21152d;border-radius:999px;padding:2px 7px;white-space:nowrap}
+.m05-ver-foot{font-size:12px;color:var(--mute);text-align:center;padding:14px 0 4px;line-height:1.5}
+/* ---- Ajustes: subpantallas ---- */
+.m05-sub-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.m05-sub-head button{font:inherit;font-size:13px;font-weight:800;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:9px 12px;cursor:pointer;min-height:44px}
+.m05-sub-head h2{margin:0;font-size:19px;flex:1}
+.m05-adv{border:2px solid var(--line);border-radius:14px;padding:10px 12px;margin:10px 0;background:var(--card)}
+.m05-adv summary{font-weight:900;font-size:14px;cursor:pointer;min-height:44px;display:flex;align-items:center}
+.m05-adv summary::-webkit-details-marker{display:none}
+.m05-adv > .card{border:0;box-shadow:none;margin:0;padding:0}
+.m05-adv > .card > h3{display:none}

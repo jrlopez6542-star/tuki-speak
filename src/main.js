@@ -875,27 +875,48 @@ document.addEventListener('keydown', e => {
 
 /* =================== VISTAS =================== */
 export let TAB = 'home';
+// (M05-R1: bandera de scroll al nodo actual al entrar en Aprender, y
+// subpantalla abierta del hub de Ajustes — null = hub. Solo memoria.)
+let learnScrollPending = false;
+let settingsSub = null;
 export function render() {
   refreshHearts();
   updateMascot();
   $('#brand').innerHTML = `<span class="brand-mascot-wrap" title="¡Toca a Tuki!">${MASCOT}</span><span class="brand-word">tuki<span>speak</span></span>`;
   const st = streakNow();
-  $('#stStreak').innerHTML = '🔥 ' + st; $('#stStreak').classList.toggle('off', st === 0 || S.lastDay !== dayKey());
-  $('#stXp').innerHTML = '💎 ' + S.xp;
-  $('#stHearts').innerHTML = '❤️ ' + S.hearts;
+  // (M05-R1, H5 estricto: la cabecera ya no muestra métricas — solo marca
+  // + icono de Perfil. Las píldoras 🪙/🔥/💎/❤️ no existen en el DOM; las
+  // escrituras se guardan para no romper si algún día vuelven. La lógica
+  // que gana y guarda monedas, racha, XP y corazones NO cambia.)
+  const stStreakEl = $('#stStreak'); if (stStreakEl) { stStreakEl.innerHTML = '🔥 ' + st; stStreakEl.classList.toggle('off', st === 0 || S.lastDay !== dayKey()); }
+  const stXpEl = $('#stXp'); if (stXpEl) stXpEl.innerHTML = '💎 ' + S.xp;
+  const stHeartsEl = $('#stHearts'); if (stHeartsEl) stHeartsEl.innerHTML = '❤️ ' + S.hearts;
   const scEl = $('#stCoins');
   if (scEl) scEl.innerHTML = '🪙 ' + (S.coins || 0);
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === TAB));
   const v = $('#view'); (VIEWS[TAB] || VIEWS.learn)(v); window.scrollTo(0, 0);
 }
-export function go(tab) { TAB = tab; stopRecognize(); render(); }
+export function go(tab) {
+  TAB = tab;
+  // (M05-R1: al entrar en Aprender, el camino hace scroll al nodo actual.
+  // La bandera solo se pone al navegar con go(); un render() suelto no
+  // mueve el scroll. Al salir de Ajustes se vuelve al hub.)
+  if (tab === 'learn') learnScrollPending = true;
+  if (tab !== 'settings') settingsSub = null;
+  stopRecognize(); render();
+}
 $$('.tab').forEach(t => t.onclick = () => go(t.dataset.tab));
 $('#stProfile').onclick = () => openProfileModal();
 const brandEl = $('#brand');
 if (brandEl) { brandEl.onclick = () => interactWithTuki(brandEl); makeMascotClickable(brandEl, '¡Toca a Tuki!'); }
-$('#stHearts').onclick = () => modal(`<h2>❤️ Vidas: ${S.hearts}/${MAX_HEARTS}</h2><p class="muted">Pierdes una vida solo en ejercicios de <b>oído</b> (elegir, ordenar, escribir) durante las lecciones. Los ejercicios de voz nunca quitan vidas. ${S.hearts < MAX_HEARTS ? `Próxima vida en ~${nextHeartIn()} min.` : '¡Estás al máximo!'} Completar una práctica te da +1 vida.</p><button class="btn primary block" data-x>Entendido</button>`, (el, c) => $('[data-x]', el).onclick = c);
-$('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p><button class="btn primary block" data-x>¡Vamos!</button>`, (el, c) => $('[data-x]', el).onclick = c);
-$('#stXp').onclick = () => go('profile');
+// (M05-R1, H5 estricto: las píldoras de vidas/racha/XP ya no existen en
+// la cabecera; sus modales quedan guardados por si los elementos vuelven.
+// El destino Perfil se alcanza ahora desde el modal de Perfil — botón
+// «👤 Mi perfil» — y desde el XP de la hoja de Perfil.)
+const stHeartsBtn = $('#stHearts');
+if (stHeartsBtn) stHeartsBtn.onclick = () => modal(`<h2>❤️ Vidas: ${S.hearts}/${MAX_HEARTS}</h2><p class="muted">Pierdes una vida solo en ejercicios de <b>oído</b> (elegir, ordenar, escribir) durante las lecciones. Los ejercicios de voz nunca quitan vidas. ${S.hearts < MAX_HEARTS ? `Próxima vida en ~${nextHeartIn()} min.` : '¡Estás al máximo!'} Completar una práctica te da +1 vida.</p><button class="btn primary block" data-x>Entendido</button>`, (el, c) => $('[data-x]', el).onclick = c);
+const stStreakBtn = $('#stStreak');
+if (stStreakBtn) stStreakBtn.onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p><button class="btn primary block" data-x>¡Vamos!</button>`, (el, c) => $('[data-x]', el).onclick = c);
 export const VIEWS = {};
 
 /* ---- Inicio (prototipo Temas Globales, ui/prototipo-temas-globales) ---- */
@@ -1054,19 +1075,24 @@ function bindPsetGroups(root) {
    applyPrefs(); los toggles usan S.settings.tukiVisible / tukiGreeting. */
 function openProfileModal() {
   modal(`<h2>Perfil y ajustes</h2>${psetGroupsHTML()}
-  <div class="row" style="margin-top:14px"><button class="btn ghost block" id="psetProgress">📈 Ver mi progreso</button><button class="btn ghost block" id="psetSettings">⚙️ Ajustes completos</button></div>`,
+  <div class="row wrap" style="margin-top:14px"><button class="btn ghost block" id="psetProfile">👤 Mi perfil</button><button class="btn ghost block" id="psetProgress">📈 Ver mi progreso</button><button class="btn ghost block" id="psetSettings">⚙️ Ajustes completos</button></div>`,
   (el, close) => {
     bindPsetGroups(el);
+    $('#psetProfile', el).onclick = () => { close(); go('profile'); };
     $('#psetProgress', el).onclick = () => { close(); go('progress'); };
     $('#psetSettings', el).onclick = () => { close(); go('settings'); };
   });
 }
 
-/* (Fase 2: destino Perfil — se entra por el XP del encabezado. Mismo
+/* (Fase 2: destino Perfil — se entra por el icono de Perfil de la
+   cabecera (modal «Perfil y ajustes» → «👤 Mi perfil»). Mismo
    diseño que el modal "Perfil y ajustes": héroe con Tuki raster y
    cifras reales, grupos Apariencia/Experiencia/Comportamiento y
    accesos a Progreso y Ajustes. Sin pestaña nueva en la
-   tabbar: en esta vista ninguna píldora queda activa.) */
+   tabbar: en esta vista ninguna píldora queda activa.
+   M05-R1 (D-M05-01 b): el formulario de Cuenta vive AQUÍ — sale de
+   Ajustes y solo existe en Perfil (acctHTML + bindAcct, mismas claves
+   y misma lógica que antes; solo cambia de destino).) */
 VIEWS.profile = v => {
   const st = streakNow();
   v.innerHTML = `<div class="profile-hero">
@@ -1079,97 +1105,150 @@ VIEWS.profile = v => {
       <article class="home-stat"><strong>☆ ${S.xp}</strong><small>XP<br>acumulados</small></article>
       <article class="home-stat"><strong>🪙 ${S.coins || 0}</strong><small>Monedas</small></article>
     </div>
+    ${acctHTML()}
     ${psetGroupsHTML()}
     <div class="row wrap" style="margin-top:14px"><button class="btn primary block" id="profProgress">📈 Ver mi progreso</button><button class="btn ghost block" id="profSettings">⚙️ Ajustes completos</button></div>`;
+  bindAcct(v);
   bindPsetGroups(v);
   $('#profProgress').onclick = () => go('progress');
   $('#profSettings').onclick = () => go('settings');
 };
 
-/* ---- Aprender: mapa ---- */
+/* ---- Aprender: mapa (M05-R1) ----
+   Rediseño M05 (BRIEF §5.1, mockup M05-R1): un solo camino serpenteante
+   con las 17 unidades reales como mundos (cada una con su color real como
+   acento --uc, fondo teñido con color-mix, atenuado en oscuro), héroe
+   «Plan de hoy» fijo arriba, contador del curso, etiquetas de lección
+   SOLO en la unidad actual, Hito al final de cada unidad y scroll al nodo
+   actual al entrar. La tarjeta de lección sigue siendo el modal
+   lessonSheet EXISTENTE (no hay uno nuevo). La sección «🎭 Modos de
+   práctica» es un ESPEJO de la tarjeta de Práctica (misma lógica de
+   desbloqueo, mismos destinos): no mueve su lógica ni duplica estado.
+   Sin cambios de lógica: mismo COURSE, mismo desbloqueo, mismo Plan de
+   hoy (10 ejercicios), misma Práctica diaria (3), mismo SM-2, +10 XP.
+   El selector de nivel sale de Aprender (brief §5.1.2): vive en
+   Ajustes → Aprendizaje. Cofre/Retos quedan como franja compacta en el
+   héroe; las tarjetas de Cofre/Retos con sus botones de reclamar siguen
+   renderizándose (wrapper de cofres) antes del camino.
+   Tuki acompaña al nodo actual DEBAJO de él (como hacía la app): a su
+   lado, como dibuja el mockup, desbordaría a 360 px cuando el nodo actual
+   cae en el offset -64 del zigzag. */
+function m05RingSVG(done, total, color) {
+  const p = total ? done / total : 0, circ = 2 * Math.PI * 15, off = circ * (1 - p);
+  return `<svg class="m05-uring" viewBox="0 0 36 36" role="img" aria-label="${done} de ${total} lecciones"><circle class="bg" cx="18" cy="18" r="15" fill="none" stroke-width="4"/><circle class="fg" cx="18" cy="18" r="15" fill="none" stroke-width="4" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 18 18)" stroke="${color}"/><text x="18" y="21.5" text-anchor="middle">${done}/${total}</text></svg>`;
+}
+/* Espejo de la tarjeta «🎭 Modos de práctica» de Práctica (_practice211):
+   mismos 8 modos, mismos iconos, descripciones, píldoras y candados
+   (isFeatureUnlocked + srsStats leen el mismo estado en vivo; no hay
+   estado duplicado), mismas acciones al tocar. */
+function m05ModesMirrorHTML() {
+  const st = srsStats();
+  const modes = [
+    { key: 'srs', unl: isFeatureUnlocked('srs'), icon: '🧠', bg: '#fff3d6', title: 'Repaso Inteligente (SRS)', pill: isFeatureUnlocked('srs') ? `<span class="srs-pill due">${st.due} hoy</span>` : '<span class="lock-pill">🔒 Bloqueado</span>', extra: isFeatureUnlocked('srs') ? `<div class="srs-stats"><span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span><span class="srs-pill mat">🏆 ${st.mature} dominadas</span></div>` : '', desc: 'Algoritmo SM-2 · repasa en el momento exacto antes de olvidar' },
+    { key: 'handsfree', unl: isFeatureUnlocked('handsfree'), icon: '🎧', bg: '#e0f2fe', title: 'Modo Manos Libres', pill: isFeatureUnlocked('handsfree') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla' },
+    { key: 'missions', unl: isFeatureUnlocked('missions'), icon: '🎯', bg: '#fef3c7', title: 'Misiones de Conversación Real', pill: isFeatureUnlocked('missions') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: '8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)' },
+    { key: 'shadow', unl: isFeatureUnlocked('shadow'), icon: '🎙️', bg: '#e8f4fd', title: 'Modo Shadowing', pill: isFeatureUnlocked('shadow') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha e imita frases con entonación nativa y habla conectada' },
+    { key: 'mouth', unl: isFeatureUnlocked('mouth'), icon: '👄', bg: '#f3fbf7', title: 'Guía Fonética y Bocas', pill: isFeatureUnlocked('mouth') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)' },
+    { key: 'photo', unl: isFeatureUnlocked('photo'), icon: '📷', bg: '#fdf2f8', title: 'Describe la Foto / Objeto', pill: isFeatureUnlocked('photo') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Práctica multimodal con tu cámara o fotos para ganar vocabulario' },
+    { key: 'travel', unl: isFeatureUnlocked('travel'), icon: '✈️', bg: '#e0f2fe', title: 'Guía de Viaje y Supervivencia', pill: isFeatureUnlocked('travel') ? '<span class="novice-badge">🌱 Novato & Viajes</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol' },
+    { key: 'interview', unl: isFeatureUnlocked('interview'), icon: '💼', bg: '#fef3c7', title: 'Simulador de Entrevista Laboral', pill: isFeatureUnlocked('interview') ? '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática' },
+  ];
+  return modes.map(m => `<button class="mode-row ${!m.unl ? 'locked-card' : ''}" data-m05mode="${m.key}">
+      <div class="em" style="background:${m.bg}">${m.unl ? m.icon : '🔒'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="row between"><h3 style="margin:0 0 2px">${m.title}</h3>${m.pill}</div>
+        ${m.extra}
+        <div class="muted small">${m.desc}</div>
+      </div>
+    </button>`).join('');
+}
+function m05ModesMirrorBind(v) {
+  const act = {
+    srs: () => startReview(),
+    handsfree: () => openHandsFreeModal(),
+    missions: () => openMissionsModal(),
+    shadow: () => openShadowingModal(),
+    mouth: () => openMouthSelector(),
+    photo: () => openPhotoPractice(),
+    travel: () => openTravelGuideModal(),
+    interview: () => openInterviewSimulatorModal(),
+  };
+  $$('[data-m05mode]', v).forEach(b => b.onclick = () => {
+    const k = b.dataset.m05mode;
+    if (!isFeatureUnlocked(k)) return showLockedFeatureModal(k);
+    act[k]();
+  });
+}
 VIEWS.learn = v => {
   const goal = S.settings.goal, t = todayRec().xp, p = Math.min(100, Math.round(t / goal * 100)), cur = currentLesson();
   const due = dueCards().length;
-  const curLevel = S.settings.learnerLevel || 'novice';
-  let html = `<div class="level-picker-card">
-    <div class="row between">
-      <div>
-        <h3 style="margin:0">🎓 Tu nivel de aprendizaje</h3>
-        <div class="small muted">Personaliza la experiencia, frases y explicaciones</div>
-      </div>
-      <span class="novice-badge">${curLevel === 'novice' ? '🌱 Desde cero' : curLevel === 'intermediate' ? '⚡ Intermedio' : '🚀 Avanzado'}</span>
-    </div>
-    <div class="level-seg" id="levelSeg">
-      <button class="level-seg-btn ${curLevel === 'novice' ? 'active' : ''}" data-lvl="novice">
-        <span>🌱 Novato</span>
-        <span style="font-size:10px;font-weight:600">Desde cero</span>
-      </button>
-      <button class="level-seg-btn ${curLevel === 'intermediate' ? 'active' : ''}" data-lvl="intermediate">
-        <span>⚡ Intermedio</span>
-        <span style="font-size:10px;font-weight:600">Bases claras</span>
-      </button>
-      <button class="level-seg-btn ${curLevel === 'advanced' ? 'active' : ''}" data-lvl="advanced">
-        <span>🚀 Avanzado</span>
-        <span style="font-size:10px;font-weight:600">Fluidez total</span>
-      </button>
-    </div>
-  </div>`;
-
-  if (curLevel === 'novice') {
-    html += `<div class="novice-tip-banner">
-      <div style="font-size:26px">💡</div>
-      <div style="flex:1"><b>Modo Novato activo:</b> Incluye pronunciación figurada en español y ritmo pausado para que aprendas sin miedo. ¡Toca cualquier palabra para escucharla lento!</div>
-    </div>`;
-  }
-
-  html += `<div class="card goal"><div class="ring" style="--p:${p}" data-t="${Math.min(t, goal)}/${goal}"></div><div style="flex:1"><h3>Meta diaria</h3><div class="muted small">${t >= goal ? '🎉 ¡Meta cumplida! Sigue si quieres.' : `Te faltan ${goal - t} XP hoy.`}</div>
-    ${due ? `<button class="btn blue sm" style="margin-top:8px" id="dueBtn">🃏 Repasar ${due} tarjeta${due > 1 ? 's' : ''}</button>` : ''}</div></div>`;
+  const doneCount = Object.values(S.done).filter(d => d && (!d.placed || d.times)).length;
+  const curUnit = cur ? cur.ui + 1 : COURSE.length;
+  const qk = dayKey();
+  const qClaimed = ['q1', 'q2', 'q3'].filter(q => S.quests && S.quests[qk + '_' + q]).length;
+  let html = `<section class="m05-hero" id="learnHero">
+    <h2>📅 Plan de hoy</h2>
+    <p class="m05-hero-sub">~10 min · Tu sesión guiada de hoy</p>
+    <div class="m05-goal" id="learnGoal"><div class="ring" style="--p:${p}" data-t="${Math.min(t, goal)}/${goal}"></div><div class="m05-goal-copy"><div class="m05-xp-line">${t >= goal ? '🎉 ¡Meta cumplida! Sigue si quieres.' : `Te faltan ${goal - t} XP hoy.`}</div>
+    <div class="m05-chest-line">🎁 Cofre: ${Math.min(t, goal)}/${goal} XP · 🎯 Retos ${qClaimed}/3</div>
+    ${due ? `<button class="btn blue sm" style="margin-top:8px" id="dueBtn">🃏 Repasar ${due} tarjeta${due > 1 ? 's' : ''}</button>` : ''}</div></div>
+  </section>`;
+  // (El wrapper _learn inserta planCardHTML tras #learnGoal y la Prueba
+  // de nivel tras #learnHero; el wrapper _learn27 inserta pdCardHTML
+  // tras .plan-card — todo dentro del héroe.)
   if (!canSpeak()) html += `<div class="notice">⚠️ Este navegador no tiene reconocimiento de voz: podrás escuchar, grabarte y comparar, pero no recibir puntaje (o configura Azure en Ajustes). Para la experiencia completa usa <b>Google Chrome</b> (Android o computador) o Edge.</div>`;
+  html += `<p class="m05-course-count" id="courseCount">${doneCount}/50 lecciones · Unidad ${curUnit} de 17</p>`;
+  html += `<div class="m05-path" id="path">`;
   COURSE.forEach((u, ui) => {
     const done = u.lessons.filter(l => isDone(l.id)).length;
-    const prevUnitDone = ui === 0 || S.settings.freeMode || COURSE[ui - 1].lessons.every(l => isDone(l.id));
-    // (fase premium, etapa 5: hito al final de cada unidad)
     const unitDone = done === u.lessons.length;
-    html += `<section class="unit unit-ambient ${!prevUnitDone ? 'unit-locked' : ''}" style="--uc:${u.color}"><div class="unit-head" style="background:${u.color}"><div><p>Unidad ${ui + 1} · ${done}/${u.lessons.length} ${!prevUnitDone ? '🔒' : ''}</p><h3>${u.icon} ${esc(u.title)}</h3><p>${esc(u.desc)}</p></div><button class="guide" data-guide="${u.id}">📘 Guía</button></div><div class="path">`;
+    const isCurUnit = !!cur && cur.ui === ui;
+    const motifs = [u.icon].concat(u.lessons.map(l => l.icon)).map((m, i) => {
+      const pos = [[6, 8], [78, 26], [12, 64], [82, 78]][i % 4];
+      return `<span style="left:${pos[0]}%;top:${pos[1]}%">${m}</span>`;
+    }).join('');
+    html += `<section class="world" id="world-${ui + 1}" style="--uc:${u.color}"><div class="motifs" aria-hidden="true">${motifs}</div><div class="world-div"><span class="udot" style="background:${u.color}"></span><span class="ut"><b>${u.icon} Unidad ${ui + 1} · ${esc(u.title)}</b><span>Unidad ${ui + 1} de 17 · ${done}/${u.lessons.length} lecciones</span></span>${m05RingSVG(done, u.lessons.length, u.color)}<button class="mini-btn" type="button" data-guide="${u.id}">📘 Guía</button><button class="mini-btn" type="button" data-collapse="${u.id}" aria-expanded="true">▲</button></div><div class="nodes" id="nodes-${u.id}">`;
     u.lessons.forEach((l, li) => {
       const unl = isUnlocked(l), dn = isDone(l.id), isCur = cur && cur.id === l.id;
       const off = [0, 48, 64, 48, 0, -48, -64, -48][(l.idx) % 8];
       const avgS = soundAvg(l.id);
       html += `<div class="node-wrap" style="transform:translateX(${off}px)">${isCur ? '<div class="start-tip">¡EMPEZAR!</div>' : ''}
         <button class="node ${dn ? 'done' : unl ? '' : 'locked'} ${isCur ? 'current' : ''}" style="--uc:${u.color}" data-lesson="${l.id}" aria-label="${esc(l.title)}">${dn ? '⭐' : unl ? l.icon : '🔒'}</button>
-        <div class="node-label">${esc(l.title)}${avgS !== null ? `<br><span class="pill ${avgS >= 80 ? 'ok' : ''}">${avgS}%</span>` : ''}</div>${isCur ? `<div class="tuki-guide"><div class="tuki-guide-mascot" title="¡Toca a Tuki!">${MASCOT}</div><div class="tuki-guide-bubble">${esc(TUKI_QUOTES_ES[0])}</div></div>` : ''}</div>`;
+        ${isCurUnit ? `<div class="node-label">${esc(l.title)}${avgS !== null ? `<br><span class="pill ${avgS >= 80 ? 'ok' : ''}">${avgS}%</span>` : ''}</div>` : ''}${isCur ? `<div class="tuki-guide"><div class="tuki-guide-mascot" title="¡Toca a Tuki!">${MASCOT}</div><div class="tuki-guide-bubble">${esc(TUKI_QUOTES_ES[0])}</div></div>` : ''}</div>`;
     });
     html += `<div class="node-wrap"><button class="unit-milestone ${unitDone ? 'reached' : ''}" style="--uc:${u.color}" data-guide="${u.id}" aria-label="Hito de la unidad ${ui + 1}: ${esc(u.title)}${unitDone ? ' (conquistado)' : ''}">🏆</button><div class="node-label">Hito · Unidad ${ui + 1}</div></div></div></section>`;
   });
+  html += `</div>`;
+  html += `<section class="card m05-practice" id="modesMirror">
+    <h3 style="margin:0 0 2px">🎭 Modos de práctica <button class="mini-btn" type="button" id="modesToggle" aria-expanded="false" style="float:right">Expandir ▼</button></h3>
+    <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 8 modos</div>
+    <div id="modesBody" class="hidden">${m05ModesMirrorHTML()}</div>
+    <div id="modesExtra"></div>
+    <p class="muted small" id="modesHint">La tarjeta vive en Práctica; aquí se espeja como sección colapsada al final del camino. Toca «Expandir» para ver las 8 filas.</p>
+  </section>`;
   html += `<p class="muted small" style="text-align:center">¿Quieres saltar a otra lección? Activa el "modo libre" en ⚙️ Ajustes.</p>`;
-  html += `<div class="row" style="margin:14px 0 4px;justify-content:center"><button class="btn ghost sm" id="learnPracticeBtn">🎤 Práctica</button><button class="btn ghost sm" id="learnWordsBtn">🃏 Palabras</button></div>`;
+  html += `<div class="row" style="margin:14px 0 4px;justify-content:center"><button class="btn ghost sm" id="learnWordsBtn">🃏 Palabras</button></div>`;
   v.innerHTML = html;
 
-  $$('#levelSeg .level-seg-btn', v).forEach(btn => {
-    btn.onclick = () => {
-      const lvl = btn.dataset.lvl;
-      S.settings.learnerLevel = lvl;
-      if (lvl === 'novice') {
-        S.settings.rate = 0.8;
-        S.settings.chatLevel = 'A2';
-      } else if (lvl === 'intermediate') {
-        S.settings.rate = 0.9;
-        S.settings.chatLevel = 'B1';
-      } else {
-        S.settings.rate = 1.0;
-        S.settings.chatLevel = 'C1';
-      }
-      save();
-      toast(`Nivel cambiado a: ${lvl === 'novice' ? '🌱 Novato (Desde cero)' : lvl === 'intermediate' ? '⚡ Intermedio' : '🚀 Avanzado'}`);
-      render();
-    };
-  });
-
   const db = $('#dueBtn'); if (db) db.onclick = () => startReview();
-  const lp = $('#learnPracticeBtn'); if (lp) lp.onclick = () => go('practice');
   const lw = $('#learnWordsBtn'); if (lw) lw.onclick = () => go('words');
   $$('[data-lesson]', v).forEach(b => b.onclick = () => lessonSheet(LESSON[b.dataset.lesson]));
   $$('[data-guide]', v).forEach(b => b.onclick = () => guideSheet(COURSE.find(u => u.id === b.dataset.guide)));
+  $$('[data-collapse]', v).forEach(b => b.onclick = () => {
+    const n = $('#nodes-' + b.dataset.collapse);
+    if (!n) return;
+    const hidden = n.classList.toggle('hidden');
+    b.textContent = hidden ? '▼' : '▲';
+    b.setAttribute('aria-expanded', String(!hidden));
+  });
+  m05ModesMirrorBind(v);
+  const mt = $('#modesToggle'); if (mt) mt.onclick = () => {
+    const body = $('#modesBody'), hint = $('#modesHint');
+    const open = body.classList.toggle('hidden') === false;
+    mt.textContent = open ? 'Plegar ▲' : 'Expandir ▼';
+    mt.setAttribute('aria-expanded', String(open));
+    if (hint) hint.textContent = open ? 'Mismas 8 filas, iconos, descripciones y candados que en Práctica hoy.' : 'La tarjeta vive en Práctica; aquí se espeja como sección colapsada al final del camino. Toca «Expandir» para ver las 8 filas.';
+  };
   // (fase premium, etapa 5: Tuki guía en el nodo actual; tocarlo es lo mismo
   // que tocar a Tuki en la marca o en el banner del tutor: celebra y habla
   // con una frase existente de TUKI_QUOTES_ES. Al renderizar saluda con la
@@ -1552,10 +1631,15 @@ VIEWS.words = v => { if (WORDS_MODE === 'dict') return renderDict(v); _words(v);
 const _learn = VIEWS.learn;
 VIEWS.learn = v => {
   _learn(v);
-  const g = $('.card.goal', v);
+  // (M05-R1: el Plan de hoy vive dentro del héroe — la tarjeta del plan se
+  // inserta tras el anillo de la meta — y la Prueba de nivel es una fila
+  // discreta bajo el héroe, como en el mockup.)
+  const g = $('#learnGoal', v);
+  if (g) g.insertAdjacentHTML('afterend', planCardHTML());
   const cta = S.placement == null || S.placement === 'skipped' && !Object.keys(S.done).length ? `<div class="card row between"><div><b>🧭 Prueba de nivel</b><div class="small muted">3 minutos para empezar en la unidad correcta.</div></div><button class="btn blue sm" id="plBtn">Hacer</button></div>` : '';
-  g.insertAdjacentHTML('afterend', planCardHTML() + cta);
-  $('#planBtn').onclick = () => { const q = buildPlan(); q.length ? startLesson(null, 'plan', q, 'Plan de hoy') : toast('Completa una lección primero.'); };
+  const hero = $('#learnHero', v);
+  if (hero && cta) hero.insertAdjacentHTML('afterend', cta);
+  const planBtn = $('#planBtn'); if (planBtn) planBtn.onclick = () => { const q = buildPlan(); q.length ? startLesson(null, 'plan', q, 'Plan de hoy') : toast('Completa una lección primero.'); };
   const pb = $('#plBtn'); if (pb) pb.onclick = placementIntro;
 };
 
@@ -1586,7 +1670,9 @@ VIEWS.progress = v => {
 };
 
 /* =================== RACHA: modal con protectores =================== */
-$('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p>
+// (M05-R1: guardado — la píldora de racha ya no está en la cabecera.)
+const stStreakBtn2 = $('#stStreak');
+if (stStreakBtn2) stStreakBtn2.onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p>
   <div class="tipbox">🧊 <b>Protectores de racha: ${S.freezes || 0}/2</b><br><span class="small">Si un día no practicas, un protector mantiene tu racha. Ganas uno cada 7 días seguidos, o puedes canjear uno por 100 XP.</span></div>
   <div class="row"><button class="btn ghost block" data-buy ${(S.freezes || 0) >= 2 || S.xp < 100 ? 'disabled' : ''}>Canjear (100 XP)</button><button class="btn primary block" data-x>¡Vamos!</button></div>`,
   (el, c) => { $('[data-x]', el).onclick = c; $('[data-buy]', el).onclick = () => { S.xp -= 100; S.freezes = (S.freezes || 0) + 1; save(); c(); render(); toast('🧊 ¡Protector de racha listo!'); }; });
@@ -1799,9 +1885,8 @@ VIEWS.settings = v => {
   // Ajustes vive en la tarjeta 👤 Cuenta; aquí solo un enlace que
   // desplaza hasta ella.)
   const aiG = $('#aiGoAcct', v);
-  // (PR1, regla R-3: el enlace interno cambia primero el filtro al nivel
-  // de la tarjeta destino — Cuenta es Básico — y luego desplaza.)
-  if (aiG) aiG.onclick = () => { const lv = $('#settingsLevel [data-slevel="basic"]', v); if (lv) lv.click(); const c = $('#acctCard', v); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+  // (M05-R1: Cuenta vive en Perfil — el enlace lleva al destino Perfil.)
+  if (aiG) aiG.onclick = () => go('profile');
   const gmsg = $('#gmsg');
   $('#gsave').onclick = () => { set('geminiKey', $('#gkey').value.trim()); set('model', $('#gmodel').value.trim() || 'gemini-2.5-flash'); set('liveModel', $('#lmodel').value.trim() || GEMINI_LIVE_MODELS[0]); CHAT.hist = []; gmsg.textContent = S.settings.geminiKey ? '✅ Guardado. Ve a la pestaña IA.' : 'Clave vacía: Gemini queda desactivado.'; };
   $('#gdel').onclick = () => { set('geminiKey', ''); $('#gkey').value = ''; gmsg.textContent = 'Clave borrada.'; };
@@ -1959,8 +2044,11 @@ VIEWS.learn = v => {
   _learn24(v);
   const html = `<div class="duo2">
     <button class="card mcard iv" id="ivCard"><div class="mc-ic">🧑‍💼</div><div><b>Entrevista de trabajo</b><div class="small muted">Simulador con informe</div><div class="small">${S.interviews.length ? 'Última: ' + S.interviews[0].data.overall + '/100' : '5, 8 o 12 preguntas'}</div></div></button></div>`;
-  const anchor = $('.plan-card', v) || $('.card.goal', v);
-  if (anchor) anchor.insertAdjacentHTML('afterend', html); else v.insertAdjacentHTML('afterbegin', html);
+  // (M05-R1, brief §5.1.2: la Entrevista vive como fila dentro de la
+  // sección de práctica, junto al espejo de modos.)
+  const extra = $('#modesExtra', v);
+  if (extra) extra.insertAdjacentHTML('beforeend', html);
+  else { const anchor = $('.plan-card', v) || $('#learnGoal', v); if (anchor) anchor.insertAdjacentHTML('afterend', html); else v.insertAdjacentHTML('afterbegin', html); }
   $('#ivCard', v).onclick = interviewSetup;
 };
 /* Progreso: historial */
@@ -2144,6 +2232,10 @@ finishLesson = function () { if (L && L.mode === 'tc') return tcFinish(); return
 const _learn25 = VIEWS.learn;
 VIEWS.learn = v => {
   _learn25(v);
+  // (M05-R1, brief §5.1.2: Traduce y completa vive como fila dentro de la
+  // sección de práctica, junto al espejo de modos.)
+  const extra = $('#modesExtra', v);
+  if (extra) { extra.insertAdjacentHTML('beforeend', tcEntryHTML('tcEntry')); $('#tcEntry', v).onclick = tcSetup; return; }
   const anchor = $('.duo2', v) || $('.plan-card', v);
   if (anchor) { anchor.insertAdjacentHTML('afterend', tcEntryHTML('tcEntry')); $('#tcEntry', v).onclick = tcSetup; }
 };
@@ -2245,7 +2337,9 @@ const _finish27 = finishLesson; finishLesson = function () { if (L && L.mode ===
 const _learn27 = VIEWS.learn;
 VIEWS.learn = v => {
   _learn27(v);
-  const g = $('.card.goal', v);
+  // (M05-R1: la Práctica diaria vive dentro del héroe como acción
+  // secundaria — botón «🌅 Diaria» del mockup — tras la tarjeta del plan.)
+  const g = $('.plan-card', v) || $('#learnGoal', v);
   if (g) g.insertAdjacentHTML('afterend', pdCardHTML()); else v.insertAdjacentHTML('afterbegin', pdCardHTML());
   $('#pdGo', v).onclick = startPD;
 };
@@ -2280,11 +2374,13 @@ export function fbOnUser(u) {
   if (u) { lsSet(FB_HINT, { uid: u.uid, email: FB.user.email }); if (prev !== u.uid) { FB.first = false; FB.remoteKeys = undefined; setTimeout(() => cloudFirstSync().catch(fbFail), 0); } }
   else { lsSet(FB_HINT, null); FB.remoteKeys = undefined; clearTimeout(FB.timer); FB.timer = null; }
   fbRefreshUI();
-  if (TAB === 'settings' || TAB === 'chat') render();
+  if (TAB === 'settings' || TAB === 'chat' || TAB === 'profile') render();
 }
 export function fbRefreshUI() {
   if (TAB === 'chat' && !LIVE.on && !CHAT.busy && !$('#log') !== !currentProvider()) render(); // el chat cambia al iniciar/cerrar sesión
-  if (TAB !== 'settings') return;
+  // (M05-R1: Cuenta vive en Perfil, así que el refresco de la tarjeta de
+  // cuenta también corre en el destino Perfil, no solo en Ajustes.)
+  if (TAB !== 'settings' && TAB !== 'profile') return;
   const am = $('#aiMode'); if (am) am.textContent = aiModeText();
   const aq = $('#aiQuota'); if (aq) aq.textContent = aiQuotaText();
   const a = $('#acctCard'); if (a) { a.outerHTML = acctHTML(); bindAcct(document); }
@@ -2296,10 +2392,12 @@ export function fbRefreshUI() {
 const _settings28 = VIEWS.settings;
 VIEWS.settings = v => {
   _settings28(v);
-  const h2 = $('h2', v); (h2 || v).insertAdjacentHTML(h2 ? 'afterend' : 'afterbegin', acctHTML());
+  // (M05-R1, D-M05-01 b: la tarjeta 👤 Cuenta YA NO vive en Ajustes —
+  // vive solo en Perfil (VIEWS.profile). Aquí solo queda la Frase de
+  // seguridad, que en el hub va a Opciones avanzadas.)
   const cards = $$(':scope > .card', v), az = cards.find(x => /Azure/.test(($('h3', x) || {}).textContent || '')) || cards[1];
   az.insertAdjacentHTML('beforebegin', keysHTML());
-  bindAcct(v); bindKeys(v);
+  bindKeys(v);
   if (LOCKED && !KS.key) { $$('#azKey, #gkey, #okey', v).forEach(i => { i.placeholder = '🔒 Bloqueada: desbloquea con tu frase'; }); }
   const imp = $('#imp', v); if (imp) imp.onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { let d; try { d = JSON.parse(t); } catch (er) { throw new Error('El archivo no es JSON válido.'); } if (!d || !(d.v === 1 || d.v === 2) || !d.settings) throw new Error('Archivo no válido'); importPrompt(d, 'Archivo'); }).catch(err => toast('Error: ' + err.message)); e.target.value = ''; };
 };
@@ -2338,7 +2436,10 @@ const _fbRefresh211 = fbRefreshUI; fbRefreshUI = function () { _fbRefresh211(); 
 const _settings211 = VIEWS.settings;
 VIEWS.settings = v => {
   _settings211(v);
-  const ac = $('#acctCard', v); if (ac) ac.insertAdjacentHTML('afterend', adminHTML());
+  // (M05-R1: Cuenta ya no está en Ajustes; el panel de administrador se
+  // inserta antes del pie de versión — el hub lo mueve a Avanzadas.)
+  const footA = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
+  if (footA) footA.insertAdjacentHTML('beforebegin', adminHTML()); else v.insertAdjacentHTML('beforeend', adminHTML());
   // (densidad PR B, v2.31.0, ítem 4: "Enviar comentarios" deja de ser la
   // 2ª tarjeta y pasa al pie, junto al pie de versión.)
   const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
@@ -2564,6 +2665,13 @@ VIEWS.learn = function (v) {
       render();
     };
   });
+  // (M05-R1: al entrar en Aprender, scroll al nodo actual. render() hace
+  // window.scrollTo(0,0) DESPUÉS de renderizar la vista, así que el scroll
+  // va en un timeout posterior; solo cuando go('learn') puso la bandera.)
+  if (learnScrollPending) {
+    learnScrollPending = false;
+    setTimeout(() => { const cur = document.querySelector('#view .node.current'); if (cur) cur.scrollIntoView({ block: 'center' }); }, 60);
+  }
 };
 
 // 8. BOTÓN Y VERIFICACIÓN MANUAL DE ACTUALIZACIONES
@@ -2636,67 +2744,29 @@ VIEWS.settings = function (v) {
 };
 
 /* =================== v2.42.0 FILTRO DE AJUSTES POR NIVEL (PR1 rediseño UX) =================== */
-// (PR1, propuesta §2: Ajustes muestra un selector de visibilidad
-// "Ver: Básico · Personalización · Avanzado" y reordena las tarjetas en el
-// orden de la propuesta. El filtro NO es navegación ni pestañas: solo
-// muestra/oculta tarjetas con hidden, en la misma vista y sin cambiar la
-// URL ni la posición de scroll. La selección vive solo en memoria (sin
-// localStorage). Es el ÚLTIMO wrapper de VIEWS.settings, así que corre
-// después de todas las inserciones de tarjetas de versiones anteriores.)
-let settingsLevel = 'basic';
-// (PR1: el filtro es acumulativo — cada nivel muestra las tarjetas de su
-// nivel Y las de los niveles anteriores; Avanzado muestra las 12.)
-const LEVEL_RANK = { basic: 0, personal: 1, advanced: 2 };
-// Nivel de cada tarjeta, por identidad (id cuando existe; si no, h3).
-// Orden de la propuesta §2.3: Cuenta, Aprendizaje, Voz y audio, Apariencia,
-// Recordatorio, Resúmenes (Básico); Voz de Tuki (Personalización); Frase de
-// seguridad, Evaluación avanzada con Azure, Conversación con IA, Datos y
-// mantenimiento (Avanzado); Enviar comentarios siempre visible (pie).
-function settingsCardLevel(card) {
-  const id = card.id || '';
-  if (id === 'acctCard') return 'basic';
-  if (id === 'adminCard') return 'advanced';
-  if (id === 'keysCard') return 'advanced';
-  if (id === 'tvCard') return 'personal';
-  if (id === 'maintCard') return 'advanced';
-  if (id === 'fbkCard') return 'always';
-  const h = (card.querySelector('h3') || {}).textContent || '';
-  if (/Aprendizaje/.test(h)) return 'basic';
-  if (/Voz y audio/.test(h)) return 'basic';
-  if (/Apariencia/.test(h)) return 'basic';
-  if (/Recordatorio/.test(h)) return 'basic';
-  if (/Resúmenes/.test(h)) return 'basic';
-  if (/Frase de seguridad/.test(h)) return 'advanced';
-  if (/Evaluación avanzada/.test(h)) return 'advanced';
-  if (/Conversación con IA/.test(h)) return 'advanced';
-  return null;
-}
+// (PR1, propuesta §2: Ajustes reordena las tarjetas en el orden de la
+// propuesta. El selector de visibilidad «Ver: Básico · Personalización ·
+// Avanzado» lo ELIMINA M05-R1: el hub lo sustituye y el filtro ya no
+// existe como filtro. applySettingsLevel queda como no-op que muestra
+// todas las tarjetas, porque fbRefreshUI la sigue llamando al cambiar la
+// sesión; sin ella, una tarjeta repuesta por fbRefreshUI podría quedar
+// oculta por el filtro viejo. El reordenado se conserva: mueve los nodos
+// sin recrearlos, así los handlers ya ligados se conservan.)
 function applySettingsLevel(v) {
   const view = v || $('#view');
   if (!view) return;
-  const cards = [...view.querySelectorAll(':scope > .card')];
-  for (const card of cards) {
-    const lv = settingsCardLevel(card);
-    if (lv) card.dataset.level = lv;
-    card.hidden = !!(lv && lv !== 'always' && LEVEL_RANK[lv] > LEVEL_RANK[settingsLevel]);
-  }
-  const seg = $('#settingsLevel', view);
-  if (seg) [...seg.querySelectorAll('button')].forEach(b => {
-    b.classList.toggle('active', b.dataset.slevel === settingsLevel);
-    b.setAttribute('aria-pressed', String(b.dataset.slevel === settingsLevel));
-  });
+  [...view.querySelectorAll(':scope > .card')].forEach(card => { card.hidden = false; });
 }
 const _settings213 = VIEWS.settings;
 VIEWS.settings = function (v) {
   _settings213(v);
   // (PR1: reordenar las tarjetas según la propuesta §2.3, moviendo los
-  // nodos — no se recrean, así los handlers ya ligados se conservan. La
-  // tarjeta de administrador se mantiene después de Cuenta.)
+  // nodos — no se recrean, así los handlers ya ligados se conservan.)
   const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
   const byId = id => document.getElementById(id);
   const byH3 = re => [...v.querySelectorAll(':scope > .card')].find(c => re.test((c.querySelector('h3') || {}).textContent || ''));
   const order = [
-    byId('acctCard'), byId('adminCard'), byH3(/Aprendizaje/), byH3(/Voz y audio/),
+    byId('adminCard'), byH3(/Aprendizaje/), byH3(/Voz y audio/),
     byH3(/Apariencia/), byH3(/Recordatorio/), byH3(/Resúmenes/), byId('tvCard'),
     byH3(/Frase de seguridad/), byH3(/Evaluación avanzada/), byH3(/Conversación con IA/),
     byId('maintCard'), byId('fbkCard'),
@@ -2706,20 +2776,123 @@ VIEWS.settings = function (v) {
     if (foot) foot.insertAdjacentElement('beforebegin', card);
     else v.appendChild(card);
   }
-  // (PR1: filtro de visibilidad; se inserta tras el <h2>, encima de la
-  // primera tarjeta. Reutiliza el patrón .seg existente.)
+  applySettingsLevel(v);
+};
+
+/* =================== M05-R1: AJUSTES COMO HUB =================== */
+// (BRIEF §5.2, mockup M05-R1: la vista de Ajustes pasa a ser un hub con
+// héroe de Tuki + 7 filas navegables, cada una a su subpantalla con los
+// controles y valores reales de hoy (mismas claves, mismos valores por
+// defecto). El filtro de 3 «pestañas» desaparece. Sin bandeja, sin
+// campana. La Cuenta NO está aquí: vive en Perfil (D-M05-01 b).
+// Este wrapper es el ÚLTIMO de VIEWS.settings, así que todas las tarjetas
+// ya existen con sus handlers ligados. Solo MUEVE los nodos a su
+// subpantalla — no recrea ningún control ni cambia ninguna clave o valor.
+// La subpantalla abierta vive en settingsSub (memoria); al salir de
+// Ajustes se vuelve al hub. Los audífonos del héroe son un SVG aparte
+// sobre la imagen raster de Tuki: accesorio separable, sin tocar su
+// anatomía.)
+function m05FmtTime(t) {
+  const [h, m] = String(t || '19:00').split(':');
+  const hh = +h, ap = hh >= 12 ? 'p.m.' : 'a.m.';
+  return (hh % 12 || 12) + ':' + (m || '00') + ' ' + ap;
+}
+function m05StatusLine() {
+  const s = S.settings;
+  const lvlName = { novice: 'Novato', intermediate: 'Intermedio', advanced: 'Avanzado' }[s.learnerLevel || 'novice'];
+  return `Nivel ${lvlName} · Meta ${s.goal} XP · Recordatorio ${m05FmtTime(s.remindTime)}`;
+}
+function m05ShowSub(id) {
+  settingsSub = id;
+  const hub = $('#m05SettingsHub'), subs = $('#m05SettingsSubs');
+  if (!hub || !subs) return;
+  hub.classList.toggle('hidden', !!id);
+  subs.classList.toggle('hidden', !id);
+  $$('#m05SettingsSubs .m05-sub').forEach(sec => sec.classList.toggle('hidden', sec.dataset.m05sub !== id));
+  window.scrollTo(0, 0);
+}
+const _settingsM05 = VIEWS.settings;
+VIEWS.settings = v => {
+  _settingsM05(v);
+  const cards = [...v.querySelectorAll(':scope > .card')];
+  const byId = id => cards.find(c => c.id === id) || null;
+  const byH3 = re => cards.find(c => re.test((c.querySelector('h3') || {}).textContent || '')) || null;
+  const groups = [
+    { id: 'experiencia', ic: '🦜', t: 'Experiencia Tuki', s: 'Compañero, saludos y personalización.', adv: false, cards: [byH3(/Experiencia/), byId('tvCard')] },
+    { id: 'aprendizaje', ic: '🎓', t: 'Aprendizaje', s: 'Nivel, metas, dificultad y pronunciación.', adv: false, cards: [byH3(/Aprendizaje/)] },
+    { id: 'voz', ic: '🎤', t: 'Voz y audio', s: 'Voces, acentos, velocidad y reproducción.', adv: false, cards: [byH3(/Voz y audio/)] },
+    { id: 'apariencia', ic: '🎨', t: 'Apariencia y accesibilidad', s: 'Tema, tipografía y opciones de accesibilidad.', adv: false, cards: [byH3(/Apariencia/)] },
+    { id: 'notificaciones', ic: '🔔', t: 'Notificaciones', s: 'Recordatorios, horarios y avisos de progreso.', adv: false, cards: [byH3(/Recordatorio/)] },
+    { id: 'resumenes', ic: '💬', t: 'Resúmenes de conversación', s: 'Preferencias de resumen del Tutor IA.', adv: false, cards: [byH3(/Resúmenes/), byId('fbkCard')] },
+    { id: 'avanzadas', ic: '⚙️', t: 'Opciones avanzadas', s: 'Configuración adicional y opciones técnicas.', adv: true, cards: [byId('keysCard'), byH3(/Evaluación avanzada/), byH3(/Conversación con IA/), byId('maintCard'), byId('adminCard')] },
+  ];
+  groups.forEach(g => { g.cards = g.cards.filter(Boolean); });
   const h2 = v.querySelector('h2');
-  if (h2 && !$('#settingsLevel', v)) {
-    h2.insertAdjacentHTML('afterend', `<div class="seg" id="settingsLevel" role="group" aria-label="Ver ajustes por nivel">
-      <button type="button" data-slevel="basic" aria-pressed="true">Básico</button>
-      <button type="button" data-slevel="personal" aria-pressed="false">Personalización</button>
-      <button type="button" data-slevel="advanced" aria-pressed="false">Avanzado</button>
-    </div>`);
-    $('#settingsLevel', v).querySelectorAll('button').forEach(b => {
-      b.onclick = () => { settingsLevel = b.dataset.slevel; applySettingsLevel(v); };
+  const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
+  const hub = document.createElement('div');
+  hub.id = 'm05SettingsHub';
+  hub.innerHTML = `<section class="m05-set-hero" aria-label="Ajustes">
+    <div class="m05-set-hero-copy">
+      <h2>⚙️ Ajustes</h2>
+      <p>Todo a tu manera. Personaliza tu experiencia.</p>
+      <span class="m05-status-line">${esc(m05StatusLine())}</span>
+    </div>
+    <div class="m05-tuki-hero" aria-label="Tuki con audífonos (accesorio separable)">
+      <div class="m05-tuki-img"><img src="./tuki/tuki-friendly.webp" alt="Tuki, tu compañero de inglés"></div>
+      <svg class="m05-phones" viewBox="0 0 120 120" aria-hidden="true"><path d="M22 62 C22 28 98 28 98 62" fill="none" stroke="#4b2868" stroke-width="9" stroke-linecap="round"/><rect x="10" y="56" width="24" height="40" rx="12" fill="#4b2868"/><rect x="86" y="56" width="24" height="40" rx="12" fill="#4b2868"/><circle cx="22" cy="76" r="8" fill="#d7f36a"/><circle cx="98" cy="76" r="8" fill="#d7f36a"/></svg>
+    </div>
+  </section>
+  <div class="m05-hub">
+    ${groups.filter(g => g.cards.length).map(g => `<button class="m05-hub-row" type="button" data-m05sub-open="${g.id}"><span class="m05-hub-ic">${g.ic}</span><span class="m05-hub-tx"><b>${g.t}</b><span>${g.s}</span></span>${g.adv ? '<span class="m05-badge-av">Avanzado</span>' : ''}<span class="m05-chev">›</span></button>`).join('')}
+  </div>`;
+  v.insertBefore(hub, v.firstChild);
+  if (h2) h2.remove();
+  if (foot) { foot.classList.add('m05-ver-foot'); hub.appendChild(foot); }
+  const subs = document.createElement('div');
+  subs.id = 'm05SettingsSubs';
+  subs.classList.add('hidden');
+  groups.forEach(g => {
+    if (!g.cards.length) return;
+    const sec = document.createElement('section');
+    sec.className = 'm05-sub hidden';
+    sec.dataset.m05sub = g.id;
+    sec.innerHTML = `<div class="m05-sub-head"><button type="button" data-m05back>← Ajustes</button><h2>${g.ic} ${g.t}</h2></div>`;
+    g.cards.forEach(card => {
+      if (g.id === 'avanzadas') {
+        // (Mockup: los bloques de Avanzadas van colapsables, solo el
+        // primero abierto. El título del <summary> es el h3 de la tarjeta
+        // sin su píldora; el h3 propio se oculta por CSS.)
+        const det = document.createElement('details');
+        det.className = 'm05-adv';
+        if (g.cards.indexOf(card) === 0) det.open = true;
+        const sum = document.createElement('summary');
+        const h3 = card.querySelector('h3');
+        sum.textContent = (h3 && h3.childNodes[0] && h3.childNodes[0].nodeType === 3) ? h3.childNodes[0].textContent.trim() : (h3 ? h3.textContent.trim() : g.t);
+        det.appendChild(sum);
+        det.appendChild(card);
+        sec.appendChild(det);
+      } else {
+        sec.appendChild(card);
+      }
+    });
+    subs.appendChild(sec);
+  });
+  v.appendChild(subs);
+  $$('[data-m05sub-open]', v).forEach(b => b.onclick = () => m05ShowSub(b.dataset.m05subOpen));
+  $$('[data-m05back]', v).forEach(b => b.onclick = () => m05ShowSub(null));
+  // (La línea de estado del héroe se actualiza al cambiar Nivel, Meta o
+  // Hora sin esperar a un render: listener delegado, una sola vez.)
+  if (!v.__m05StatusListener) {
+    v.__m05StatusListener = true;
+    v.addEventListener('change', e => {
+      const id = e.target && e.target.id;
+      if (['goal', 'learnerLevel', 'remindTime'].includes(id)) {
+        const line = $('.m05-status-line', v);
+        if (line) line.textContent = m05StatusLine();
+      }
     });
   }
-  applySettingsLevel(v);
+  m05ShowSub(settingsSub);
 };
 
 
