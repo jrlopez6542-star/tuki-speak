@@ -888,7 +888,7 @@ export function render() {
 }
 export function go(tab) { TAB = tab; stopRecognize(); render(); }
 $$('.tab').forEach(t => t.onclick = () => go(t.dataset.tab));
-$('#stGear').onclick = () => go('settings');
+$('#stProfile').onclick = () => openProfileModal();
 const scBtn = $('#stCoins');
 if (scBtn) scBtn.onclick = () => openTukiShopModal();
 const brandEl = $('#brand');
