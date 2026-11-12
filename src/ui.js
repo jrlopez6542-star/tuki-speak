@@ -420,6 +420,25 @@ export function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType
    igual (y las poses de estado, como los ojos cerrados de 'sleeping', se
    aplican como cambio instantáneo), pero sin partículas ni clases de salto. */
 export const TUKI_MOOD_PRIORITY = { idle: 0, sleeping: 10, thinking: 50, listening: 50, happy: 60, confused: 60, sad: 60, proud: 70, excited: 70, celebration: 80, speaking: 90 };
+/* Poses raster de Tuki (prototipo Temas Globales, ui/prototipo-temas-globales):
+   el tucán en 5 estados compactos + neutro/amable + GIF de la burbuja.
+   'thinks' reutiliza el archivo de 'neutral' (bytes idénticos en el prototipo).
+   Las rutas son relativas a la raíz servida (public/tuki/ -> dist/tuki/). */
+export const TUKI_POSES = {
+  neutral: './tuki/tuki-neutral.webp', explains: './tuki/tuki-explains.webp',
+  celebrates: './tuki/tuki-celebrates.webp', thinks: './tuki/tuki-neutral.webp',
+  motivates: './tuki/tuki-motivates.webp', waves: './tuki/tuki-waves.webp',
+  friendly: './tuki/tuki-friendly.webp', bubble: './tuki/tuki-bubble.gif',
+};
+/* Mapa compacto de los 5 estados del prototipo sobre los moods existentes
+   (sin pantallas ni secciones nuevas): saluda=waves, explica=explains,
+   celebra=celebrates, piensa=thinks, motiva=motivates. */
+export const TUKI_POSE_BY_MOOD = {
+  celebration: 'celebrates', excited: 'celebrates', happy: 'friendly', proud: 'motivates',
+  thinking: 'thinks', listening: 'explains', speaking: 'explains', confused: 'thinks',
+  sad: 'motivates', sleeping: 'neutral', idle: 'neutral',
+};
+export function tukiPoseFor(mood) { return TUKI_POSES[TUKI_POSE_BY_MOOD[mood] || 'neutral']; }
 const TUKI_MOOD_MS = { happy: 900, excited: 1000, confused: 1200, sad: 900, proud: 1200, celebration: 1200 };
 const TUKI_MOOD_CLASSES = ['tuki-mood-thinking', 'tuki-mood-listening', 'tuki-mood-confused', 'tuki-mood-sleeping', 'tuki-mood-proud'];
 const TUKI_MOOD_ANIM = ['tuki-wiggle', 'tuki-celebrate', 'tuki-comfort'];

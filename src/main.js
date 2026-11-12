@@ -6,7 +6,7 @@ import { VOICES, loadVoices, pickVoice, speak, SR, HAS_SR, curRec, setCurRec, re
 import { L, setL, tokensOf, earEx, sayPairEx, buildLesson, unlockedLessons, buildPractice, startLesson, lessonShell, nextEx, setFoot, footCheck, enableCheck, PRAISE, ENCOURAGE, feedback, earResult, checkEar, RENDER, optionsHTML, bindOptions, SPEAK_TITLES, speakTarget, createMicMeter, doMic, recOnlyActive, recOnlyToggle, compareHTML, bindCompare, onSpeechResult, victoryConfetti, noHeartsModal } from './lessons.js';
 import { SCENARIOS, SCEN_ES, chatChipsFor, CHAT, chatSystem, geminiCall, gemini, parseTutor, TUKI_API, SHARED_TEXT_MODELS, keysLocked, fbSignedIn, fbCanShare, gemShared, azOwn, azShared, noAIMsg, sharedModel, tukiApi, AZT, azAuth, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, azFetch, azureReady, LIVE, LIVE_LABEL, GEMINI_LIVE_MODELS, currentProvider, LEVELS, LEVEL_KEYS, defaultLevel, chatLevel, levelRules, TUTOR_LANGS, tutorLang, langRules, TUTOR_SPEEDS, tutorSpeed, chatMul, speedRules, HELP_COMMANDS, isPerfect, tutorSpeechParts, liveSystem, liveSet, liveUI, liveAppend, liveTurnDone, LIVE_REC, LIVE_REC_MAX_SAMPLES, LIVE_REC_MIN_WORDS, LIVE_REC_MIN_SEC, LIVE_REC_MAX_TURNS, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, Player, WORKLET_SRC, startMicStream, liveErrES, connectGemini, onGeminiMsg, startGeminiLive, listLiveModels, startOpenAIRealtime, onOAIEvent, startLive, stopLive, openaiChat, resetChat, tapWords, quoteTap, msgActs, trHTML, msgText, chatDraw, CACHE_KEYS, MEM_WCACHE, MEM_TCACHE, cacheGet, cacheSet, AIQ, GEM_QUICK_MODELS, aiTransient, aiStatus, aiBusyErr, gemQuickCall, aiQuick, toggleTranslate, errorTutorAvailable, explainError, chatSend, chatMic, fitChat, uid, clamp100, parseJSONLoose, aiJSON, sayBtns, bindSayTap, scoreBarH, convoTranscript, addLearnItems, flagHard, SUM_SYS, ensureSP, sumPendingAdd, summarizeConvo, runPendingSummary, summaryHTML, aiFriendly, openSummarySheet, endConversation, convoPracticeItems, hardWords, hardDrillItems, startHardDrill, numHash, SENIORITY, IV_END, modeRules, TOPICS, todayTopic, chSecs, enterMode, leaveMode, interviewSetup, ivQuestion, reportInterview, interviewHTML, openInterviewSheet, finishInterview, challengeSetup, chLeft, startChTimer, finishChallenge, chStreak, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, customScenarios, addCustomScenario, removeCustomScenario, registerCustomScenarios, sanitizeScenario } from './chat.js';
 import { b64u, unb64u, clampNum, deepClean, sanitizeSettings, sanitizeState, KDF_ITER, LOCK_FIELDS, KEYS_LOCAL, KS, LOCKED, setLocked, kdf, newKS, sealKeys, validBlob, openKeys, ksFromPhrase, keysObj, keysSig, hasAnyKey, phraseStrength, lockApply, lockRelease, getLockSig, setLockSig, applyKeys, setLocalLock, FB_VER, FB_BASE, FB_CFG, FB_HINT, FB_OWNER, CLOUD_META, CLOUD_SCHEMA, SYNC_MIN_MS, SYNC_DEBOUNCE_MS, CLOUD_MAX, syncMin, syncDebounce, FB, AUTH_ERR, authErr, devName, fbLoad, fbFail, localHasData, cloudMeta, setCloudMeta, uref, readMeta, readData, cloudSettings, packProgress, keysForCloud, cloudPush, adoptMerged, cloudFirstSync, askOtherOwner, cloudSync, fbSchedule, fbMarkDirty, fbGoogle, fbEmail, fbReset, fbVerify, fbReload, fbSignOut, unlockPrompt, unlockKeys, createPhrase, changePhrase, forgetPhrase, acMsg, acctHTML, keysHTML, bindAcct, bindKeys } from './account.js';
-import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TUKI_SHOP_ITEMS, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, AD, adminBody, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildPlacement, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, initTukiAnimPause, interactWithTuki, initTukiSleepWatch, makeMascotClickable, tukiSleepBusy, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openTukiShopModal, openWordPop, pdCardHTML, pdEvaluate, pdFinish, pdGenAvailable, pdGenCacheGet, pdGenCacheSet, pdGenData, pdGenHasData, pdGenSpeak, pdGenValidate, PD_GEN_CACHE_KEY, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, photoSharedAvailable, photoAnalyzeShared, resizePhoto, placementFinish, placementIntro, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, profileTouch, quotaAlert, quotaSummary, QUOTA_ALERT, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEntryHTML, tcEval, tcEx, tcExtract, tcExtractAll, tcExtraHint, tcFailsTotal, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
+import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TUKI_SHOP_ITEMS, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, AD, adminBody, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildPlacement, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, initTukiAnimPause, interactWithTuki, initTukiSleepWatch, makeMascotClickable, tukiSleepBusy, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openTukiShopModal, openWordPop, pdCardHTML, pdEvaluate, pdFinish, pdGenAvailable, pdGenCacheGet, pdGenCacheSet, pdGenData, pdGenHasData, pdGenSpeak, pdGenValidate, PD_GEN_CACHE_KEY, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, photoSharedAvailable, photoAnalyzeShared, resizePhoto, placementFinish, placementIntro, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, profileTouch, quotaAlert, quotaSummary, QUOTA_ALERT, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEntryHTML, tcEval, tcEx, tcExtract, tcExtractAll, tcExtraHint, tcFailsTotal, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, TUKI_POSES, tukiPoseFor, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
 export { updateMascot, modal, confirmBox, wordsHTML, triggerTukiAnimation, tukiMood, tukiTutorBannerHTML, bindTukiTutorBanner, mouthPanelHTML, phonemeHintHTML, buildVocabLesson, renderVocabLearn, bindExtra, extraResultHTML, errES, httpErr, openWordPop, closeWordPop, azureMic, lsGet, lsSet, buildTopErrorsPractice } from './ui.js';
 export { azFetch, azureReady, errorTutorAvailable, errorTutorHTML, bindErrorTutor, explainError } from './chat.js';
 export { FB, KS, LOCKED } from './account.js';
@@ -872,7 +872,7 @@ document.addEventListener('keydown', e => {
 
 
 /* =================== VISTAS =================== */
-export let TAB = 'learn';
+export let TAB = 'home';
 export function render() {
   refreshHearts();
   updateMascot();
@@ -897,6 +897,140 @@ $('#stHearts').onclick = () => modal(`<h2>❤️ Vidas: ${S.hearts}/${MAX_HEARTS
 $('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p><button class="btn primary block" data-x>¡Vamos!</button>`, (el, c) => $('[data-x]', el).onclick = c);
 $('#stXp').onclick = () => go('progress');
 export const VIEWS = {};
+
+/* ---- Inicio (prototipo Temas Globales, ui/prototipo-temas-globales) ---- */
+/* Diseño del prototipo adaptado a datos reales, no copiado tal cual:
+   - La tarjeta muestra la siguiente lección real (currentLesson): título y
+     primera frase de su explicación. Sin minutos: las lecciones no tienen
+     duración registrada y no se inventa ninguna.
+   - Las 3 estadísticas son reales: lecciones completadas / total, racha
+     (streakNow) y XP (S.xp). El resumen usa 17 unidades / 50 lecciones
+     reales del curso (COURSE.length / LESSONS.length).
+   - La barra de marca del prototipo se funde con la topbar existente (sin
+     duplicar la marca). SIN CAMPANA: no existe bandeja de notificaciones;
+     los recordatorios reales viven en Ajustes (recordatorio diario).
+   - Burbuja 72 px (resolución H1–H10), saludo real solo en Inicio y 1 vez
+     por sesión (sessionStorage). Los 5 estados del prototipo van compactos
+     en la burbuja (tukiPoseFor): saluda al entrar, y al tocarla rota
+     consejo + pose (motiva/explica/piensa/celebra/amable). Sin pantallas
+     ni secciones nuevas para explicar los estados; el panel derecho del
+     prototipo queda FUERA de la app. */
+const TUKI_HOME_POSE_CYCLE = ['motivates', 'explains', 'friendly', 'thinks', 'celebrates'];
+let tukiHomePoseIdx = 0, tukiHomeTipTimer = null;
+function tukiHomeFirstSentence(text) {
+  const t = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!t) return '';
+  const m = t.match(/^.*?[.!?](\s|$)/);
+  return (m ? m[0] : t).trim().slice(0, 140);
+}
+function tukiHomeShowTip(text, pose) {
+  const tip = $('#homeTip'), txt = $('#homeTipText'), img = $('#homeBubbleImg');
+  if (!tip || !txt) return;
+  txt.textContent = text; tip.hidden = false;
+  if (img && pose && TUKI_POSES[pose]) img.src = TUKI_POSES[pose];
+  clearTimeout(tukiHomeTipTimer);
+  tukiHomeTipTimer = setTimeout(() => { tip.hidden = true; if (img) img.src = TUKI_POSES.bubble; }, 4200);
+}
+function tukiHomeHideTip() { const tip = $('#homeTip'), img = $('#homeBubbleImg'); if (tip) tip.hidden = true; if (img) img.src = TUKI_POSES.bubble; clearTimeout(tukiHomeTipTimer); }
+VIEWS.home = v => {
+  const cur = currentLesson();
+  const doneCount = Object.values(S.done).filter(d => d && (!d.placed || d.times)).length;
+  const total = LESSONS.length, units = COURSE.length, streak = streakNow();
+  const lessonCard = cur ? `
+    <section class="home-lesson">
+      <div class="home-lesson-copy">
+        <div class="home-kicker">CONTINUAR · UNIDAD ${cur.ui + 1}</div>
+        <h2>${esc(cur.title)}</h2>
+        <p>${esc(tukiHomeFirstSentence(cur.expl))}</p>
+        <button class="home-cta" id="homeContinueBtn">Continuar<br>aprendiendo ↗</button>
+      </div>
+      <img class="home-lesson-mascot" src="${TUKI_POSES.motivates}" alt="Tuki, tu compañero de inglés">
+    </section>` : `
+    <section class="home-lesson">
+      <div class="home-lesson-copy">
+        <div class="home-kicker">¡CURSO COMPLETADO!</div>
+        <h2>¡Lo lograste! 🎉</h2>
+        <p>Completaste las ${total} lecciones. Repasa para no perder el ritmo.</p>
+        <button class="home-cta" id="homeContinueBtn">Repasar<br>lo aprendido ↗</button>
+      </div>
+      <img class="home-lesson-mascot" src="${TUKI_POSES.celebrates}" alt="Tuki celebrando">
+    </section>`;
+  v.innerHTML = `<div class="home">
+    <section class="home-greeting">
+      <div><h1>¡Hola! 👋</h1><p>Sigamos con tu aprendizaje.</p></div>
+      <button class="home-profile-btn" id="homeProfileBtn" aria-label="Abrir perfil y ajustes">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.5-3.8 3.1-5.8 7-5.8s6.5 2 7 5.8z"/></svg>
+      </button>
+    </section>
+    ${lessonCard}
+    <section class="home-progress">
+      <div class="home-sectionhead"><h2>Tu recorrido</h2><span>${units} unidades · ${total} lecciones</span></div>
+      <div class="home-stats">
+        <article class="home-stat"><strong>${String(doneCount).padStart(2, '0')}/${total}</strong><small>▣ Lecciones<br>avanzadas</small></article>
+        <article class="home-stat"><strong>🔥 ${String(streak).padStart(2, '0')}</strong><small>Días de racha</small></article>
+        <article class="home-stat"><strong>☆ ${S.xp}</strong><small>XP<br>acumulados</small></article>
+      </div>
+    </section>
+    <div class="home-tip" id="homeTip" role="status" aria-live="polite" hidden>
+      <p id="homeTipText"></p><button class="home-tip-close" id="homeTipClose" aria-label="Cerrar consejo">×</button>
+    </div>
+    <button class="home-bubble" id="homeBubble" aria-label="Tocar para hablar con Tuki" style="display:${S.settings.tukiVisible ? 'grid' : 'none'}">
+      <img id="homeBubbleImg" src="${TUKI_POSES.bubble}" alt="Tuki">
+    </button>
+  </div>`;
+  $('#homeProfileBtn').onclick = () => { tukiHomeHideTip(); openProfileModal(); };
+  $('#homeContinueBtn').onclick = () => { if (cur) lessonSheet(cur); else startReview(); };
+  const bubble = $('#homeBubble');
+  if (bubble) bubble.onclick = () => {
+    const pose = TUKI_HOME_POSE_CYCLE[tukiHomePoseIdx++ % TUKI_HOME_POSE_CYCLE.length];
+    tukiHomeShowTip(TUKI_QUOTES_ES[tukiHomePoseIdx % TUKI_QUOTES_ES.length], pose);
+  };
+  const tipClose = $('#homeTipClose');
+  if (tipClose) tipClose.onclick = tukiHomeHideTip;
+  // Saludo real, solo en Inicio y 1 vez por sesión.
+  if (S.settings.tukiVisible && S.settings.tukiGreeting && !sessionStorage.getItem('tuki-greeted')) {
+    sessionStorage.setItem('tuki-greeted', '1');
+    tukiHomeShowTip('¡Hola! 👋 Sigamos con tu aprendizaje.', 'waves');
+  }
+};
+/* Modal "Perfil y ajustes" del prototipo, con el modal() existente de la
+   app (Escape, clic fuera y foco ya resueltos ahí). Apariencia escribe en
+   S.settings.theme (auto = Sistema) y aplica a toda la app con
+   applyPrefs(); los toggles usan S.settings.tukiVisible / tukiGreeting. */
+function openProfileModal() {
+  const theme = S.settings.theme || 'auto';
+  const sel = m => (theme === m || (m === 'system' && theme === 'auto')) ? ' selected' : '';
+  modal(`<h2>Perfil y ajustes</h2>
+  <div class="pset-group"><h3>Apariencia</h3><p class="small muted">Elige cómo quieres ver Tuki Speak. Se aplica a toda la app.</p>
+    <div class="pset-choices" role="group" aria-label="Tema visual">
+      <button class="pset-choice${sel('light')}" data-theme-choice="light"><span class="pset-symbol">☀️</span>Claro</button>
+      <button class="pset-choice${sel('dark')}" data-theme-choice="dark"><span class="pset-symbol">🌙</span>Oscuro</button>
+      <button class="pset-choice${sel('system')}" data-theme-choice="system"><span class="pset-symbol">◐</span>Sistema</button>
+    </div></div>
+  <div class="pset-group"><h3>Experiencia</h3><p class="small muted">Controla cuándo aparece tu compañero.</p>
+    <div class="pset-line"><span>Mostrar compañero Tuki</span><button class="pset-toggle${S.settings.tukiVisible ? '' : ' off'}" id="psetTukiToggle" aria-label="Mostrar u ocultar Tuki" aria-pressed="${S.settings.tukiVisible}"><i></i></button></div></div>
+  <div class="pset-group"><h3>Comportamiento</h3><p class="small muted">Tuki puede saludarte brevemente al entrar en Inicio, una vez por sesión. Siempre puedes minimizarlo u ocultarlo.</p>
+    <div class="pset-line"><span>Saludo al entrar</span><button class="pset-toggle${S.settings.tukiGreeting ? '' : ' off'}" id="psetGreetToggle" aria-label="Activar o desactivar saludo" aria-pressed="${S.settings.tukiGreeting}"><i></i></button></div></div>
+  <div class="row" style="margin-top:14px"><button class="btn ghost block" id="psetProgress">📈 Ver mi progreso</button><button class="btn ghost block" id="psetSettings">⚙️ Ajustes completos</button></div>`,
+  (el, close) => {
+    const syncToggle = (btn, on) => { if (!btn) return; btn.classList.toggle('off', !on); btn.setAttribute('aria-pressed', String(on)); };
+    $$('[data-theme-choice]', el).forEach(b => b.onclick = () => {
+      S.settings.theme = b.dataset.themeChoice === 'system' ? 'auto' : b.dataset.themeChoice;
+      save(); applyPrefs();
+      $$('[data-theme-choice]', el).forEach(x => x.classList.toggle('selected', x === b));
+    });
+    const tukiT = $('#psetTukiToggle', el);
+    if (tukiT) tukiT.onclick = () => {
+      S.settings.tukiVisible = !S.settings.tukiVisible; save(); syncToggle(tukiT, S.settings.tukiVisible);
+      const bub = $('#homeBubble'); if (bub) bub.style.display = S.settings.tukiVisible ? 'grid' : 'none';
+      if (!S.settings.tukiVisible) tukiHomeHideTip();
+    };
+    const greetT = $('#psetGreetToggle', el);
+    if (greetT) greetT.onclick = () => { S.settings.tukiGreeting = !S.settings.tukiGreeting; save(); syncToggle(greetT, S.settings.tukiGreeting); };
+    $('#psetProgress').onclick = () => { close(); go('progress'); };
+    $('#psetSettings').onclick = () => { close(); go('settings'); };
+  });
+}
 
 /* ---- Aprender: mapa ---- */
 VIEWS.learn = v => {
@@ -954,6 +1088,7 @@ VIEWS.learn = v => {
     html += `<div class="node-wrap"><button class="unit-milestone ${unitDone ? 'reached' : ''}" style="--uc:${u.color}" data-guide="${u.id}" aria-label="Hito de la unidad ${ui + 1}: ${esc(u.title)}${unitDone ? ' (conquistado)' : ''}">🏆</button><div class="node-label">Hito · Unidad ${ui + 1}</div></div></div></section>`;
   });
   html += `<p class="muted small" style="text-align:center">¿Quieres saltar a otra lección? Activa el "modo libre" en ⚙️ Ajustes.</p>`;
+  html += `<div class="row" style="margin:14px 0 4px;justify-content:center"><button class="btn ghost sm" id="learnPracticeBtn">🎤 Práctica</button><button class="btn ghost sm" id="learnWordsBtn">🃏 Palabras</button></div>`;
   v.innerHTML = html;
 
   $$('#levelSeg .level-seg-btn', v).forEach(btn => {
@@ -977,6 +1112,8 @@ VIEWS.learn = v => {
   });
 
   const db = $('#dueBtn'); if (db) db.onclick = () => startReview();
+  const lp = $('#learnPracticeBtn'); if (lp) lp.onclick = () => go('practice');
+  const lw = $('#learnWordsBtn'); if (lw) lw.onclick = () => go('words');
   $$('[data-lesson]', v).forEach(b => b.onclick = () => lessonSheet(LESSON[b.dataset.lesson]));
   $$('[data-guide]', v).forEach(b => b.onclick = () => guideSheet(COURSE.find(u => u.id === b.dataset.guide)));
   // (fase premium, etapa 5: Tuki guía en el nodo actual; tocarlo es lo mismo
@@ -1546,6 +1683,10 @@ VIEWS.settings = v => {
     <div class="set-row"><div><label for="fontScale">Tamaño de letra</label></div><select class="field" id="fontScale" style="max-width:200px">${opt([[0.9, 'Pequeño'], [1, 'Normal'], [1.15, 'Grande'], [1.3, 'Muy grande']], s.fontScale)}</select></div>
     ${sw('contrast', s.contrast, 'Alto contraste')}${sw('reduceMotion', s.reduceMotion, 'Reducir animaciones')}
   </div>
+  <div class="card"><h3>🧸 Experiencia</h3>
+    ${sw('tukiVisible', s.tukiVisible, 'Mostrar compañero Tuki', 'Burbuja de Tuki en Inicio. Tócala para ver un consejo.')}
+    ${sw('tukiGreeting', s.tukiGreeting, 'Saludo al entrar', 'Tuki te saluda una vez por sesión al entrar en Inicio.')}
+  </div>
   <div class="card"><h3>💾 Datos</h3>
     <div class="row wrap"><button class="btn ghost sm" id="exp">⬇️ Exportar progreso</button><label class="btn ghost sm" style="margin:0">⬆️ Importar<input type="file" id="imp" accept="application/json" hidden></label></div>
     <p class="small muted">Las claves nunca se incluyen en la exportación.</p>
@@ -1555,7 +1696,7 @@ VIEWS.settings = v => {
   const set = (k, val) => { S.settings[k] = val; save(); };
   const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { if (k === 'ttsEngine') S.settings.__ttsDeviceExplicit = (ev.target.value === 'device'); set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
   [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['learnerLevel', 'learnerLevel'], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
-  ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion', 'livePronOptIn'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
+  ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion', 'livePronOptIn', 'tukiVisible', 'tukiGreeting'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
   $('#rate').oninput = e => { set('rate', +e.target.value); $('#rateV').textContent = (+e.target.value).toFixed(2) + '×'; };
   $('#tRate').onclick = () => speak('Hello! This is how fast I speak. Think, three, very, ship, sheep.');
   $('#replace').onclick = placementIntro;
