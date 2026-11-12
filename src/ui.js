@@ -213,9 +213,19 @@ export function renderTukiSVG(skin, opts = {}) {
 
   return `<svg ${size}viewBox="0 0 100 100" class="tuki-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}${colors.aura}<!-- Sombra de suelo --><ellipse cx="44" cy="96" rx="28" ry="4" fill="url(#tuki-ground-shadow)"/>${capeBehind}<g class="tuki-body-group"><!-- Cuerpo 3D esférico --><ellipse cx="46" cy="58" rx="30" ry="34" fill="url(#tuki-body-grad-${pl})"/><!-- Brillo de contorno superior (Rim Light) --><path d="M22 40 C28 29 48 30 64 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.18"/><!-- Sombra de oclusión en base del torso --><path d="M26 78 C34 88 56 88 66 78 C58 84 34 84 26 78 Z" fill="${colors.bodyDark}" opacity="0.45"/><!-- Pecho 3D convexo con volumen y brillo --><ellipse cx="45" cy="69" rx="17.5" ry="19" fill="${colors.bodyDark}" opacity="0.25"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="url(#tuki-chest-grad-${pl})"/><ellipse cx="40" cy="58" rx="8" ry="10" fill="#ffffff" opacity="0.28"/><path d="M32 68 Q38 73 44 73 Q50 73 56 68 Q50 76 44 77 Q38 76 32 68 Z" fill="${colors.chestDark}" opacity="0.35"/><path d="M35 74 Q44 78 53 74 Q44 81 35 74 Z" fill="${colors.chestDark}" opacity="0.3"/><!-- Ala 3D con sombreado y plumas escalonadas --><path d="M19 61 C8 72 12 87 25 88" stroke="#000000" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.25"/><path class="tuki-wing" d="M20 60 C10 70 14 84 24 86 C21 79 20 73 22 66 Z" fill="url(#tuki-wing-grad-${pl})"/><path d="M21 62 C15 69 16 77 22 81" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.3"/><path class="tuki-wing-inner" d="M17 68 C13 74 15 81 21 84" stroke="${colors.wingDark}" stroke-width="1.3" fill="none" opacity="0.5"/><!-- Patas 3D con volumen cilíndrico y garras --><g class="tuki-feet"><ellipse cx="28" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="42" cy="98" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="56" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="url(#tuki-foot-grad)" stroke-width="4.5" stroke-linecap="round"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><circle cx="25.5" cy="97" r="1.4" fill="#78350f"/><circle cx="42" cy="98" r="1.4" fill="#78350f"/><circle cx="58.5" cy="97" r="1.4" fill="#78350f"/></g>${outfitLayer}${handLayer}</g><g class="tuki-head-group"><!-- Antifaz orbital toucan 3D --><ellipse cx="40" cy="40" rx="13.2" ry="12.8" fill="${colors.eyePatch}" opacity="0.22"/><ellipse cx="40" cy="40" rx="12.2" ry="11.8" fill="${colors.bodyDark}" opacity="0.35"/><!-- Ojo esférico 3D con lente gloss y reflejos múltiples --><g class="tuki-eye"><circle cx="40" cy="40" r="11" fill="url(#tuki-eye-sphere)"/><path d="M30 36 C34 32 46 32 50 36 C45 34 35 34 30 36 Z" fill="#94a3b8" opacity="0.4"/><circle cx="42" cy="40" r="5.8" fill="url(#tuki-iris-grad)"/><circle cx="42" cy="40" r="5.8" fill="none" stroke="#60a5fa" stroke-width="0.8" opacity="0.5"/><ellipse cx="44.2" cy="37.8" rx="2.2" ry="1.8" transform="rotate(-20 44.2 37.8)" fill="#ffffff"/><circle cx="40.2" cy="42.6" r="1.1" fill="#ffffff" opacity="0.9"/><circle cx="45" cy="41" r="0.6" fill="#ffffff" opacity="0.75"/></g><!-- Pico 3D esculpido con cresta de brillo y oclusión --><g class="tuki-beak"><path d="M50 33 C47 38 47 46 51 51" stroke="#0f172a" stroke-width="2.8" stroke-linecap="round" fill="none" opacity="0.6"/><path class="tuki-beak-top" d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="url(#tuki-bt-${pl})"/><path d="M54 35.5 C70 30 88 34 94 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.55"/><path d="M58 35 C72 31 84 34 90 39" stroke="#ffffff" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.8"/><path class="tuki-beak-bot" d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="url(#tuki-bb-${pl})"/><path d="M56 50 C70 55 86 52 93 47" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.25"/><path d="M51 48 C70 50.5 88 49.5 96 43.5" stroke="#3b0707" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.5"/><path d="M88 39 C93 38 97 43 97 44 C94 49 90 49 88 46 Z" fill="#090d16"/><circle cx="93.5" cy="41.5" r="1.6" fill="#ffffff" opacity="0.7"/><circle cx="94" cy="43.5" r="2.8" fill="#1f2a33" opacity="0.6"/></g>${hatLayer}</g></svg>`;
 }
-export let MASCOT = renderTukiSVG();
+/* (Fase 2: MASCOT ya NO es el SVG antiguo: es la imagen raster del
+   prototipo (pose base 'friendly'). renderTukiSVG() se conserva SOLO
+   para la vista previa de la tienda, donde compone las 38 prendas
+   (ver openTukiShopModal): no hay equivalente raster para sombreros,
+   ropa, objetos ni plumajes. MASCOT se inicializa tras TUKI_POSES,
+   más abajo, porque tukiPoseFor depende de ese mapa.) */
+export let MASCOT = '';
 export function updateMascot() {
-  MASCOT = renderTukiSVG();
+  // (Fase 2: la skin de la tienda ya no se refleja fuera de la tienda:
+  // las poses raster son imágenes fijas e indivisibles. Se mantiene la
+  // función para que render()/finishLesson()/state.js sigan llamándola
+  // sin cambios; solo repone la pose base.)
+  MASCOT = tukiImgHTML('friendly');
 }
 
 /* =================== ESTADO / PERSISTENCIA =================== */
@@ -408,9 +418,10 @@ export function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType
 
 /* ---- Coordinador de estado de Tuki (Fase premium, etapa 1) ----
    Una sola API para pedir estados de Tuki: tukiMood(estado, opts).
-   El estado vive en JS + clases CSS en el wrapper de la mascota, nunca
-   dentro del string SVG: MASCOT se re-renderiza al cambiar la skin y
-   perdería cualquier estado guardado dentro.
+   (Fase 2: el estado vive en JS + clases CSS en el wrapper de la
+   mascota y, sobre las imágenes raster, como cambio de src vía
+   tukiPoseFor — con vuelta a la pose base al terminar. La tienda es
+   la única que conserva el SVG antiguo y sus animaciones por partes.)
    Prioridad (un estado nuevo solo interrumpe al actual si su prioridad es
    mayor o igual; 'idle' siempre limpia): speaking 90 > celebration 80 >
    excited/proud 70 > happy/confused/sad 60 > thinking/listening 50 >
@@ -432,13 +443,25 @@ export const TUKI_POSES = {
 };
 /* Mapa compacto de los 5 estados del prototipo sobre los moods existentes
    (sin pantallas ni secciones nuevas): saluda=waves, explica=explains,
-   celebra=celebrates, piensa=thinks, motiva=motivates. */
+   celebra=celebrates, piensa=thinks, motiva=motivates. (Fase 2: el mapa
+   ya cubre la extensión pedida — speaking/listening→explains,
+   confused→thinks, sleeping→neutral, sad→motivates — porque 'thinks'
+   reutiliza el archivo de 'neutral' y no hay pose triste ni dormida en
+   las 7 imágenes; tukiMood aplica el cambio como cambio de src.) */
 export const TUKI_POSE_BY_MOOD = {
   celebration: 'celebrates', excited: 'celebrates', happy: 'friendly', proud: 'motivates',
   thinking: 'thinks', listening: 'explains', speaking: 'explains', confused: 'thinks',
   sad: 'motivates', sleeping: 'neutral', idle: 'neutral',
 };
 export function tukiPoseFor(mood) { return TUKI_POSES[TUKI_POSE_BY_MOOD[mood] || 'neutral']; }
+/* (Fase 2: punto único de inserción del avatar raster. data-tuki-base
+   guarda la pose base de cada sitio para que tukiMood pueda volver a
+   ella cuando el estado transitorio termina.) */
+export function tukiImgHTML(mood = 'friendly', attrs = '') {
+  const src = tukiPoseFor(mood);
+  return `<img class="tuki-img" src="${src}" data-tuki-base="${src}" alt="Tuki" draggable="false" ${attrs}>`;
+}
+MASCOT = tukiImgHTML('friendly');
 const TUKI_MOOD_MS = { happy: 900, excited: 1000, confused: 1200, sad: 900, proud: 1200, celebration: 1200 };
 const TUKI_MOOD_CLASSES = ['tuki-mood-thinking', 'tuki-mood-listening', 'tuki-mood-confused', 'tuki-mood-sleeping', 'tuki-mood-proud'];
 const TUKI_MOOD_ANIM = ['tuki-wiggle', 'tuki-celebrate', 'tuki-comfort'];
@@ -456,11 +479,40 @@ export function tukiMoodReduced() {
 export function getTukiMood() { return tukiMoodCurrent; }
 
 function tukiMoodResolve(el) {
+  // (Fase 2: la guía de Aprender y el modal Compañero también resuelven
+  // aquí; el selector incluye la propia <img> por si el objetivo ya es
+  // la imagen raster.)
+  const SEL = '.brand-mascot-wrap,.mascot,.tuki-tutor-mascot,.tc-mascot,.tuki-guide-mascot,#companionMascot,.tuki-img';
   if (el) {
-    const m = (el.matches && el.matches('.brand-mascot-wrap,.mascot,.tuki-tutor-mascot,.tc-mascot')) ? el : ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || $('.tc-mascot', el) || el);
+    const m = (el.matches && el.matches(SEL)) ? el : ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || $('.tc-mascot', el) || $('.tuki-guide-mascot', el) || el);
     return m ? [m] : [];
   }
-  return $$('.brand-mascot-wrap, .mascot, .tuki-tutor-mascot, .tc-mascot, #companionMascot');
+  return $$('.brand-mascot-wrap, .mascot, .tuki-tutor-mascot, .tc-mascot, .tuki-guide-mascot, #companionMascot');
+}
+/* (Fase 2: sobre <img> raster no hay pico/ojo/ala que animar por CSS:
+   cada mood es un cambio de src (tukiPoseFor) y, al terminar el estado
+   transitorio, se vuelve a la pose base guardada en data-tuki-base.
+   Sobre el SVG de la tienda (sin <img>) no se toca nada: las clases
+   antiguas siguen animando sus partes.) */
+function tukiMoodImg(m) {
+  if (!m) return null;
+  if (m.tagName === 'IMG' && m.classList.contains('tuki-img')) return m;
+  return m.querySelector ? m.querySelector('img.tuki-img') : null;
+}
+function tukiMoodSetPose(targets, state) {
+  targets.forEach(m => {
+    const img = tukiMoodImg(m);
+    if (!img) return;
+    if (!img.dataset.tukiBase) img.dataset.tukiBase = img.getAttribute('src');
+    img.src = tukiPoseFor(state);
+  });
+}
+function tukiMoodRestorePose(targets) {
+  targets.forEach(m => {
+    const img = tukiMoodImg(m);
+    if (!img) return;
+    if (img.dataset.tukiBase) img.src = img.dataset.tukiBase;
+  });
 }
 function tukiMoodClearClasses(els) {
   els.forEach(m => m.classList.remove('tuki-talking', ...TUKI_MOOD_ANIM, ...TUKI_MOOD_CLASSES));
@@ -477,7 +529,10 @@ export function tukiMood(state, opts = {}) {
   tukiMoodClearClasses([...new Set([...tukiMoodTargets, ...targets])]);
   tukiMoodTargets = targets;
   tukiMoodCurrent = state;
-  if (state === 'idle') return 'idle';
+  if (state === 'idle') { tukiMoodRestorePose(targets); return 'idle'; }
+  // (Fase 2: el mood cambia la pose raster; las clases de animación del
+  // wrapper (wiggle/celebrate/comfort) siguen funcionando sobre el <img>.)
+  tukiMoodSetPose(targets, state);
   const reduced = tukiMoodReduced();
   const chirp = opts.chirp === undefined ? ({ happy: 'chirp', excited: 'celebrate', celebration: 'celebrate', sad: 'comfort', proud: 'celebrate', confused: 'chirp' })[state] || null : opts.chirp;
   if (chirp) { try { tukiChirp(chirp); } catch (e) {} }
@@ -503,7 +558,7 @@ export function tukiMood(state, opts = {}) {
   if (ms > 0) {
     tukiMoodTimer = setTimeout(() => {
       tukiMoodTimer = null;
-      if (tukiMoodCurrent === state) { tukiMoodClearClasses(tukiMoodTargets); tukiMoodCurrent = 'idle'; }
+      if (tukiMoodCurrent === state) { tukiMoodClearClasses(tukiMoodTargets); tukiMoodRestorePose(tukiMoodTargets); tukiMoodCurrent = 'idle'; }
     }, ms);
   }
   return state;
@@ -681,7 +736,7 @@ export function openTukiCompanionModal(phrase) {
       <div style="width:115px;height:115px;margin:0 auto 10px;cursor:pointer" id="companionMascot" title="¡Toca a Tuki!">
         ${MASCOT}
       </div>
-      <h2 style="margin:0 0 4px">¡Hola, soy Tuki! 🦜✨</h2>
+      <h2 style="margin:0 0 4px">¡Hola, soy Tuki! ✨</h2>
       <div class="tuki-speech" style="margin:8px auto 14px;max-width:320px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13px;font-weight:700">
         «${esc(phrase)}»
       </div>
@@ -767,7 +822,7 @@ export function interactWithTuki(el) {
   const phrase = pick(TUKI_QUOTES_ES);
   if (L) {
     speakTukiEs(phrase, m);
-    toast(`🦜 Tuki: "${phrase}"`, 3500);
+    toast(`Tuki: "${phrase}"`, 3500);
     return;
   }
   speakTukiEs(phrase, m);
@@ -797,7 +852,7 @@ export function makeMascotClickable(el, label) {
 }
 
 export function tukiTutorBannerHTML(opts = {}) {
-  const title = opts.title || 'Profe Tuki 🦜';
+  const title = opts.title || 'Profe Tuki';
   const msg = opts.msg || '';
   const sub = opts.sub || '';
   const speakText = opts.speakText || msg;
@@ -1287,7 +1342,7 @@ export function buildPlacement() {
 }
 export function placementIntro() {
   $('#full').classList.remove('hidden'); document.body.style.overflow = 'hidden';
-  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div><h1 style="color:var(--g-d)">¡Hola! Soy Tuki 🦜</h1>
+  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div><h1>¡Hola! Soy Tuki</h1>
     <p style="max-width:420px">Haz una <b>prueba de nivel corta</b> (10 preguntas, unos 3 minutos) con ejercicios de oído${canSpeak() ? ' y de pronunciación' : ''}. Así empiezas en la unidad adecuada.</p>
     <button class="btn primary" id="plGo" style="min-width:240px">Empezar prueba</button><button class="btn ghost" id="plSkip" style="min-width:240px;margin-top:6px">Saltar, empiezo desde cero</button></div>`;
   $('#plGo').onclick = () => startLesson(null, 'placement', buildPlacement(), 'Prueba de nivel');
@@ -3787,6 +3842,13 @@ export const TUKI_SHOP_ITEMS = [
 
 export let shopActiveTab = 'hat';
 
+/* (Fase 2 — HUECO PENDIENTE: la tienda sigue componiendo con el SVG
+   antiguo (renderTukiSVG) porque los 38 ítems de TUKI_SHOP_ITEMS (14
+   sombreros, 12 ropas, 7 en mano, 5 plumajes) NO tienen equivalente
+   raster: las 7 poses de public/tuki/ son imágenes fijas de cuerpo
+   entero, sin capas ni recoloración. No se inventaron imágenes ni se
+   borraron opciones; la vista previa y la skin guardada siguen
+   funcionando con el SVG solo aquí. El resto de la app usa raster.) */
 export function openTukiShopModal() {
   const skin = S.tukiSkin || (S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] });
   let previewSkin = { ...skin };
@@ -4286,8 +4348,8 @@ export function renderDailyChestsAndQuests() {
   return `<div class="chest-card" id="dailyChestCard">
     <div class="row between">
       <div>
-        <h3 style="margin:0;color:#92400e">🎁 Cofre Diario de Recompensas</h3>
-        <div class="small" style="color:#b45309">
+        <h3 style="margin:0;color:#fff">🎁 Cofre Diario de Recompensas</h3>
+        <div class="small" style="color:#e7d7f8">
           ${isChestClaimed ? '✅ ¡Cofre de hoy reclamado! Vuelve mañana.' : isGoalMet ? '✨ ¡Meta cumplida! Abre tu cofre ahora.' : `Meta de hoy: ${Math.min(today.xp, goal)}/${goal} XP para abrir.`}
         </div>
       </div>
@@ -4305,7 +4367,7 @@ export function renderDailyChestsAndQuests() {
 
     <div class="quest-item">
       <div style="flex:1">
-        <div class="row between"><span style="font-weight:700;font-size:13px">🗣️ Pronuncia 3 frases</span><span class="small" style="font-weight:800;color:#d97706">+20 🪙</span></div>
+        <div class="row between"><span style="font-weight:700;font-size:13px">🗣️ Pronuncia 3 frases</span><span class="small quest-reward">+20 🪙</span></div>
         <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round(((today.n || 0) / 3) * 100))}%"></div></div>
       </div>
       <button class="btn sm ${q1Claimed ? 'ghost' : questVozDone ? 'primary' : 'ghost'}" data-claim-q="q1" ${q1Claimed || !questVozDone ? 'disabled' : ''}>
@@ -4315,7 +4377,7 @@ export function renderDailyChestsAndQuests() {
 
     <div class="quest-item">
       <div style="flex:1">
-        <div class="row between"><span style="font-weight:700;font-size:13px">🎯 Cumple tu meta diaria de XP</span><span class="small" style="font-weight:800;color:#d97706">+30 🪙</span></div>
+        <div class="row between"><span style="font-weight:700;font-size:13px">🎯 Cumple tu meta diaria de XP</span><span class="small quest-reward">+30 🪙</span></div>
         <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round((today.xp / goal) * 100))}%"></div></div>
       </div>
       <button class="btn sm ${q2Claimed ? 'ghost' : questGoalDone ? 'primary' : 'ghost'}" data-claim-q="q2" ${q2Claimed || !questGoalDone ? 'disabled' : ''}>
@@ -4325,7 +4387,7 @@ export function renderDailyChestsAndQuests() {
 
     <div class="quest-item">
       <div style="flex:1">
-        <div class="row between"><span style="font-weight:700;font-size:13px">⏱️ Practica al menos 1 minuto</span><span class="small" style="font-weight:800;color:#d97706">+20 🪙</span></div>
+        <div class="row between"><span style="font-weight:700;font-size:13px">⏱️ Practica al menos 1 minuto</span><span class="small quest-reward">+20 🪙</span></div>
         <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round((Math.min(60, today.sec || 0) / 60) * 100))}%"></div></div>
       </div>
       <button class="btn sm ${q3Claimed ? 'ghost' : questPracDone ? 'primary' : 'ghost'}" data-claim-q="q3" ${q3Claimed || !questPracDone ? 'disabled' : ''}>

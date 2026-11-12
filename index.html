@@ -7,7 +7,7 @@
 <title>Tuki Speak – Pronunciación en inglés gratis</title>
 <meta name="color-scheme" content="light dark">
 <meta name="description" content="Mejora tu pronunciación y conversación en inglés gratis: sonidos difíciles, pares mínimos, shadowing y diálogos con puntaje.">
-<meta name="theme-color" content="#1fa463">
+<meta name="theme-color" content="#4b2868">
 <link rel="manifest" href="./manifest.json">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon-192.png">
@@ -18,11 +18,11 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <link rel="stylesheet" href="./src/styles/app.css">
 <style>
-/* Pantalla de entrada (v2.41.0): fondo verde de marca a pantalla completa. Tuki es
-   el SVG de la mascota con fondo transparente (sin el rect de icon.svg), asi que no
-   hay ningun cuadro ni marco alrededor. Se retira desde main.js tras el primer
-   render; si main.js falla, splash-failsafe la oculta a los ~8 s. */
-#splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#1fa463;color:#fff;text-align:center;padding:24px;transition:opacity .45s ease;animation:splash-failsafe .6s ease 8s forwards}
+/* Pantalla de entrada (v2.41.0; Fase 2: fondo ciruela del prototipo y
+   Tuki raster en vez del SVG viejo — la imagen es un archivo estático,
+   así que se ve antes de que cargue JS. Se retira desde main.js tras el
+   primer render; si main.js falla, splash-failsafe la oculta a los ~8 s. */
+#splash{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#2b1741;color:#fff;text-align:center;padding:24px;transition:opacity .45s ease;animation:splash-failsafe .6s ease 8s forwards}
 #splash.splash-done{opacity:0;visibility:hidden;pointer-events:none}
 #splash .splash-tuki{width:min(38vw,160px);height:auto;animation:splash-in .5s ease both}
 #splash .splash-title{margin:0;font-size:30px;line-height:1.15;font-weight:800;letter-spacing:.2px}
@@ -43,7 +43,7 @@ if (window.top !== window.self) { try { window.top.location = window.self.locati
 </head>
 <body>
 <div id="splash" role="status" aria-label="Cargando Tuki Speak">
-  <svg class="splash-tuki" viewBox="0 0 512 512" aria-hidden="true"><g transform="translate(76 70) scale(3.4)"><ellipse cx="46" cy="58" rx="30" ry="34" fill="#1f2a33"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="#fff4d6"/><circle cx="40" cy="40" r="11" fill="#fff"/><circle cx="42" cy="40" r="5.5" fill="#1f2a33"/><circle cx="44" cy="38" r="1.8" fill="#fff"/><path d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="#ff9f1c"/><path d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="#e5484d"/><circle cx="94" cy="42" r="3" fill="#1f2a33"/><path d="M30 90 l-4 8 M42 92 l0 8 M54 90 l4 8" stroke="#ff9f1c" stroke-width="4" stroke-linecap="round"/></g></svg>
+  <img class="splash-tuki" src="./tuki/tuki-waves.webp" alt="Tuki saludando">
   <p class="splash-title">Tuki Speak</p>
   <p class="splash-sub">Aprende ingl&eacute;s hablando con Tuki</p>
   <div class="splash-dots" aria-hidden="true"><span></span><span></span><span></span></div>
@@ -61,9 +61,9 @@ if (window.top !== window.self) { try { window.top.location = window.self.locati
   </header>
   <main id="view"></main>
   <nav class="tabbar" id="tabbar">
-    <button class="tab" data-tab="home"><span class="ic">🏠</span>Inicio</button>
-    <button class="tab" data-tab="learn"><span class="ic">📚</span>Aprender</button>
-    <button class="tab" data-tab="chat"><span class="ic">✨</span>Tutor IA</button>
+    <button class="tab" data-tab="home"><span class="ic">⌂</span>Inicio</button>
+    <button class="tab" data-tab="learn"><span class="ic">▤</span>Aprender</button>
+    <button class="tab" data-tab="chat"><span class="ic">✧</span>Tutor IA</button>
   </nav>
 </div>
 <div id="full" class="full hidden"><div class="full-inner" id="fullInner"></div></div>

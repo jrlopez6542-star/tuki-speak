@@ -824,7 +824,7 @@ export function finishLesson() {
     ${badges.length ? `<div class="victory-badges">${badges.join('')}</div>` : ''}
     ${unitCompleted ? `<div class="unit-summary">Resumen de la unidad: <b>${L.l.unit.lessons.length} lecciones</b> · Trofeo <b>+50 🪙</b> · <b>+25 XP</b> de unidad</div>` : ''}
     <div class="tuki-speech" style="margin:6px auto 12px;max-width:340px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700">
-      🦜 <b>Profe Tuki:</b> «${finishQuote}»
+      <b>Profe Tuki:</b> «${finishQuote}»
     </div>
     <div class="muted">${esc(L.title)}</div>
     <div class="scards">${cardsHtml}</div>
@@ -876,7 +876,7 @@ export let TAB = 'home';
 export function render() {
   refreshHearts();
   updateMascot();
-  $('#brand').innerHTML = `<span class="brand-mascot-wrap" title="¡Toca a Tuki!">${MASCOT}</span><span>Tuki Speak</span>`;
+  $('#brand').innerHTML = `<span class="brand-mascot-wrap" title="¡Toca a Tuki!">${MASCOT}</span><span class="brand-word">tuki<span>speak</span></span>`;
   const st = streakNow();
   $('#stStreak').innerHTML = '🔥 ' + st; $('#stStreak').classList.toggle('off', st === 0 || S.lastDay !== dayKey());
   $('#stXp').innerHTML = '💎 ' + S.xp;
@@ -895,7 +895,7 @@ const brandEl = $('#brand');
 if (brandEl) { brandEl.onclick = () => interactWithTuki(brandEl); makeMascotClickable(brandEl, '¡Toca a Tuki!'); }
 $('#stHearts').onclick = () => modal(`<h2>❤️ Vidas: ${S.hearts}/${MAX_HEARTS}</h2><p class="muted">Pierdes una vida solo en ejercicios de <b>oído</b> (elegir, ordenar, escribir) durante las lecciones. Los ejercicios de voz nunca quitan vidas. ${S.hearts < MAX_HEARTS ? `Próxima vida en ~${nextHeartIn()} min.` : '¡Estás al máximo!'} Completar una práctica te da +1 vida.</p><button class="btn primary block" data-x>Entendido</button>`, (el, c) => $('[data-x]', el).onclick = c);
 $('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p><button class="btn primary block" data-x>¡Vamos!</button>`, (el, c) => $('[data-x]', el).onclick = c);
-$('#stXp').onclick = () => go('progress');
+$('#stXp').onclick = () => go('profile');
 export const VIEWS = {};
 
 /* ---- Inicio (prototipo Temas Globales, ui/prototipo-temas-globales) ---- */
@@ -993,44 +993,78 @@ VIEWS.home = v => {
     tukiHomeShowTip('¡Hola! 👋 Sigamos con tu aprendizaje.', 'waves');
   }
 };
-/* Modal "Perfil y ajustes" del prototipo, con el modal() existente de la
-   app (Escape, clic fuera y foco ya resueltos ahí). Apariencia escribe en
-   S.settings.theme (auto = Sistema) y aplica a toda la app con
-   applyPrefs(); los toggles usan S.settings.tukiVisible / tukiGreeting. */
-function openProfileModal() {
+/* (Fase 2: grupos Apariencia / Experiencia / Comportamiento del modal
+   "Perfil y ajustes", reutilizados tal cual por el destino Perfil:
+   escriben las mismas claves (S.settings.theme / tukiVisible /
+   tukiGreeting) y aplican el tema global con applyPrefs().) */
+function psetGroupsHTML() {
   const theme = S.settings.theme || 'auto';
   const sel = m => (theme === m || (m === 'system' && theme === 'auto')) ? ' selected' : '';
-  modal(`<h2>Perfil y ajustes</h2>
-  <div class="pset-group"><h3>Apariencia</h3><p class="small muted">Elige cómo quieres ver Tuki Speak. Se aplica a toda la app.</p>
+  return `<div class="pset-group"><h3>Apariencia</h3><p class="small muted">Elige cómo quieres ver Tuki Speak. Se aplica a toda la app.</p>
     <div class="pset-choices" role="group" aria-label="Tema visual">
       <button class="pset-choice${sel('light')}" data-theme-choice="light"><span class="pset-symbol">☀️</span>Claro</button>
       <button class="pset-choice${sel('dark')}" data-theme-choice="dark"><span class="pset-symbol">🌙</span>Oscuro</button>
       <button class="pset-choice${sel('system')}" data-theme-choice="system"><span class="pset-symbol">◐</span>Sistema</button>
     </div></div>
   <div class="pset-group"><h3>Experiencia</h3><p class="small muted">Controla cuándo aparece tu compañero.</p>
-    <div class="pset-line"><span>Mostrar compañero Tuki</span><button class="pset-toggle${S.settings.tukiVisible ? '' : ' off'}" id="psetTukiToggle" aria-label="Mostrar u ocultar Tuki" aria-pressed="${S.settings.tukiVisible}"><i></i></button></div></div>
+    <div class="pset-line"><span>Mostrar compañero Tuki</span><button class="pset-toggle${S.settings.tukiVisible ? '' : ' off'}" data-pset-toggle="tukiVisible" aria-label="Mostrar u ocultar Tuki" aria-pressed="${S.settings.tukiVisible}"><i></i></button></div></div>
   <div class="pset-group"><h3>Comportamiento</h3><p class="small muted">Tuki puede saludarte brevemente al entrar en Inicio, una vez por sesión. Siempre puedes minimizarlo u ocultarlo.</p>
-    <div class="pset-line"><span>Saludo al entrar</span><button class="pset-toggle${S.settings.tukiGreeting ? '' : ' off'}" id="psetGreetToggle" aria-label="Activar o desactivar saludo" aria-pressed="${S.settings.tukiGreeting}"><i></i></button></div></div>
-  <div class="row" style="margin-top:14px"><button class="btn ghost block" id="psetProgress">📈 Ver mi progreso</button><button class="btn ghost block" id="psetSettings">⚙️ Ajustes completos</button></div>`,
-  (el, close) => {
-    const syncToggle = (btn, on) => { if (!btn) return; btn.classList.toggle('off', !on); btn.setAttribute('aria-pressed', String(on)); };
-    $$('[data-theme-choice]', el).forEach(b => b.onclick = () => {
-      S.settings.theme = b.dataset.themeChoice === 'system' ? 'auto' : b.dataset.themeChoice;
-      save(); applyPrefs();
-      $$('[data-theme-choice]', el).forEach(x => x.classList.toggle('selected', x === b));
-    });
-    const tukiT = $('#psetTukiToggle', el);
-    if (tukiT) tukiT.onclick = () => {
-      S.settings.tukiVisible = !S.settings.tukiVisible; save(); syncToggle(tukiT, S.settings.tukiVisible);
+    <div class="pset-line"><span>Saludo al entrar</span><button class="pset-toggle${S.settings.tukiGreeting ? '' : ' off'}" data-pset-toggle="tukiGreeting" aria-label="Activar o desactivar saludo" aria-pressed="${S.settings.tukiGreeting}"><i></i></button></div></div>`;
+}
+function bindPsetGroups(root) {
+  const syncToggle = (btn, on) => { if (!btn) return; btn.classList.toggle('off', !on); btn.setAttribute('aria-pressed', String(on)); };
+  $$('[data-theme-choice]', root).forEach(b => b.onclick = () => {
+    S.settings.theme = b.dataset.themeChoice === 'system' ? 'auto' : b.dataset.themeChoice;
+    save(); applyPrefs();
+    $$('[data-theme-choice]', root).forEach(x => x.classList.toggle('selected', x === b));
+  });
+  $$('[data-pset-toggle]', root).forEach(btn => btn.onclick = () => {
+    const k = btn.dataset.psetToggle;
+    S.settings[k] = !S.settings[k]; save(); syncToggle(btn, S.settings[k]);
+    if (k === 'tukiVisible') {
       const bub = $('#homeBubble'); if (bub) bub.style.display = S.settings.tukiVisible ? 'grid' : 'none';
       if (!S.settings.tukiVisible) tukiHomeHideTip();
-    };
-    const greetT = $('#psetGreetToggle', el);
-    if (greetT) greetT.onclick = () => { S.settings.tukiGreeting = !S.settings.tukiGreeting; save(); syncToggle(greetT, S.settings.tukiGreeting); };
-    $('#psetProgress').onclick = () => { close(); go('progress'); };
-    $('#psetSettings').onclick = () => { close(); go('settings'); };
+    }
   });
 }
+/* Modal "Perfil y ajustes" del prototipo, con el modal() existente de la
+   app (Escape, clic fuera y foco ya resueltos ahí). Apariencia escribe en
+   S.settings.theme (auto = Sistema) y aplica a toda la app con
+   applyPrefs(); los toggles usan S.settings.tukiVisible / tukiGreeting. */
+function openProfileModal() {
+  modal(`<h2>Perfil y ajustes</h2>${psetGroupsHTML()}
+  <div class="row" style="margin-top:14px"><button class="btn ghost block" id="psetProgress">📈 Ver mi progreso</button><button class="btn ghost block" id="psetSettings">⚙️ Ajustes completos</button></div>`,
+  (el, close) => {
+    bindPsetGroups(el);
+    $('#psetProgress', el).onclick = () => { close(); go('progress'); };
+    $('#psetSettings', el).onclick = () => { close(); go('settings'); };
+  });
+}
+
+/* (Fase 2: destino Perfil — se entra por el XP del encabezado. Mismo
+   diseño que el modal "Perfil y ajustes": héroe con Tuki raster y
+   cifras reales, grupos Apariencia/Experiencia/Comportamiento y
+   accesos a Progreso, Ajustes y Tienda. Sin pestaña nueva en la
+   tabbar: en esta vista ninguna píldora queda activa.) */
+VIEWS.profile = v => {
+  const st = streakNow();
+  v.innerHTML = `<div class="profile-hero">
+      <img class="profile-hero-mascot" src="${TUKI_POSES.friendly}" alt="Tuki, tu compañero de inglés">
+      <div class="profile-hero-copy"><div class="profile-hero-kicker">Perfil</div><h2>Tu perfil</h2>
+      <p class="small">Tuki te acompaña en cada lección.</p></div>
+    </div>
+    <div class="profile-stats">
+      <article class="home-stat"><strong>🔥 ${String(st).padStart(2, '0')}</strong><small>Días de racha</small></article>
+      <article class="home-stat"><strong>☆ ${S.xp}</strong><small>XP<br>acumulados</small></article>
+      <article class="home-stat"><strong>🪙 ${S.coins || 0}</strong><small>Monedas</small></article>
+    </div>
+    ${psetGroupsHTML()}
+    <div class="row wrap" style="margin-top:14px"><button class="btn primary block" id="profProgress">📈 Ver mi progreso</button><button class="btn ghost block" id="profSettings">⚙️ Ajustes completos</button><button class="btn ghost block" id="profShop">🛍️ Vestir a Tuki</button></div>`;
+  bindPsetGroups(v);
+  $('#profProgress').onclick = () => go('progress');
+  $('#profSettings').onclick = () => go('settings');
+  $('#profShop').onclick = () => openTukiShopModal();
+};
 
 /* ---- Aprender: mapa ---- */
 VIEWS.learn = v => {
@@ -1250,17 +1284,17 @@ VIEWS.progress = v => {
   const maxXp = Math.max(10, ...days.map(d => d.xp));
   const chart = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Historial 14 días">
     ${[0, 50, 100].map(s => `<line x1="14" x2="${W - 6}" y1="${py(s)}" y2="${py(s)}" stroke="#eef1f3"/><text x="0" y="${py(s) + 4}" font-size="9" fill="#9aa6b0">${s}</text>`).join('')}
-    ${days.map((d, i) => `<rect x="${px(i) - 6}" y="${H - 20 - d.xp / maxXp * 40}" width="12" height="${d.xp / maxXp * 40}" rx="3" fill="#ffe1b3"/><text x="${px(i)}" y="${H - 6}" font-size="9" text-anchor="middle" fill="#9aa6b0">${d.lab}</text>`).join('')}
-    ${pts.length > 1 ? `<polyline fill="none" stroke="#1fa463" stroke-width="3" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>` : ''}
-    ${pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#1fa463"/>`).join('')}</svg>`;
+    ${days.map((d, i) => `<rect class="ch-bar" x="${px(i) - 6}" y="${H - 20 - d.xp / maxXp * 40}" width="12" height="${d.xp / maxXp * 40}" rx="3"/><text x="${px(i)}" y="${H - 6}" font-size="9" text-anchor="middle" fill="#9aa6b0">${d.lab}</text>`).join('')}
+    ${pts.length > 1 ? `<polyline fill="none" class="ch-line" stroke-width="3" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>` : ''}
+    ${pts.map(p => `<circle class="ch-dot" cx="${p[0]}" cy="${p[1]}" r="4"/>`).join('')}</svg>`;
   const cur = currentLesson();
   let rec = '';
   if (!withData.length) rec = cur ? `Empieza con <b>${esc(cur.title)}</b> para obtener tu primer puntaje.` : '¡Completaste todo! Usa shadowing y la IA.';
   else if (weakest.length) rec = `Tu sonido más débil es <b>${esc(weakest[0].l.title)}</b> (${weakest[0].a}%). Practícalo 5 minutos hoy${cur ? ` y luego sigue con <b>${esc(cur.title)}</b>` : ''}.`;
   else rec = `¡Excelentes puntajes! ${cur ? `Continúa con <b>${esc(cur.title)}</b>.` : 'Prueba el shadowing o la conversación con IA.'}`;
   v.innerHTML = `<h2>Tu progreso 📈</h2>
-    <div class="kpis"><div class="kpi"><span>Pronunciación</span><b style="color:var(--g-d)">${overall === null ? '—' : overall + '%'}</b><span>últimos 30 intentos</span></div>
-    <div class="kpi"><span>Oído (pares/quiz)</span><b style="color:var(--b-d)">${earPct === null ? '—' : earPct + '%'}</b><span>${earT.r + earT.w} respuestas</span></div>
+    <div class="kpis"><div class="kpi"><span>Pronunciación</span><b class="kpi-v-plum">${overall === null ? '—' : overall + '%'}</b><span>últimos 30 intentos</span></div>
+    <div class="kpi"><span>Oído (pares/quiz)</span><b class="kpi-v-cyan">${earPct === null ? '—' : earPct + '%'}</b><span>${earT.r + earT.w} respuestas</span></div>
     <div class="kpi"><span>Intentos de voz</span><b>${S.spoken}</b><span>${S.sessions} sesiones completadas</span></div>
     <div class="kpi"><span>Racha / XP</span><b>🔥 ${streakNow()} · 💎 ${S.xp}</b><span>mejor racha ${S.bestStreak}</span></div></div>
     
@@ -1405,7 +1439,7 @@ function planCardHTML() {
   const done = S.plans && S.plans[dayKey()], due = dueCards().length, cur = currentLesson();
   return `<div class="card plan-card"><div class="row between"><div><h3 style="margin:0">📅 Plan de hoy · ~10 min</h3><div class="muted small">${done ? '✅ ¡Completado hoy! Puedes repetirlo.' : 'Sesión automática hecha para ti.'}</div></div><div style="font-size:34px">${done ? '🏆' : '🎯'}</div></div>
     <div class="plan-steps"><span class="plan-step">🎯 Sonidos débiles</span><span class="plan-step">🃏 ${Math.min(4, due)} tarjetas</span><span class="plan-step">👂 Pares mínimos</span>${cur ? `<span class="plan-step">⭐ ${esc(cur.title)}</span>` : ''}</div>
-    <button class="btn orange block" id="planBtn">${done ? 'Repetir plan' : 'Empezar plan de hoy'}</button></div>`;
+    <button class="btn lime block" id="planBtn">${done ? 'Repetir plan' : 'Empezar plan de hoy'}</button></div>`;
 }
 const _finishLesson = finishLesson;
 finishLesson = function () {
@@ -1463,7 +1497,7 @@ function applyPrefs() {
   const dark = s.theme === 'dark' || (s.theme === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   root.dataset.theme = dark ? 'dark' : 'light'; root.dataset.contrast = s.contrast ? 'high' : 'normal'; root.dataset.motion = s.reduceMotion ? 'reduce' : 'normal';
   document.body.style.zoom = s.fontScale && s.fontScale !== 1 ? s.fontScale : '';
-  const m = $('meta[name=theme-color]'); if (m) m.content = dark ? '#0f1720' : '#1fa463';
+  const m = $('meta[name=theme-color]'); if (m) m.content = dark ? '#2b1741' : '#4b2868';
 }
 if (window.matchMedia) try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyPrefs); } catch (e) {}
 const _confetti = confetti; confetti = function () { if (!S.settings.reduceMotion && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) _confetti(); };
@@ -1526,16 +1560,16 @@ document.addEventListener('click', e => { const p = $('#wordPop'); if (p && !p.c
 VIEWS.chat = v => {
   const s = S.settings, hasG = !!s.geminiKey || gemShared(), hasO = !!s.openaiKey, prov = currentProvider();
   if (!prov) {
-    v.innerHTML = `<h2>Conversación con IA 💬</h2>
-      <div class="card" style="text-align:center;padding:24px 16px">
-        <div style="font-size:38px;margin-bottom:8px">🦜💬</div>
-        <h3 style="margin:0 0 6px">Práctica de conversación con IA</h3>
-        <p class="small muted" style="margin:0 auto 16px;max-width:320px">
-          Habla en inglés con Tuki por voz en vivo (Gemini Live) o chat de texto. Inicia sesión para activar la IA gratis con el cupo diario de Tuki.
-        </p>
+    v.innerHTML = `<div class="tutor-gate">
+      <div class="tutor-gate-copy">
+        <div class="tutor-gate-kicker">Tutor IA · Conversación</div>
+        <h2>Práctica de conversación con IA</h2>
+        <p class="small">Habla en inglés con Tuki por voz en vivo (Gemini Live) o chat de texto. Inicia sesión para activar la IA gratis con el cupo diario de Tuki.</p>
         <button class="btn gbtn block" id="chatGoogle" style="margin-bottom:8px"><span class="g">G</span> Continuar con Google</button>
         <button class="btn ghost block sm" id="toSet">Opciones de inicio de sesión y claves</button>
       </div>
+      <img class="tutor-gate-mascot" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés">
+    </div>
       <div class="card"><h3>Mientras tanto…</h3><p class="muted small">Prueba las <b>Conversaciones reales</b> guiadas (unidades 6, 7 y 12): dices tu parte del diálogo y recibes puntaje sin necesidad de IA.</p></div>`;
     const bg = $('#chatGoogle', v);
     if (bg) bg.onclick = async () => {
@@ -1549,6 +1583,7 @@ VIEWS.chat = v => {
   if (CHAT.scen && String(CHAT.scen).startsWith('custom:') && !SCENARIOS[CHAT.scen]) CHAT.scen = 'free';
   const lv = chatLevel();
   v.innerHTML = `<div class="chatscreen" id="chatscreen">
+    <div class="chat-tutor-head"><img class="tuki-img" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés"><div><strong>Tuki · Tutor IA</strong><span class="small muted">Practica hablando; te corrijo con cariño.</span></div></div>
     <div class="chattop">
       <div class="provider"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
       <div class="chatsel"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).filter(k => k !== 'interview' && k !== 'shopping').map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${esc(SCEN_ES[k])}</option>`).join('')}<option value="__new__">✏️ Crear escenario…</option></select><select class="field sp" id="tspeed" aria-label="Velocidad de Tuki" title="Velocidad de Tuki">${Object.keys(TUTOR_SPEEDS).map(k => `<option value="${k}" ${k === tutorSpeed() ? 'selected' : ''}>${TUTOR_SPEEDS[k].label}</option>`).join('')}</select><button class="btn ghost sm" id="newc" title="Nueva conversación">Nueva</button></div>
@@ -1679,13 +1714,19 @@ VIEWS.settings = v => {
     </div>
   </div>
   <div class="card"><h3>🎨 Apariencia y accesibilidad</h3>
-    <div class="set-row"><div><label for="theme">Tema</label></div><select class="field" id="theme" style="max-width:200px">${opt([['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']], s.theme)}</select></div>
+    <div class="set-row" style="display:block"><div><label>Tema</label><div class="desc">Se aplica a toda la app.</div></div>
+    <div class="pset-choices" style="margin-top:10px" role="group" aria-label="Tema visual">
+      <button class="pset-choice${s.theme === 'light' ? ' selected' : ''}" data-theme-choice="light"><span class="pset-symbol">☀️</span>Claro</button>
+      <button class="pset-choice${s.theme === 'dark' ? ' selected' : ''}" data-theme-choice="dark"><span class="pset-symbol">🌙</span>Oscuro</button>
+      <button class="pset-choice${s.theme === 'auto' ? ' selected' : ''}" data-theme-choice="system"><span class="pset-symbol">◐</span>Sistema</button>
+    </div></div>
     <div class="set-row"><div><label for="fontScale">Tamaño de letra</label></div><select class="field" id="fontScale" style="max-width:200px">${opt([[0.9, 'Pequeño'], [1, 'Normal'], [1.15, 'Grande'], [1.3, 'Muy grande']], s.fontScale)}</select></div>
     ${sw('contrast', s.contrast, 'Alto contraste')}${sw('reduceMotion', s.reduceMotion, 'Reducir animaciones')}
   </div>
   <div class="card"><h3>🧸 Experiencia</h3>
-    ${sw('tukiVisible', s.tukiVisible, 'Mostrar compañero Tuki', 'Burbuja de Tuki en Inicio. Tócala para ver un consejo.')}
-    ${sw('tukiGreeting', s.tukiGreeting, 'Saludo al entrar', 'Tuki te saluda una vez por sesión al entrar en Inicio.')}
+    <div class="pset-line"><span>Mostrar compañero Tuki</span><button class="pset-toggle${s.tukiVisible ? '' : ' off'}" data-pset-toggle="tukiVisible" aria-label="Mostrar u ocultar Tuki" aria-pressed="${s.tukiVisible}"><i></i></button></div>
+    <div class="pset-line" style="margin-top:12px"><span>Saludo al entrar</span><button class="pset-toggle${s.tukiGreeting ? '' : ' off'}" data-pset-toggle="tukiGreeting" aria-label="Activar o desactivar saludo" aria-pressed="${s.tukiGreeting}"><i></i></button></div>
+    <p class="small muted" style="margin:10px 0 0">Burbuja de Tuki en Inicio: tócala para ver un consejo. Tuki te saluda una vez por sesión al entrar en Inicio.</p>
   </div>
   <div class="card"><h3>💾 Datos</h3>
     <div class="row wrap"><button class="btn ghost sm" id="exp">⬇️ Exportar progreso</button><label class="btn ghost sm" style="margin:0">⬆️ Importar<input type="file" id="imp" accept="application/json" hidden></label></div>
@@ -1695,8 +1736,12 @@ VIEWS.settings = v => {
   <p class="muted small" style="text-align:center">Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.</p>`;
   const set = (k, val) => { S.settings[k] = val; save(); };
   const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { if (k === 'ttsEngine') S.settings.__ttsDeviceExplicit = (ev.target.value === 'device'); set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
-  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['learnerLevel', 'learnerLevel'], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
-  ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion', 'livePronOptIn', 'tukiVisible', 'tukiGreeting'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
+  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['learnerLevel', 'learnerLevel'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
+  ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion', 'livePronOptIn'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
+  // (Fase 2: tema y toggles de compañero con el lenguaje del modal
+  // "Perfil y ajustes"; escriben las mismas claves que el <select> y
+  // los switches que sustituyen, sin eliminar opciones.)
+  bindPsetGroups(v);
   $('#rate').oninput = e => { set('rate', +e.target.value); $('#rateV').textContent = (+e.target.value).toFixed(2) + '×'; };
   $('#tRate').onclick = () => speak('Hello! This is how fast I speak. Think, three, very, ship, sheep.');
   $('#replace').onclick = placementIntro;
