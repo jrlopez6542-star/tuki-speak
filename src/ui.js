@@ -896,11 +896,11 @@ export function lessonSheet(l) {
       });
     return;
   }
-  modal(`<div class="row"><div style="font-size:40px">${l.icon}</div><div><div class="muted small">${esc(l.unit.title)} · Lección ${l.li + 1}</div><h2 style="margin:0">${esc(l.title)}</h2>${!l.type ? `<div class="ipa">/${esc(l.sound)}/</div>` : ''}</div></div>
+  modal(`<div style="display:flex;justify-content:flex-end"><button class="xbtn" type="button" data-x aria-label="Cerrar">✕</button></div><div class="row"><div style="font-size:40px">${l.icon}</div><div><div class="muted small">${esc(l.unit.title)} · Lección ${l.li + 1}</div><h2 style="margin:0">${esc(l.title)}</h2>${!l.type ? `<div class="ipa">/${esc(l.sound)}/</div>` : ''}</div></div>
     <div class="tipbox small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</div>${mouthPanelHTML(l.id, true)}
     ${d && d.placed && !d.times ? '<p class="small muted">✅ Aprobada en la prueba de nivel</p>' : d ? `<p class="small muted">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : ''}
     <button class="btn primary block" data-go>${d ? 'Repetir lección' : 'Empezar lección'} (+10 XP)</button>${d ? '<button class="btn ghost block" style="margin-top:10px" data-drill>🎯 Práctica de este sonido</button>' : ''}`,
-    (el, close) => { const g = $('[data-go]', el); if (g) g.onclick = () => { close(); startLesson(l); }; const dr = $('[data-drill]', el); if (dr) dr.onclick = () => { close(); startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); }; });
+    (el, close) => { const x = $('[data-x]', el); if (x) x.onclick = close; const g = $('[data-go]', el); if (g) g.onclick = () => { close(); startLesson(l); }; const dr = $('[data-drill]', el); if (dr) dr.onclick = () => { close(); startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); }; });
 }
 export function guideSheet(u) {
   modal(`<h2>📘 ${esc(u.title)}</h2>${u.lessons.map(l => `<div class="tipbox"><b>${l.icon} ${esc(l.title)}</b> ${!l.type ? `<span class="ipa">/${esc(l.sound)}/</span>` : ''}<p class="small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>${l.mouth ? `<p class="small"><b>👄</b> ${esc(l.mouth)}</p>` : ''}</div>`).join('')}<button class="btn primary block" data-x>Cerrar</button>`, (el, c) => $('[data-x]', el).onclick = c);
@@ -1130,10 +1130,12 @@ export function mouthSVG(c) {
   <rect x="30" y="49" width="7" height="11" rx="2" fill="#fff" stroke="#9aa6b0"/><rect x="30" y="${63 + jaw}" width="7" height="10" rx="2" fill="#fff" stroke="#9aa6b0"/>
   <ellipse cx="${ul.cx}" cy="${ul.cy}" rx="${ul.rx}" ry="${ul.ry}" fill="#e57373"/><ellipse cx="${ll.cx}" cy="${ll.cy}" rx="${ll.rx}" ry="${ll.ry}" fill="#e57373"/>
   ${c.air ? `<path d="M118 76 Q70 ${c.t === 'dental' ? 62 : 70} 6 ${c.t === 'dental' ? 60 : 62}" fill="none" stroke="#1cb0f6" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#ah)"/><defs><marker id="ah" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#1cb0f6"/></marker></defs>` : ''}
-  // (fix qa-text-data: "sin vibrar" empezaba en x=112 y con font-size 9 se
-  // salía del viewBox de 150 y se recortaba a "sin vibra". Ambas etiquetas
-  // ahora terminan en x=148 con text-anchor="end", dentro del viewBox.)
-  ${c.v ? `<path d="M132 98 l7 3 l-7 3 l7 3 l-7 3 l7 3" fill="none" stroke="#ff9f1c" stroke-width="2.5"/><text x="148" y="128" font-size="9" fill="#d9800a" font-weight="700" text-anchor="end">vibra</text>` : `<text x="148" y="128" font-size="9" fill="#9aa6b0" font-weight="700" text-anchor="end">sin vibrar</text>`}
+  // (NAV-02: las etiquetas estaban abajo a la derecha (y=128), donde la
+  // lengua rosa llega hasta (110,126) y se comía el inicio de «sin vibrar».
+  // Ahora van en la esquina superior derecha (y=14), zona libre en todos
+  // los diagramas: la curva del paladar no sube de y≈32 y la lengua no
+  // pasa de y≈45. El zigzag de vibración acompaña al texto arriba.)
+  ${c.v ? `<path d="M106 4 l6 3 l-6 3 l6 3 l-6 3" fill="none" stroke="#ff9f1c" stroke-width="2.5"/><text x="148" y="14" font-size="9" fill="#d9800a" font-weight="700" text-anchor="end">vibra</text>` : `<text x="148" y="14" font-size="9" fill="#9aa6b0" font-weight="700" text-anchor="end">sin vibrar</text>`}
   </svg><div>${esc(c.cap || '')}</div>`;
 }
 export const MOUTHS = {

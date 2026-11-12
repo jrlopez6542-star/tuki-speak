@@ -1207,7 +1207,7 @@ VIEWS.learn = v => {
       const pos = [[6, 8], [78, 26], [12, 64], [82, 78]][i % 4];
       return `<span style="left:${pos[0]}%;top:${pos[1]}%">${m}</span>`;
     }).join('');
-    html += `<section class="world" id="world-${ui + 1}" style="--uc:${u.color}"><div class="motifs" aria-hidden="true">${motifs}</div><div class="world-div"><span class="udot" style="background:${u.color}"></span><span class="ut"><b>${u.icon} Unidad ${ui + 1} · ${esc(u.title)}</b><span>Unidad ${ui + 1} de 17 · ${done}/${u.lessons.length} lecciones</span></span>${m05RingSVG(done, u.lessons.length, u.color)}<button class="mini-btn" type="button" data-guide="${u.id}">📘 Guía</button><button class="mini-btn" type="button" data-collapse="${u.id}" aria-expanded="true">▲</button></div><div class="nodes" id="nodes-${u.id}">`;
+    html += `<section class="world" id="world-${ui + 1}" style="--uc:${u.color}"><div class="motifs" aria-hidden="true">${motifs}</div><div class="world-div"><span class="udot" style="background:${u.color}"></span><span class="ut"><b>${u.icon} Unidad ${ui + 1} · ${esc(u.title)}</b><span>Unidad ${ui + 1} de 17 · ${done}/${u.lessons.length} lecciones</span></span>${m05RingSVG(done, u.lessons.length, u.color)}<button class="mini-btn" type="button" data-guide="${u.id}">📘 Guía</button><button class="mini-btn" type="button" data-collapse="${u.id}" aria-expanded="true">▲</button></div><div class="nodes${isCurUnit ? ' has-current' : ''}" id="nodes-${u.id}">`;
     u.lessons.forEach((l, li) => {
       const unl = isUnlocked(l), dn = isDone(l.id), isCur = cur && cur.id === l.id;
       const off = [0, 48, 64, 48, 0, -48, -64, -48][(l.idx) % 8];
@@ -1221,10 +1221,10 @@ VIEWS.learn = v => {
   html += `</div>`;
   html += `<section class="card m05-practice" id="modesMirror">
     <h3 style="margin:0 0 2px">🎭 Modos de práctica <button class="mini-btn" type="button" id="modesToggle" aria-expanded="false" style="float:right">Expandir ▼</button></h3>
-    <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 8 modos</div>
+    <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 9 modos</div>
     <div id="modesBody" class="hidden">${m05ModesMirrorHTML()}</div>
     <div id="modesExtra"></div>
-    <p class="muted small" id="modesHint">La tarjeta vive en Práctica; aquí se espeja como sección colapsada al final del camino. Toca «Expandir» para ver las 8 filas.</p>
+    <p class="muted small" id="modesHint">8 filas del espejo + la tarjeta Traduce y completa. Toca «Expandir» para verlas.</p>
   </section>`;
   html += `<p class="muted small" style="text-align:center">¿Quieres saltar a otra lección? Activa el "modo libre" en ⚙️ Ajustes.</p>`;
   html += `<div class="row" style="margin:14px 0 4px;justify-content:center"><button class="btn ghost sm" id="learnWordsBtn">🃏 Palabras</button></div>`;
@@ -1247,7 +1247,7 @@ VIEWS.learn = v => {
     const open = body.classList.toggle('hidden') === false;
     mt.textContent = open ? 'Plegar ▲' : 'Expandir ▼';
     mt.setAttribute('aria-expanded', String(open));
-    if (hint) hint.textContent = open ? 'Mismas 8 filas, iconos, descripciones y candados que en Práctica hoy.' : 'La tarjeta vive en Práctica; aquí se espeja como sección colapsada al final del camino. Toca «Expandir» para ver las 8 filas.';
+    if (hint) hint.textContent = open ? 'Las 8 filas del espejo + Traduce y completa: los mismos modos que en Práctica.' : '8 filas del espejo + la tarjeta Traduce y completa. Toca «Expandir» para verlas.';
   };
   // (fase premium, etapa 5: Tuki guía en el nodo actual; tocarlo es lo mismo
   // que tocar a Tuki en la marca o en el banner del tutor: celebra y habla
@@ -1432,7 +1432,7 @@ VIEWS.progress = v => {
       <div id="soundsChips"></div>
       ${weakest.length ? `<div class="small muted" style="margin:6px 0 2px">Sonidos más débiles</div>${weakest.map(r => `<div class="row between" style="padding:6px 0"><span>${r.l.icon} <b>${esc(r.l.title)}</b> <span class="pill">${r.a}%</span></span><button class="btn ghost sm" data-drill="${r.l.id}">Practicar</button></div>`).join('')}` : ''}
       <details style="margin-top:10px"><summary><b>Puntaje por sonido</b> <span class="small muted">· promedio de tus últimos 10 intentos de voz por lección</span></summary><div class="bars" style="margin-top:8px">
-      ${soundUnits.map(u => `<div class="small" style="margin:10px 0 4px"><b>Unidad ${u.ui + 1} · ${esc(u.title)}</b></div>${u.rows.map(r => `<div class="bar"><span title="${esc(r.l.title)}">${r.l.icon} ${esc(r.l.type ? r.l.title.split(' ').slice(-2).join(' ') : '/' + r.l.sound + '/')}</span><div class="tr"><i style="width:${r.a || 0}%;background:${r.a === null ? '#eef1f3' : r.a >= 80 ? 'var(--g)' : r.a >= 60 ? 'var(--o)' : 'var(--r)'}"></i></div><span>${r.a === null ? '—' : r.a + '%'}</span></div>`).join('')}`).join('')}</div></details></div>
+      ${soundUnits.map(u => `<div class="small" style="margin:10px 0 4px"><b>Unidad ${u.ui + 1} · ${esc(u.title)}</b></div>${u.rows.map(r => `<div class="bar"><span title="${esc(r.l.title)}">${r.l.icon} ${esc(r.l.type ? r.l.title : '/' + r.l.sound + '/')}</span><div class="tr"><i style="width:${r.a || 0}%;background:${r.a === null ? '#eef1f3' : r.a >= 80 ? 'var(--g)' : r.a >= 60 ? 'var(--o)' : 'var(--r)'}"></i></div><span>${r.a === null ? '—' : r.a + '%'}</span></div>`).join('')}`).join('')}</div></details></div>
     <div class="card"><h3>Palabras para repetir</h3>${wwords.length ? `<div class="chips">${wwords.map(w => `<span class="wd ${colorOf(w.a / 100)}" data-say="${esc(w.disp)}">${esc(w.disp)} · ${w.a}%</span>`).join('')}</div><button class="btn blue sm" id="ww">🔁 Practicar estas palabras</button>` : '<div class="muted small">Aún no hay datos. Haz ejercicios de voz.</div>'}</div>
     <p class="muted small">ℹ️ ${azureReady() ? 'Con Azure activo, los ejercicios usan evaluación fonema por fonema (precisión, fluidez, integridad y prosodia). Sin Azure, ' : ''}el puntaje compara, palabra por palabra, lo que el reconocedor de voz del navegador entendió con la frase objetivo (usando su confianza y alternativas). No es un análisis fonético por sonido como el de apps de pago; úsalo como guía y complementa con "Grabar y comparar".</p>`;
   $$('[data-drill]', v).forEach(b => b.onclick = () => { const l = LESSON[b.dataset.drill]; startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); });
@@ -1775,11 +1775,11 @@ VIEWS.settings = v => {
   const azStatus = azureReady() ? ' (activo)' : (fbSignedIn() ? ' (falta clave)' : ' (inicia sesión)');
   v.innerHTML = `<h2>Ajustes ⚙️</h2>
   <div class="card"><h3>🔊 Voz y audio</h3>
-    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['auto', 'Automática' + (azureReady() ? ' (Azure neural)' : ' (Dispositivo)')], ['azure', 'Azure neural' + azStatus], ['device', 'Dispositivo (sin internet)'], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine || 'auto')}</select></div>
-    <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent" style="max-width:200px">${opt([['en-US', 'Estadounidense (en-US)'], ['en-GB', 'Británico (en-GB)']], s.accent)}</select></div>
-    <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice" style="max-width:200px"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
-    <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice" style="max-width:200px">${opt(AZ_VOICES, s.azureVoice)}</select></div>
-    <div class="set-row"><div><label for="openaiVoice">Voz OpenAI</label><div class="desc">También se usa en la voz en vivo de OpenAI</div></div><select class="field" id="openaiVoice" style="max-width:200px">${opt(OA_VOICES, s.openaiVoice)}</select></div>
+    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine">${opt([['auto', 'Automática' + (azureReady() ? ' (Azure neural)' : '')], ['azure', 'Azure neural' + azStatus], ['device', 'Dispositivo (sin internet)'], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine || 'auto')}</select></div>
+    <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent">${opt([['en-US', 'Estadounidense'], ['en-GB', 'Británico']], s.accent)}</select></div>
+    <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+    <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice">${opt(AZ_VOICES, s.azureVoice)}</select></div>
+    <div class="set-row"><div><label for="openaiVoice">Voz OpenAI</label><div class="desc">También se usa en la voz en vivo de OpenAI</div></div><select class="field" id="openaiVoice">${opt(OA_VOICES, s.openaiVoice)}</select></div>
     <div class="set-row"><div><label for="rate">Velocidad</label><div class="desc" id="rateV">${(+s.rate).toFixed(2)}×</div></div><div class="row"><input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="${s.rate}"><button class="spk" id="tRate" aria-label="Probar voz">🔊</button></div></div>
     ${sw('autoplay', s.autoplay, 'Reproducir audio automáticamente')}${sw('sound', s.sound, 'Sonidos de efectos')}${sw('haptics', s.haptics, 'Vibración (móvil)', 'Vibra al acertar o fallar')}
     ${sw('recordVoice', s.recordVoice, 'Grabar mi voz en ejercicios', 'Para escucharte y ver tu onda. En algunos Android puede interferir con el reconocimiento de Chrome.')}
@@ -1803,10 +1803,10 @@ VIEWS.settings = v => {
       <div class="small muted" style="margin-bottom:8px">Inicia sesión con Google para tener acceso a Gemini y Gemini Live gratis con el cupo diario de Tuki.</div>
       <button class="linkbtn" id="aiGoAcct">Usar la IA gratis →</button>
     </div>` : ''}
-    <div class="set-row"><div><label for="chatProvider">Proveedor</label></div><select class="field" id="chatProvider" style="max-width:200px">${opt([['gemini', 'Gemini (gratis)'], ['openai', 'OpenAI (pago)']], s.chatProvider)}</select></div>
-    <div class="set-row"><div><label for="chatLevel">Nivel de la conversación</label><div class="desc">Ajusta vocabulario, velocidad y correcciones del tutor</div></div><select class="field" id="chatLevel" style="max-width:200px">${opt(LEVEL_KEYS.map(k => [k, LEVELS[k].label]), chatLevel())}</select></div>
-    <div class="set-row"><div><label for="tutorSpeed">Velocidad de Tuki</label><div class="desc">Frases más cortas, pausas y voz más lenta</div></div><select class="field" id="tutorSpeed" style="max-width:200px">${opt(Object.keys(TUTOR_SPEEDS).map(k => [k, TUTOR_SPEEDS[k].label]), tutorSpeed())}</select></div>
-    <div class="set-row"><div><label for="tutorLang">Idioma del tutor</label><div class="desc">Bilingüe: conversa en inglés y te explica las correcciones en español</div></div><select class="field" id="tutorLang" style="max-width:200px">${opt(Object.keys(TUTOR_LANGS).map(k => [k, TUTOR_LANGS[k].label]), tutorLang())}</select></div>
+    <div class="set-row"><div><label for="chatProvider">Proveedor</label></div><select class="field" id="chatProvider">${opt([['gemini', 'Gemini (gratis)'], ['openai', 'OpenAI (pago)']], s.chatProvider)}</select></div>
+    <div class="set-row"><div><label for="chatLevel">Nivel de la conversación</label><div class="desc">Ajusta vocabulario, velocidad y correcciones del tutor</div></div><select class="field" id="chatLevel">${opt(LEVEL_KEYS.map(k => [k, LEVELS[k].label]), chatLevel())}</select></div>
+    <div class="set-row"><div><label for="tutorSpeed">Velocidad de Tuki</label><div class="desc">Frases más cortas, pausas y voz más lenta</div></div><select class="field" id="tutorSpeed">${opt(Object.keys(TUTOR_SPEEDS).map(k => [k, TUTOR_SPEEDS[k].label]), tutorSpeed())}</select></div>
+    <div class="set-row"><div><label for="tutorLang">Idioma del tutor</label><div class="desc">Bilingüe: conversa en inglés y te explica las correcciones en español</div></div><select class="field" id="tutorLang">${opt(Object.keys(TUTOR_LANGS).map(k => [k, TUTOR_LANGS[k].label]), tutorLang())}</select></div>
     <h3 style="margin-top:10px;font-size:16px">✨ Google Gemini (gratis con límites)</h3>
     <p class="small muted">Clave gratuita en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Se usa para el chat y para la <b>voz en vivo (Gemini Live)</b>.</p>
     <input class="field" id="gkey" type="password" placeholder="AIza…" value="${esc(s.geminiKey)}" autocomplete="off" aria-label="Clave de Gemini">
@@ -1822,9 +1822,9 @@ VIEWS.settings = v => {
     ${S.chatProfile ? `<div class="set-row"><div><label>Nota de perfil del chat</label><div class="desc">Tuki recuerda tus errores frecuentes de conversaciones largas.</div></div><button class="btn ghost sm" id="chatProfileDel">Borrar nota</button></div>` : ''}
   </div>
   <div class="card"><h3>🎯 Aprendizaje</h3>
-    <div class="set-row"><div><label for="learnerLevel">Nivel de aprendizaje</label><div class="desc">Ajusta guía fonética, frases y velocidad</div></div><select class="field" id="learnerLevel" style="max-width:200px">${opt([['novice', '🌱 Novato (Desde cero)'], ['intermediate', '⚡ Intermedio'], ['advanced', '🚀 Avanzado']], s.learnerLevel || 'novice')}</select></div>
-    <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal" style="max-width:200px">${opt([[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']], s.goal)}</select></div>
-    <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:200px">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
+    <div class="set-row"><div><label for="learnerLevel">Nivel de aprendizaje</label><div class="desc">Ajusta guía fonética, frases y velocidad</div></div><select class="field" id="learnerLevel">${opt([['novice', '🌱 Novato'], ['intermediate', '⚡ Intermedio'], ['advanced', '🚀 Avanzado']], s.learnerLevel || 'novice')}</select></div>
+    <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal">${opt([[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']], s.goal)}</select></div>
+    <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
     ${sw('freeMode', s.freeMode, 'Modo libre (desbloquear todo)', 'Desactiva el orden secuencial tipo Duolingo y desbloquea todas las lecciones y prácticas')}
     <div class="set-row"><div><label>Prueba de nivel</label><div class="desc">${S.placement && typeof S.placement === 'object' ? 'Última: ' + S.placement.date + ' · ' + S.placement.score : 'Aún no la has hecho'}</div></div><button class="btn ghost sm" id="replace">Hacer ahora</button></div>
     <div class="set-row"><div><label>Reconocimiento de voz</label><div class="desc">${azureReady() ? 'Azure (fonemas) ✅' : HAS_SR ? 'Navegador (por palabras) ✅' : 'No disponible ❌ — usa Chrome/Edge o configura Azure'}</div></div><button class="btn ghost sm" id="testMic" ${canSpeak() ? '' : 'disabled'}>Probar 🎤</button></div>
@@ -1844,7 +1844,7 @@ VIEWS.settings = v => {
       <button class="pset-choice${s.theme === 'dark' ? ' selected' : ''}" data-theme-choice="dark"><span class="pset-symbol">🌙</span>Oscuro</button>
       <button class="pset-choice${s.theme === 'auto' ? ' selected' : ''}" data-theme-choice="system"><span class="pset-symbol">◐</span>Sistema</button>
     </div></div>
-    <div class="set-row"><div><label for="fontScale">Tamaño de letra</label></div><select class="field" id="fontScale" style="max-width:200px">${opt([[0.9, 'Pequeño'], [1, 'Normal'], [1.15, 'Grande'], [1.3, 'Muy grande']], s.fontScale)}</select></div>
+    <div class="set-row"><div><label for="fontScale">Tamaño de letra</label></div><select class="field" id="fontScale">${opt([[0.9, 'Pequeño'], [1, 'Normal'], [1.15, 'Grande'], [1.3, 'Muy grande']], s.fontScale)}</select></div>
     ${sw('contrast', s.contrast, 'Alto contraste')}${sw('reduceMotion', s.reduceMotion, 'Reducir animaciones')}
   </div>
   <div class="card"><h3>🧸 Experiencia</h3>
@@ -2036,21 +2036,12 @@ VIEWS.chat = v => {
   fitChat();
 };
 
-/* Aprender: tarjeta de la entrevista (densidad PR C, v2.32.0, ítem 7:
-   la tarjeta "Reto diario" del dúo se quita — el reto ya está en
-   "Retos de Hoy" (bloque 2) — y queda solo la entrevista.) */
-const _learn24 = VIEWS.learn;
-VIEWS.learn = v => {
-  _learn24(v);
-  const html = `<div class="duo2">
-    <button class="card mcard iv" id="ivCard"><div class="mc-ic">🧑‍💼</div><div><b>Entrevista de trabajo</b><div class="small muted">Simulador con informe</div><div class="small">${S.interviews.length ? 'Última: ' + S.interviews[0].data.overall + '/100' : '5, 8 o 12 preguntas'}</div></div></button></div>`;
-  // (M05-R1, brief §5.1.2: la Entrevista vive como fila dentro de la
-  // sección de práctica, junto al espejo de modos.)
-  const extra = $('#modesExtra', v);
-  if (extra) extra.insertAdjacentHTML('beforeend', html);
-  else { const anchor = $('.plan-card', v) || $('#learnGoal', v); if (anchor) anchor.insertAdjacentHTML('afterend', html); else v.insertAdjacentHTML('afterbegin', html); }
-  $('#ivCard', v).onclick = interviewSetup;
-};
+/* (NAV-04, opción b: la tarjeta «Entrevista de trabajo» (#ivCard) era un
+   duplicado de la fila «Simulador de Entrevista Laboral» del espejo — la
+   misma práctica — así que ya no se inyecta en #modesExtra. Quedan 9
+   entradas: las 8 filas del espejo + Traduce y completa. La entrevista
+   con IA sigue accesible desde Tutor IA (escenario __iv); su flujo sin
+   clave lo cubre NAV-06 en interviewSetup.) */
 /* Progreso: historial */
 function historyHTML() {
   const items = [...S.summaries.map(s => ({ ts: s.ts, k: 's', id: s.id, ic: s.mode === 'challenge' ? '⏱️' : '📝', t: s.title, sc: Math.round((s.data.scores.fluency + s.data.scores.grammar + s.data.scores.vocabulary) / 3), d: s.date })), ...S.interviews.map(r => ({ ts: r.ts, k: 'i', id: r.id, ic: '🧑‍💼', t: 'Entrevista: ' + r.role, sc: r.data.overall, d: r.date }))].sort((a, b) => b.ts - a.ts);
