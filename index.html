@@ -51,6 +51,11 @@ if (window.top !== window.self) { try { window.top.location = window.self.locati
 <div id="app">
   <header class="topbar">
     <div class="brand" id="brand" title="¡Toca a Tuki!"></div>
+    <div class="theme-switch" role="group" aria-label="Tema">
+      <button type="button" data-theme-btn="light" aria-pressed="false">Claro</button>
+      <button type="button" data-theme-btn="dark" aria-pressed="false">Oscuro</button>
+      <button type="button" data-theme-btn="system" aria-pressed="false">Auto</button>
+    </div>
     <div class="stats">
       <button class="topbar-profile-btn" id="stProfile" title="Perfil" aria-label="Abrir perfil y ajustes"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.5-3.8 3.1-5.8 7-5.8s6.5 2 7 5.8z"/></svg></button>
     </div>

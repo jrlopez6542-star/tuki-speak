@@ -663,7 +663,7 @@ document.addEventListener('click', e => { const w = e.target.closest('[data-say]
 // (Fase 3, modulo 4: movido a src/lessons.js, lineas 833-892)
 /* =================== MOTOR DE LECCIÓN =================== */
 // (Fase 3, modulo 4: movido a src/lessons.js, lineas 894-903)
-export function closeLesson() { $$('.confetti').forEach(c => c.remove()); stopRecognize(); speechSynthesis && speechSynthesis.cancel(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; setL(null); render(); }
+export function closeLesson() { $$('.confetti').forEach(c => c.remove()); stopRecognize(); speechSynthesis && speechSynthesis.cancel(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; document.body.classList.remove('band-open'); setL(null); render(); }
 // (Fase 3, modulo 4: movido a src/lessons.js, lineas 905-910)
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 843-872)
 export function tukiChirp(mood = 'chirp') {
@@ -906,6 +906,12 @@ export function go(tab) {
   stopRecognize(); render();
 }
 $$('.tab').forEach(t => t.onclick = () => go(t.dataset.tab));
+/* (TUKI-IMPL-G-001: interruptor Claro/Oscuro/Auto de la topbar — mismo
+   setter que el modal Perfil; sin claves de estado nuevas.) */
+$$('[data-theme-btn]').forEach(b => b.onclick = () => {
+  S.settings.theme = b.dataset.themeBtn === 'system' ? 'auto' : b.dataset.themeBtn;
+  save(); applyPrefs(); syncThemeSwitch();
+});
 $('#stProfile').onclick = () => openProfileModal();
 const brandEl = $('#brand');
 if (brandEl) { brandEl.onclick = () => interactWithTuki(brandEl); makeMascotClickable(brandEl, '¡Toca a Tuki!'); }
@@ -1057,7 +1063,7 @@ function bindPsetGroups(root) {
   const syncToggle = (btn, on) => { if (!btn) return; btn.classList.toggle('off', !on); btn.setAttribute('aria-pressed', String(on)); };
   $$('[data-theme-choice]', root).forEach(b => b.onclick = () => {
     S.settings.theme = b.dataset.themeChoice === 'system' ? 'auto' : b.dataset.themeChoice;
-    save(); applyPrefs();
+    save(); applyPrefs(); syncThemeSwitch();
     $$('[data-theme-choice]', root).forEach(x => x.classList.toggle('selected', x === b));
   });
   $$('[data-pset-toggle]', root).forEach(btn => btn.onclick = () => {
@@ -1199,6 +1205,12 @@ VIEWS.learn = v => {
   if (!canSpeak()) html += `<div class="notice">⚠️ Este navegador no tiene reconocimiento de voz: podrás escuchar, grabarte y comparar, pero no recibir puntaje (o configura Azure en Ajustes). Para la experiencia completa usa <b>Google Chrome</b> (Android o computador) o Edge.</div>`;
   html += `<p class="m05-course-count" id="courseCount">${doneCount}/50 lecciones · Unidad ${curUnit} de 17</p>`;
   html += `<div class="m05-path" id="path">`;
+  /* (TUKI-IMPL-G-001, corrección D3: el nodo «Siguiente» — primera
+     lección de la unidad siguiente a la actual — NO lleva 🔒. Conserva
+     su clase 'locked' y su comportamiento de bloqueo; solo muestra su
+     icono de lección en vez del candado. Las demás bloqueadas siguen
+     con 🔒.) */
+  const nextUnitFirst = cur && COURSE[cur.ui + 1] ? COURSE[cur.ui + 1].lessons[0].id : null;
   COURSE.forEach((u, ui) => {
     const done = u.lessons.filter(l => isDone(l.id)).length;
     const unitDone = done === u.lessons.length;
@@ -1213,7 +1225,7 @@ VIEWS.learn = v => {
       const off = [0, 48, 64, 48, 0, -48, -64, -48][(l.idx) % 8];
       const avgS = soundAvg(l.id);
       html += `<div class="node-wrap" style="transform:translateX(${off}px)">${isCur ? '<div class="start-tip">¡EMPEZAR!</div>' : ''}
-        <button class="node ${dn ? 'done' : unl ? '' : 'locked'} ${isCur ? 'current' : ''}" style="--uc:${u.color}" data-lesson="${l.id}" aria-label="${esc(l.title)}">${dn ? '⭐' : unl ? l.icon : '🔒'}</button>
+        <button class="node ${dn ? 'done' : unl ? '' : 'locked'} ${isCur ? 'current' : ''}" style="--uc:${u.color}" data-lesson="${l.id}" aria-label="${esc(l.title)}">${dn ? '⭐' : unl ? l.icon : (l.id === nextUnitFirst ? l.icon : '🔒')}</button>
         ${isCurUnit ? `<div class="node-label">${esc(l.title)}${avgS !== null ? `<br><span class="pill ${avgS >= 80 ? 'ok' : ''}">${avgS}%</span>` : ''}</div>` : ''}${isCur ? `<div class="tuki-guide"><div class="tuki-guide-mascot" title="¡Toca a Tuki!">${MASCOT}</div><div class="tuki-guide-bubble">${esc(TUKI_QUOTES_ES[0])}</div></div>` : ''}</div>`;
     });
     html += `<div class="node-wrap"><button class="unit-milestone ${unitDone ? 'reached' : ''}" style="--uc:${u.color}" data-guide="${u.id}" aria-label="Hito de la unidad ${ui + 1}: ${esc(u.title)}${unitDone ? ' (conquistado)' : ''}">🏆</button><div class="node-label">Hito · Unidad ${ui + 1}</div></div></div></section>`;
@@ -1466,7 +1478,7 @@ function startReview() {
   $('#full').classList.remove('hidden'); document.body.style.overflow = 'hidden';
   nextCard();
 }
-function closeReview() { $$('.confetti').forEach(c => c.remove()); R = null; stopRecognize(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; render(); }
+function closeReview() { $$('.confetti').forEach(c => c.remove()); R = null; stopRecognize(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; document.body.classList.remove('band-open'); render(); }
 function nextCard() {
   if (!R) return;
   if (!R.q.length) {
@@ -1599,6 +1611,13 @@ function applyPrefs() {
   const m = $('meta[name=theme-color]'); if (m) m.content = dark ? '#2b1741' : '#4b2868';
 }
 if (window.matchMedia) try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyPrefs); } catch (e) {}
+/* (TUKI-IMPL-G-001: interruptor de tema de la topbar (mockup G) — usa el
+   mismo setter que el modal Perfil: S.settings.theme + save() +
+   applyPrefs(). Solo sincroniza aria-pressed de [data-theme-btn].) */
+function syncThemeSwitch() {
+  const theme = S.settings.theme || 'auto';
+  $$('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.themeBtn === 'system' ? 'auto' : b.dataset.themeBtn) === theme)));
+}
 const _confetti = confetti; confetti = function () { if (!S.settings.reduceMotion && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) _confetti(); };
 
 
@@ -2895,7 +2914,7 @@ function hideSplash() {
   el.classList.add('splash-done');
   setTimeout(() => el.remove(), 600);
 }
-applyPrefs(); save(); render(); hideSplash(); netBanner(); initTukiSleepWatch(); initTukiAnimPause();
+applyPrefs(); syncThemeSwitch(); save(); render(); hideSplash(); netBanner(); initTukiSleepWatch(); initTukiAnimPause();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 if ('serviceWorker' in navigator) {

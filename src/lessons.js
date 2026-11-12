@@ -106,7 +106,29 @@ export function nextEx() {
   // sin re-animar el resto de la interfaz ni mover el foco)
   const lb = $('#lbody'); if (lb) lb.classList.add('ex-enter');
 }
-export function setFoot(html, cls = '') { const f = $('#lfoot'); f.className = 'lfoot ' + cls; f.innerHTML = html; return f; }
+export function setFoot(html, cls = '') {
+  const f = $('#lfoot'); f.className = 'lfoot ' + cls; f.innerHTML = html;
+  /* (TUKI-IMPL-G-001: banda de feedback de la variante A — solo cuando
+     el pie es feedback ok/bad: mini-Tuki raster EXISTENTE (celebrates /
+     motivates, sin SVG nuevo) junto al texto, y body.band-open oculta
+     la tabbar. El contenido del feedback (textos, XP, «volverá a
+     aparecer») no cambia; con cls '' la banda se cierra.) */
+  const isFb = cls === 'ok' || cls === 'bad';
+  document.body.classList.toggle('band-open', isFb);
+  if (isFb) {
+    const fb = f.querySelector('.fb');
+    if (fb) {
+      const img = document.createElement('img');
+      img.className = 'fb-tuki-img';
+      img.src = cls === 'ok' ? './tuki/tuki-celebrates.webp' : './tuki/tuki-motivates.webp';
+      img.alt = 'Tuki';
+      const tx = document.createElement('div'); tx.className = 'fb-tx';
+      while (fb.firstChild) tx.appendChild(fb.firstChild);
+      fb.appendChild(img); fb.appendChild(tx);
+    }
+  }
+  return f;
+}
 export function footCheck(enabled, extra = '') { setFoot(`${extra || '<span></span>'}<button class="btn primary" id="primaryBtn" ${enabled ? '' : 'disabled'}>Comprobar</button>`); $('#primaryBtn').onclick = checkEar; }
 export function enableCheck() { const b = $('#primaryBtn'); if (b) b.disabled = false; }
 

@@ -1225,3 +1225,108 @@ html[data-theme="dark"] .m05-hub-ic{background:#30243d}
 .m05-adv summary::-webkit-details-marker{display:none}
 .m05-adv > .card{border:0;box-shadow:none;margin:0;padding:0}
 .m05-adv > .card > h3{display:none}
+
+/* =================== TUKI-IMPL-G-001: LIQUID GLASS (MOCKUP G) ===================
+   Lenguaje visual G sobre lo ya hecho (M05-R1, NAV-FIX-001, AUD-02):
+   tokens G, aurora de fondo, vidrio SOLO en navegación (topbar + tabbar)
+   con fallback sólido obligatorio, resto de superficies SÓLIDAS (el
+   contenido de la lección nunca lleva vidrio detrás del texto). Sin
+   cambios de lógica, estado, Firebase, APP_VERSION, motor de lecciones
+   ni navegación (3 pestañas; Perfil sigue por icono). Esta sección va
+   AL FINAL para imponerse a las reglas viejas. */
+/* ---- Tokens G ---- */
+:root{
+  --plum:#4b2868;--plum2:#603584;--deep:#2b1741;--lime:#d7f36a;--coral:#ff705b;--cyan:#37d2dc;--lav:#b98cff;
+  --paper:#ece7f4;--card2:#f8f5fc;
+  --glass:rgba(255,255,255,.55);--glass-brd:rgba(255,255,255,.65);
+  --shadow:0 10px 30px rgba(43,23,65,.10);
+  --ok-bg:#e5f7ed;--err-bg:#fff0f0;
+  /* (G: fondo/tinta/línea de G; --rad 22px es el radio G.) */
+  --bg:#ece7f4;--ink:#261536;--mute:#6f6480;--line:rgba(75,40,104,.14);
+  --rad:22px;--r-lg:22px;
+}
+[data-theme=dark]{
+  --paper:#171321;--card:#241b31;--card2:#2e2339;--line:rgba(255,255,255,.12);
+  --ink:#f7f1fc;--mute:#c6b8d2;--bg:#171321;
+  --glass:rgba(38,29,50,.55);--glass-brd:rgba(255,255,255,.18);
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --ok-bg:#1d3a28;--err-bg:#3b1d21;
+}
+/* ---- Aurora ambiental: solo fondo de página, nunca detrás de texto de ejercicio ---- */
+body{background:
+  radial-gradient(120% 34% at 8% 0%,rgba(183,140,255,.55),transparent 60%),
+  radial-gradient(90% 30% at 96% 12%,rgba(55,210,220,.4),transparent 60%),
+  radial-gradient(110% 30% at 50% 108%,rgba(215,243,106,.45),transparent 60%),
+  var(--paper)}
+html[data-theme="dark"] body{background:
+  radial-gradient(120% 34% at 8% 0%,rgba(96,53,132,.65),transparent 60%),
+  radial-gradient(90% 30% at 96% 12%,rgba(55,210,220,.28),transparent 60%),
+  radial-gradient(110% 30% at 50% 108%,rgba(215,243,106,.18),transparent 60%),
+  var(--paper)}
+#app{background:transparent}
+/* ---- Tarjetas con radio/sombra G ---- */
+.card{box-shadow:var(--shadow)}
+/* ---- Topbar: píldora flotante de vidrio ---- */
+.topbar{position:sticky;top:12px;margin:12px 14px 0;padding:8px 10px;border-radius:99px;background:var(--glass);border:1px solid var(--glass-brd);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 8px 24px rgba(43,23,65,.14)}
+html[data-theme="dark"] .topbar{background:var(--glass);border-color:var(--glass-brd)}
+.topbar .brand{color:var(--ink)}
+.topbar .brand-word span{color:var(--plum2)}
+html[data-theme="dark"] .topbar .brand{color:#fff}
+html[data-theme="dark"] .topbar .brand-word span{color:var(--lime)}
+.topbar .stat{background:rgba(75,40,104,.10);color:var(--ink)}
+.topbar .stat:hover{background:rgba(75,40,104,.18)}
+html[data-theme="dark"] .topbar .stat{background:rgba(255,255,255,.16);color:#fff}
+html[data-theme="dark"] .topbar .stat:hover{background:rgba(255,255,255,.28)}
+.topbar .topbar-profile-btn{border:1px solid var(--line);background:rgba(75,40,104,.10);color:var(--ink);box-shadow:none}
+html[data-theme="dark"] .topbar .topbar-profile-btn{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff}
+/* Interruptor Claro/Oscuro/Auto (mockup G): mismo setter que el modal Perfil. */
+.theme-switch{margin-left:auto;display:flex;gap:2px;padding:3px;border-radius:99px;background:rgba(43,23,65,.32);flex:none}
+.theme-switch button{border:0;border-radius:99px;background:transparent;color:#fff;padding:7px 7px;font-size:10px;font-weight:800;white-space:nowrap}
+.theme-switch button[aria-pressed="true"]{background:var(--lime);color:var(--deep)}
+html[data-theme="dark"] .theme-switch{background:rgba(0,0,0,.45)}
+@media (max-width:380px){.theme-switch button{padding:6px 5px;font-size:9px}}
+/* ---- Tabbar: píldora flotante de vidrio, 3 pestañas (sin 4.ª, corrección D4) ---- */
+.tabbar{background:var(--glass);border:1px solid var(--glass-brd);border-radius:99px;-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 12px 32px rgba(43,23,65,.20);bottom:calc(14px + env(safe-area-inset-bottom))}
+html[data-theme="dark"] .tabbar{background:var(--glass);border-color:var(--glass-brd)}
+.tabbar .tab{color:var(--mute)}
+.tabbar .tab.active{background:rgba(215,243,106,.55);color:var(--plum);border-color:transparent}
+html[data-theme="dark"] .tabbar .tab.active{background:rgba(215,243,106,.22);color:var(--lime)}
+.tabbar .tab:hover{background:rgba(75,40,104,.08);color:var(--ink)}
+html[data-theme="dark"] .tabbar .tab:hover{background:rgba(255,255,255,.08);color:#fff}
+/* Fallback obligatorio: sin backdrop-filter el vidrio cae a tarjeta sólida. */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .topbar,.tabbar{background:var(--card)}
+}
+/* ---- Inicio: héroe con tokens G (min-height 340px y copy 60% / mascota 40% intactos) ---- */
+.home{border-radius:22px;box-shadow:var(--shadow)}
+.home-lesson{border-radius:22px;box-shadow:0 18px 38px rgba(75,40,104,.28),var(--shadow)}
+/* ---- Aprender (camino M05): tokens G, nombres reales de unidad ya en el código (D1) ---- */
+.m05-hero{border-radius:22px;box-shadow:var(--shadow)}
+.world{border-radius:22px}
+.node.current{box-shadow:0 0 0 5px rgba(75,40,104,.14),0 7px 0 rgba(0,0,0,.22)}
+/* ---- Ajustes (hub M05, 7 filas): tokens G; estructura real intacta (D2) ---- */
+.m05-set-hero{border-radius:22px;box-shadow:var(--shadow)}
+.m05-hub-row{border-radius:22px;box-shadow:var(--shadow)}
+.m05-chev{color:var(--plum2)}
+/* ---- Reproductor de lección: banda de feedback (variante A), SÓLIDA, nunca vidrio ---- */
+.lfoot.ok,.lfoot.bad{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:560px;bottom:0;z-index:40;border-radius:22px 22px 0 0;border-top:4px solid #168b57;padding:14px 16px calc(14px + env(safe-area-inset-bottom));box-shadow:0 -8px 30px rgba(43,23,65,.18);animation:none}
+.lfoot.ok{background:var(--ok-bg);border-top-color:#168b57}
+.lfoot.bad{background:var(--err-bg);border-top-color:#c93643}
+.lfoot.ok .fb h3{color:#168b57}
+.lfoot.bad .fb h3{color:#c93643}
+.lfoot.ok .fb,.lfoot.bad .fb{color:var(--ink)}
+.lfoot.ok .fb .exp,.lfoot.bad .fb .exp{color:var(--ink)}
+html[data-theme="dark"] .lfoot.ok{background:#1d3a28;border-top-color:#168b57}
+html[data-theme="dark"] .lfoot.bad{background:#3b1d21;border-top-color:#c93643}
+html[data-theme="dark"] .lfoot.ok .fb h3{color:#7ee2a8}
+html[data-theme="dark"] .lfoot.bad .fb h3{color:#ff9b9b}
+html[data-theme="dark"] .lfoot.ok .fb,html[data-theme="dark"] .lfoot.bad .fb{color:var(--ink)}
+html[data-theme="dark"] .lfoot.ok .fb .exp,html[data-theme="dark"] .lfoot.bad .fb .exp{color:var(--ink)}
+.fb{display:flex;gap:12px;align-items:flex-start}
+.fb-tuki-img{width:56px;height:56px;min-width:56px;border-radius:16px;object-fit:cover;flex:none}
+.fb-tx{flex:1;min-width:0}
+.lfoot.ok .row,.lfoot.bad .row{flex:1 1 100%}
+.lfoot.ok .row .btn,.lfoot.bad .row .btn{flex:1}
+.lfoot.ok .btn.primary,.lfoot.bad .btn.primary{background:var(--lime);color:#21152d;box-shadow:0 4px 0 #a9c33e}
+body.band-open .tabbar{display:none}
+body.band-open .lbody{padding-bottom:210px}
