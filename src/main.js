@@ -2837,9 +2837,8 @@ VIEWS.settings = v => {
       <p>Todo a tu manera. Personaliza tu experiencia.</p>
       <span class="m05-status-line">${esc(m05StatusLine())}</span>
     </div>
-    <div class="m05-tuki-hero" aria-label="Tuki con audífonos (accesorio separable)">
+    <div class="m05-tuki-hero" aria-label="Tuki, tu compañero de inglés">
       <div class="m05-tuki-img"><img src="./tuki/tuki-friendly.webp" alt="Tuki, tu compañero de inglés"></div>
-      <svg class="m05-phones" viewBox="0 0 120 120" aria-hidden="true"><path d="M22 62 C22 28 98 28 98 62" fill="none" stroke="#4b2868" stroke-width="9" stroke-linecap="round"/><rect x="10" y="56" width="24" height="40" rx="12" fill="#4b2868"/><rect x="86" y="56" width="24" height="40" rx="12" fill="#4b2868"/><circle cx="22" cy="76" r="8" fill="#d7f36a"/><circle cx="98" cy="76" r="8" fill="#d7f36a"/></svg>
     </div>
   </section>
   <div class="m05-hub">
