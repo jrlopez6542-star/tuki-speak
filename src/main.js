@@ -1009,8 +1009,8 @@ VIEWS.home = v => {
     <section class="home-progress">
       <div class="home-sectionhead"><h2>Tu recorrido</h2><span>${units} unidades · ${total} lecciones</span></div>
       <div class="home-stats">
-        <article class="home-stat"><strong>${String(doneCount).padStart(2, '0')}/${total}</strong><small>▣ Lecciones<br>avanzadas</small></article>
-        <article class="home-stat"><strong>🔥 ${String(streak).padStart(2, '0')}</strong><small>Días de racha</small></article>
+        <article class="home-stat"><strong>${doneCount}/${total}</strong><small>▣ Lecciones<br>avanzadas</small></article>
+        <article class="home-stat"><strong>🔥 ${streak}</strong><small>Días de racha</small></article>
         <article class="home-stat"><strong>☆ ${S.xp}</strong><small>XP<br>acumulados</small></article>
       </div>
     </section>
@@ -1101,7 +1101,7 @@ VIEWS.profile = v => {
       <p class="small">Tuki te acompaña en cada lección.</p></div>
     </div>
     <div class="profile-stats">
-      <article class="home-stat"><strong>🔥 ${String(st).padStart(2, '0')}</strong><small>Días de racha</small></article>
+      <article class="home-stat"><strong>🔥 ${st}</strong><small>Días de racha</small></article>
       <article class="home-stat"><strong>☆ ${S.xp}</strong><small>XP<br>acumulados</small></article>
       <article class="home-stat"><strong>🪙 ${S.coins || 0}</strong><small>Monedas</small></article>
     </div>
