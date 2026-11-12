@@ -3853,16 +3853,27 @@ export let shopActiveTab = 'hat';
    si ya se tienen todas, solo equipa. La pestaña Ropa muestra los
    conjuntos arriba y las prendas sueltas abajo, como antes.) */
 export const TUKI_OUTFIT_SETS = [
-  { id: 'set:colombiano', name: 'Orgullo Colombiano', icon: '🇨🇴', desc: 'Ruana, vueltiao y bandera: pura tierra querida.', palette: ['#f7c948', '#2f6fed', '#e5484d'], pieces: { hat: 'vueltiao', outfit: 'ruana', hand: 'flag', plumage: 'classic' } },
-  { id: 'set:graduado', name: 'Graduado de Honor', icon: '🎓', desc: 'Birrete, corbatín y diccionario para celebrar lo aprendido.', palette: ['#2b1741', '#d7f36a', '#f7c948'], pieces: { hat: 'grad', outfit: 'bowtie', hand: 'book', plumage: 'classic' } },
-  { id: 'set:chef', name: 'Chef Estrella', icon: '👨‍🍳', desc: 'Gorro, bufanda y tinto: el sabor de aprender.', palette: ['#ffffff', '#ff705b', '#4b2868'], pieces: { hat: 'chef', outfit: 'scarf', hand: 'coffee', plumage: 'classic' } },
-  { id: 'set:explorador', name: 'Explorador Total', icon: '🧭', desc: 'Chaleco, sombrero vaquero y bandera para ir a donde sea.', palette: ['#8a6d3b', '#4b2868', '#37d2dc'], pieces: { hat: 'cowboy', outfit: 'vest', hand: 'flag', plumage: 'classic' } },
-  { id: 'set:urbano', name: 'Estrella Urbana', icon: '🎧', desc: 'Chaqueta, audífonos y micrófono dorado: listo para el escenario.', palette: ['#4b2868', '#d7f36a', '#f7c948'], pieces: { hat: 'headphones', outfit: 'jacket', hand: 'mic', plumage: 'gold' } },
-  { id: 'set:heroe', name: 'Héroe de Fiesta', icon: '🦸', desc: 'Capa, gorro fiestero, varita y fuego: pura celebración.', palette: ['#ff705b', '#37d2dc', '#f7c948'], pieces: { hat: 'party', outfit: 'cape', hand: 'wand', plumage: 'fire' } },
+  { id: 'set:colombiano', name: 'Orgullo Colombiano', icon: '🇨🇴', desc: 'Ruana, vueltiao y bandera: pura tierra querida.', palette: ['#f7c948', '#2f6fed', '#e5484d'], pieces: { hat: 'vueltiao', outfit: 'ruana', hand: 'flag', plumage: 'classic' }, pose: 'waves' },
+  { id: 'set:graduado', name: 'Graduado de Honor', icon: '🎓', desc: 'Birrete, corbatín y diccionario para celebrar lo aprendido.', palette: ['#2b1741', '#d7f36a', '#f7c948'], pieces: { hat: 'grad', outfit: 'bowtie', hand: 'book', plumage: 'classic' }, pose: 'celebrates' },
+  { id: 'set:chef', name: 'Chef Estrella', icon: '👨‍🍳', desc: 'Gorro, bufanda y tinto: el sabor de aprender.', palette: ['#ffffff', '#ff705b', '#4b2868'], pieces: { hat: 'chef', outfit: 'scarf', hand: 'coffee', plumage: 'classic' }, pose: 'explains' },
+  { id: 'set:explorador', name: 'Explorador Total', icon: '🧭', desc: 'Chaleco, sombrero vaquero y bandera para ir a donde sea.', palette: ['#8a6d3b', '#4b2868', '#37d2dc'], pieces: { hat: 'cowboy', outfit: 'vest', hand: 'flag', plumage: 'classic' }, pose: 'waves' },
+  { id: 'set:urbano', name: 'Estrella Urbana', icon: '🎧', desc: 'Chaqueta, audífonos y micrófono dorado: listo para el escenario.', palette: ['#4b2868', '#d7f36a', '#f7c948'], pieces: { hat: 'headphones', outfit: 'jacket', hand: 'mic', plumage: 'gold' }, pose: 'motivates' },
+  { id: 'set:heroe', name: 'Héroe de Fiesta', icon: '🦸', desc: 'Capa, gorro fiestero, varita y fuego: pura celebración.', palette: ['#ff705b', '#37d2dc', '#f7c948'], pieces: { hat: 'party', outfit: 'cape', hand: 'wand', plumage: 'fire' }, pose: 'celebrates' },
 ];
 
-/* (Fase 2 — Tienda con avatar nuevo: la vista previa usa la pose raster
-   'friendly' (tukiImgHTML) en vez del SVG antiguo. Las 7 poses son
+/* (Probador vivo: al probar una prenda o un conjunto, la vista previa
+   cambia de POSE y dice una frase — es lo que hace sentir vivo el
+   probador, porque las 7 imágenes son fijas y ninguna prenda se dibuja
+   sobre el pájaro (todas las poses llevan audífonos y buzo de base).
+   La pose se guarda en data-tuki-base para que tukiMood, al terminar
+   un estado transitorio, vuelva a ella y no a 'friendly'.) */
+const SHOP_POSE_BY_KEY = { vueltiao: 'waves', crown: 'celebrates', party: 'celebrates', wizard: 'explains', grad: 'celebrates', chef: 'explains', headphones: 'motivates', vr: 'explains', cowboy: 'waves', flower: 'friendly', beret: 'explains', glasses: 'friendly', cap: 'motivates', astronaut: 'motivates', cape: 'celebrates', medal: 'celebrates', jersey: 'waves', ruana: 'waves', bowtie: 'explains', jacket: 'motivates', lab: 'explains', vest: 'motivates', scarf: 'friendly', hawaiian: 'waves', mic: 'motivates', trophy: 'celebrates', wand: 'celebrates', book: 'explains', coffee: 'friendly', flag: 'waves', gold: 'celebrates', fire: 'celebrates', neon: 'motivates', ice: 'explains' };
+const SHOP_POSE_PHRASE = { waves: '¡De una, parcero!', celebrates: '¡Qué berraquera de look!', explains: 'Mira, mira este estilo…', motivates: '¡Con esto aprendo con toda!', friendly: '¡Me queda genial!' };
+const tukiPoseImgHTML = pose => { const src = TUKI_POSES[pose] || TUKI_POSES.friendly; return `<img class="tuki-img" src="${src}" data-tuki-base="${src}" alt="Tuki" draggable="false">`; };
+
+/* (Fase 2 — Tienda con avatar nuevo: la vista previa usa una pose raster
+   (Probador vivo: la pose cambia según lo probado/equipado, ver
+   SHOP_POSE_BY_KEY y set.pose) en vez del SVG antiguo. Las 7 poses son
    imágenes fijas sin capas ni recoloración, así que un sombrero o una
    ropa no se dibuja sobre el pájaro: lo equipado / probado se muestra
    como fichas compactas (icono + nombre) bajo la vista previa, que se
@@ -3890,6 +3901,23 @@ export function openTukiShopModal() {
   // Piezas de un conjunto, en orden sombrero / ropa / en mano / plumaje.
   const setPieces = set => ['hat', 'outfit', 'hand', 'plumage'].map(t => TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === set.pieces[t])).filter(Boolean);
   const setIsOwned = it => skin.owned.includes(it.id) || it.price === 0;
+  // Pose de la vista previa según lo equipado/probado (manda el sombrero,
+  // luego la ropa, en mano y el plumaje; los valores por defecto no cuentan).
+  const shopPoseForSkin = sk => {
+    for (const t of ['hat', 'outfit', 'hand', 'plumage']) {
+      const it = TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === sk[t]);
+      if (it && it.key !== 'none' && it.key !== 'classic') return SHOP_POSE_BY_KEY[it.key] || 'friendly';
+    }
+    return 'friendly';
+  };
+  let previewPose = shopPoseForSkin(skin);
+  // Cambia la pose de la vista previa y la deja como base (para que
+  // tukiMood vuelva a ella al terminar un estado transitorio).
+  const setShopPreviewPose = (pm, pose) => {
+    previewPose = pose;
+    const img = pm && pm.querySelector('img.tuki-img');
+    if (img) { const src = TUKI_POSES[pose] || TUKI_POSES.friendly; img.src = src; img.dataset.tukiBase = src; }
+  };
 
   const buildModalContent = () => {
     const items = TUKI_SHOP_ITEMS.filter(it => it.type === shopActiveTab);
@@ -3897,7 +3925,7 @@ export function openTukiShopModal() {
       <p class="muted small">Gana monedas completando lecciones, retos y metas diarias para vestir a tu tucán.</p>
       
       <div class="tuki-shop-preview">
-        <div class="mascot-wrap" id="shopPreviewMascot" title="¡Toca para interactuar!">${tukiImgHTML('friendly')}</div>
+        <div class="mascot-wrap" id="shopPreviewMascot" title="¡Toca para interactuar!">${tukiPoseImgHTML(previewPose)}</div>
         <div class="tuki-speech" id="shopSpeech">¡Prueba atuendos, sombreros y colores! Tienes 🪙 <b>${S.coins || 0}</b> monedas.</div>
         <div class="shop-equipped-label">Tu look actual</div>
         <div class="shop-equipped" id="shopEquipped">${shopEquippedChips(previewSkin)}</div>
@@ -3996,14 +4024,16 @@ export function openTukiShopModal() {
         const it = TUKI_SHOP_ITEMS.find(x => x.id === itId);
         if (!it) return;
         previewSkin[it.type] = it.key;
+        const pose = SHOP_POSE_BY_KEY[it.key] || 'friendly';
         const pm = $('#shopPreviewMascot', el);
         if (pm) {
           const eq = $('#shopEquipped', el);
           if (eq) eq.innerHTML = shopEquippedChips(previewSkin);
-          tukiMood('happy', { el: pm, particles: 'sparkle' });
+          setShopPreviewPose(pm, pose);
+          triggerTukiAnimation(pm, 'tuki-wiggle', 'sparkle');
         }
         const sp = $('#shopSpeech', el);
-        if (sp) sp.textContent = `Probando: ${it.name} ${it.icon}`;
+        if (sp) sp.textContent = `${SHOP_POSE_PHRASE[pose] || ''} Probando: ${it.name} ${it.icon}`;
         beep('tap');
       };
     });
@@ -4017,9 +4047,12 @@ export function openTukiShopModal() {
         const eq = $('#shopEquipped', el);
         if (eq) eq.innerHTML = shopEquippedChips(previewSkin);
         const pm = $('#shopPreviewMascot', el);
-        if (pm) tukiMood('happy', { el: pm, particles: 'sparkle' });
+        if (pm) {
+          setShopPreviewPose(pm, set.pose || 'friendly');
+          triggerTukiAnimation(pm, 'tuki-wiggle', 'sparkle');
+        }
         const sp = $('#shopSpeech', el);
-        if (sp) sp.textContent = `Probando conjunto: ${set.name} ${set.icon}`;
+        if (sp) sp.textContent = `${SHOP_POSE_PHRASE[set.pose] || ''} Probando conjunto: ${set.name} ${set.icon}`;
         beep('tap');
       };
     });
@@ -4042,7 +4075,11 @@ export function openTukiShopModal() {
         updateMascot();
         render();
         const pm = $('#shopPreviewMascot', el);
-        if (pm) tukiMood('excited', { el: pm, particles: 'sparkle' }); else tukiChirp('celebrate');
+        if (pm) {
+          setShopPreviewPose(pm, set.pose || 'friendly');
+          triggerTukiAnimation(pm, 'tuki-celebrate', 'sparkle');
+          try { tukiChirp('celebrate'); } catch (e) {}
+        } else tukiChirp('celebrate');
         confetti();
         const sp = $('#shopSpeech', el);
         if (sp) sp.innerHTML = `¡Look completo! Estrenando ${set.name} ${set.icon}✨`;
@@ -4081,7 +4118,9 @@ export function openTukiShopModal() {
 
         const pm = $('#shopPreviewMascot', el);
         if (pm) {
-          tukiMood('excited', { el: pm, particles: 'sparkle' });
+          setShopPreviewPose(pm, SHOP_POSE_BY_KEY[it.key] || 'friendly');
+          triggerTukiAnimation(pm, 'tuki-celebrate', 'sparkle');
+          try { tukiChirp('celebrate'); } catch (e) {}
         } else tukiChirp('celebrate');
         confetti();
 
