@@ -3842,16 +3842,23 @@ export const TUKI_SHOP_ITEMS = [
 
 export let shopActiveTab = 'hat';
 
-/* (Fase 2 — HUECO PENDIENTE: la tienda sigue componiendo con el SVG
-   antiguo (renderTukiSVG) porque los 38 ítems de TUKI_SHOP_ITEMS (14
-   sombreros, 12 ropas, 7 en mano, 5 plumajes) NO tienen equivalente
-   raster: las 7 poses de public/tuki/ son imágenes fijas de cuerpo
-   entero, sin capas ni recoloración. No se inventaron imágenes ni se
-   borraron opciones; la vista previa y la skin guardada siguen
-   funcionando con el SVG solo aquí. El resto de la app usa raster.) */
+/* (Fase 2 — Tienda con avatar nuevo: la vista previa usa la pose raster
+   'friendly' (tukiImgHTML) en vez del SVG antiguo. Las 7 poses son
+   imágenes fijas sin capas ni recoloración, así que un sombrero o una
+   ropa no se dibuja sobre el pájaro: lo equipado / probado se muestra
+   como fichas compactas (icono + nombre) bajo la vista previa, que se
+   actualizan al probar y al equipar. No se inventaron imágenes ni se
+   borraron opciones; la compra, el equipado y la skin guardada no
+   cambian. renderTukiSVG queda solo como export heredado.) */
 export function openTukiShopModal() {
   const skin = S.tukiSkin || (S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] });
   let previewSkin = { ...skin };
+
+  // Fichas compactas de lo equipado / probado (icono + nombre por tipo).
+  const shopEquippedChips = sk => ['hat', 'outfit', 'hand', 'plumage'].map(t => {
+    const it = TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === sk[t]);
+    return it ? `<span class="shop-equipped-chip">${it.icon} ${esc(it.name)}</span>` : '';
+  }).join('');
 
   const buildModalContent = () => {
     const items = TUKI_SHOP_ITEMS.filter(it => it.type === shopActiveTab);
@@ -3859,8 +3866,9 @@ export function openTukiShopModal() {
       <p class="muted small">Gana monedas completando lecciones, retos y metas diarias para vestir a tu tucán.</p>
       
       <div class="tuki-shop-preview">
-        <div class="mascot-wrap" id="shopPreviewMascot" title="¡Toca para interactuar!">${renderTukiSVG(previewSkin)}</div>
+        <div class="mascot-wrap" id="shopPreviewMascot" title="¡Toca para interactuar!">${tukiImgHTML('friendly')}</div>
         <div class="tuki-speech" id="shopSpeech">¡Prueba atuendos, sombreros y colores! Tienes 🪙 <b>${S.coins || 0}</b> monedas.</div>
+        <div class="shop-equipped" id="shopEquipped">${shopEquippedChips(previewSkin)}</div>
       </div>
 
       <div class="shop-tabs">
@@ -3914,7 +3922,8 @@ export function openTukiShopModal() {
         previewSkin[it.type] = it.key;
         const pm = $('#shopPreviewMascot', el);
         if (pm) {
-          pm.innerHTML = renderTukiSVG(previewSkin);
+          const eq = $('#shopEquipped', el);
+          if (eq) eq.innerHTML = shopEquippedChips(previewSkin);
           tukiMood('happy', { el: pm, particles: 'sparkle' });
         }
         const sp = $('#shopSpeech', el);
@@ -3944,7 +3953,6 @@ export function openTukiShopModal() {
 
         const pm = $('#shopPreviewMascot', el);
         if (pm) {
-          pm.innerHTML = renderTukiSVG(previewSkin);
           tukiMood('excited', { el: pm, particles: 'sparkle' });
         } else tukiChirp('celebrate');
         confetti();
