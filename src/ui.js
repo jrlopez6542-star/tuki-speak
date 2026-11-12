@@ -3812,20 +3812,6 @@ export const TUKI_SHOP_ITEMS = [
   { id: 'hat:wizard', type: 'hat', key: 'wizard', name: 'Sombrero de mago', icon: '🧙', price: 90, desc: 'Hechizos de fluidez y magia fonética.' },
   { id: 'hat:crown', type: 'hat', key: 'crown', name: 'Corona real dorada', icon: '👑', price: 120, desc: 'El rey absoluto de la pronunciación.' },
 
-  // --- 👔 Ropa y Atuendos (12 ítems) ---
-  { id: 'outfit:none', type: 'outfit', key: 'none', name: 'Sin ropa', icon: '👕', price: 0, desc: 'Al natural, listo para volar.' },
-  { id: 'outfit:ruana', type: 'outfit', key: 'ruana', name: 'Ruana tradicional', icon: '🇨🇴', price: 55, desc: 'Calientita de Boyacá para el frío.' },
-  { id: 'outfit:jersey', type: 'outfit', key: 'jersey', name: 'Camiseta tricolor', icon: '⚽', price: 65, desc: '¡Con toda la pasión por aprender!' },
-  { id: 'outfit:bowtie', type: 'outfit', key: 'bowtie', name: 'Corbatín elegante', icon: '👔', price: 45, desc: 'Para entrevistas y reuniones de trabajo.' },
-  { id: 'outfit:jacket', type: 'outfit', key: 'jacket', name: 'Chaqueta de cuero', icon: '🎸', price: 80, desc: 'Vibra rockstar rebelde y segura.' },
-  { id: 'outfit:astronaut', type: 'outfit', key: 'astronaut', name: 'Traje de astronauta', icon: '🚀', price: 130, desc: '¡Lleva tu inglés hasta las estrellas!' },
-  { id: 'outfit:lab', type: 'outfit', key: 'lab', name: 'Bata de laboratorio', icon: '🧪', price: 85, desc: 'Ciencia exacta aplicada a los fonemas.' },
-  { id: 'outfit:vest', type: 'outfit', key: 'vest', name: 'Chaleco de safari', icon: '🦺', price: 75, desc: 'Explorando nuevos acentos por el mundo.' },
-  { id: 'outfit:scarf', type: 'outfit', key: 'scarf', name: 'Bufanda abrigada', icon: '🧣', price: 55, desc: 'Para cuidar la voz al vocalizar.' },
-  { id: 'outfit:hawaiian', type: 'outfit', key: 'hawaiian', name: 'Collar hawaiano', icon: '🌺', price: 70, desc: 'Vibra tropical relajada.' },
-  { id: 'outfit:cape', type: 'outfit', key: 'cape', name: 'Capa de héroe', icon: '🦸', price: 95, desc: 'Habla inglés sin miedo a nada.' },
-  { id: 'outfit:medal', type: 'outfit', key: 'medal', name: 'Medalla de oro', icon: '🥇', price: 110, desc: 'Premio al esfuerzo y perseverancia.' },
-
   // --- 🪄 Accesorios en Mano (7 ítems) ---
   { id: 'hand:none', type: 'hand', key: 'none', name: 'Alas libres', icon: '🪶', price: 0, desc: 'Alas despejadas para volar.' },
   { id: 'hand:mic', type: 'hand', key: 'mic', name: 'Micrófono dorado', icon: '🎤', price: 60, desc: 'Para que tu voz se escuche brillante.' },
@@ -3845,21 +3831,12 @@ export const TUKI_SHOP_ITEMS = [
 
 export let shopActiveTab = 'hat';
 
-/* (Conjuntos completos — Ropa: looks curados con piezas EXISTENTES de
-   TUKI_SHOP_ITEMS (sin ítems nuevos ni borrados). Cada conjunto es una
-   ropa + sombrero + en mano + plumaje con nombre, paleta y descripción.
-   Comprar un conjunto cobra SOLO las piezas que aún no se tienen (suma
-   de sus precios, sin descuento inventado) y equipa las 4 de una vez;
-   si ya se tienen todas, solo equipa. La pestaña Ropa muestra los
-   conjuntos arriba y las prendas sueltas abajo, como antes.) */
-export const TUKI_OUTFIT_SETS = [
-  { id: 'set:colombiano', name: 'Orgullo Colombiano', icon: '🇨🇴', desc: 'Ruana, vueltiao y bandera: pura tierra querida.', palette: ['#f7c948', '#2f6fed', '#e5484d'], pieces: { hat: 'vueltiao', outfit: 'ruana', hand: 'flag', plumage: 'classic' }, pose: 'waves' },
-  { id: 'set:graduado', name: 'Graduado de Honor', icon: '🎓', desc: 'Birrete, corbatín y diccionario para celebrar lo aprendido.', palette: ['#2b1741', '#d7f36a', '#f7c948'], pieces: { hat: 'grad', outfit: 'bowtie', hand: 'book', plumage: 'classic' }, pose: 'celebrates' },
-  { id: 'set:chef', name: 'Chef Estrella', icon: '👨‍🍳', desc: 'Gorro, bufanda y tinto: el sabor de aprender.', palette: ['#ffffff', '#ff705b', '#4b2868'], pieces: { hat: 'chef', outfit: 'scarf', hand: 'coffee', plumage: 'classic' }, pose: 'explains' },
-  { id: 'set:explorador', name: 'Explorador Total', icon: '🧭', desc: 'Chaleco, sombrero vaquero y bandera para ir a donde sea.', palette: ['#8a6d3b', '#4b2868', '#37d2dc'], pieces: { hat: 'cowboy', outfit: 'vest', hand: 'flag', plumage: 'classic' }, pose: 'waves' },
-  { id: 'set:urbano', name: 'Estrella Urbana', icon: '🎧', desc: 'Chaqueta, audífonos y micrófono dorado: listo para el escenario.', palette: ['#4b2868', '#d7f36a', '#f7c948'], pieces: { hat: 'headphones', outfit: 'jacket', hand: 'mic', plumage: 'gold' }, pose: 'motivates' },
-  { id: 'set:heroe', name: 'Héroe de Fiesta', icon: '🦸', desc: 'Capa, gorro fiestero, varita y fuego: pura celebración.', palette: ['#ff705b', '#37d2dc', '#f7c948'], pieces: { hat: 'party', outfit: 'cape', hand: 'wand', plumage: 'fire' }, pose: 'celebrates' },
-];
+// (Ropa eliminada 2026-11-12 por orden de Jonathan: el probador no
+// mostraba la ropa —las poses raster son imágenes fijas— y el probador
+// vivo tampoco se notaba en prendas. Se quitó la pestaña Ropa, los 6
+// conjuntos y las 12 prendas del catálogo. Quedan Cabeza, En Mano y
+// Plumaje. La clave 'outfit' sigue en la forma de S.tukiSkin por
+// compatibilidad con estados guardados, pero ya no tiene ítems ni UI.)
 
 /* (Probador vivo: al probar una prenda o un conjunto, la vista previa
    cambia de POSE y dice una frase — es lo que hace sentir vivo el
@@ -3881,14 +3858,15 @@ const tukiPoseImgHTML = pose => { const src = TUKI_POSES[pose] || TUKI_POSES.fri
    borraron opciones; la compra, el equipado y la skin guardada no
    cambian. renderTukiSVG queda solo como export heredado.) */
 export function openTukiShopModal() {
+  // (Ropa eliminada: si la pestaña activa guardada era Ropa, volver a Cabeza.)
+  if (shopActiveTab === 'outfit') shopActiveTab = 'hat';
   const skin = S.tukiSkin || (S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] });
   let previewSkin = { ...skin };
 
   // Fichas compactas de lo equipado / probado (solo lo que SÍ llevas
   // puesto: los valores por defecto —sombrero none, ropa none, en mano
   // none, plumaje classic— no se muestran como look. Si no hay ninguna
-  // pieza, una sola ficha neutra. Las tarjetas de conjuntos listan sus
-  // 4 piezas aparte y no usan esta función, así que no les afecta.)
+  // pieza, una sola ficha neutra.)
   const SHOP_DEFAULT_KEY = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic' };
   const shopEquippedChips = sk => {
     const chips = ['hat', 'outfit', 'hand', 'plumage'].map(t => {
@@ -3898,9 +3876,6 @@ export function openTukiShopModal() {
     }).join('');
     return chips || '<span class="shop-equipped-chip shop-equipped-none">Look clásico</span>';
   };
-  // Piezas de un conjunto, en orden sombrero / ropa / en mano / plumaje.
-  const setPieces = set => ['hat', 'outfit', 'hand', 'plumage'].map(t => TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === set.pieces[t])).filter(Boolean);
-  const setIsOwned = it => skin.owned.includes(it.id) || it.price === 0;
   // Pose de la vista previa según lo equipado/probado (manda el sombrero,
   // luego la ropa, en mano y el plumaje; los valores por defecto no cuentan).
   const shopPoseForSkin = sk => {
@@ -3933,29 +3908,9 @@ export function openTukiShopModal() {
 
       <div class="shop-tabs">
         <button class="shop-tab ${shopActiveTab === 'hat' ? 'active' : ''}" data-stab="hat">🧢 Cabeza (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hat').length})</button>
-        <button class="shop-tab ${shopActiveTab === 'outfit' ? 'active' : ''}" data-stab="outfit">👔 Ropa (${TUKI_SHOP_ITEMS.filter(i=>i.type==='outfit').length})</button>
         <button class="shop-tab ${shopActiveTab === 'hand' ? 'active' : ''}" data-stab="hand">🪄 En Mano (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hand').length})</button>
         <button class="shop-tab ${shopActiveTab === 'plumage' ? 'active' : ''}" data-stab="plumage">🎨 Plumaje (${TUKI_SHOP_ITEMS.filter(i=>i.type==='plumage').length})</button>
       </div>
-
-      ${shopActiveTab === 'outfit' ? `
-      <div class="shop-sets-head"><h3>✨ Conjuntos completos</h3><p class="muted small">Looks enteros: se compran y se equipan de una vez.</p></div>
-      <div class="shop-sets">
-        ${TUKI_OUTFIT_SETS.map(set => {
-          const pieces = setPieces(set);
-          const allOwned = pieces.every(setIsOwned);
-          const allEquipped = pieces.every(it => skin[it.type] === it.key);
-          const price = pieces.filter(it => !setIsOwned(it)).reduce((a, it) => a + it.price, 0);
-          return `<div class="shop-set-card ${allEquipped ? 'equipped' : ''}" data-set-preview="${set.id}">
-            <div class="set-head"><span class="set-icon">${set.icon}</span><div><div class="set-name">${esc(set.name)}</div><div class="set-palette">${set.palette.map(c => `<span class="set-dot" style="background:${c}"></span>`).join('')}</div></div></div>
-            <div class="small muted">${esc(set.desc)}</div>
-            <div class="set-pieces">${pieces.map(it => `<span class="shop-equipped-chip">${it.icon} ${esc(it.name)}</span>`).join('')}</div>
-            <div class="set-foot"><span class="set-price">${allOwned ? 'En tu armario' : `🪙 ${price} monedas`}</span>
-            <button class="btn sm shop-btn ${allEquipped ? 'ghost' : allOwned ? 'blue' : 'primary'}" data-set-act="${set.id}" ${!allOwned && (S.coins || 0) < price ? 'disabled' : ''}>${allEquipped ? 'Equipado ✓' : allOwned ? '⚡ Equipar conjunto' : `Comprar conjunto 🪙 ${price}`}</button></div>
-          </div>`;
-        }).join('')}
-      </div>
-      <div class="shop-sets-head"><h3>👔 Prendas sueltas</h3></div>` : ''}
 
       <div class="shop-grid">
         ${items.map(it => {
@@ -4035,65 +3990,6 @@ export function openTukiShopModal() {
         const sp = $('#shopSpeech', el);
         if (sp) sp.textContent = `${SHOP_POSE_PHRASE[pose] || ''} Probando: ${it.name} ${it.icon}`;
         beep('tap');
-      };
-    });
-
-    $$('[data-set-preview]', el).forEach(card => {
-      card.onclick = e => {
-        if (e.target.closest('[data-set-act]')) return;
-        const set = TUKI_OUTFIT_SETS.find(x => x.id === card.dataset.setPreview);
-        if (!set) return;
-        setPieces(set).forEach(it => { previewSkin[it.type] = it.key; });
-        const eq = $('#shopEquipped', el);
-        if (eq) eq.innerHTML = shopEquippedChips(previewSkin);
-        const pm = $('#shopPreviewMascot', el);
-        if (pm) {
-          setShopPreviewPose(pm, set.pose || 'friendly');
-          triggerTukiAnimation(pm, 'tuki-wiggle', 'sparkle');
-        }
-        const sp = $('#shopSpeech', el);
-        if (sp) sp.textContent = `${SHOP_POSE_PHRASE[set.pose] || ''} Probando conjunto: ${set.name} ${set.icon}`;
-        beep('tap');
-      };
-    });
-
-    $$('[data-set-act]', el).forEach(btn => {
-      btn.onclick = () => {
-        const set = TUKI_OUTFIT_SETS.find(x => x.id === btn.dataset.setAct);
-        if (!set) return;
-        const pieces = setPieces(set);
-        const unowned = pieces.filter(it => !setIsOwned(it));
-        const price = unowned.reduce((a, it) => a + it.price, 0);
-        if (unowned.length) {
-          if ((S.coins || 0) < price) return toast('No tienes suficientes monedas 🪙');
-          S.coins -= price;
-          unowned.forEach(it => skin.owned.push(it.id));
-        }
-        pieces.forEach(it => { skin[it.type] = it.key; });
-        previewSkin = { ...skin };
-        save();
-        updateMascot();
-        render();
-        const pm = $('#shopPreviewMascot', el);
-        if (pm) {
-          setShopPreviewPose(pm, set.pose || 'friendly');
-          triggerTukiAnimation(pm, 'tuki-celebrate', 'sparkle');
-          try { tukiChirp('celebrate'); } catch (e) {}
-        } else tukiChirp('celebrate');
-        confetti();
-        const sp = $('#shopSpeech', el);
-        if (sp) sp.innerHTML = `¡Look completo! Estrenando ${set.name} ${set.icon}✨`;
-        if (unowned.length) {
-          beep('done');
-          toast(`🎉 ¡Compraste y equipaste ${set.name}!`, 3000);
-        } else {
-          beep('ok');
-          toast(`⚡ Equipaste ${set.name}`);
-        }
-        setTimeout(() => {
-          close();
-          openTukiShopModal();
-        }, 550);
       };
     });
 
