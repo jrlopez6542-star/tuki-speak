@@ -958,9 +958,6 @@ VIEWS.home = v => {
   v.innerHTML = `<div class="home">
     <section class="home-greeting">
       <div><h1>¡Hola! 👋</h1><p>Sigamos con tu aprendizaje.</p></div>
-      <button class="home-profile-btn" id="homeProfileBtn" aria-label="Abrir perfil y ajustes">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c.5-3.8 3.1-5.8 7-5.8s6.5 2 7 5.8z"/></svg>
-      </button>
     </section>
     ${lessonCard}
     <section class="home-progress">
@@ -978,7 +975,6 @@ VIEWS.home = v => {
       <img id="homeBubbleImg" src="${TUKI_POSES.bubble}" alt="Tuki">
     </button>
   </div>`;
-  $('#homeProfileBtn').onclick = () => { tukiHomeHideTip(); openProfileModal(); };
   $('#homeContinueBtn').onclick = () => { if (cur) lessonSheet(cur); else startReview(); };
   const bubble = $('#homeBubble');
   if (bubble) bubble.onclick = () => {
