@@ -214,11 +214,10 @@ export function renderTukiSVG(skin, opts = {}) {
   return `<svg ${size}viewBox="0 0 100 100" class="tuki-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}${colors.aura}<!-- Sombra de suelo --><ellipse cx="44" cy="96" rx="28" ry="4" fill="url(#tuki-ground-shadow)"/>${capeBehind}<g class="tuki-body-group"><!-- Cuerpo 3D esférico --><ellipse cx="46" cy="58" rx="30" ry="34" fill="url(#tuki-body-grad-${pl})"/><!-- Brillo de contorno superior (Rim Light) --><path d="M22 40 C28 29 48 30 64 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.18"/><!-- Sombra de oclusión en base del torso --><path d="M26 78 C34 88 56 88 66 78 C58 84 34 84 26 78 Z" fill="${colors.bodyDark}" opacity="0.45"/><!-- Pecho 3D convexo con volumen y brillo --><ellipse cx="45" cy="69" rx="17.5" ry="19" fill="${colors.bodyDark}" opacity="0.25"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="url(#tuki-chest-grad-${pl})"/><ellipse cx="40" cy="58" rx="8" ry="10" fill="#ffffff" opacity="0.28"/><path d="M32 68 Q38 73 44 73 Q50 73 56 68 Q50 76 44 77 Q38 76 32 68 Z" fill="${colors.chestDark}" opacity="0.35"/><path d="M35 74 Q44 78 53 74 Q44 81 35 74 Z" fill="${colors.chestDark}" opacity="0.3"/><!-- Ala 3D con sombreado y plumas escalonadas --><path d="M19 61 C8 72 12 87 25 88" stroke="#000000" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.25"/><path class="tuki-wing" d="M20 60 C10 70 14 84 24 86 C21 79 20 73 22 66 Z" fill="url(#tuki-wing-grad-${pl})"/><path d="M21 62 C15 69 16 77 22 81" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.3"/><path class="tuki-wing-inner" d="M17 68 C13 74 15 81 21 84" stroke="${colors.wingDark}" stroke-width="1.3" fill="none" opacity="0.5"/><!-- Patas 3D con volumen cilíndrico y garras --><g class="tuki-feet"><ellipse cx="28" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="42" cy="98" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="56" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="url(#tuki-foot-grad)" stroke-width="4.5" stroke-linecap="round"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><circle cx="25.5" cy="97" r="1.4" fill="#78350f"/><circle cx="42" cy="98" r="1.4" fill="#78350f"/><circle cx="58.5" cy="97" r="1.4" fill="#78350f"/></g>${outfitLayer}${handLayer}</g><g class="tuki-head-group"><!-- Antifaz orbital toucan 3D --><ellipse cx="40" cy="40" rx="13.2" ry="12.8" fill="${colors.eyePatch}" opacity="0.22"/><ellipse cx="40" cy="40" rx="12.2" ry="11.8" fill="${colors.bodyDark}" opacity="0.35"/><!-- Ojo esférico 3D con lente gloss y reflejos múltiples --><g class="tuki-eye"><circle cx="40" cy="40" r="11" fill="url(#tuki-eye-sphere)"/><path d="M30 36 C34 32 46 32 50 36 C45 34 35 34 30 36 Z" fill="#94a3b8" opacity="0.4"/><circle cx="42" cy="40" r="5.8" fill="url(#tuki-iris-grad)"/><circle cx="42" cy="40" r="5.8" fill="none" stroke="#60a5fa" stroke-width="0.8" opacity="0.5"/><ellipse cx="44.2" cy="37.8" rx="2.2" ry="1.8" transform="rotate(-20 44.2 37.8)" fill="#ffffff"/><circle cx="40.2" cy="42.6" r="1.1" fill="#ffffff" opacity="0.9"/><circle cx="45" cy="41" r="0.6" fill="#ffffff" opacity="0.75"/></g><!-- Pico 3D esculpido con cresta de brillo y oclusión --><g class="tuki-beak"><path d="M50 33 C47 38 47 46 51 51" stroke="#0f172a" stroke-width="2.8" stroke-linecap="round" fill="none" opacity="0.6"/><path class="tuki-beak-top" d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="url(#tuki-bt-${pl})"/><path d="M54 35.5 C70 30 88 34 94 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.55"/><path d="M58 35 C72 31 84 34 90 39" stroke="#ffffff" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.8"/><path class="tuki-beak-bot" d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="url(#tuki-bb-${pl})"/><path d="M56 50 C70 55 86 52 93 47" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.25"/><path d="M51 48 C70 50.5 88 49.5 96 43.5" stroke="#3b0707" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.5"/><path d="M88 39 C93 38 97 43 97 44 C94 49 90 49 88 46 Z" fill="#090d16"/><circle cx="93.5" cy="41.5" r="1.6" fill="#ffffff" opacity="0.7"/><circle cx="94" cy="43.5" r="2.8" fill="#1f2a33" opacity="0.6"/></g>${hatLayer}</g></svg>`;
 }
 /* (Fase 2: MASCOT ya NO es el SVG antiguo: es la imagen raster del
-   prototipo (pose base 'friendly'). renderTukiSVG() se conserva SOLO
-   para la vista previa de la tienda, donde compone las 38 prendas
-   (ver openTukiShopModal): no hay equivalente raster para sombreros,
-   ropa, objetos ni plumajes. MASCOT se inicializa tras TUKI_POSES,
-   más abajo, porque tukiPoseFor depende de ese mapa.) */
+   prototipo (pose base 'friendly'). renderTukiSVG() queda solo como
+   export heredado (la tienda se eliminó 2026-11-12): no hay equivalente
+   raster para sombreros, ropa, objetos ni plumajes. MASCOT se inicializa
+   tras TUKI_POSES, más abajo, porque tukiPoseFor depende de ese mapa.) */
 export let MASCOT = '';
 export function updateMascot() {
   // (Fase 2: la skin de la tienda ya no se refleja fuera de la tienda:
@@ -753,7 +752,6 @@ export function openTukiCompanionModal(phrase) {
     ${notifBlock}
 
     <div class="row wrap" style="gap:8px;margin-top:14px">
-      <button class="btn blue block" id="btnCompanionShop">🛍️ Vestir a Tuki (Armario)</button>
       <button class="btn ghost block" data-x>¡Entendido!</button>
     </div>
   `;
@@ -769,12 +767,6 @@ export function openTukiCompanionModal(phrase) {
       };
       makeMascotClickable(cm, '¡Toca a Tuki!');
     }
-
-    const bShop = $('#btnCompanionShop', el);
-    if (bShop) bShop.onclick = () => {
-      close();
-      openTukiShopModal();
-    };
 
     const bNotif = $('#btnCompanionNotif', el);
     if (bNotif) bNotif.onclick = async () => {
@@ -921,7 +913,6 @@ export const UNLOCK_RULES = {
   weak: { reqLessons: 0, title: 'Repaso de sonidos débiles', unit: 'Básico' },
   studio: { reqLessons: 0, title: 'Estudio: grabar y comparar', unit: 'Básico' },
   travel: { reqLessons: 0, title: 'Guía de Viaje y Emergencia', unit: 'Básico' },
-  shop: { reqLessons: 0, title: 'Tienda y Armario de Tuki', unit: 'Básico' },
   words: { reqLessons: 1, title: 'Palabras para repetir', unit: 'Unidad 1' },
   // Desbloqueos por unidad
   tc: { reqLessons: 3, title: 'Traduce y completa', unit: 'Unidad 1' },
@@ -3793,257 +3784,6 @@ export function openPhotoPractice() {
   });
 }
 
-// 7. INTEGRACIÓN DE COMPONENTES EN LAS VISTAS
-
-export const TUKI_SHOP_ITEMS = [
-  // --- 🧢 Sombreros y Cabeza (14 ítems) ---
-  { id: 'hat:none', type: 'hat', key: 'none', name: 'Plumas naturales', icon: '🪶', price: 0, desc: 'Look clásico y ligero.' },
-  { id: 'hat:vueltiao', type: 'hat', key: 'vueltiao', name: 'Sombrero Vueltiao', icon: '🇨🇴', price: 50, desc: 'Orgullo colombiano tejido en caña flecha.' },
-  { id: 'hat:cap', type: 'hat', key: 'cap', name: 'Gorra deportiva', icon: '🧢', price: 40, desc: 'Estilo urbano para salir a practicar.' },
-  { id: 'hat:headphones', type: 'hat', key: 'headphones', name: 'Audífonos DJ / Gamer', icon: '🎧', price: 65, desc: 'Para escuchar la mejor pronunciación.' },
-  { id: 'hat:glasses', type: 'hat', key: 'glasses', name: 'Gafas oscuras', icon: '🕶️', price: 60, desc: 'Toda la onda para pronunciar con estilo.' },
-  { id: 'hat:chef', type: 'hat', key: 'chef', name: 'Gorro de chef', icon: '👨‍🍳', price: 70, desc: 'Cocinando la mejor fluidez paso a paso.' },
-  { id: 'hat:beret', type: 'hat', key: 'beret', name: 'Boina de artista', icon: '🎨', price: 60, desc: 'Para amantes del arte y los idiomas.' },
-  { id: 'hat:grad', type: 'hat', key: 'grad', name: 'Birrete de graduación', icon: '🎓', price: 75, desc: 'Para cuando apruebas lecciones con honores.' },
-  { id: 'hat:cowboy', type: 'hat', key: 'cowboy', name: 'Sombrero vaquero', icon: '🤠', price: 80, desc: 'Estilo western para aventureros.' },
-  { id: 'hat:flower', type: 'hat', key: 'flower', name: 'Corona de flores', icon: '🌸', price: 85, desc: 'Vibra primaveral fresca y colorida.' },
-  { id: 'hat:vr', type: 'hat', key: 'vr', name: 'Visor VR Cyberpunk', icon: '🥽', price: 95, desc: 'Inmersión futurista en alta tecnología.' },
-  { id: 'hat:party', type: 'hat', key: 'party', name: 'Gorro fiestero', icon: '🥳', price: 50, desc: '¡Celebra cada logro y racha!' },
-  { id: 'hat:wizard', type: 'hat', key: 'wizard', name: 'Sombrero de mago', icon: '🧙', price: 90, desc: 'Hechizos de fluidez y magia fonética.' },
-  { id: 'hat:crown', type: 'hat', key: 'crown', name: 'Corona real dorada', icon: '👑', price: 120, desc: 'El rey absoluto de la pronunciación.' },
-
-  // --- 🪄 Accesorios en Mano (7 ítems) ---
-  { id: 'hand:none', type: 'hand', key: 'none', name: 'Alas libres', icon: '🪶', price: 0, desc: 'Alas despejadas para volar.' },
-  { id: 'hand:mic', type: 'hand', key: 'mic', name: 'Micrófono dorado', icon: '🎤', price: 60, desc: 'Para que tu voz se escuche brillante.' },
-  { id: 'hand:coffee', type: 'hand', key: 'coffee', name: 'Tinto colombiano', icon: '☕', price: 45, desc: 'El mejor café para activar las neuronas.' },
-  { id: 'hand:book', type: 'hand', key: 'book', name: 'Diccionario EN', icon: '📖', price: 50, desc: 'Sabiduría y vocabulario infinito.' },
-  { id: 'hand:flag', type: 'hand', key: 'flag', name: 'Bandera tricolor', icon: '🇨🇴', price: 40, desc: 'Llevando la bandera a todos los países.' },
-  { id: 'hand:wand', type: 'hand', key: 'wand', name: 'Varita mágica', icon: '✨', price: 90, desc: 'Fluidez instantánea con un toque de magia.' },
-  { id: 'hand:trophy', type: 'hand', key: 'trophy', name: 'Trofeo de campeón', icon: '🏆', price: 120, desc: '¡El máximo galardón al esfuerzo diario!' },
-
-  // --- 🎨 Plumaje y Colores (5 ítems) ---
-  { id: 'plumage:classic', type: 'plumage', key: 'classic', name: 'Plumaje Clásico', icon: '🦜', price: 0, desc: 'El tucán tradicional verde y negro.' },
-  { id: 'plumage:gold', type: 'plumage', key: 'gold', name: 'Dorado Mítico', icon: '🌟', price: 150, desc: 'Aura radiante con plumaje de oro puro.' },
-  { id: 'plumage:neon', type: 'plumage', key: 'neon', name: 'Cyberpunk Neón', icon: '🌌', price: 140, desc: 'Colores eléctricos futuristas y aura cyan.' },
-  { id: 'plumage:fire', type: 'plumage', key: 'fire', name: 'Fénix de Fuego', icon: '🔥', price: 160, desc: 'Energía ardiente y plumaje carmesí.' },
-  { id: 'plumage:ice', type: 'plumage', key: 'ice', name: 'Ártico Glacial', icon: '❄️', price: 140, desc: 'Plumas celestes cristalinas como el hielo.' }
-];
-
-export let shopActiveTab = 'hat';
-
-// (Ropa eliminada 2026-11-12 por orden de Jonathan: el probador no
-// mostraba la ropa —las poses raster son imágenes fijas— y el probador
-// vivo tampoco se notaba en prendas. Se quitó la pestaña Ropa, los 6
-// conjuntos y las 12 prendas del catálogo. Quedan Cabeza, En Mano y
-// Plumaje. La clave 'outfit' sigue en la forma de S.tukiSkin por
-// compatibilidad con estados guardados, pero ya no tiene ítems ni UI.)
-
-/* (Probador vivo: al probar una prenda o un conjunto, la vista previa
-   cambia de POSE y dice una frase — es lo que hace sentir vivo el
-   probador, porque las 7 imágenes son fijas y ninguna prenda se dibuja
-   sobre el pájaro (todas las poses llevan audífonos y buzo de base).
-   La pose se guarda en data-tuki-base para que tukiMood, al terminar
-   un estado transitorio, vuelva a ella y no a 'friendly'.) */
-const SHOP_POSE_BY_KEY = { vueltiao: 'waves', crown: 'celebrates', party: 'celebrates', wizard: 'explains', grad: 'celebrates', chef: 'explains', headphones: 'motivates', vr: 'explains', cowboy: 'waves', flower: 'friendly', beret: 'explains', glasses: 'friendly', cap: 'motivates', astronaut: 'motivates', cape: 'celebrates', medal: 'celebrates', jersey: 'waves', ruana: 'waves', bowtie: 'explains', jacket: 'motivates', lab: 'explains', vest: 'motivates', scarf: 'friendly', hawaiian: 'waves', mic: 'motivates', trophy: 'celebrates', wand: 'celebrates', book: 'explains', coffee: 'friendly', flag: 'waves', gold: 'celebrates', fire: 'celebrates', neon: 'motivates', ice: 'explains' };
-const SHOP_POSE_PHRASE = { waves: '¡De una, parcero!', celebrates: '¡Qué berraquera de look!', explains: 'Mira, mira este estilo…', motivates: '¡Con esto aprendo con toda!', friendly: '¡Me queda genial!' };
-const tukiPoseImgHTML = pose => { const src = TUKI_POSES[pose] || TUKI_POSES.friendly; return `<img class="tuki-img" src="${src}" data-tuki-base="${src}" alt="Tuki" draggable="false">`; };
-
-/* (Fase 2 — Tienda con avatar nuevo: la vista previa usa una pose raster
-   (Probador vivo: la pose cambia según lo probado/equipado, ver
-   SHOP_POSE_BY_KEY y set.pose) en vez del SVG antiguo. Las 7 poses son
-   imágenes fijas sin capas ni recoloración, así que un sombrero o una
-   ropa no se dibuja sobre el pájaro: lo equipado / probado se muestra
-   como fichas compactas (icono + nombre) bajo la vista previa, que se
-   actualizan al probar y al equipar. No se inventaron imágenes ni se
-   borraron opciones; la compra, el equipado y la skin guardada no
-   cambian. renderTukiSVG queda solo como export heredado.) */
-export function openTukiShopModal() {
-  // (Ropa eliminada: si la pestaña activa guardada era Ropa, volver a Cabeza.)
-  if (shopActiveTab === 'outfit') shopActiveTab = 'hat';
-  const skin = S.tukiSkin || (S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] });
-  let previewSkin = { ...skin };
-
-  // Fichas compactas de lo equipado / probado (solo lo que SÍ llevas
-  // puesto: los valores por defecto —sombrero none, ropa none, en mano
-  // none, plumaje classic— no se muestran como look. Si no hay ninguna
-  // pieza, una sola ficha neutra.)
-  const SHOP_DEFAULT_KEY = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic' };
-  const shopEquippedChips = sk => {
-    const chips = ['hat', 'outfit', 'hand', 'plumage'].map(t => {
-      const it = TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === sk[t]);
-      if (!it || sk[t] === SHOP_DEFAULT_KEY[t]) return '';
-      return `<span class="shop-equipped-chip">${it.icon} ${esc(it.name)}</span>`;
-    }).join('');
-    return chips || '<span class="shop-equipped-chip shop-equipped-none">Look clásico</span>';
-  };
-  // Pose de la vista previa según lo equipado/probado (manda el sombrero,
-  // luego la ropa, en mano y el plumaje; los valores por defecto no cuentan).
-  const shopPoseForSkin = sk => {
-    for (const t of ['hat', 'outfit', 'hand', 'plumage']) {
-      const it = TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === sk[t]);
-      if (it && it.key !== 'none' && it.key !== 'classic') return SHOP_POSE_BY_KEY[it.key] || 'friendly';
-    }
-    return 'friendly';
-  };
-  let previewPose = shopPoseForSkin(skin);
-  // Cambia la pose de la vista previa y la deja como base (para que
-  // tukiMood vuelva a ella al terminar un estado transitorio).
-  const setShopPreviewPose = (pm, pose) => {
-    previewPose = pose;
-    const img = pm && pm.querySelector('img.tuki-img');
-    if (img) { const src = TUKI_POSES[pose] || TUKI_POSES.friendly; img.src = src; img.dataset.tukiBase = src; }
-  };
-
-  const buildModalContent = () => {
-    const items = TUKI_SHOP_ITEMS.filter(it => it.type === shopActiveTab);
-    return `<h2>🛍️ Tienda y Armario de Tuki</h2>
-      <p class="muted small">Gana monedas completando lecciones, retos y metas diarias para vestir a tu tucán.</p>
-      
-      <div class="tuki-shop-preview">
-        <div class="mascot-wrap" id="shopPreviewMascot" title="¡Toca para interactuar!">${tukiPoseImgHTML(previewPose)}</div>
-        <div class="tuki-speech" id="shopSpeech">¡Prueba atuendos, sombreros y colores! Tienes 🪙 <b>${S.coins || 0}</b> monedas.</div>
-        <div class="shop-equipped-label">Tu look actual</div>
-        <div class="shop-equipped" id="shopEquipped">${shopEquippedChips(previewSkin)}</div>
-      </div>
-
-      <div class="shop-tabs">
-        <button class="shop-tab ${shopActiveTab === 'hat' ? 'active' : ''}" data-stab="hat">🧢 Cabeza (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hat').length})</button>
-        <button class="shop-tab ${shopActiveTab === 'hand' ? 'active' : ''}" data-stab="hand">🪄 En Mano (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hand').length})</button>
-        <button class="shop-tab ${shopActiveTab === 'plumage' ? 'active' : ''}" data-stab="plumage">🎨 Plumaje (${TUKI_SHOP_ITEMS.filter(i=>i.type==='plumage').length})</button>
-      </div>
-
-      <div class="shop-grid">
-        ${items.map(it => {
-          const isOwned = skin.owned.includes(it.id) || it.price === 0;
-          const isEquipped = skin[it.type] === it.key;
-          return `<div class="shop-card ${isEquipped ? 'equipped' : ''}" data-preview="${it.id}">
-            <div class="icon">${it.icon}</div>
-            <div class="name">${esc(it.name)}</div>
-            <div class="price">${isOwned ? 'En tu armario' : `🪙 ${it.price} monedas`}</div>
-            <div class="small muted" style="font-size:11px">${esc(it.desc)}</div>
-            <button class="btn sm shop-btn ${isEquipped ? 'ghost' : isOwned ? 'blue' : 'primary'}" data-act="${it.id}" ${!isOwned && (S.coins || 0) < it.price ? 'disabled' : ''}>
-              ${isEquipped ? 'Equipado ✓' : isOwned ? '⚡ Equipar' : `Comprar 🪙 ${it.price}`}
-            </button>
-          </div>`;
-        }).join('')}
-      </div>
-
-      <div class="row" style="margin-top:14px">
-        <button class="btn ghost block" data-x>Cerrar</button>
-      </div>`;
-  };
-
-  modal(buildModalContent(), (el, close) => {
-    $('[data-x]', el).onclick = close;
-    
-    $$('[data-stab]', el).forEach(tab => {
-      tab.onclick = () => {
-        // (Top-5 H-02: si la pestaña está medio fuera de la tira (p. ej.
-        // Plumaje a 360 px), el primer toque la trae a la vista en vez
-        // de cambiar de pestaña; el segundo toque ya cambia.)
-        const strip = tab.closest('.shop-tabs');
-        if (strip) {
-          const r = tab.getBoundingClientRect(), sr = strip.getBoundingClientRect();
-          if (r.right > sr.right - 4 || r.left < sr.left + 4) {
-            tab.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
-            return;
-          }
-        }
-        shopActiveTab = tab.dataset.stab;
-        close();
-        openTukiShopModal();
-      };
-    });
-
-    // (Top-5 H-02: fade en el borde derecho de la tira mientras quede
-    // contenido a la derecha, para que Plumaje se descubra; tocar el
-    // borde (zona del fade) desliza la tira con suavidad.)
-    const tabs = $('.shop-tabs', el);
-    if (tabs) {
-      const updTabsFade = () => tabs.classList.toggle('has-more', tabs.scrollWidth > tabs.clientWidth + tabs.scrollLeft + 4);
-      tabs.addEventListener('scroll', updTabsFade, { passive: true });
-      updTabsFade();
-      tabs.addEventListener('click', e => {
-        const r = tabs.getBoundingClientRect();
-        if (e.clientX > r.right - 28) tabs.scrollBy({ left: 140, behavior: 'smooth' });
-      });
-    }
-
-    const pm = $('#shopPreviewMascot', el);
-    if (pm) { pm.onclick = () => interactWithTuki(pm); makeMascotClickable(pm, '¡Toca para interactuar con Tuki!'); }
-
-    $$('[data-preview]', el).forEach(card => {
-      card.onclick = e => {
-        if (e.target.closest('[data-act]')) return;
-        const itId = card.dataset.preview;
-        const it = TUKI_SHOP_ITEMS.find(x => x.id === itId);
-        if (!it) return;
-        previewSkin[it.type] = it.key;
-        const pose = SHOP_POSE_BY_KEY[it.key] || 'friendly';
-        const pm = $('#shopPreviewMascot', el);
-        if (pm) {
-          const eq = $('#shopEquipped', el);
-          if (eq) eq.innerHTML = shopEquippedChips(previewSkin);
-          setShopPreviewPose(pm, pose);
-          triggerTukiAnimation(pm, 'tuki-wiggle', 'sparkle');
-        }
-        const sp = $('#shopSpeech', el);
-        if (sp) sp.textContent = `${SHOP_POSE_PHRASE[pose] || ''} Probando: ${it.name} ${it.icon}`;
-        beep('tap');
-      };
-    });
-
-    $$('[data-act]', el).forEach(btn => {
-      btn.onclick = () => {
-        const itId = btn.dataset.act;
-        const it = TUKI_SHOP_ITEMS.find(x => x.id === itId);
-        if (!it) return;
-        const isOwned = skin.owned.includes(it.id) || it.price === 0;
-
-        if (!isOwned) {
-          if ((S.coins || 0) < it.price) return toast('No tienes suficientes monedas 🪙');
-          S.coins -= it.price;
-          skin.owned.push(it.id);
-        }
-
-        skin[it.type] = it.key;
-        previewSkin = { ...skin };
-        save();
-        updateMascot();
-        render();
-
-        const pm = $('#shopPreviewMascot', el);
-        if (pm) {
-          setShopPreviewPose(pm, SHOP_POSE_BY_KEY[it.key] || 'friendly');
-          triggerTukiAnimation(pm, 'tuki-celebrate', 'sparkle');
-          try { tukiChirp('celebrate'); } catch (e) {}
-        } else tukiChirp('celebrate');
-        confetti();
-
-        const sp = $('#shopSpeech', el);
-        const celebrateQuotes = [
-          `¡Uff, qué pinta! Me queda genial ${it.name} ${it.icon}✨`,
-          `¡Poder tucán activado! Estrenando ${it.name} 🦜🔥`,
-          `¡Gracias por este look! Con ${it.name} aprendemos con estilo 💎`
-        ];
-        if (sp) sp.innerHTML = pick(celebrateQuotes);
-
-        if (!isOwned) {
-          beep('done');
-          toast(`🎉 ¡Compraste y equipaste ${it.name}!`, 3000);
-        } else {
-          beep('ok');
-          toast(`⚡ Equipaste ${it.name}`);
-        }
-
-        setTimeout(() => {
-          close();
-          openTukiShopModal();
-        }, 550);
-      };
-    });
-  });
-}
 
 // =================== MODO CARACOL 🐌 Y SÍLABAS ===================
 export const SYLLABLE_DICT = {

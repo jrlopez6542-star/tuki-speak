@@ -386,7 +386,6 @@ a{color:var(--b-d)}
 [data-theme=dark] .stat.heart{color:#f87171}
 [data-theme=dark] .stat.coins{color:#fbbf24}
 [data-theme=dark] .complete h1{color:#d7f36a}
-[data-theme=dark] .shop-card .price{color:#fbbf24}
 [data-theme=dark] .pron-hint{color:#fbbf24}
 [data-theme=dark] .travel-phon{color:#fbbf24}
 [data-theme=dark] .shadow-cue{color:#d7f36a}
@@ -760,28 +759,6 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .pron-hint{display:block;font-size:13px;font-weight:700;color:var(--o-d);margin-top:2px}
 
 /* =================== TIENDA Y ARMARIO DE TUKI =================== */
-.tuki-shop-preview{display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#f6f1fb 0%,#ece3f6 100%);border-radius:var(--r-xl);padding:16px;margin-bottom:14px;border:2px solid #d9c8ee;position:relative}
-[data-theme=dark] .tuki-shop-preview{background:linear-gradient(180deg,#142c1f 0%,#0e1f16 100%);border-color:#166534}
-.tuki-shop-preview .mascot-wrap{width:130px;height:130px;cursor:pointer;transition:transform .25s var(--spring)}
-.tuki-shop-preview .mascot-wrap:hover{transform:scale(1.06)}
-.tuki-shop-preview .tuki-speech{background:var(--card);border:2px solid var(--line);border-radius:var(--r-md);padding:8px 12px;font-size:13px;font-weight:700;margin-top:10px;text-align:center;max-width:280px;box-shadow:var(--sh)}
-.shop-equipped{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:6px;max-width:300px}
-.shop-equipped-label{font-size:11px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--mute);margin-top:10px}
-.shop-equipped-chip.shop-equipped-none{opacity:.75;border-style:dashed}
-.shop-equipped-chip{background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;white-space:nowrap}
-.shop-tabs{display:flex;gap:4px;margin-bottom:12px;background:var(--line);padding:3px;border-radius:var(--r-md);overflow-x:auto;scroll-behavior:smooth}
-.shop-tabs.has-more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
-.shop-tab{flex:1;min-width:max-content;border:0;background:transparent;padding:7px 10px;border-radius:10px;font-weight:800;font-size:12px;cursor:pointer;color:var(--mute);transition:transform .18s var(--spring),background .15s,color .15s,box-shadow .15s}
-.shop-tab.active{background:var(--card);color:var(--ink);box-shadow:0 2px 4px rgba(0,0,0,.08)}
-.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;max-height:280px;overflow-y:auto;padding:2px}
-.shop-card{background:var(--card);border:2px solid var(--line);border-radius:var(--r-md);padding:12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;transition:transform .2s var(--spring),border-color .15s,box-shadow .2s var(--spring)}
-.shop-card:hover{transform:translateY(-2px);border-color:var(--b)}
-.shop-card.equipped{border-color:#4b2868;background:#f3eefb}
-[data-theme=dark] .shop-card.equipped{background:#2b1741;border-color:#b98cff}
-.shop-card .icon{font-size:28px}
-.shop-card .name{font-weight:800;font-size:13px;line-height:1.2}
-.shop-card .price{font-size:12px;font-weight:800;color:var(--o-d)}
-.shop-btn{width:100%;padding:6px 8px;font-size:12px;border-radius:10px;font-weight:800;margin-top:auto}
 
 /* =================== MODO CARACOL 🐌 Y SÍLABAS =================== */
 .spk.snail{background:#fef3c7;color:#b45309;border:1px solid #fde68a}
@@ -871,7 +848,6 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 /* Press con resorte en opciones, fichas, chips, pestanas, iconos y stats */
 .opt:active,.tile:active,.chip:active,.tab:active,.iconbtn:active{transform:scale(.96)}
 .stat:active{transform:scale(.92)}
-.shop-card:active{transform:translateY(-1px) scale(.97)}
 /* Apertura de la leccion a pantalla completa */
 .full:not(.hidden){animation:viewIn .3s var(--ease-out) both}
 /* Feedback de acierto (pop) y error (shake suave) */
@@ -913,7 +889,7 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 /* Movimiento reducido: sin animaciones nuevas ni transiciones de press */
 @media (prefers-reduced-motion: reduce){
   #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.overlay.closing,.overlay.closing .sheet,.complete,.ex-enter,.scard-celebrate,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot,.tuki-mood-thinking .tuki-head-group,.tuki-mood-listening .tuki-head-group,.tuki-mood-confused,.tuki-mood-confused::after,.tuki-mood-sleeping::after,.tuki-mood-proud{animation:none!important}
-  .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.shop-card,.locked-card,.stat,.tuki-guide-mascot,.unit-milestone{transition:none!important}
+  .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.locked-card,.stat,.tuki-guide-mascot,.unit-milestone{transition:none!important}
 }
 /* (fase premium, etapa 7: la lista explícita de arriba es frágil — cada
    clase nueva había que añadirla a mano o seguía animando. Esta regla
