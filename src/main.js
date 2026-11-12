@@ -906,12 +906,6 @@ export function go(tab) {
   stopRecognize(); render();
 }
 $$('.tab').forEach(t => t.onclick = () => go(t.dataset.tab));
-/* (TUKI-IMPL-G-001: interruptor Claro/Oscuro/Auto de la topbar — mismo
-   setter que el modal Perfil; sin claves de estado nuevas.) */
-$$('[data-theme-btn]').forEach(b => b.onclick = () => {
-  S.settings.theme = b.dataset.themeBtn === 'system' ? 'auto' : b.dataset.themeBtn;
-  save(); applyPrefs(); syncThemeSwitch();
-});
 $('#stProfile').onclick = () => openProfileModal();
 const brandEl = $('#brand');
 if (brandEl) { brandEl.onclick = () => interactWithTuki(brandEl); makeMascotClickable(brandEl, '¡Toca a Tuki!'); }
@@ -1063,7 +1057,7 @@ function bindPsetGroups(root) {
   const syncToggle = (btn, on) => { if (!btn) return; btn.classList.toggle('off', !on); btn.setAttribute('aria-pressed', String(on)); };
   $$('[data-theme-choice]', root).forEach(b => b.onclick = () => {
     S.settings.theme = b.dataset.themeChoice === 'system' ? 'auto' : b.dataset.themeChoice;
-    save(); applyPrefs(); syncThemeSwitch();
+    save(); applyPrefs();
     $$('[data-theme-choice]', root).forEach(x => x.classList.toggle('selected', x === b));
   });
   $$('[data-pset-toggle]', root).forEach(btn => btn.onclick = () => {
@@ -1611,13 +1605,6 @@ function applyPrefs() {
   const m = $('meta[name=theme-color]'); if (m) m.content = dark ? '#2b1741' : '#4b2868';
 }
 if (window.matchMedia) try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyPrefs); } catch (e) {}
-/* (TUKI-IMPL-G-001: interruptor de tema de la topbar (mockup G) — usa el
-   mismo setter que el modal Perfil: S.settings.theme + save() +
-   applyPrefs(). Solo sincroniza aria-pressed de [data-theme-btn].) */
-function syncThemeSwitch() {
-  const theme = S.settings.theme || 'auto';
-  $$('[data-theme-btn]').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.themeBtn === 'system' ? 'auto' : b.dataset.themeBtn) === theme)));
-}
 const _confetti = confetti; confetti = function () { if (!S.settings.reduceMotion && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) _confetti(); };
 
 
@@ -2914,7 +2901,7 @@ function hideSplash() {
   el.classList.add('splash-done');
   setTimeout(() => el.remove(), 600);
 }
-applyPrefs(); syncThemeSwitch(); save(); render(); hideSplash(); netBanner(); initTukiSleepWatch(); initTukiAnimPause();
+applyPrefs(); save(); render(); hideSplash(); netBanner(); initTukiSleepWatch(); initTukiAnimPause();
 if (S.placement == null && !Object.keys(S.done).length && !S.xp) setTimeout(placementIntro, 300);
 setInterval(() => { const h = S.hearts; refreshHearts(); if (h !== S.hearts && !L) render(); checkReminder(); }, 60e3);
 if ('serviceWorker' in navigator) {

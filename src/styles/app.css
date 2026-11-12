@@ -1279,12 +1279,6 @@ html[data-theme="dark"] .topbar .stat{background:rgba(255,255,255,.16);color:#ff
 html[data-theme="dark"] .topbar .stat:hover{background:rgba(255,255,255,.28)}
 .topbar .topbar-profile-btn{border:1px solid var(--line);background:rgba(75,40,104,.10);color:var(--ink);box-shadow:none}
 html[data-theme="dark"] .topbar .topbar-profile-btn{border-color:rgba(255,255,255,.35);background:rgba(255,255,255,.14);color:#fff}
-/* Interruptor Claro/Oscuro/Auto (mockup G): mismo setter que el modal Perfil. */
-.theme-switch{margin-left:auto;display:flex;gap:2px;padding:3px;border-radius:99px;background:rgba(43,23,65,.32);flex:none}
-.theme-switch button{border:0;border-radius:99px;background:transparent;color:#fff;padding:7px 7px;font-size:10px;font-weight:800;white-space:nowrap}
-.theme-switch button[aria-pressed="true"]{background:var(--lime);color:var(--deep)}
-html[data-theme="dark"] .theme-switch{background:rgba(0,0,0,.45)}
-@media (max-width:380px){.theme-switch button{padding:6px 5px;font-size:9px}}
 /* ---- Tabbar: píldora flotante de vidrio, 3 pestañas (sin 4.ª, corrección D4) ---- */
 .tabbar{background:var(--glass);border:1px solid var(--glass-brd);border-radius:99px;-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 12px 32px rgba(43,23,65,.20);bottom:calc(14px + env(safe-area-inset-bottom))}
 html[data-theme="dark"] .tabbar{background:var(--glass);border-color:var(--glass-brd)}
