@@ -840,7 +840,9 @@ export function finishLesson() {
   // (fase premium, etapa 3: count-up de XP/monedas en las tarjetas de fin)
   countUpAll($('#fullInner'));
   const doCelebration = () => {
-    if (fm) tukiMood(unitCompleted ? 'celebration' : 'proud', { el: fm, particles: 'coin' });
+    // (Top-5 P2: lección perfecta (100%, sin errores) o unidad completa →
+    // pose de celebración ('celebrates'); si no, pose de orgullo.)
+    if (fm) tukiMood(isPerfect || unitCompleted ? 'celebration' : 'proud', { el: fm, particles: 'coin' });
     if (unitCompleted) tukiTrophyFanfare();
     // (fase premium, etapa 6: re-celebrar el fin de unidad también dispara
     // el confetti de canvas, igual que al entrar)
@@ -857,7 +859,7 @@ export function finishLesson() {
   // Tuki habla felicitando al usuario y moviendo el pico
   setTimeout(() => {
     if (fm) {
-      tukiMood(unitCompleted ? 'celebration' : 'proud', { el: fm, particles: 'coin' });
+      tukiMood(isPerfect || unitCompleted ? 'celebration' : 'proud', { el: fm, particles: 'coin' });
       speakTukiEs(finishQuote, fm);
     }
   }, 400);
@@ -929,13 +931,38 @@ function tukiHomeShowTip(text, pose) {
   txt.textContent = text; tip.hidden = false;
   if (img && pose && TUKI_POSES[pose]) img.src = TUKI_POSES[pose];
   clearTimeout(tukiHomeTipTimer);
-  tukiHomeTipTimer = setTimeout(() => { tip.hidden = true; if (img) img.src = TUKI_POSES.bubble; }, 4200);
+  tukiHomeTipTimer = setTimeout(() => { tip.hidden = true; if (img) img.src = TUKI_POSES.bubble; toastFlushQueue(); }, 4200);
 }
-function tukiHomeHideTip() { const tip = $('#homeTip'), img = $('#homeBubbleImg'); if (tip) tip.hidden = true; if (img) img.src = TUKI_POSES.bubble; clearTimeout(tukiHomeTipTimer); }
+function tukiHomeHideTip() { const tip = $('#homeTip'), img = $('#homeBubbleImg'); if (tip) tip.hidden = true; if (img) img.src = TUKI_POSES.bubble; clearTimeout(tukiHomeTipTimer); toastFlushQueue(); }
+/* (Top-5 P1+P2 — saludo variado de Inicio: cambia por hora del día,
+   por racha y por si hoy aún no se ha practicado. La regla de 1 vez por
+   sesión no cambia (sessionStorage 'tuki-greeted'). Si la racha está
+   en riesgo (racha > 0 y 0 XP hoy), Tuki lo dice con la pose de ánimo
+   ('motivates') en vez del saludo normal.) */
+function tukiHomeGreeting() {
+  const streak = streakNow();
+  const xpToday = (todayRec() || {}).xp || 0;
+  const h = new Date().getHours();
+  const daypart = h < 12 ? '¡Buenos días! ☀️' : h < 18 ? '¡Buenas tardes! 🌤️' : '¡Buenas noches! 🌙';
+  if (streak > 0 && xpToday === 0) {
+    return { title: '¡No pierdas tu racha! 🔥', sub: `Llevas ${streak} ${streak === 1 ? 'día' : 'días'} seguidos. Practica hoy aunque sean 5 minutos.`, pose: 'motivates' };
+  }
+  if (streak >= 7) {
+    return { title: `¡${streak} días seguidos, parcero! 🔥`, sub: 'Tu racha está imparable. ¡A por otro día!', pose: 'waves' };
+  }
+  if (streak >= 2) {
+    return { title: daypart, sub: `Llevas ${streak} días seguidos. ¡No pares ahora!`, pose: 'waves' };
+  }
+  if (streak === 1) {
+    return { title: '¡Buen comienzo! 🎉', sub: 'Primer día de racha. ¡Mañana repetimos!', pose: 'waves' };
+  }
+  return { title: daypart, sub: 'Hoy empezamos de cero, ¡de una! Sigamos con tu aprendizaje.', pose: 'waves' };
+}
 VIEWS.home = v => {
   const cur = currentLesson();
   const doneCount = Object.values(S.done).filter(d => d && (!d.placed || d.times)).length;
   const total = LESSONS.length, units = COURSE.length, streak = streakNow();
+  const greet = tukiHomeGreeting();
   const lessonCard = cur ? `
     <section class="home-lesson">
       <div class="home-lesson-copy">
@@ -957,7 +984,7 @@ VIEWS.home = v => {
     </section>`;
   v.innerHTML = `<div class="home">
     <section class="home-greeting">
-      <div><h1>¡Hola! 👋</h1><p>Sigamos con tu aprendizaje.</p></div>
+      <div><h1>${esc(greet.title)}</h1><p>${esc(greet.sub)}</p></div>
     </section>
     ${lessonCard}
     <section class="home-progress">
@@ -986,7 +1013,7 @@ VIEWS.home = v => {
   // Saludo real, solo en Inicio y 1 vez por sesión.
   if (S.settings.tukiVisible && S.settings.tukiGreeting && !sessionStorage.getItem('tuki-greeted')) {
     sessionStorage.setItem('tuki-greeted', '1');
-    tukiHomeShowTip('¡Hola! 👋 Sigamos con tu aprendizaje.', 'waves');
+    tukiHomeShowTip(greet.title + ' ' + greet.sub, greet.pose);
   }
 };
 /* (Fase 2: grupos Apariencia / Experiencia / Comportamiento del modal
@@ -1499,8 +1526,26 @@ if (window.matchMedia) try { matchMedia('(prefers-color-scheme: dark)').addEvent
 const _confetti = confetti; confetti = function () { if (!S.settings.reduceMotion && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) _confetti(); };
 
 
+/* (Top-5 H-01 — cola de avisos: si el tip de saludo de Inicio está
+   visible, el toast espera a que se cierre en vez de taparlo (el saludo
+   solo se muestra 1 vez por sesión) y de tapar el contenido que está
+   debajo (XP, toggles, tarjetas, diagrama de boca). El tip dura 4,2 s
+   y se cierra solo; si el usuario navega, el elemento desaparece y el
+   aviso pendiente se muestra igual gracias al temporizador de
+   seguridad. Solo se guarda el último aviso en espera.) */
+let toastPending = null;
+function toastFlushQueue() {
+  if (!toastPending) return;
+  const tip = document.querySelector('#homeTip');
+  if (tip && !tip.hidden) return; // el tip sigue visible: esperar
+  const p = toastPending; toastPending = null;
+  toast(p.msg, p.ms);
+}
 /* Un solo aviso a la vez; en la pestaña IA se muestra arriba para no tapar el botón de voz */
-toast = function (msg, ms = 2600) { $$('.toast').forEach(x => x.remove()); const t = document.createElement('div'); t.className = 'toast' + (TAB === 'chat' ? ' top' : ''); t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms); };
+toast = function (msg, ms = 2600) {
+  const tip = document.querySelector('#homeTip');
+  if (tip && !tip.hidden) { toastPending = { msg, ms }; setTimeout(toastFlushQueue, 5000); return; }
+  $$('.toast').forEach(x => x.remove()); const t = document.createElement('div'); t.className = 'toast' + (TAB === 'chat' ? ' top' : ''); t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms); };
 /* =================== DICCIONARIO / FRASES =================== */
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 2001-2024)
 const _words = VIEWS.words;

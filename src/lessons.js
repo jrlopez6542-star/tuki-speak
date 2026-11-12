@@ -161,7 +161,15 @@ export function earResult(ex, ok, answerHTML, expl, sayText) {
   if (L.mode === 'placement') { L.earN++; if (ok) L.earOk++; L.done++; (L.place = L.place || []).push({ u: ex.pu, ok }); $('.pbar i').style.width = Math.round(L.done / L.total * 100) + '%'; feedback(ok, answerHTML, expl + hint, sayText); return; }
   L.earN++; if (ok) { L.earOk++; L.done++; } else {
     L.mistakes++; ex.attempt = null; L.queue.push({ ...ex });
-    if (L.mode === 'lesson') { loseHeart(); }
+    if (L.mode === 'lesson') {
+      const heartsBefore = S.hearts;
+      loseHeart();
+      // (Top-5 P2: al perder un corazón, Tuki pasa a pose de ánimo
+      // ('sad' → 'motivates'; no hay pose triste en las 7 imágenes).
+      // El texto de ánimo ya lo pone feedback() con ENCOURAGE; aquí
+      // solo cambia la pose del Profe Tuki en el banner.)
+      if (S.hearts < heartsBefore) { const bm = document.querySelector('.tuki-tutor-mascot'); if (bm) tukiMood('sad', { el: bm }); }
+    }
   }
   recordEar(ex.l.id, ok);
   $('.pbar i').style.width = Math.round(L.done / L.total * 100) + '%';
@@ -207,11 +215,10 @@ RENDER.learn = (ex, body) => {
     body.innerHTML = `<div class="badge-new">NUEVO SONIDO</div><div class="ex-title">${l.icon} ${esc(l.title)} <span class="ipa">/${esc(l.sound)}/</span></div>
       ${tukiTutorBannerHTML({
         title: 'Profe Tuki · Fonética 👄',
-        msg: l.expl,
-        sub: l.mouth ? 'Boca y lengua: ' + l.mouth : '',
+        msg: `Aprende el sonido /${l.sound}/ paso a paso con Tuki.`,
         speakText: l.expl + (l.mouth ? '. Colocación de la boca: ' + l.mouth : '')
       })}
-      <div class="tipbox"><b>👄 Boca y lengua:</b> ${esc(l.mouth)}</div>${mouthPanelHTML(l.id)}
+      <div class="tipbox">${esc(l.expl)}${l.mouth ? `<p style="margin:6px 0 0"><b>👄 Boca y lengua:</b> ${esc(l.mouth)}</p>` : ''}</div>${mouthPanelHTML(l.id)}
       <h3>Ejemplos (toca para escuchar)</h3>
       <div class="wlist">${l.ex.map(w => `<div class="witem"><button class="spk" data-say-n="${esc(w[0])}">🔊</button><div><div class="en">${esc(w[0])}</div><div class="es">${esc(w[1])}</div></div><button class="spk slow" data-say="${esc(w[0])}" style="margin-left:auto" title="Lento">🐢</button></div>`).join('')}</div>
       ${l.pairs ? `<h3 style="margin-top:14px">Pares mínimos</h3><div class="chips">${l.pairs.map(p => `<button class="chip" data-pair="${esc(p.join('|'))}">${esc(p[0])} · ${esc(p[1])}</button>`).join('')}</div>` : ''}`;
@@ -240,8 +247,7 @@ RENDER.quiz = (ex, body) => {
   const q = ex.q; const order = shuffle(q.opts.map((o, i) => i)); ex.map = order;
   body.innerHTML = `${tukiTutorBannerHTML({
     title: 'Profe Tuki · Desafío 🧠',
-    msg: q.q,
-    sub: 'Toca la opción correcta para responder.',
+    msg: 'Toca la opción correcta para responder.',
     speakText: q.q
   })}<div class="ex-title">${esc(q.q)}</div>${q.hide ? '<div style="height:10px"></div>' : '<div class="listen-row"><button class="spk big" id="pl">🔊</button><button class="spk slow" id="pls">🐢</button></div>'}${optionsHTML(order.map(i => esc(q.opts[i])))}`;
   if (!q.hide) { $('#pl').onclick = () => speak(q.say); $('#pls').onclick = () => speak(q.say, true); }

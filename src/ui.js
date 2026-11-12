@@ -683,7 +683,10 @@ export const TUKI_QUOTES_ES = [
   "¡No pares ahora! Mantener la racha diaria es el secreto del éxito.",
   "¡Paso a paso, parcero! Si practicas 5 minutos hoy, tu futuro te lo agradecerá.",
   "¡Excelente vibra! Recuerda tomar agüita y vocalizar bien clarito.",
-  "¡Gana monedas y pásate por mi armario a ver qué más me estrenas!"
+  "¡Gana monedas y pásate por mi armario a ver qué más me estrenas!",
+  "¡Lección perfecta! ¡Ni un solo error, qué berraquera!",
+  "¿Perdiste un corazón? ¡No pasa nada! Tuki te anima a seguir.",
+  "¡Tu racha está que arde! ¡No la dejes enfriar, parcero!"
 ];
 
 export function speakTukiEs(text, targetEl) {
@@ -3810,7 +3813,7 @@ export const TUKI_SHOP_ITEMS = [
   { id: 'hat:crown', type: 'hat', key: 'crown', name: 'Corona real dorada', icon: '👑', price: 120, desc: 'El rey absoluto de la pronunciación.' },
 
   // --- 👔 Ropa y Atuendos (12 ítems) ---
-  { id: 'outfit:none', type: 'outfit', key: 'none', name: 'Sin ropa', icon: '🦜', price: 0, desc: 'Al natural, listo para volar.' },
+  { id: 'outfit:none', type: 'outfit', key: 'none', name: 'Sin ropa', icon: '👕', price: 0, desc: 'Al natural, listo para volar.' },
   { id: 'outfit:ruana', type: 'outfit', key: 'ruana', name: 'Ruana tradicional', icon: '🇨🇴', price: 55, desc: 'Calientita de Boyacá para el frío.' },
   { id: 'outfit:jersey', type: 'outfit', key: 'jersey', name: 'Camiseta tricolor', icon: '⚽', price: 65, desc: '¡Con toda la pasión por aprender!' },
   { id: 'outfit:bowtie', type: 'outfit', key: 'bowtie', name: 'Corbatín elegante', icon: '👔', price: 45, desc: 'Para entrevistas y reuniones de trabajo.' },
@@ -3870,11 +3873,20 @@ export function openTukiShopModal() {
   const skin = S.tukiSkin || (S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] });
   let previewSkin = { ...skin };
 
-  // Fichas compactas de lo equipado / probado (icono + nombre por tipo).
-  const shopEquippedChips = sk => ['hat', 'outfit', 'hand', 'plumage'].map(t => {
-    const it = TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === sk[t]);
-    return it ? `<span class="shop-equipped-chip">${it.icon} ${esc(it.name)}</span>` : '';
-  }).join('');
+  // Fichas compactas de lo equipado / probado (solo lo que SÍ llevas
+  // puesto: los valores por defecto —sombrero none, ropa none, en mano
+  // none, plumaje classic— no se muestran como look. Si no hay ninguna
+  // pieza, una sola ficha neutra. Las tarjetas de conjuntos listan sus
+  // 4 piezas aparte y no usan esta función, así que no les afecta.)
+  const SHOP_DEFAULT_KEY = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic' };
+  const shopEquippedChips = sk => {
+    const chips = ['hat', 'outfit', 'hand', 'plumage'].map(t => {
+      const it = TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === sk[t]);
+      if (!it || sk[t] === SHOP_DEFAULT_KEY[t]) return '';
+      return `<span class="shop-equipped-chip">${it.icon} ${esc(it.name)}</span>`;
+    }).join('');
+    return chips || '<span class="shop-equipped-chip shop-equipped-none">Look clásico</span>';
+  };
   // Piezas de un conjunto, en orden sombrero / ropa / en mano / plumaje.
   const setPieces = set => ['hat', 'outfit', 'hand', 'plumage'].map(t => TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === set.pieces[t])).filter(Boolean);
   const setIsOwned = it => skin.owned.includes(it.id) || it.price === 0;
@@ -3887,6 +3899,7 @@ export function openTukiShopModal() {
       <div class="tuki-shop-preview">
         <div class="mascot-wrap" id="shopPreviewMascot" title="¡Toca para interactuar!">${tukiImgHTML('friendly')}</div>
         <div class="tuki-speech" id="shopSpeech">¡Prueba atuendos, sombreros y colores! Tienes 🪙 <b>${S.coins || 0}</b> monedas.</div>
+        <div class="shop-equipped-label">Tu look actual</div>
         <div class="shop-equipped" id="shopEquipped">${shopEquippedChips(previewSkin)}</div>
       </div>
 
@@ -3942,11 +3955,36 @@ export function openTukiShopModal() {
     
     $$('[data-stab]', el).forEach(tab => {
       tab.onclick = () => {
+        // (Top-5 H-02: si la pestaña está medio fuera de la tira (p. ej.
+        // Plumaje a 360 px), el primer toque la trae a la vista en vez
+        // de cambiar de pestaña; el segundo toque ya cambia.)
+        const strip = tab.closest('.shop-tabs');
+        if (strip) {
+          const r = tab.getBoundingClientRect(), sr = strip.getBoundingClientRect();
+          if (r.right > sr.right - 4 || r.left < sr.left + 4) {
+            tab.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
+            return;
+          }
+        }
         shopActiveTab = tab.dataset.stab;
         close();
         openTukiShopModal();
       };
     });
+
+    // (Top-5 H-02: fade en el borde derecho de la tira mientras quede
+    // contenido a la derecha, para que Plumaje se descubra; tocar el
+    // borde (zona del fade) desliza la tira con suavidad.)
+    const tabs = $('.shop-tabs', el);
+    if (tabs) {
+      const updTabsFade = () => tabs.classList.toggle('has-more', tabs.scrollWidth > tabs.clientWidth + tabs.scrollLeft + 4);
+      tabs.addEventListener('scroll', updTabsFade, { passive: true });
+      updTabsFade();
+      tabs.addEventListener('click', e => {
+        const r = tabs.getBoundingClientRect();
+        if (e.clientX > r.right - 28) tabs.scrollBy({ left: 140, behavior: 'smooth' });
+      });
+    }
 
     const pm = $('#shopPreviewMascot', el);
     if (pm) { pm.onclick = () => interactWithTuki(pm); makeMascotClickable(pm, '¡Toca para interactuar con Tuki!'); }
