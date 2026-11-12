@@ -3842,6 +3842,22 @@ export const TUKI_SHOP_ITEMS = [
 
 export let shopActiveTab = 'hat';
 
+/* (Conjuntos completos — Ropa: looks curados con piezas EXISTENTES de
+   TUKI_SHOP_ITEMS (sin ítems nuevos ni borrados). Cada conjunto es una
+   ropa + sombrero + en mano + plumaje con nombre, paleta y descripción.
+   Comprar un conjunto cobra SOLO las piezas que aún no se tienen (suma
+   de sus precios, sin descuento inventado) y equipa las 4 de una vez;
+   si ya se tienen todas, solo equipa. La pestaña Ropa muestra los
+   conjuntos arriba y las prendas sueltas abajo, como antes.) */
+export const TUKI_OUTFIT_SETS = [
+  { id: 'set:colombiano', name: 'Orgullo Colombiano', icon: '🇨🇴', desc: 'Ruana, vueltiao y bandera: pura tierra querida.', palette: ['#f7c948', '#2f6fed', '#e5484d'], pieces: { hat: 'vueltiao', outfit: 'ruana', hand: 'flag', plumage: 'classic' } },
+  { id: 'set:graduado', name: 'Graduado de Honor', icon: '🎓', desc: 'Birrete, corbatín y diccionario para celebrar lo aprendido.', palette: ['#2b1741', '#d7f36a', '#f7c948'], pieces: { hat: 'grad', outfit: 'bowtie', hand: 'book', plumage: 'classic' } },
+  { id: 'set:chef', name: 'Chef Estrella', icon: '👨‍🍳', desc: 'Gorro, bufanda y tinto: el sabor de aprender.', palette: ['#ffffff', '#ff705b', '#4b2868'], pieces: { hat: 'chef', outfit: 'scarf', hand: 'coffee', plumage: 'classic' } },
+  { id: 'set:explorador', name: 'Explorador Total', icon: '🧭', desc: 'Chaleco, sombrero vaquero y bandera para ir a donde sea.', palette: ['#8a6d3b', '#4b2868', '#37d2dc'], pieces: { hat: 'cowboy', outfit: 'vest', hand: 'flag', plumage: 'classic' } },
+  { id: 'set:urbano', name: 'Estrella Urbana', icon: '🎧', desc: 'Chaqueta, audífonos y micrófono dorado: listo para el escenario.', palette: ['#4b2868', '#d7f36a', '#f7c948'], pieces: { hat: 'headphones', outfit: 'jacket', hand: 'mic', plumage: 'gold' } },
+  { id: 'set:heroe', name: 'Héroe de Fiesta', icon: '🦸', desc: 'Capa, gorro fiestero, varita y fuego: pura celebración.', palette: ['#ff705b', '#37d2dc', '#f7c948'], pieces: { hat: 'party', outfit: 'cape', hand: 'wand', plumage: 'fire' } },
+];
+
 /* (Fase 2 — Tienda con avatar nuevo: la vista previa usa la pose raster
    'friendly' (tukiImgHTML) en vez del SVG antiguo. Las 7 poses son
    imágenes fijas sin capas ni recoloración, así que un sombrero o una
@@ -3859,6 +3875,9 @@ export function openTukiShopModal() {
     const it = TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === sk[t]);
     return it ? `<span class="shop-equipped-chip">${it.icon} ${esc(it.name)}</span>` : '';
   }).join('');
+  // Piezas de un conjunto, en orden sombrero / ropa / en mano / plumaje.
+  const setPieces = set => ['hat', 'outfit', 'hand', 'plumage'].map(t => TUKI_SHOP_ITEMS.find(x => x.type === t && x.key === set.pieces[t])).filter(Boolean);
+  const setIsOwned = it => skin.owned.includes(it.id) || it.price === 0;
 
   const buildModalContent = () => {
     const items = TUKI_SHOP_ITEMS.filter(it => it.type === shopActiveTab);
@@ -3877,6 +3896,25 @@ export function openTukiShopModal() {
         <button class="shop-tab ${shopActiveTab === 'hand' ? 'active' : ''}" data-stab="hand">🪄 En Mano (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hand').length})</button>
         <button class="shop-tab ${shopActiveTab === 'plumage' ? 'active' : ''}" data-stab="plumage">🎨 Plumaje (${TUKI_SHOP_ITEMS.filter(i=>i.type==='plumage').length})</button>
       </div>
+
+      ${shopActiveTab === 'outfit' ? `
+      <div class="shop-sets-head"><h3>✨ Conjuntos completos</h3><p class="muted small">Looks enteros: se compran y se equipan de una vez.</p></div>
+      <div class="shop-sets">
+        ${TUKI_OUTFIT_SETS.map(set => {
+          const pieces = setPieces(set);
+          const allOwned = pieces.every(setIsOwned);
+          const allEquipped = pieces.every(it => skin[it.type] === it.key);
+          const price = pieces.filter(it => !setIsOwned(it)).reduce((a, it) => a + it.price, 0);
+          return `<div class="shop-set-card ${allEquipped ? 'equipped' : ''}" data-set-preview="${set.id}">
+            <div class="set-head"><span class="set-icon">${set.icon}</span><div><div class="set-name">${esc(set.name)}</div><div class="set-palette">${set.palette.map(c => `<span class="set-dot" style="background:${c}"></span>`).join('')}</div></div></div>
+            <div class="small muted">${esc(set.desc)}</div>
+            <div class="set-pieces">${pieces.map(it => `<span class="shop-equipped-chip">${it.icon} ${esc(it.name)}</span>`).join('')}</div>
+            <div class="set-foot"><span class="set-price">${allOwned ? 'En tu armario' : `🪙 ${price} monedas`}</span>
+            <button class="btn sm shop-btn ${allEquipped ? 'ghost' : allOwned ? 'blue' : 'primary'}" data-set-act="${set.id}" ${!allOwned && (S.coins || 0) < price ? 'disabled' : ''}>${allEquipped ? 'Equipado ✓' : allOwned ? '⚡ Equipar conjunto' : `Comprar conjunto 🪙 ${price}`}</button></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="shop-sets-head"><h3>👔 Prendas sueltas</h3></div>` : ''}
 
       <div class="shop-grid">
         ${items.map(it => {
@@ -3929,6 +3967,58 @@ export function openTukiShopModal() {
         const sp = $('#shopSpeech', el);
         if (sp) sp.textContent = `Probando: ${it.name} ${it.icon}`;
         beep('tap');
+      };
+    });
+
+    $$('[data-set-preview]', el).forEach(card => {
+      card.onclick = e => {
+        if (e.target.closest('[data-set-act]')) return;
+        const set = TUKI_OUTFIT_SETS.find(x => x.id === card.dataset.setPreview);
+        if (!set) return;
+        setPieces(set).forEach(it => { previewSkin[it.type] = it.key; });
+        const eq = $('#shopEquipped', el);
+        if (eq) eq.innerHTML = shopEquippedChips(previewSkin);
+        const pm = $('#shopPreviewMascot', el);
+        if (pm) tukiMood('happy', { el: pm, particles: 'sparkle' });
+        const sp = $('#shopSpeech', el);
+        if (sp) sp.textContent = `Probando conjunto: ${set.name} ${set.icon}`;
+        beep('tap');
+      };
+    });
+
+    $$('[data-set-act]', el).forEach(btn => {
+      btn.onclick = () => {
+        const set = TUKI_OUTFIT_SETS.find(x => x.id === btn.dataset.setAct);
+        if (!set) return;
+        const pieces = setPieces(set);
+        const unowned = pieces.filter(it => !setIsOwned(it));
+        const price = unowned.reduce((a, it) => a + it.price, 0);
+        if (unowned.length) {
+          if ((S.coins || 0) < price) return toast('No tienes suficientes monedas 🪙');
+          S.coins -= price;
+          unowned.forEach(it => skin.owned.push(it.id));
+        }
+        pieces.forEach(it => { skin[it.type] = it.key; });
+        previewSkin = { ...skin };
+        save();
+        updateMascot();
+        render();
+        const pm = $('#shopPreviewMascot', el);
+        if (pm) tukiMood('excited', { el: pm, particles: 'sparkle' }); else tukiChirp('celebrate');
+        confetti();
+        const sp = $('#shopSpeech', el);
+        if (sp) sp.innerHTML = `¡Look completo! Estrenando ${set.name} ${set.icon}✨`;
+        if (unowned.length) {
+          beep('done');
+          toast(`🎉 ¡Compraste y equipaste ${set.name}!`, 3000);
+        } else {
+          beep('ok');
+          toast(`⚡ Equipaste ${set.name}`);
+        }
+        setTimeout(() => {
+          close();
+          openTukiShopModal();
+        }, 550);
       };
     });
 
