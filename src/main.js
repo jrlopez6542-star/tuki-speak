@@ -1750,22 +1750,37 @@ VIEWS.chat = v => {
   }
   if (CHAT.scen && String(CHAT.scen).startsWith('custom:') && !SCENARIOS[CHAT.scen]) CHAT.scen = 'free';
   const lv = chatLevel();
+  // (TUKI-IMPL-T3A-001: estructura T3 «Conversación primero»: banner
+  // «Profe Tuki» descartable (solo en memoria, CHAT.bannerHide), ajustes
+  // colapsados en <details>, log protagonista, etiquetas de sección.
+  // Los controles y handlers son los mismos de antes, solo reordenados.)
   v.innerHTML = `<div class="chatscreen" id="chatscreen">
     <div class="chat-tutor-head"><img class="tuki-img" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés"><div><strong>Tuki · Tutor IA</strong><span class="small muted">Practica hablando; te corrijo con cariño.</span></div></div>
-    <div class="chattop">
-      <div class="provider"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
-      <div class="chatsel"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).filter(k => k !== 'interview' && k !== 'shopping').map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${esc(SCEN_ES[k])}</option>`).join('')}<option value="__new__">✏️ Crear escenario…</option></select><select class="field sp" id="tspeed" aria-label="Velocidad de Tuki" title="Velocidad de Tuki">${Object.keys(TUTOR_SPEEDS).map(k => `<option value="${k}" ${k === tutorSpeed() ? 'selected' : ''}>${TUTOR_SPEEDS[k].label}</option>`).join('')}</select><button class="btn ghost sm" id="newc" title="Nueva conversación">Nueva</button></div>
-      <div class="chatsel"><select class="field" id="level" aria-label="Nivel de inglés" title="Nivel de inglés de la conversación">${LEVEL_KEYS.map(k => `<option value="${k}" ${k === lv ? 'selected' : ''}>${LEVELS[k].label}</option>`).join('')}</select><select class="field" id="tlang" aria-label="Idioma del tutor" title="Idioma del tutor">${Object.keys(TUTOR_LANGS).map(k => `<option value="${k}" ${k === tutorLang() ? 'selected' : ''}>${TUTOR_LANGS[k].label}</option>`).join('')}</select></div>
-    </div>
-    <div class="chatlog" id="log" aria-live="polite"></div>
-    <div class="chat-chips">${chatChipsFor(CHAT.scen).map((t, i) => `<button class="chip chat-chip" data-chip="${i}">${esc(t)}</button>`).join('')}</div>
+    ${CHAT.bannerHide ? '' : `<div class="chat-banner" id="profeBanner"><img class="tuki-img" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés"><div><b>Profe Tuki</b><span class="small muted">Tu tutor de inglés · toca 🔊 para escucharme</span></div><button type="button" class="x" id="bannerX" aria-label="Descartar banner">×</button></div>`}
+    <div class="chattop"><details class="more" id="chatMore"><summary>⚙️ Ajustes del chat</summary><div class="inner">
+      <label class="kicker">Proveedor</label>
+      <div class="provider seg"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
+      <label class="kicker" for="scen">Escenario</label><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).filter(k => k !== 'interview' && k !== 'shopping').map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${esc(SCEN_ES[k])}</option>`).join('')}<option value="__new__">✏️ Crear escenario…</option></select>
+      <label class="kicker" for="tspeed">Velocidad de Tuki</label><select class="field" id="tspeed" aria-label="Velocidad de Tuki" title="Velocidad de Tuki">${Object.keys(TUTOR_SPEEDS).map(k => `<option value="${k}" ${k === tutorSpeed() ? 'selected' : ''}>${TUTOR_SPEEDS[k].label}</option>`).join('')}</select>
+      <button class="btn ghost sm btn-nueva" id="newc" title="Nueva conversación">Nueva</button>
+      <label class="kicker" for="level">Nivel de inglés</label><select class="field" id="level" aria-label="Nivel de inglés" title="Nivel de inglés de la conversación">${LEVEL_KEYS.map(k => `<option value="${k}" ${k === lv ? 'selected' : ''}>${LEVELS[k].label}</option>`).join('')}</select>
+      <label class="kicker" for="tlang">Idioma del tutor</label><select class="field" id="tlang" aria-label="Idioma del tutor" title="Idioma del tutor">${Object.keys(TUTOR_LANGS).map(k => `<option value="${k}" ${k === tutorLang() ? 'selected' : ''}>${TUTOR_LANGS[k].label}</option>`).join('')}</select>
+    </div></details></div>
+    <p class="sec-label">Conversación</p>
+    <div class="chatlog tall" id="log" aria-live="polite"></div>
+    <p class="sec-label">Escribir o dictar</p>
     <div class="chatbar"><button class="iconbtn" id="cmic" title="Dictar (modo alternativo)">🎤</button><textarea id="cin" placeholder="Escribe en inglés (o usa 🎤)…" rows="1" aria-label="Mensaje"></textarea><button class="iconbtn" id="csend" title="Enviar" disabled>➤</button></div>
+    <p class="sec-label">Voz en vivo</p>
     <div class="livedock">
       <div class="livestat"><span class="live-dot ${LIVE.state}" id="ldot"></span><b id="lstate">${LIVE_LABEL[LIVE.state]}</b><span class="meter" aria-hidden="true"><i id="lmeter"></i></span></div>
       <button class="livebtn ${LIVE.on ? 'on' : ''}" id="liveBtn" title="Voz a voz en tiempo real con ${prov === 'gemini' ? 'Gemini Live' : 'OpenAI Realtime'}">${LIVE.on ? '⏹ Terminar conversación' : '🎙️ Hablar en vivo'}</button>
     </div>
   </div>`;
   $$('[data-prov]', v).forEach(b => b.onclick = () => { if (b.disabled) return; if (LIVE.on) stopLive(); S.settings.chatProvider = b.dataset.prov; save(); resetChat(); VIEWS.chat(v); });
+  // (TUKI-IMPL-T3A-001: la × descarta el banner solo mientras la vista
+  // vive; CHAT.bannerHide es memoria, sin tocar el estado persistido.)
+  const bx = $('#bannerX', v);
+  if (bx) bx.onclick = () => { CHAT.bannerHide = true; const b = $('#profeBanner', v); if (b) b.remove(); };
   const startText = () => { resetChat(); chatDraw(); chatSend('(Start the roleplay now with a short friendly greeting and a first question.)', true); };
   const restart = msg => { toast(msg, 2600); if (LIVE.on) { stopLive(true); resetChat(); chatDraw(); startLive(); } else if (CHAT.hist.length) startText(); else chatDraw(); };
   // P4 (v2.21.0): crear/borrar escenarios propios dentro del selector
@@ -1804,9 +1819,11 @@ VIEWS.chat = v => {
   cin.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (cin.value.trim()) csend.click(); } };
   $('#cmic').onclick = () => chatMic($('#cmic'));
   growCin();
-  // (chat premium Etapa 2, v2.36.0: tocar un chip envía su frase fija)
+  // (TUKI-IMPL-T3A-001: los chips viven DENTRO del log y los dibuja
+  // chatDraw (chat.js); drawChips solo vuelve a dibujar el log, así los
+  // chips siguen al escenario. bindChips enlaza los que ya están.)
   const bindChips = () => $$('.chat-chip', v).forEach(b => b.onclick = () => { const t = chatChipsFor(CHAT.scen)[+b.dataset.chip]; if (t) chatSend(t); });
-  const drawChips = () => { const row = $('.chat-chips', v); if (!row) return; row.innerHTML = chatChipsFor(CHAT.scen).map((t, i) => `<button class="chip chat-chip" data-chip="${i}">${esc(t)}</button>`).join(''); bindChips(); };
+  const drawChips = () => { chatDraw(); };
   bindChips();
   chatDraw(); liveUI(); fitChat();
 };

@@ -1121,7 +1121,7 @@ html[data-theme="dark"] .tuki-guide-bubble{border-color:#4a3868}
 .chat-tutor-head .tuki-img{width:44px;height:44px;flex:none;object-fit:contain}
 .chat-tutor-head strong{display:block;font-size:15px}
 .chat-tutor-head .small{display:block}
-.msg.me{background:#4b2868}
+.msg.me{background:var(--b-d)}
 .chatbar textarea:focus{border-color:#4b2868;box-shadow:0 0 0 4px rgba(75,40,104,.15),var(--sh-1)}
 .livebtn{background:linear-gradient(135deg,#4b2868,#603584);box-shadow:0 6px 0 #2b1741}
 .livebtn:active{box-shadow:0 2px 0 #2b1741}
@@ -1399,3 +1399,59 @@ html[data-theme="dark"] .m1-eyebrow{color:var(--lav)}
 .m1-minipath{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:4px auto 0;max-width:380px}
 .m1-mp-dots{font-weight:800;color:var(--ink);white-space:nowrap}
 @media(max-width:360px){.m1-hero-title{font-size:23px}.m1-card-title{font-size:23px}.m1-lesson-row{padding:10px 9px}.m1-lesson-row .m1-lr-st{font-size:10px}}
+
+/* ---- TUKI-IMPL-T3A-001: Tutor IA, variante T3a «Conversación primero» + burbuja azul (D-TUTOR-8) ---- */
+/* DESVIACIÓN DEL MOCKUP (medida, no supuesta): el mockup usa
+   .chatlog.tall{min-height:340px} en una página con scroll, pero la app
+   fija #chatscreen con fitChat a (viewport − tabbar − top − 8) px
+   (672–675 px a 844 px de alto). Con el cromo T3 completo (cabecera 64 +
+   banner 75 + 3 etiquetas + details 43 + chatbar 66 + dock 96 + gaps),
+   el contenido sumaba 828 px: el dock quedaba 54 px bajo el pliegue y,
+   tras desplazar al máximo, el botón «Hablar en vivo» quedaba tapado
+   por la tabbar fija (medido: btn 782–830, tabbar 748–830) — inalcanzable
+   en viewports de menos de ~992 px de alto. Se usa min-height:260px
+   (el máximo que deja el dock visible sobre la tabbar a 844 px y la
+   pista vacía completa: la pista mide 228 px a 360 px y el log necesita
+   248 px con su padding) y se compacta el cromo (gap 6, etiquetas sin
+   margen, cabecera/banner/dock ajustados). Sin la etiqueta «Ajustes»:
+   la sección ya la etiqueta su propio summary «⚙️ Ajustes del chat»;
+   se conservan las 3 etiquetas que pide la misión (Conversación,
+   Escribir o dictar, Voz en vivo). */
+/* Cromo compacto para que el log quepa en la chatscreen de fitChat */
+.chatscreen{gap:6px}
+.chatscreen .chat-tutor-head{padding:6px 12px}
+.chatscreen .chat-tutor-head .tuki-img{width:40px;height:40px}
+.chatscreen .livedock{padding:6px 10px}
+.chatscreen .livedock .livebtn{padding:10px}
+/* Etiquetas de sección (mockup T3a: .sec-label) */
+.chatscreen .sec-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#603584;margin:0 2px;line-height:1.2}
+[data-theme=dark] .chatscreen .sec-label{color:#b98cff}
+/* Banner «Profe Tuki» descartable (mockup T3a: .banner) */
+.chatscreen .chat-banner{display:flex;gap:10px;align-items:center;background:var(--card);border:2px solid var(--line);border-radius:var(--r-lg);padding:6px 12px}
+.chatscreen .chat-banner .tuki-img{width:40px;height:40px;flex:none;object-fit:contain}
+.chatscreen .chat-banner b{display:block;font-size:14px}
+.chatscreen .chat-banner .small{display:block}
+.chatscreen .chat-banner .x{margin-left:auto;border:0;background:transparent;font-size:18px;color:var(--mute);padding:6px;flex:none}
+/* Ajustes colapsados (mockup T3a: details.more, cerrado por defecto) */
+.chatscreen .chattop details.more{border:2px solid var(--line);border-radius:var(--r-lg);background:var(--card);padding:8px 12px}
+.chatscreen details.more summary{cursor:pointer;font-weight:800;font-size:14px;list-style:none}
+.chatscreen details.more summary::-webkit-details-marker{display:none}
+.chatscreen details.more .inner{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.chatscreen details.more .kicker{font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.chatscreen details.more .field{width:100%}
+/* Proveedor como control segmentado (solo CSS; mismos botones y handlers) */
+.chatscreen .provider.seg{display:flex;border:2px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--card)}
+.chatscreen .provider.seg .chip{flex:1;border:0;border-radius:0;background:transparent;color:var(--ink);padding:11px 6px;font-size:14px;min-height:44px;text-align:center}
+.chatscreen .provider.seg .chip.active{background:var(--lime,#d7f36a);color:#21152d;border-color:transparent}
+.chatscreen .provider.seg .chip:disabled{opacity:.45}
+/* «Nueva» a ancho completo, en mayúsculas como en el mockup (el literal sigue siendo «Nueva») */
+.chatscreen .btn-nueva{width:100%;text-transform:uppercase}
+/* Log protagonista (mockup T3a: .chatlog.tall{min-height:340px}; ver la
+   desviación documentada arriba: 260px en la app); la pista vacía no se
+   recorta: sin max-height ni overflow propios */
+.chatscreen .chatlog.tall{min-height:260px}
+.chatscreen .empty{line-height:1.5;max-height:none;overflow:visible;white-space:normal}
+/* Sugerencias en línea dentro del log, tras el último mensaje del tutor */
+.chips-inline{display:flex;gap:6px;flex-wrap:wrap;padding:2px 0 4px}
+.chips-inline .chip{transition:transform .18s var(--spring),border-color .15s,color .15s}
+.chips-inline .chip:active{transform:scale(.96)}
