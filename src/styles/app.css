@@ -1225,6 +1225,10 @@ html[data-theme="dark"] .m05-hub-ic{background:#30243d}
 .m05-adv summary::-webkit-details-marker{display:none}
 .m05-adv > .card{border:0;box-shadow:none;margin:0;padding:0}
 .m05-adv > .card > h3{display:none}
+/* TUKI-IMPL-56-NUEVA-INTERFAZ-001: divulgación progresiva de #56 en la
+   nueva interfaz — los <summary> de «Más opciones» de Voz y Aprendizaje
+   (misma regla que la PR #56, sin componente nuevo). */
+#voiceMore summary, #learnMore summary{cursor:pointer;padding:12px 0;font-weight:700}
 
 /* =================== TUKI-IMPL-G-001: LIQUID GLASS (MOCKUP G) ===================
    Lenguaje visual G sobre lo ya hecho (M05-R1, NAV-FIX-001, AUD-02):
