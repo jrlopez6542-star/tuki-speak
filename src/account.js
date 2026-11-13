@@ -55,7 +55,7 @@ export function sanitizeState(d) {
   const objMap = (m, fn) => { for (const k of Object.keys(m || {})) { const e = m[k]; if (!e || typeof e !== 'object' || Array.isArray(e)) delete m[k]; else if (fn) fn(e, k); } };
   if (o.deck) objMap(o.deck, e => { e.en = String(e.en ?? '').slice(0, 400); e.es = String(e.es ?? '').slice(0, 400); ['ef', 'int', 'reps', 'due', 'lapses'].forEach(n => { if (n in e) e[n] = clampNum(e[n]); }); });
   if (o.hard) objMap(o.hard, e => { e.w = String(e.w ?? '').slice(0, 80); e.n = clampNum(e.n); e.t = clampNum(e.t); if (e.note != null) e.note = String(e.note).slice(0, 300); });
-  ['done', 'ear', 'wd', 'ph', 'days', 'plans', 'challenges'].forEach(k => { if (o[k]) objMap(o[k]); });
+  ['done', 'ear', 'wd', 'ph', 'days', 'plans', 'challenges', 'stories', 'radio'].forEach(k => { if (o[k]) objMap(o[k]); });
   if (o.snd) for (const k of Object.keys(o.snd)) { if (!Array.isArray(o.snd[k])) delete o.snd[k]; else o.snd[k] = o.snd[k].filter(e => e && typeof e === 'object' && !Array.isArray(e)); }
   ['summaries', 'interviews', 'convoItems'].forEach(k => { if (k in o) o[k] = Array.isArray(o[k]) ? o[k].filter(e => e && typeof e === 'object' && !Array.isArray(e)).slice(0, 100) : []; });
   (o.convoItems || []).forEach(c => { c.en = String(c.en ?? '').slice(0, 400); if (c.es != null) c.es = String(c.es).slice(0, 400); c.ts = clampNum(c.ts); });

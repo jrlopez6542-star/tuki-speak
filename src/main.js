@@ -4,9 +4,10 @@ import { $, $$, esc, decodeEnt, decodeDeep, shuffle, pick, sample, clamp, avg, d
 import { S, setState, KEY, DEFAULT_SETTINGS, DAY, HEART_MS, MAX_HEARTS, BAD_KEYS, load, refreshHearts, loseHeart, nextHeartIn, todayRec, isDone, recordSpeech, recordEar, soundAvg, addToDeck, sm2, dueCards, sm2Preview, intervalLabel } from './state.js';
 import { VOICES, loadVoices, pickVoice, speak, SR, HAS_SR, curRec, setCurRec, recognize, stopRecognize, SR_ERR, Rec, canSpeak, vibrate, AZ_VOICES, OA_VOICES, GEM_VOICES, TTS, tvPref, AZ_NAME_RE, ttsEngineFor, azVoiceFor, stopAudio, cloudTTSReady, azureTTS, openaiTTS, ttsRate, cloudTTSBlob, ES_PREF, pickEsVoice, deviceSpeakEn, deviceSpeakEs, speakSeq, resample, StreamResampler, encodeWAV, MicCap, SAPI_IPA, toIPA, PH_TIPS, azureToResult, azureAssess, azureSTT, openaiSTT, pitchTrack, drawTrack, contourDir, expectRise } from './audio.js';
 import { L, setL, tokensOf, earEx, sayPairEx, buildLesson, unlockedLessons, buildPractice, startLesson, lessonShell, nextEx, setFoot, footCheck, enableCheck, PRAISE, ENCOURAGE, feedback, earResult, checkEar, RENDER, optionsHTML, bindOptions, SPEAK_TITLES, speakTarget, createMicMeter, doMic, recOnlyActive, recOnlyToggle, compareHTML, bindCompare, onSpeechResult, victoryConfetti, noHeartsModal } from './lessons.js';
-import { SCENARIOS, SCEN_ES, chatChipsFor, CHAT, chatSystem, geminiCall, gemini, parseTutor, TUKI_API, SHARED_TEXT_MODELS, keysLocked, fbSignedIn, fbCanShare, gemShared, azOwn, azShared, noAIMsg, sharedModel, tukiApi, AZT, azAuth, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, azFetch, azureReady, LIVE, LIVE_LABEL, GEMINI_LIVE_MODELS, currentProvider, LEVELS, LEVEL_KEYS, defaultLevel, chatLevel, levelRules, TUTOR_LANGS, tutorLang, langRules, TUTOR_SPEEDS, tutorSpeed, chatMul, speedRules, HELP_COMMANDS, isPerfect, tutorSpeechParts, liveSystem, liveSet, liveUI, liveAppend, liveTurnDone, LIVE_REC, LIVE_REC_MAX_SAMPLES, LIVE_REC_MIN_WORDS, LIVE_REC_MIN_SEC, LIVE_REC_MAX_TURNS, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, Player, WORKLET_SRC, startMicStream, liveErrES, connectGemini, onGeminiMsg, startGeminiLive, listLiveModels, startOpenAIRealtime, onOAIEvent, startLive, stopLive, openaiChat, resetChat, tapWords, quoteTap, msgActs, trHTML, msgText, chatDraw, CACHE_KEYS, MEM_WCACHE, MEM_TCACHE, cacheGet, cacheSet, AIQ, GEM_QUICK_MODELS, aiTransient, aiStatus, aiBusyErr, gemQuickCall, aiQuick, toggleTranslate, errorTutorAvailable, explainError, chatSend, chatMic, fitChat, uid, clamp100, parseJSONLoose, aiJSON, sayBtns, bindSayTap, scoreBarH, convoTranscript, addLearnItems, flagHard, SUM_SYS, ensureSP, sumPendingAdd, summarizeConvo, runPendingSummary, summaryHTML, aiFriendly, openSummarySheet, endConversation, convoPracticeItems, hardWords, hardDrillItems, startHardDrill, numHash, SENIORITY, IV_END, modeRules, TOPICS, todayTopic, chSecs, enterMode, leaveMode, interviewSetup, ivQuestion, reportInterview, interviewHTML, openInterviewSheet, finishInterview, challengeSetup, chLeft, startChTimer, finishChallenge, chStreak, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, customScenarios, addCustomScenario, removeCustomScenario, registerCustomScenarios, sanitizeScenario } from './chat.js';
+import { SCENARIOS, SCEN_ES, chatChipsFor, CHAT, chatSystem, geminiCall, gemini, parseTutor, TUKI_API, SHARED_TEXT_MODELS, keysLocked, fbSignedIn, fbCanShare, gemShared, azOwn, azShared, noAIMsg, sharedModel, tukiApi, AZT, azAuth, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, azFetch, azureReady, LIVE, LIVE_LABEL, GEMINI_LIVE_MODELS, currentProvider, LEVELS, LEVEL_KEYS, defaultLevel, chatLevel, levelRules, TUTOR_LANGS, tutorLang, langRules, TUTOR_SPEEDS, tutorSpeed, chatMul, speedRules, HELP_COMMANDS, isPerfect, tutorSpeechParts, liveSystem, liveSet, liveUI, liveAppend, liveTurnDone, LIVE_REC, LIVE_REC_MAX_SAMPLES, LIVE_REC_MIN_WORDS, LIVE_REC_MIN_SEC, LIVE_REC_MAX_TURNS, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, Player, WORKLET_SRC, startMicStream, liveErrES, connectGemini, onGeminiMsg, startGeminiLive, listLiveModels, startOpenAIRealtime, onOAIEvent, startLive, stopLive, openaiChat, resetChat, tapWords, quoteTap, msgActs, trHTML, msgText, chatDraw, CACHE_KEYS, MEM_WCACHE, MEM_TCACHE, cacheGet, cacheSet, AIQ, GEM_QUICK_MODELS, aiTransient, aiStatus, aiBusyErr, gemQuickCall, aiQuick, toggleTranslate, errorTutorAvailable, errorTutorHTML, bindErrorTutor, explainError, explainErrorStatus, explainDayLeft, explainDayUsed, explainDayRecord, EXPLAIN_DAY_MAX, errorTutorKey, chatSend, chatMic, fitChat, uid, clamp100, parseJSONLoose, aiJSON, sayBtns, bindSayTap, scoreBarH, convoTranscript, addLearnItems, flagHard, SUM_SYS, ensureSP, sumPendingAdd, summarizeConvo, runPendingSummary, summaryHTML, aiFriendly, openSummarySheet, endConversation, convoPracticeItems, hardWords, hardDrillItems, startHardDrill, numHash, SENIORITY, IV_END, modeRules, TOPICS, todayTopic, chSecs, enterMode, leaveMode, interviewSetup, ivQuestion, reportInterview, interviewHTML, openInterviewSheet, finishInterview, challengeSetup, chLeft, startChTimer, finishChallenge, chStreak, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, customScenarios, addCustomScenario, removeCustomScenario, registerCustomScenarios, sanitizeScenario } from './chat.js';
 import { b64u, unb64u, clampNum, deepClean, sanitizeSettings, sanitizeState, KDF_ITER, LOCK_FIELDS, KEYS_LOCAL, KS, LOCKED, setLocked, kdf, newKS, sealKeys, validBlob, openKeys, ksFromPhrase, keysObj, keysSig, hasAnyKey, phraseStrength, lockApply, lockRelease, getLockSig, setLockSig, applyKeys, setLocalLock, FB_VER, FB_BASE, FB_CFG, FB_HINT, FB_OWNER, CLOUD_META, CLOUD_SCHEMA, SYNC_MIN_MS, SYNC_DEBOUNCE_MS, CLOUD_MAX, syncMin, syncDebounce, FB, AUTH_ERR, authErr, devName, fbLoad, fbFail, localHasData, cloudMeta, setCloudMeta, uref, readMeta, readData, cloudSettings, packProgress, keysForCloud, cloudPush, adoptMerged, cloudFirstSync, askOtherOwner, cloudSync, fbSchedule, fbMarkDirty, fbGoogle, fbEmail, fbReset, fbVerify, fbReload, fbSignOut, unlockPrompt, unlockKeys, createPhrase, changePhrase, forgetPhrase, acMsg, acctHTML, keysHTML, bindAcct, bindKeys } from './account.js';
-import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TUKI_SHOP_ITEMS, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, AD, adminBody, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildPlacement, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, initTukiAnimPause, interactWithTuki, initTukiSleepWatch, makeMascotClickable, tukiSleepBusy, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openTukiShopModal, openWordPop, pdCardHTML, pdEvaluate, pdFinish, pdGenAvailable, pdGenCacheGet, pdGenCacheSet, pdGenData, pdGenHasData, pdGenSpeak, pdGenValidate, PD_GEN_CACHE_KEY, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, photoSharedAvailable, photoAnalyzeShared, resizePhoto, placementFinish, placementIntro, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, profileTouch, quotaAlert, quotaSummary, QUOTA_ALERT, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEntryHTML, tcEval, tcEx, tcExtract, tcExtractAll, tcExtraHint, tcFailsTotal, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
+import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, AD, adminBody, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildPlacement, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, initTukiAnimPause, interactWithTuki, initTukiSleepWatch, makeMascotClickable, tukiSleepBusy, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openWordPop, openStoriesModal, openStory, openRadioModal, openRadioEpisode, openIdiomBank, idiomCardHTML, pdCardHTML, pdEvaluate, pdFinish, pdGenAvailable, pdGenCacheGet, pdGenCacheSet, pdGenData, pdGenHasData, pdGenSpeak, pdGenValidate, PD_GEN_CACHE_KEY, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, photoSharedAvailable, photoAnalyzeShared, resizePhoto, placementFinish, placementIntro, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, profileTouch, quotaAlert, quotaSummary, QUOTA_ALERT, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEntryHTML, tcEval, tcEx, tcExtract, tcExtractAll, tcExtraHint, tcFailsTotal, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, TUKI_POSES, tukiPoseFor, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
+import { STORIES, IDIOMS, RADIO_EPISODES, idiomOfDay } from './content-new.js';
 export { updateMascot, modal, confirmBox, wordsHTML, triggerTukiAnimation, tukiMood, tukiTutorBannerHTML, bindTukiTutorBanner, mouthPanelHTML, phonemeHintHTML, buildVocabLesson, renderVocabLearn, bindExtra, extraResultHTML, errES, httpErr, openWordPop, closeWordPop, azureMic, lsGet, lsSet, buildTopErrorsPractice } from './ui.js';
 export { azFetch, azureReady, errorTutorAvailable, errorTutorHTML, bindErrorTutor, explainError } from './chat.js';
 export { FB, KS, LOCKED } from './account.js';
@@ -18,6 +19,7 @@ export { FB, KS, LOCKED } from './account.js';
 export const COURSE = [
 { id:'u0', title:'Primeros pasos: Frases esenciales', icon:'🌱', color:'#047857',
   desc:'¡Desde cero absoluto! Saludos, cortesía y frases de supervivencia con pronunciación guiada.',
+  guide:{"t": "El verbo «to be»: am / is / are", "b": "En inglés el verbo «ser/estar» cambia según la persona: I am (yo soy/estoy), he/she/it is (él/ella/eso es/está), you/we/they are (tú/nosotros/ellos son/están). A diferencia del español, nunca se omite: siempre va el pronombre y el verbo. Para preguntar se invierte el orden: «Are you ready?» (¿Estás listo?).", "ex": [["I am from Colombia.", "Yo soy de Colombia."], ["She is a teacher.", "Ella es profesora."]]},
   lessons:[
   { id:'novice-greetings', sound:'saludos', title:'Saludos y despedidas', icon:'👋',
     expl:'Aprende a saludar y despedirte con confianza. En inglés, la "H" de "Hello" y "Hi" suena como un suspiro suave (no como una "J" fuerte).',
@@ -49,6 +51,7 @@ export const COURSE = [
   ]},
 { id:'u1', title:'Vocales que cambian el significado', icon:'🅰️', color:'#14804d',
   desc:'El inglés tiene más vocales que el español. ¡Aquí está la diferencia entre ship y sheep!',
+  guide:{"t": "Vocales largas y cortas: ship / sheep", "b": "El inglés tiene vocales largas y cortas que cambian el significado: /ɪ/ corta (ship = barco) frente a /iː/ larga (sheep = oveja). La larga se sostiene más y se sonríe más; la corta es rápida y relajada. No es un detalle: confundirlas cambia la palabra.", "ex": [["This is a ship.", "Este es un barco."], ["That is a sheep.", "Esa es una oveja."]]},
   lessons:[
   { id:'ih-ee', sound:'ɪ / iː', title:'Ship vs. Sheep', icon:'🚢',
     expl:'El español tiene una sola "i". El inglés tiene dos: /iː/ larga y tensa (sheep, "oveja") y /ɪ/ corta y relajada (ship, "barco"). Si dices todo con la "i" española, "ship" suena como "sheep" y "sit" como "seat".',
@@ -77,6 +80,7 @@ export const COURSE = [
   ]},
 { id:'u2', title:'Consonantes difíciles', icon:'🔤', color:'#0b7cb0',
   desc:'Sonidos que en español no distinguimos: b/v, s/z y sh/ch.',
+  guide:{"t": "B / V y S / Z: pares que el español no distingue", "b": "En español B y V suenan igual, pero en inglés no: B es con los dos labios (best) y V es labio inferior con dientes de arriba (vest). Lo mismo pasa con S (sin vibración: sip) y Z (con vibración: zip). Si los confundes, «best» (mejor) se vuelve «vest» (chaleco).", "ex": [["This is the best.", "Esto es lo mejor."], ["I wear a vest.", "Llevo un chaleco."]]},
   lessons:[
   { id:'b-v', sound:'b / v', title:'Best vs. Vest', icon:'🦺',
     expl:'En español "b" y "v" suenan igual. En inglés son diferentes y cambian el significado: best (mejor) vs. vest (chaleco), very (muy) vs. berry (baya).',
@@ -102,6 +106,7 @@ export const COURSE = [
   ]},
 { id:'u3', title:'La TH y los finales', icon:'👅', color:'#7c3aed',
   desc:'Think, this, y no "comerse" el final de las palabras.',
+  guide:{"t": "La TH: /θ/ sorda y /ð/ sonora", "b": "El sonido TH se hace con la punta de la lengua entre los dientes. En «think» (/θ/) el aire sale sin vibración, como un soplo; en «this» (/ð/) las cuerdas vocales vibran. No es una T ni una D: si dices «dis» en vez de «this», te entienden, pero se nota el acento.", "ex": [["Think about it.", "Piénsalo."], ["This is my book.", "Este es mi libro."]]},
   lessons:[
   { id:'th-voiceless', sound:'θ', title:'Think (TH sorda)', icon:'🤔',
     expl:'La /θ/ de think, three, thank es parecida a la "z" o "c" del español de España (zapato), pero en Colombia no la usamos. Si la cambias por "t" o "s", "think" suena como "sink" (hundirse) o "tink".',
@@ -127,6 +132,7 @@ export const COURSE = [
   ]},
 { id:'u4', title:'Inicios y terminaciones', icon:'🧩', color:'#b45309',
   desc:'Sin "e" antes de sp/st, y cómo suenan -ed y -s.',
+  guide:{"t": "Sin «e» antes de sp/st y el final -ed", "b": "En inglés no se dice «es-pain» ni «es-top»: las palabras que empiezan con sp-, st- o sc- van directas, con un siseo: «Spain», «stop», «school». Y el final -ed de los verbos regulares suena /t/ tras sonido sordo (worked = «workt»), /d/ tras sonido sonoro (played = «playd») y /ɪd/ tras T o D (wanted = «want-id»).", "ex": [["I worked yesterday.", "Trabajé ayer."], ["She wanted a coffee.", "Ella quería un café."]]},
   lessons:[
   { id:'s-cluster', sound:'s+cons.', title:'Spain, no "Espain"', icon:'🇪🇸',
     expl:'En español ninguna palabra empieza por "s + consonante", por eso decimos "espanish", "estudent". En inglés debes empezar directamente con la "s": Spanish, student, school, street. ¡Cuidado!: "state" (estado) y "estate" (finca/patrimonio) son palabras diferentes.',
@@ -159,6 +165,7 @@ export const COURSE = [
   ]},
 { id:'u5', title:'Ritmo, acento y entonación', icon:'🎵', color:'#c62f35',
   desc:'La música del inglés: sílabas fuertes, palabras débiles y entonación.',
+  guide:{"t": "Ritmo y acento: las palabras importantes mandan", "b": "El inglés es una lengua de ritmo: las palabras de contenido (verbos, sustantivos) llevan la fuerza y se dicen claras, mientras las palabras pequeñas (to, the, of, a) se debilitan y se unen: «I want to go» suena «I wanna go». No intentes pronunciar cada palabra con la misma fuerza: marca las importantes y deja pasar las débiles.", "ex": [["I WANT to GO to the STORE.", "Quiero ir a la tienda."], ["Can you HELP me, PLEASE?", "¿Me puedes ayudar, por favor?"]]},
   lessons:[
   { id:'word-stress', sound:'acento', title:'Acento de la palabra', icon:'🔊',
     expl:'En inglés una sílaba de cada palabra es más fuerte, larga y aguda; las demás se debilitan (muchas veces a schwa). Poner el acento en la sílaba equivocada puede hacer que no te entiendan: comfortable es "COMF-ter-bl", no "com-for-TA-ble".',
@@ -194,6 +201,7 @@ export const COURSE = [
   ]},
 { id:'u6', title:'Conversaciones reales I', icon:'🗣️', color:'#0f766e',
   desc:'Diálogos de la vida real: tú dices tu parte y recibes un puntaje.',
+  guide:{"t": "Presente simple vs. presente continuo", "b": "El presente simple es para rutinas y verdades: «I work every day» (trabajo todos los días). El presente continuo (to be + -ing) es para lo que pasa ahora: «I am working now» (estoy trabajando ahora). Ojo: verbos como «like», «know» o «want» casi nunca van en continuo: se dice «I want coffee», no «I am wanting coffee».", "ex": [["She speaks English every day.", "Ella habla inglés todos los días."], ["She is speaking English now.", "Ella está hablando inglés ahora."]]},
   lessons:[
   { id:'c-greet', type:'dialog', sound:'conversación', title:'Saludos y presentaciones', icon:'👋',
     scene:'Conoces a una persona nueva en un evento. Tú eres B.',
@@ -228,6 +236,7 @@ export const COURSE = [
   ]},
 { id:'u7', title:'Conversaciones reales II', icon:'💼', color:'#4f46e5',
   desc:'Trabajo, compras y tu rutina diaria.',
+  guide:{"t": "Pasado simple: regulares e irregulares", "b": "El pasado simple de los verbos regulares añade -ed (worked, played), pero los irregulares cambian por completo: go → went, see → saw, take → took, buy → bought. No hay regla para los irregulares: hay que memorizarlos. Para preguntar en pasado se usa «did»: «Did you go?» (¿Fuiste?), y el verbo vuelve a su forma base.", "ex": [["I went to the market yesterday.", "Fui al mercado ayer."], ["Did you see the movie?", "¿Viste la película?"]]},
   lessons:[
   { id:'c-interview', type:'dialog', sound:'conversación', title:'Entrevista de trabajo', icon:'🤝',
     scene:'Estás en una entrevista de trabajo en inglés. Tú eres B (candidato).',
@@ -267,6 +276,7 @@ export const COURSE = [
 COURSE.push(
 { id:'u8', title:'Habla conectada', icon:'🔗', color:'#0b6fa3',
   desc:'Cómo hablan los nativos: palabras unidas, gonna/wanna y la T americana.',
+  guide:{"t": "Habla conectada: gonna, wanna y la T americana", "b": "Al hablar rápido, los nativos unen las palabras: «going to» se vuelve «gonna», «want to» se vuelve «wanna» y «got to» se vuelve «gotta». Además, la T entre vocales en inglés americano suena como una R suave del español: «water» suena «wárer» y «city» suena «ciri». Entender estas reducciones es la clave para entender series sin subtítulos.", "ex": [["I am gonna call you.", "Te voy a llamar."], ["Can I have some water?", "¿Me das un poco de agua?"]]},
   lessons:[
   { id:'linking', sound:'linking', title:'Unir palabras (linking)', icon:'🧷',
     expl:'En inglés natural, una palabra que termina en consonante se une con la siguiente si empieza por vocal: "turn it off" suena "tur-ni-toff" y "an apple" suena "a-napple". Si separas cada palabra, suenas robótico y te cuesta entender a los nativos.',
@@ -301,6 +311,7 @@ COURSE.push(
   ]},
 { id:'u9', title:'Números, fechas y horas', icon:'🔢', color:'#a16207',
   desc:'13 vs 30, fechas, precios y la hora sin confusiones.',
+  guide:{"t": "Ordinales, fechas y la hora", "b": "Para las fechas se usan ordinales: first (1.º), second (2.º), third (3.º), fourth (4.º)… En EE. UU. se dice «May fifth» (5 de mayo) y los años se leen en pares: 1995 = «nineteen ninety-five». Para la hora, «a quarter past five» son las 5:15 y «half past seven» son las 7:30; también vale decir los números: «five fifteen».", "ex": [["My birthday is on May fifth.", "Mi cumpleaños es el cinco de mayo."], ["It is half past seven.", "Son las siete y media."]]},
   lessons:[
   { id:'teen-ty', sound:'-teen / -ty', title:'Thirteen vs. Thirty', icon:'🔟',
     expl:'Los números en -teen (13-19) llevan el acento al final: thir-TEEN, con "t" clara e "ii" larga. Los números en -ty (30, 40…90) llevan el acento al inicio: THIR-ty, y la t suena suave. Confundirlos es muy común… ¡y costoso con precios!',
@@ -332,6 +343,7 @@ COURSE.push(
   ]},
 { id:'u10', title:'Phrasal verbs comunes', icon:'🧱', color:'#0b7a4d',
   desc:'Verbo + partícula: el vocabulario que más usan los nativos.',
+  guide:{"t": "Phrasal verbs: verbo + partícula", "b": "Un phrasal verb es un verbo + una partícula (up, on, off, for…) y su significado cambia por completo: «look» es mirar, pero «look for» es buscar. Algunos se pueden separar («turn the light on» / «turn it on») y otros no («look for» nunca se separa). Apréndelos con un ejemplo completo, no sueltos.", "ex": [["I am looking for my keys.", "Estoy buscando mis llaves."], ["Please turn off the lights.", "Por favor, apaga las luces."]]},
   lessons:[
   { id:'pv-daily', type:'vocab', sound:'phrasal verbs', title:'Phrasal verbs del día a día', icon:'☀️',
     expl:'Un phrasal verb es un verbo + una partícula (up, on, off, for…) y su significado cambia por completo: "look" = mirar, pero "look for" = buscar. Son muy frecuentes en la conversación diaria.',
@@ -360,6 +372,7 @@ COURSE.push(
   ]},
 { id:'u11', title:'Falsos amigos', icon:'🎭', color:'#be185d',
   desc:'Palabras que parecen español pero significan otra cosa.',
+  guide:{"t": "Falsos amigos: parecen español, pero no lo son", "b": "Los falsos amigos se parecen a palabras en español pero significan otra cosa: «actually» es «en realidad» (no «actualmente»), «embarrassed» es «avergonzado» (no «embarazada») y «library» es «biblioteca» (no «librería»). Son la trampa favorita de los exámenes: si traduces por parecido, el sentido cambia por completo.", "ex": [["Actually, I live in Cali.", "En realidad, vivo en Cali."], ["I was so embarrassed!", "¡Estaba muy avergonzado!"]]},
   lessons:[
   { id:'ff-1', type:'vocab', sound:'falsos amigos', title:'Falsos amigos I', icon:'😳',
     expl:'Los "falsos amigos" se parecen a palabras en español pero significan otra cosa. Decir "I\'m embarrassed" pensando en "embarazada" puede causar una situación muy graciosa (o incómoda).',
@@ -388,6 +401,7 @@ COURSE.push(
   ]},
 { id:'u12', title:'Small talk y entrevista avanzada', icon:'🌟', color:'#9333ea',
   desc:'Charlas casuales, networking y preguntas difíciles de entrevista.',
+  guide:{"t": "Preguntas con do / does y respuestas cortas", "b": "Para preguntar en presente se usa «do» (I/you/we/they) o «does» (he/she/it): «Do you like coffee?» / «Does she work here?». La respuesta corta repite el auxiliar: «Yes, I do» / «No, she does not». En small talk, estas preguntas cortas son el motor de la conversación: «What do you do?» (¿A qué te dedicas?).", "ex": [["Do you like music?", "¿Te gusta la música?"], ["Yes, I do. I love it!", "Sí, me encanta."]]},
   lessons:[
   { id:'c-smalltalk', type:'dialog', sound:'conversación', title:'Small talk', icon:'☕',
     scene:'Te encuentras a un compañero en la cafetería de la oficina. Tú eres B.',
@@ -422,6 +436,7 @@ COURSE.push(
   ]},
 { id:'u13', title:'Fluidez y debate avanzado (C1)', icon:'🚀', color:'#dc2626',
   desc:'Matices, idioms nativos, persuasión y debate profesional de alto nivel.',
+  guide:{"t": "Condicionales: si yo fuera… / si lo hubiera sabido…", "b": "El segundo condicional habla de situaciones imaginarias: «If I were rich, I would travel» (si fuera rico, viajaría) — ojo: con «if I» se usa «were», no «was», en inglés formal. El tercer condicional habla del pasado que no fue: «If I had known, I would have come» (si lo hubiera sabido, habría venido). Son las estructuras que más suenan a inglés avanzado.", "ex": [["If I were you, I would accept the job.", "Si yo fuera tú, aceptaría el trabajo."], ["If I had studied more, I would have passed.", "Si hubiera estudiado más, habría aprobado."]]},
   lessons:[
   { id:'adv-idioms', type:'vocab', sound:'expresiones nativas', title:'Modismos y expresiones nativas', icon:'💡',
     expl:'Los hablantes nativos usan constantemente "idioms" que no se pueden traducir palabra por palabra. Dominarlos te da fluidez natural.',
@@ -442,6 +457,7 @@ COURSE.push(
   ]},
 { id:'u14', title:'Inglés para el trabajo', icon:'🏢', color:'#1d4ed8',
   desc:'Correos, reuniones y presentaciones: suena profesional y seguro en inglés.',
+  guide:{"t": "Inglés formal de trabajo: would / could y el tono", "b": "En correos y reuniones, la cortesía se marca con «would» y «could»: «Could you please send me the file?» suena profesional; «Send me the file» suena una orden. Para abrir un correo usa «I am writing to…» y para cerrar «Looking forward to your reply» (quedo atento a tu respuesta). El tono importa tanto como las palabras.", "ex": [["Could you please send me the report?", "¿Podría enviarme el informe, por favor?"], ["I am writing to confirm our meeting.", "Le escribo para confirmar nuestra reunión."]]},
   lessons:[
   { id:'work-email', type:'vocab', sound:'correos profesionales', title:'Emails profesionales', icon:'📧',
     expl:'En un correo de trabajo, el tono importa tanto como las palabras: saluda con cortesía, ve al grano y cierra con una frase amable. Estas 6 frases te sirven para casi cualquier correo.',
@@ -474,6 +490,7 @@ COURSE.push(
   ]},
 { id:'u15', title:'Inglés de series y películas', icon:'🎬', color:'#c2410c',
   desc:'Slang, habla real y frases famosas: entiende lo que dicen en la pantalla.',
+  guide:{"t": "Slang y reducciones de las series", "b": "En las series nadie habla como en los libros: «What are you doing?» suena «Whatcha doin’?», «I don’t know» suena «Dunno» y «Give me a second» suena «Gimme a sec». El slang («No way!», «That’s awesome», «No worries») no es incorrecto: es el inglés real de todos los días. Úsalo al hablar, no en un correo formal.", "ex": [["Whatcha doin’ tonight?", "¿Qué haces esta noche?"], ["Dunno, lemme check.", "No sé, déjame revisar."]]},
   lessons:[
   { id:'media-slang', type:'vocab', sound:'slang', title:'Slang y habla real', icon:'😎',
     expl:'En las series, nadie habla como en los libros: usan slang, frases cortas y expresiones con mucho significado. Estas 6 son de las más comunes.',
@@ -504,6 +521,7 @@ COURSE.push(
   ]},
 { id:'u16', title:'Sonidos que faltan', icon:'🎙️', color:'#4d7c0f',
   desc:'La R americana, la L oscura y la NG final: los tres sonidos que más delatan tu acento.',
+  guide:{"t": "Sonidos que faltan: la R americana, la L oscura y la NG", "b": "Tres sonidos del inglés no existen en español. La R americana (/ɹ/) se hace con la lengua curvada hacia atrás, sin vibrar: «red», «car». La L oscura va al final de sílaba («milk», «feel») con la parte de atrás de la lengua levantada. Y la NG final («sing», «morning») es un solo sonido nasal, sin G: no se dice «sing-g».", "ex": [["I feel better now.", "Me siento mejor ahora."], ["Good morning!", "¡Buenos días!"]]},
   lessons:[
   { id:'am-r', sound:'r', title:'La R americana', icon:'🇺🇸',
     expl:'La R americana /r/ es muy distinta de la R española: no vibra. La lengua se enrolla hacia atrás sin tocar el paladar, como un gruñido suave. Si dices "red" con R española, suena como "led" para un nativo.',
@@ -538,7 +556,7 @@ COURSE.forEach(u => u.lessons.forEach(l => { if (l.type === 'vocab') { l.ex = l.
 'use strict';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 447-654)
 export function freshState() {
-  return { v: 2, badges: {}, freezes: 0, coins: 50, quests: {}, chests: { dailyClaimed: null }, tukiSkin: { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] }, placement: null, placementFree: null, plans: {}, reviewed: 0, chats: 0, lives: 0, ph: {}, chatProfile: null, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
+  return { v: 2, badges: {}, freezes: 0, coins: 50, quests: {}, chests: { dailyClaimed: null }, tukiSkin: { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] }, placement: null, placementFree: null, plans: {}, stories: {}, radio: {}, reviewed: 0, chats: 0, lives: 0, ph: {}, chatProfile: null, xp: 0, streak: 0, bestStreak: 0, lastDay: null, hearts: MAX_HEARTS, heartTs: Date.now(), done: {}, deck: {}, snd: {}, ear: {}, wd: {}, days: {}, spoken: 0, sessions: 0, settings: { ...DEFAULT_SETTINGS } };
 }
 export function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { console.warn('save failed', e); } }
 load();
@@ -663,7 +681,7 @@ document.addEventListener('click', e => { const w = e.target.closest('[data-say]
 // (Fase 3, modulo 4: movido a src/lessons.js, lineas 833-892)
 /* =================== MOTOR DE LECCIÓN =================== */
 // (Fase 3, modulo 4: movido a src/lessons.js, lineas 894-903)
-export function closeLesson() { $$('.confetti').forEach(c => c.remove()); stopRecognize(); speechSynthesis && speechSynthesis.cancel(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; setL(null); render(); }
+export function closeLesson() { $$('.confetti').forEach(c => c.remove()); stopRecognize(); speechSynthesis && speechSynthesis.cancel(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; document.body.classList.remove('band-open'); setL(null); render(); }
 // (Fase 3, modulo 4: movido a src/lessons.js, lineas 905-910)
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 843-872)
 export function tukiChirp(mood = 'chirp') {
@@ -734,7 +752,7 @@ export function finishLesson() {
   const up = addXP(xp);
   const earnedCoins = L.mode === 'lesson' ? (15 + (isPerfect ? 10 : 0)) : 10;
   addCoins(earnedCoins);
-  const goal = S.settings.goal, today = todayRec().xp;
+  const goal = S.settings.goal;
   updateMascot();
 
   let unitCompleted = false;
@@ -795,9 +813,18 @@ export function finishLesson() {
     '¡Orgulloso de tu avance hoy! Mañana seguimos con toda la energía.'
   ]);
 
+  // (TUKI-IMPL-M1-001: las tarjetas muestran el TOTAL REAL otorgado
+  // (lección + trofeo de unidad cuando la completa), no solo la parte de
+  // la lección. Antes: +10/+15 en las tarjetas y +25/+50 solo en el
+  // resumen; el usuario ganaba 35/65 pero el titular decía 10/15. Los
+  // addXP/addCoins no cambian — solo lo que se muestra; la franja de
+  // abajo sigue desglosando el trofeo. Así el fin perfecto muestra
+  // +40/+75 con la voz saltada y +45/+75 con pron ≥85, como en M1.)
+  const displayXp = xp + (unitCompleted ? 25 : 0);
+  const displayCoins = earnedCoins + (unitCompleted ? 50 : 0);
   const cardsHtml = [
-    { t: 'XP', v: `+${xp}`, n: xp, pre: '+', c: 'var(--o-d)', bg: 'var(--o-d)' },
-    { t: 'Monedas', v: `+${earnedCoins} 🪙`, n: earnedCoins, pre: '+', suf: ' 🪙', c: '#d97706', bg: '#b45309' },
+    { t: 'XP', v: `+${displayXp}`, n: displayXp, pre: '+', c: 'var(--o-d)', bg: 'var(--o-d)' },
+    { t: 'Monedas', v: `+${displayCoins} 🪙`, n: displayCoins, pre: '+', suf: ' 🪙', c: '#d97706', bg: '#b45309' },
     { t: 'Pronunciación', v: pron === null ? '—' : pron + '%', c: '#15814c', bg: 'var(--g-d)' },
     { t: 'Oído', v: ear === null ? '—' : ear + '%', c: '#1591cc', bg: 'var(--b-d)' },
     { t: 'Tiempo', v: `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`, c: '#8b5cf6', bg: '#7c3aed' }
@@ -806,6 +833,29 @@ export function finishLesson() {
       <div class="t" style="background:${card.bg}">${card.t}</div>
       <div class="v" style="color:${card.c}"${card.n === undefined ? '' : ` data-countup="${card.n}" data-countup-prefix="${card.pre || ''}" data-countup-suffix="${card.suf || ''}"`}>${card.v}</div>
     </div>`).join('');
+
+  // (TUKI-IMPL-M1-001: siguiente lección REAL según COURSE — la que sigue
+  // a la terminada — para el mini-camino y el botón de fin (a) tarjeta.
+  // Solo en modo lección; en práctica no hay «siguiente».)
+  const nextLesson = L.mode === 'lesson' && L.l ? (LESSONS[L.l.idx + 1] || null) : null;
+
+  // (C-01 TUKI-CONTENIDO-NUEVO-001: «¿Por qué me equivoqué?» en la hoja
+  // de resultados, con los errores reales de esta lección (L.errCtxs,
+  // guardados en lessons.js). Sin Gemini no funciona: el aviso lo dice;
+  // con la cuota de 3/día agotada, aviso claro. La explicación se guarda
+  // en caché (clave 'e') y releerla no gasta cuota.)
+  const errCtxs = (L.errCtxs || []).slice(0, 3);
+  const exSt = explainErrorStatus();
+  let explainHtml = '';
+  if (errCtxs.length) {
+    if (exSt.ok) {
+      explainHtml = `<div class="card" id="finishExplain" style="margin-top:12px;text-align:left"><h3 style="margin:0 0 4px">💡 ¿Por qué me equivoqué?</h3><p class="muted small" style="margin:0 0 8px">Tuki te explica tus errores de esta lección. Quedan ${exSt.left} de ${EXPLAIN_DAY_MAX} explicaciones hoy.</p>${errCtxs.map((c, i) => `<div data-exp-item="${i}" style="border-top:1px solid var(--line);padding-top:8px;margin-top:8px"><div class="small"><b>Esperado:</b> «${esc(c.target || '')}» · <b>Tú:</b> «${esc(c.heard || '—')}»${c.pct != null ? ` · ${Math.round(c.pct)}%` : ''}</div>${errorTutorHTML(c)}</div>`).join('')}</div>`;
+    } else if (exSt.why === 'quota') {
+      explainHtml = `<div class="card" style="margin-top:12px;text-align:left"><h3 style="margin:0 0 4px">💡 ¿Por qué me equivoqué?</h3><p class="muted small">Llegaste a las ${EXPLAIN_DAY_MAX} explicaciones de hoy. Vuelven mañana. Las explicaciones ya guardadas siguen disponibles en los ejercicios.</p></div>`;
+    } else {
+      explainHtml = `<div class="card" style="margin-top:12px;text-align:left"><h3 style="margin:0 0 4px">💡 ¿Por qué me equivoqué?</h3><p class="muted small">Para que Tuki te explique tus errores necesitas Gemini: inicia sesión o pon tu clave propia en Ajustes. Sin Gemini, esta función no está disponible.</p></div>`;
+    }
+  }
 
   // (fase premium, etapa 5: el fin de unidad se distingue del fin de lección
   // normal con la clase unit-complete y el color propio de la unidad (--uc):
@@ -820,27 +870,33 @@ export function finishLesson() {
         <span class="victory-podium-star">🏆</span>
       </div>
     </div>
-    <h1>${unitCompleted ? '🏆 ¡Unidad Conquistada!' : isPerfect ? '¡Lección Perfecta!' : L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
+    <h1>${isPerfect ? '¡Perfecta en oído!' : unitCompleted ? '🏆 ¡Unidad Conquistada!' : L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
+    ${isPerfect ? `<div class="muted">🎧 ${esc(L.title)} · Unidad ${L.l.ui + 1} · sin un solo error de oído</div>` : ''}
     ${badges.length ? `<div class="victory-badges">${badges.join('')}</div>` : ''}
-    ${unitCompleted ? `<div class="unit-summary">Resumen de la unidad: <b>${L.l.unit.lessons.length} lecciones</b> · Trofeo <b>+50 🪙</b> · <b>+25 XP</b> de unidad</div>` : ''}
+    ${unitCompleted ? `<div class="m1-finish-strip" style="--uc:${L.l.unit.color}"><span class="m1-fs-ic">🏆</span><span><b>Unidad ${unitIdx} conquistada</b><span>${esc(unitTitle)} · +25 XP · +50 🪙 de trofeo</span></span></div>` : ''}
+    ${nextLesson ? `<div class="m1-minipath"><span class="m1-mp-dots">● ● 🏆 →</span><span>▶ <b>${esc(nextLesson.title)}</b> · U${nextLesson.ui + 1} · ${nextLesson.li + 1} de ${nextLesson.unit.lessons.length}</span></div>` : ''}
     <div class="tuki-speech" style="margin:6px auto 12px;max-width:340px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700">
-      🦜 <b>Profe Tuki:</b> «${finishQuote}»
+      <b>Profe Tuki:</b> «${finishQuote}»
     </div>
     <div class="muted">${esc(L.title)}</div>
     <div class="scards">${cardsHtml}</div>
     ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}
-    <p>Meta diaria: <b>${Math.min(today, goal)}/${goal} XP</b> ${today >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}
+    <p>Meta diaria: <b>${Math.min(todayRec().xp, goal)}/${goal} XP</b> ${todayRec().xp >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}
+    ${explainHtml}
     <div class="row" style="margin-top:10px;gap:8px">
       <button class="celebrate-btn" id="reCelebrateBtn">🎉 ¡Celebrar!</button>
-      <button class="btn primary" id="primaryBtn" style="min-width:180px">Continuar</button>
+      ${nextLesson ? `<button class="btn primary" id="primaryBtn" style="min-width:180px">Ver la tarjeta de ${esc(nextLesson.title)} →</button>` : `<button class="btn primary" id="primaryBtn" style="min-width:180px">Continuar</button>`}
     </div>
+    ${nextLesson ? `<div class="row" style="margin-top:8px;justify-content:center"><button class="btn ghost sm" id="finishBackBtn">Volver al recorrido</button></div>` : ''}
   </div>`;
 
   const fm = $('#finishMascot');
   // (fase premium, etapa 3: count-up de XP/monedas en las tarjetas de fin)
   countUpAll($('#fullInner'));
   const doCelebration = () => {
-    if (fm) tukiMood(unitCompleted ? 'celebration' : 'proud', { el: fm, particles: 'coin' });
+    // (Top-5 P2: lección perfecta (100%, sin errores) o unidad completa →
+    // pose de celebración ('celebrates'); si no, pose de orgullo.)
+    if (fm) tukiMood(isPerfect || unitCompleted ? 'celebration' : 'proud', { el: fm, particles: 'coin' });
     if (unitCompleted) tukiTrophyFanfare();
     // (fase premium, etapa 6: re-celebrar el fin de unidad también dispara
     // el confetti de canvas, igual que al entrar)
@@ -852,12 +908,18 @@ export function finishLesson() {
   const rcb = $('#reCelebrateBtn');
   if (rcb) rcb.onclick = doCelebration;
 
-  $('#primaryBtn').onclick = closeLesson;
+  // (TUKI-IMPL-M1-001: botón de fin (a) tarjeta — D-CLASES-01 (a): el fin
+  // abre la TARJETA D3 de la siguiente lección real, NO entra directo al
+  // ejercicio. «Volver al recorrido» solo cierra el fin.)
+  const fbb = $('#finishBackBtn'); if (fbb) fbb.onclick = closeLesson;
+  $('#primaryBtn').onclick = nextLesson ? () => { closeLesson(); setTimeout(() => lessonSheet(nextLesson), 150); } : closeLesson;
+  // (C-01: enlaza cada «¿Por qué me equivoqué?» del fin con su error.)
+  $$('#finishExplain [data-exp-item]').forEach(el => { const c = errCtxs[+el.dataset.expItem]; if (c) bindErrorTutor(el, c); });
 
   // Tuki habla felicitando al usuario y moviendo el pico
   setTimeout(() => {
     if (fm) {
-      tukiMood(unitCompleted ? 'celebration' : 'proud', { el: fm, particles: 'coin' });
+      tukiMood(isPerfect || unitCompleted ? 'celebration' : 'proud', { el: fm, particles: 'coin' });
       speakTukiEs(finishQuote, fm);
     }
   }, 400);
@@ -872,113 +934,418 @@ document.addEventListener('keydown', e => {
 
 
 /* =================== VISTAS =================== */
-export let TAB = 'learn';
+export let TAB = 'home';
+// (M05-R1: bandera de scroll al nodo actual al entrar en Aprender, y
+// subpantalla abierta del hub de Ajustes — null = hub. Solo memoria.)
+let learnScrollPending = false;
+let settingsSub = null;
 export function render() {
   refreshHearts();
   updateMascot();
-  $('#brand').innerHTML = `<span class="brand-mascot-wrap" title="¡Toca a Tuki!">${MASCOT}</span><span>Tuki Speak</span>`;
+  $('#brand').innerHTML = `<span class="brand-mascot-wrap" title="¡Toca a Tuki!">${MASCOT}</span><span class="brand-word">tuki<span>speak</span></span>`;
   const st = streakNow();
-  $('#stStreak').innerHTML = '🔥 ' + st; $('#stStreak').classList.toggle('off', st === 0 || S.lastDay !== dayKey());
-  $('#stXp').innerHTML = '💎 ' + S.xp;
-  $('#stHearts').innerHTML = '❤️ ' + S.hearts;
+  // (M05-R1, H5 estricto: la cabecera ya no muestra métricas — solo marca
+  // + icono de Perfil. Las píldoras 🪙/🔥/💎/❤️ no existen en el DOM; las
+  // escrituras se guardan para no romper si algún día vuelven. La lógica
+  // que gana y guarda monedas, racha, XP y corazones NO cambia.)
+  const stStreakEl = $('#stStreak'); if (stStreakEl) { stStreakEl.innerHTML = '🔥 ' + st; stStreakEl.classList.toggle('off', st === 0 || S.lastDay !== dayKey()); }
+  const stXpEl = $('#stXp'); if (stXpEl) stXpEl.innerHTML = '💎 ' + S.xp;
+  const stHeartsEl = $('#stHearts'); if (stHeartsEl) stHeartsEl.innerHTML = '❤️ ' + S.hearts;
   const scEl = $('#stCoins');
   if (scEl) scEl.innerHTML = '🪙 ' + (S.coins || 0);
   $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === TAB));
   const v = $('#view'); (VIEWS[TAB] || VIEWS.learn)(v); window.scrollTo(0, 0);
 }
-export function go(tab) { TAB = tab; stopRecognize(); render(); }
+export function go(tab) {
+  TAB = tab;
+  // (M05-R1: al entrar en Aprender, el camino hace scroll al nodo actual.
+  // La bandera solo se pone al navegar con go(); un render() suelto no
+  // mueve el scroll. Al salir de Ajustes se vuelve al hub.)
+  if (tab === 'learn') learnScrollPending = true;
+  if (tab !== 'settings') settingsSub = null;
+  stopRecognize(); render();
+}
 $$('.tab').forEach(t => t.onclick = () => go(t.dataset.tab));
-$('#stGear').onclick = () => go('settings');
-const scBtn = $('#stCoins');
-if (scBtn) scBtn.onclick = () => openTukiShopModal();
+$('#stProfile').onclick = () => openProfileModal();
 const brandEl = $('#brand');
 if (brandEl) { brandEl.onclick = () => interactWithTuki(brandEl); makeMascotClickable(brandEl, '¡Toca a Tuki!'); }
-$('#stHearts').onclick = () => modal(`<h2>❤️ Vidas: ${S.hearts}/${MAX_HEARTS}</h2><p class="muted">Pierdes una vida solo en ejercicios de <b>oído</b> (elegir, ordenar, escribir) durante las lecciones. Los ejercicios de voz nunca quitan vidas. ${S.hearts < MAX_HEARTS ? `Próxima vida en ~${nextHeartIn()} min.` : '¡Estás al máximo!'} Completar una práctica te da +1 vida.</p><button class="btn primary block" data-x>Entendido</button>`, (el, c) => $('[data-x]', el).onclick = c);
-$('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p><button class="btn primary block" data-x>¡Vamos!</button>`, (el, c) => $('[data-x]', el).onclick = c);
-$('#stXp').onclick = () => go('progress');
+// (M05-R1, H5 estricto: las píldoras de vidas/racha/XP ya no existen en
+// la cabecera; sus modales quedan guardados por si los elementos vuelven.
+// El destino Perfil se alcanza ahora desde el modal de Perfil — botón
+// «👤 Mi perfil» — y desde el XP de la hoja de Perfil.)
+const stHeartsBtn = $('#stHearts');
+if (stHeartsBtn) stHeartsBtn.onclick = () => modal(`<h2>❤️ Vidas: ${S.hearts}/${MAX_HEARTS}</h2><p class="muted">Pierdes una vida solo en ejercicios de <b>oído</b> (elegir, ordenar, escribir) durante las lecciones. Los ejercicios de voz nunca quitan vidas. ${S.hearts < MAX_HEARTS ? `Próxima vida en ~${nextHeartIn()} min.` : '¡Estás al máximo!'} Completar una práctica te da +1 vida.</p><button class="btn primary block" data-x>Entendido</button>`, (el, c) => $('[data-x]', el).onclick = c);
+const stStreakBtn = $('#stStreak');
+if (stStreakBtn) stStreakBtn.onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p><button class="btn primary block" data-x>¡Vamos!</button>`, (el, c) => $('[data-x]', el).onclick = c);
 export const VIEWS = {};
 
-/* ---- Aprender: mapa ---- */
+/* ---- Inicio (prototipo Temas Globales, ui/prototipo-temas-globales) ---- */
+/* Diseño del prototipo adaptado a datos reales, no copiado tal cual:
+   - La tarjeta muestra la siguiente lección real (currentLesson): título y
+     primera frase de su explicación. Sin minutos: las lecciones no tienen
+     duración registrada y no se inventa ninguna.
+   - Las 3 estadísticas son reales: lecciones completadas / total, racha
+     (streakNow) y XP (S.xp). El resumen usa 17 unidades / 50 lecciones
+     reales del curso (COURSE.length / LESSONS.length).
+   - La barra de marca del prototipo se funde con la topbar existente (sin
+     duplicar la marca). SIN CAMPANA: no existe bandeja de notificaciones;
+     los recordatorios reales viven en Ajustes (recordatorio diario).
+   - Burbuja 72 px (resolución H1–H10), saludo real solo en Inicio y 1 vez
+     por sesión (sessionStorage). Los 5 estados del prototipo van compactos
+     en la burbuja (tukiPoseFor): saluda al entrar, y al tocarla rota
+     consejo + pose (motiva/explica/piensa/celebra/amable). Sin pantallas
+     ni secciones nuevas para explicar los estados; el panel derecho del
+     prototipo queda FUERA de la app. */
+const TUKI_HOME_POSE_CYCLE = ['motivates', 'explains', 'friendly', 'thinks', 'celebrates'];
+let tukiHomePoseIdx = 0, tukiHomeTipTimer = null;
+function tukiHomeFirstSentence(text) {
+  const t = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!t) return '';
+  const m = t.match(/^.*?[.!?](\s|$)/);
+  return (m ? m[0] : t).trim().slice(0, 140);
+}
+function tukiHomeShowTip(text, pose) {
+  const tip = $('#homeTip'), txt = $('#homeTipText'), img = $('#homeBubbleImg');
+  if (!tip || !txt) return;
+  txt.textContent = text; tip.hidden = false;
+  if (img && pose && TUKI_POSES[pose]) img.src = TUKI_POSES[pose];
+  clearTimeout(tukiHomeTipTimer);
+  tukiHomeTipTimer = setTimeout(() => { tip.hidden = true; if (img) img.src = TUKI_POSES.bubble; toastFlushQueue(); }, 4200);
+}
+function tukiHomeHideTip() { const tip = $('#homeTip'), img = $('#homeBubbleImg'); if (tip) tip.hidden = true; if (img) img.src = TUKI_POSES.bubble; clearTimeout(tukiHomeTipTimer); toastFlushQueue(); }
+/* (Top-5 P1+P2 — saludo variado de Inicio: cambia por hora del día,
+   por racha y por si hoy aún no se ha practicado. La regla de 1 vez por
+   sesión no cambia (sessionStorage 'tuki-greeted'). Si la racha está
+   en riesgo (racha > 0 y 0 XP hoy), Tuki lo dice con la pose de ánimo
+   ('motivates') en vez del saludo normal.) */
+function tukiHomeGreeting() {
+  const streak = streakNow();
+  const xpToday = (todayRec() || {}).xp || 0;
+  const h = new Date().getHours();
+  const daypart = h < 12 ? '¡Buenos días! ☀️' : h < 18 ? '¡Buenas tardes! 🌤️' : '¡Buenas noches! 🌙';
+  if (streak > 0 && xpToday === 0) {
+    return { title: '¡No pierdas tu racha! 🔥', sub: `Llevas ${streak} ${streak === 1 ? 'día' : 'días'} seguidos. Practica hoy aunque sean 5 minutos.`, pose: 'motivates' };
+  }
+  if (streak >= 7) {
+    return { title: `¡${streak} días seguidos, parcero! 🔥`, sub: 'Tu racha está imparable. ¡A por otro día!', pose: 'waves' };
+  }
+  if (streak >= 2) {
+    return { title: daypart, sub: `Llevas ${streak} días seguidos. ¡No pares ahora!`, pose: 'waves' };
+  }
+  if (streak === 1) {
+    return { title: '¡Buen comienzo! 🎉', sub: 'Primer día de racha. ¡Mañana repetimos!', pose: 'waves' };
+  }
+  return { title: daypart, sub: 'Hoy empezamos de cero, ¡de una! Sigamos con tu aprendizaje.', pose: 'waves' };
+}
+VIEWS.home = v => {
+  const cur = currentLesson();
+  const doneCount = Object.values(S.done).filter(d => d && (!d.placed || d.times)).length;
+  const total = LESSONS.length, units = COURSE.length, streak = streakNow();
+  const greet = tukiHomeGreeting();
+  const lessonCard = cur ? `
+    <section class="home-lesson">
+      <div class="home-lesson-copy">
+        <div class="home-kicker">CONTINUAR · UNIDAD ${cur.ui + 1}</div>
+        <h2>${esc(cur.title)}</h2>
+        <p>${esc(tukiHomeFirstSentence(cur.expl))}</p>
+        <button class="home-cta" id="homeContinueBtn">Continuar<br>aprendiendo ↗</button>
+      </div>
+      <img class="home-lesson-mascot" src="${TUKI_POSES.motivates}" alt="Tuki, tu compañero de inglés">
+    </section>` : `
+    <section class="home-lesson">
+      <div class="home-lesson-copy">
+        <div class="home-kicker">¡CURSO COMPLETADO!</div>
+        <h2>¡Lo lograste! 🎉</h2>
+        <p>Completaste las ${total} lecciones. Repasa para no perder el ritmo.</p>
+        <button class="home-cta" id="homeContinueBtn">Repasar<br>lo aprendido ↗</button>
+      </div>
+      <img class="home-lesson-mascot" src="${TUKI_POSES.celebrates}" alt="Tuki celebrando">
+    </section>`;
+  v.innerHTML = `<div class="home">
+    <section class="home-greeting">
+      <div><h1>${esc(greet.title)}</h1><p>${esc(greet.sub)}</p></div>
+    </section>
+    ${lessonCard}
+    <section class="home-progress">
+      <div class="home-sectionhead"><h2>Tu recorrido</h2><span>${units} unidades · ${total} lecciones</span></div>
+      <div class="home-stats">
+        <article class="home-stat"><strong>${doneCount}/${total}</strong><small>▣ Lecciones<br>avanzadas</small></article>
+        <article class="home-stat"><strong>🔥 ${streak}</strong><small>Días de racha</small></article>
+        <article class="home-stat"><strong>☆ ${S.xp}</strong><small>XP<br>acumulados</small></article>
+      </div>
+    </section>
+    ${idiomCardHTML()}
+    <div class="home-tip" id="homeTip" role="status" aria-live="polite" hidden>
+      <p id="homeTipText"></p><button class="home-tip-close" id="homeTipClose" aria-label="Cerrar consejo">×</button>
+    </div>
+    <button class="home-bubble" id="homeBubble" aria-label="Tocar para hablar con Tuki" style="display:${S.settings.tukiVisible ? 'grid' : 'none'}">
+      <img id="homeBubbleImg" src="${TUKI_POSES.bubble}" alt="Tuki">
+    </button>
+  </div>`;
+  $('#homeContinueBtn').onclick = () => { if (cur) lessonSheet(cur); else startReview(); };
+  // (C-04 TUKI-CONTENIDO-NUEVO-001: idiom del día en Inicio, debajo de
+  // «Tu recorrido». La tarjeta es colapsable (<details>).)
+  const idiomSay = $('#idiomSay'); if (idiomSay) idiomSay.onclick = () => speak(idiomOfDay().entry[2]);
+  const idiomBankBtn = $('#idiomBankBtn'); if (idiomBankBtn) idiomBankBtn.onclick = () => openIdiomBank();
+  const bubble = $('#homeBubble');
+  if (bubble) bubble.onclick = () => {
+    const pose = TUKI_HOME_POSE_CYCLE[tukiHomePoseIdx++ % TUKI_HOME_POSE_CYCLE.length];
+    tukiHomeShowTip(TUKI_QUOTES_ES[tukiHomePoseIdx % TUKI_QUOTES_ES.length], pose);
+  };
+  const tipClose = $('#homeTipClose');
+  if (tipClose) tipClose.onclick = tukiHomeHideTip;
+  // Saludo real, solo en Inicio y 1 vez por sesión.
+  if (S.settings.tukiVisible && S.settings.tukiGreeting && !sessionStorage.getItem('tuki-greeted')) {
+    sessionStorage.setItem('tuki-greeted', '1');
+    tukiHomeShowTip(greet.title + ' ' + greet.sub, greet.pose);
+  }
+};
+/* (Fase 2: grupos Apariencia / Experiencia / Comportamiento del modal
+   "Perfil y ajustes", reutilizados tal cual por el destino Perfil:
+   escriben las mismas claves (S.settings.theme / tukiVisible /
+   tukiGreeting) y aplican el tema global con applyPrefs().) */
+function psetGroupsHTML() {
+  const theme = S.settings.theme || 'auto';
+  const sel = m => (theme === m || (m === 'system' && theme === 'auto')) ? ' selected' : '';
+  return `<div class="pset-group"><h3>Apariencia</h3><p class="small muted">Elige cómo quieres ver Tuki Speak. Se aplica a toda la app.</p>
+    <div class="pset-choices" role="group" aria-label="Tema visual">
+      <button class="pset-choice${sel('light')}" data-theme-choice="light"><span class="pset-symbol">☀️</span>Claro</button>
+      <button class="pset-choice${sel('dark')}" data-theme-choice="dark"><span class="pset-symbol">🌙</span>Oscuro</button>
+      <button class="pset-choice${sel('system')}" data-theme-choice="system"><span class="pset-symbol">◐</span>Sistema</button>
+    </div></div>
+  <div class="pset-group"><h3>Experiencia</h3><p class="small muted">Controla cuándo aparece tu compañero.</p>
+    <div class="pset-line"><span>Mostrar compañero Tuki</span><button class="pset-toggle${S.settings.tukiVisible ? '' : ' off'}" data-pset-toggle="tukiVisible" aria-label="Mostrar u ocultar Tuki" aria-pressed="${S.settings.tukiVisible}"><i></i></button></div></div>
+  <div class="pset-group"><h3>Comportamiento</h3><p class="small muted">Tuki puede saludarte brevemente al entrar en Inicio, una vez por sesión. Siempre puedes minimizarlo u ocultarlo.</p>
+    <div class="pset-line"><span>Saludo al entrar</span><button class="pset-toggle${S.settings.tukiGreeting ? '' : ' off'}" data-pset-toggle="tukiGreeting" aria-label="Activar o desactivar saludo" aria-pressed="${S.settings.tukiGreeting}"><i></i></button></div></div>`;
+}
+function bindPsetGroups(root) {
+  const syncToggle = (btn, on) => { if (!btn) return; btn.classList.toggle('off', !on); btn.setAttribute('aria-pressed', String(on)); };
+  $$('[data-theme-choice]', root).forEach(b => b.onclick = () => {
+    S.settings.theme = b.dataset.themeChoice === 'system' ? 'auto' : b.dataset.themeChoice;
+    save(); applyPrefs();
+    $$('[data-theme-choice]', root).forEach(x => x.classList.toggle('selected', x === b));
+  });
+  $$('[data-pset-toggle]', root).forEach(btn => btn.onclick = () => {
+    const k = btn.dataset.psetToggle;
+    S.settings[k] = !S.settings[k]; save(); syncToggle(btn, S.settings[k]);
+    if (k === 'tukiVisible') {
+      const bub = $('#homeBubble'); if (bub) bub.style.display = S.settings.tukiVisible ? 'grid' : 'none';
+      if (!S.settings.tukiVisible) tukiHomeHideTip();
+    }
+  });
+}
+/* Modal "Perfil y ajustes" del prototipo, con el modal() existente de la
+   app (Escape, clic fuera y foco ya resueltos ahí). Apariencia escribe en
+   S.settings.theme (auto = Sistema) y aplica a toda la app con
+   applyPrefs(); los toggles usan S.settings.tukiVisible / tukiGreeting. */
+function openProfileModal() {
+  modal(`<h2>Perfil y ajustes</h2>${psetGroupsHTML()}
+  <div class="row wrap" style="margin-top:14px"><button class="btn ghost block" id="psetProfile">👤 Mi perfil</button><button class="btn ghost block" id="psetProgress">📈 Ver mi progreso</button><button class="btn ghost block" id="psetSettings">⚙️ Ajustes completos</button></div>`,
+  (el, close) => {
+    bindPsetGroups(el);
+    $('#psetProfile', el).onclick = () => { close(); go('profile'); };
+    $('#psetProgress', el).onclick = () => { close(); go('progress'); };
+    $('#psetSettings', el).onclick = () => { close(); go('settings'); };
+  });
+}
+
+/* (Fase 2: destino Perfil — se entra por el icono de Perfil de la
+   cabecera (modal «Perfil y ajustes» → «👤 Mi perfil»). Mismo
+   diseño que el modal "Perfil y ajustes": héroe con Tuki raster y
+   cifras reales, grupos Apariencia/Experiencia/Comportamiento y
+   accesos a Progreso y Ajustes. Sin pestaña nueva en la
+   tabbar: en esta vista ninguna píldora queda activa.
+   M05-R1 (D-M05-01 b): el formulario de Cuenta vive AQUÍ — sale de
+   Ajustes y solo existe en Perfil (acctHTML + bindAcct, mismas claves
+   y misma lógica que antes; solo cambia de destino).) */
+VIEWS.profile = v => {
+  const st = streakNow();
+  v.innerHTML = `<div class="profile-hero">
+      <img class="profile-hero-mascot" src="${TUKI_POSES.friendly}" alt="Tuki, tu compañero de inglés">
+      <div class="profile-hero-copy"><div class="profile-hero-kicker">Perfil</div><h2>Tu perfil</h2>
+      <p class="small">Tuki te acompaña en cada lección.</p></div>
+    </div>
+    <div class="profile-stats">
+      <article class="home-stat"><strong>🔥 ${st}</strong><small>Días de racha</small></article>
+      <article class="home-stat"><strong>☆ ${S.xp}</strong><small>XP<br>acumulados</small></article>
+      <article class="home-stat"><strong>🪙 ${S.coins || 0}</strong><small>Monedas</small></article>
+    </div>
+    ${acctHTML()}
+    ${psetGroupsHTML()}
+    <div class="row wrap" style="margin-top:14px"><button class="btn primary block" id="profProgress">📈 Ver mi progreso</button><button class="btn ghost block" id="profSettings">⚙️ Ajustes completos</button></div>`;
+  bindAcct(v);
+  bindPsetGroups(v);
+  $('#profProgress').onclick = () => go('progress');
+  $('#profSettings').onclick = () => go('settings');
+};
+
+/* ---- Aprender: mapa (M05-R1) ----
+   Rediseño M05 (BRIEF §5.1, mockup M05-R1): un solo camino serpenteante
+   con las 17 unidades reales como mundos (cada una con su color real como
+   acento --uc, fondo teñido con color-mix, atenuado en oscuro), héroe
+   «Plan de hoy» fijo arriba, contador del curso, etiquetas de lección
+   SOLO en la unidad actual, Hito al final de cada unidad y scroll al nodo
+   actual al entrar. La tarjeta de lección sigue siendo el modal
+   lessonSheet EXISTENTE (no hay uno nuevo). La sección «🎭 Modos de
+   práctica» es un ESPEJO de la tarjeta de Práctica (misma lógica de
+   desbloqueo, mismos destinos): no mueve su lógica ni duplica estado.
+   Sin cambios de lógica: mismo COURSE, mismo desbloqueo, mismo Plan de
+   hoy (10 ejercicios), misma Práctica diaria (3), mismo SM-2, +10 XP.
+   El selector de nivel sale de Aprender (brief §5.1.2): vive en
+   Ajustes → Aprendizaje. Cofre/Retos quedan como franja compacta en el
+   héroe; las tarjetas de Cofre/Retos con sus botones de reclamar siguen
+   renderizándose (wrapper de cofres) antes del camino.
+   Tuki acompaña al nodo actual DEBAJO de él (como hacía la app): a su
+   lado, como dibuja el mockup, desbordaría a 360 px cuando el nodo actual
+   cae en el offset -64 del zigzag. */
+function m05RingSVG(done, total, color) {
+  const p = total ? done / total : 0, circ = 2 * Math.PI * 15, off = circ * (1 - p);
+  return `<svg class="m05-uring" viewBox="0 0 36 36" role="img" aria-label="${done} de ${total} lecciones"><circle class="bg" cx="18" cy="18" r="15" fill="none" stroke-width="4"/><circle class="fg" cx="18" cy="18" r="15" fill="none" stroke-width="4" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 18 18)" stroke="${color}"/><text x="18" y="21.5" text-anchor="middle">${done}/${total}</text></svg>`;
+}
+/* Espejo de la tarjeta «🎭 Modos de práctica» de Práctica (_practice211):
+   mismos 11 modos, mismos iconos, descripciones, píldoras y candados
+   (isFeatureUnlocked + srsStats leen el mismo estado en vivo; no hay
+   estado duplicado), mismas acciones al tocar. */
+function m05ModesMirrorHTML() {
+  const st = srsStats();
+  const modes = [
+    { key: 'srs', unl: isFeatureUnlocked('srs'), icon: '🧠', bg: '#fff3d6', title: 'Repaso Inteligente (SRS)', pill: isFeatureUnlocked('srs') ? `<span class="srs-pill due">${st.due} hoy</span>` : '<span class="lock-pill">🔒 Bloqueado</span>', extra: isFeatureUnlocked('srs') ? `<div class="srs-stats"><span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span><span class="srs-pill mat">🏆 ${st.mature} dominadas</span></div>` : '', desc: 'Algoritmo SM-2 · repasa en el momento exacto antes de olvidar' },
+    { key: 'handsfree', unl: isFeatureUnlocked('handsfree'), icon: '🎧', bg: '#e0f2fe', title: 'Modo Manos Libres', pill: isFeatureUnlocked('handsfree') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla' },
+    { key: 'missions', unl: isFeatureUnlocked('missions'), icon: '🎯', bg: '#fef3c7', title: 'Misiones de Conversación Real', pill: isFeatureUnlocked('missions') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: '8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)' },
+    { key: 'shadow', unl: isFeatureUnlocked('shadow'), icon: '🎙️', bg: '#e8f4fd', title: 'Modo Shadowing', pill: isFeatureUnlocked('shadow') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha e imita frases con entonación nativa y habla conectada' },
+    { key: 'mouth', unl: isFeatureUnlocked('mouth'), icon: '👄', bg: '#f3fbf7', title: 'Guía Fonética y Bocas', pill: isFeatureUnlocked('mouth') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)' },
+    { key: 'photo', unl: isFeatureUnlocked('photo'), icon: '📷', bg: '#fdf2f8', title: 'Describe la Foto / Objeto', pill: isFeatureUnlocked('photo') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Práctica multimodal con tu cámara o fotos para ganar vocabulario' },
+    { key: 'travel', unl: isFeatureUnlocked('travel'), icon: '✈️', bg: '#e0f2fe', title: 'Guía de Viaje y Supervivencia', pill: isFeatureUnlocked('travel') ? '<span class="novice-badge">🌱 Novato & Viajes</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol' },
+    { key: 'interview', unl: isFeatureUnlocked('interview'), icon: '💼', bg: '#fef3c7', title: 'Simulador de Entrevista Laboral', pill: isFeatureUnlocked('interview') ? '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática' },
+    // (C-02/C-04/C-05 TUKI-CONTENIDO-NUEVO-001: 3 filas nuevas en el espejo,
+    // mismas que en la tarjeta de Práctica. 8 → 11 filas; el techo de
+    // densidad es 12. El banco de idioms también vive aquí.)
+    { key: 'stories', unl: isFeatureUnlocked('stories'), icon: '📖', bg: '#fef3c7', title: 'Historias con Tuki', pill: `<span class="srs-pill mat">📖 ${Object.keys(S.stories || {}).length}/12 leídas</span>`, extra: '', desc: 'Cuentos cortos con audio por línea, traducción al tocar y preguntas. +10 XP por historia.' },
+    { key: 'radio', unl: isFeatureUnlocked('radio'), icon: '📻', bg: '#e0f2fe', title: 'Radio Tuki', pill: `<span class="srs-pill mat">📻 ${Object.keys(S.radio || {}).length}/8 escuchados</span>`, extra: '', desc: 'Audio corto con transcripción por líneas, diccionario al tocar y preguntas.' },
+    { key: 'idioms', unl: isFeatureUnlocked('idioms'), icon: '💬', bg: '#fdf2f8', title: 'Idioms y slang', pill: '', extra: '', desc: `Un idiom al día + banco con búsqueda (${IDIOMS.length} expresiones) y audio del ejemplo.` },
+  ];
+  return modes.map(m => `<button class="mode-row ${!m.unl ? 'locked-card' : ''}" data-m05mode="${m.key}">
+      <div class="em" style="background:${m.bg}">${m.unl ? m.icon : '🔒'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="row between"><h3 style="margin:0 0 2px">${m.title}</h3>${m.pill}</div>
+        ${m.extra}
+        <div class="muted small">${m.desc}</div>
+      </div>
+    </button>`).join('');
+}
+function m05ModesMirrorBind(v) {
+  const act = {
+    srs: () => startReview(),
+    handsfree: () => openHandsFreeModal(),
+    missions: () => openMissionsModal(),
+    shadow: () => openShadowingModal(),
+    mouth: () => openMouthSelector(),
+    photo: () => openPhotoPractice(),
+    travel: () => openTravelGuideModal(),
+    interview: () => openInterviewSimulatorModal(),
+    stories: () => openStoriesModal(),
+    radio: () => openRadioModal(),
+    idioms: () => openIdiomBank(),
+  };
+  $$('[data-m05mode]', v).forEach(b => b.onclick = () => {
+    const k = b.dataset.m05mode;
+    if (!isFeatureUnlocked(k)) return showLockedFeatureModal(k);
+    act[k]();
+  });
+}
 VIEWS.learn = v => {
   const goal = S.settings.goal, t = todayRec().xp, p = Math.min(100, Math.round(t / goal * 100)), cur = currentLesson();
   const due = dueCards().length;
-  const curLevel = S.settings.learnerLevel || 'novice';
-  let html = `<div class="level-picker-card">
-    <div class="row between">
-      <div>
-        <h3 style="margin:0">🎓 Tu nivel de aprendizaje</h3>
-        <div class="small muted">Personaliza la experiencia, frases y explicaciones</div>
-      </div>
-      <span class="novice-badge">${curLevel === 'novice' ? '🌱 Desde cero' : curLevel === 'intermediate' ? '⚡ Intermedio' : '🚀 Avanzado'}</span>
-    </div>
-    <div class="level-seg" id="levelSeg">
-      <button class="level-seg-btn ${curLevel === 'novice' ? 'active' : ''}" data-lvl="novice">
-        <span>🌱 Novato</span>
-        <span style="font-size:10px;font-weight:600">Desde cero</span>
-      </button>
-      <button class="level-seg-btn ${curLevel === 'intermediate' ? 'active' : ''}" data-lvl="intermediate">
-        <span>⚡ Intermedio</span>
-        <span style="font-size:10px;font-weight:600">Bases claras</span>
-      </button>
-      <button class="level-seg-btn ${curLevel === 'advanced' ? 'active' : ''}" data-lvl="advanced">
-        <span>🚀 Avanzado</span>
-        <span style="font-size:10px;font-weight:600">Fluidez total</span>
-      </button>
-    </div>
-  </div>`;
-
-  if (curLevel === 'novice') {
-    html += `<div class="novice-tip-banner">
-      <div style="font-size:26px">💡</div>
-      <div style="flex:1"><b>Modo Novato activo:</b> Incluye pronunciación figurada en español y ritmo pausado para que aprendas sin miedo. ¡Toca cualquier palabra para escucharla lento!</div>
-    </div>`;
-  }
-
-  html += `<div class="card goal"><div class="ring" style="--p:${p}" data-t="${Math.min(t, goal)}/${goal}"></div><div style="flex:1"><h3>Meta diaria</h3><div class="muted small">${t >= goal ? '🎉 ¡Meta cumplida! Sigue si quieres.' : `Te faltan ${goal - t} XP hoy.`}</div>
-    ${due ? `<button class="btn blue sm" style="margin-top:8px" id="dueBtn">🃏 Repasar ${due} tarjeta${due > 1 ? 's' : ''}</button>` : ''}</div></div>`;
+  const doneCount = Object.values(S.done).filter(d => d && (!d.placed || d.times)).length;
+  const curUnit = cur ? cur.ui + 1 : COURSE.length;
+  const qk = dayKey();
+  const qClaimed = ['q1', 'q2', 'q3'].filter(q => S.quests && S.quests[qk + '_' + q]).length;
+  let html = `<section class="m05-hero" id="learnHero">
+    <h2>📅 Plan de hoy</h2>
+    <p class="m05-hero-sub">~10 min · Tu sesión guiada de hoy</p>
+    <div class="m05-goal" id="learnGoal"><div class="ring" style="--p:${p}" data-t="${Math.min(t, goal)}/${goal}"></div><div class="m05-goal-copy"><div class="m05-xp-line">${t >= goal ? '🎉 ¡Meta cumplida! Sigue si quieres.' : `Te faltan ${goal - t} XP hoy.`}</div>
+    <div class="m05-chest-line">🎁 Cofre: ${Math.min(t, goal)}/${goal} XP · 🎯 Retos ${qClaimed}/3</div>
+    ${due ? `<button class="btn blue sm" style="margin-top:8px" id="dueBtn">🃏 Repasar ${due} tarjeta${due > 1 ? 's' : ''}</button>` : ''}</div></div>
+  </section>`;
+  // (El wrapper _learn inserta planCardHTML tras #learnGoal y la Prueba
+  // de nivel tras #learnHero; el wrapper _learn27 inserta pdCardHTML
+  // tras .plan-card — todo dentro del héroe.)
   if (!canSpeak()) html += `<div class="notice">⚠️ Este navegador no tiene reconocimiento de voz: podrás escuchar, grabarte y comparar, pero no recibir puntaje (o configura Azure en Ajustes). Para la experiencia completa usa <b>Google Chrome</b> (Android o computador) o Edge.</div>`;
+  html += `<p class="m05-course-count" id="courseCount">${doneCount}/50 lecciones · Unidad ${curUnit} de 17</p>`;
+  html += `<div class="m05-path" id="path">`;
+  /* (TUKI-IMPL-G-001, corrección D3: el nodo «Siguiente» — primera
+     lección de la unidad siguiente a la actual — NO lleva 🔒. Conserva
+     su clase 'locked' y su comportamiento de bloqueo; solo muestra su
+     icono de lección en vez del candado. Las demás bloqueadas siguen
+     con 🔒.) */
+  const nextUnitFirst = cur && COURSE[cur.ui + 1] ? COURSE[cur.ui + 1].lessons[0].id : null;
+  // (TUKI-IMPL-M1-001: Aprender «Mundos» (U1). Cada unidad es una tarjeta
+  // con su color/icono/título reales de COURSE; la actual va expandida y
+  // las demás colapsadas (clic en la cabecera para expandir). Dentro, las
+  // lecciones son filas con su estado real (✓ hecha / ▶ actual /
+  // → siguiente sin 🔒 / 🔒 bloqueada); los nodos conservan su
+  // comportamiento (abrir la tarjeta de lección). Sin tocar desbloqueo,
+  // progreso, XP, vidas ni racha.)
+  const nextLessonId = cur && LESSONS[cur.idx + 1] ? LESSONS[cur.idx + 1].id : null;
   COURSE.forEach((u, ui) => {
     const done = u.lessons.filter(l => isDone(l.id)).length;
-    const prevUnitDone = ui === 0 || S.settings.freeMode || COURSE[ui - 1].lessons.every(l => isDone(l.id));
-    // (fase premium, etapa 5: hito al final de cada unidad)
     const unitDone = done === u.lessons.length;
-    html += `<section class="unit unit-ambient ${!prevUnitDone ? 'unit-locked' : ''}" style="--uc:${u.color}"><div class="unit-head" style="background:${u.color}"><div><p>Unidad ${ui + 1} · ${done}/${u.lessons.length} ${!prevUnitDone ? '🔒' : ''}</p><h3>${u.icon} ${esc(u.title)}</h3><p>${esc(u.desc)}</p></div><button class="guide" data-guide="${u.id}">📘 Guía</button></div><div class="path">`;
+    const isCurUnit = !!cur && cur.ui === ui;
+    const motifs = [u.icon].concat(u.lessons.map(l => l.icon)).map((m, i) => {
+      const pos = [[6, 8], [78, 26], [12, 64], [82, 78]][i % 4];
+      return `<span style="left:${pos[0]}%;top:${pos[1]}%">${m}</span>`;
+    }).join('');
+    const pctU = Math.round(done / u.lessons.length * 100);
+    html += `<section class="world m1-world" id="world-${ui + 1}" style="--uc:${u.color}"><div class="motifs" aria-hidden="true">${motifs}</div><div class="world-div"><span class="udot" style="background:${u.color}"></span><span class="ut"><b>${u.icon} Unidad ${ui + 1} · ${esc(u.title)}</b><span>Unidad ${ui + 1} de 17 · ${done}/${u.lessons.length} lecciones</span></span>${m05RingSVG(done, u.lessons.length, u.color)}<button class="mini-btn" type="button" data-guide="${u.id}">📘 Guía</button><button class="mini-btn" type="button" data-collapse="${u.id}" aria-expanded="${isCurUnit}">${isCurUnit ? '▲' : '▼'}</button></div><div class="m1-world-prog" aria-hidden="true"><div class="m1-pbar"><i style="width:${pctU}%"></i></div></div><div class="nodes m1-rows${isCurUnit ? ' has-current' : ''}${isCurUnit ? '' : ' hidden'}" id="nodes-${u.id}">`;
     u.lessons.forEach((l, li) => {
       const unl = isUnlocked(l), dn = isDone(l.id), isCur = cur && cur.id === l.id;
-      const off = [0, 48, 64, 48, 0, -48, -64, -48][(l.idx) % 8];
+      const isNext = l.id === nextLessonId;
+      const state = dn ? 'done' : isCur ? 'current' : isNext ? 'next' : unl ? 'open' : 'locked';
+      const stateLabel = dn ? '✓ Hecha' : isCur ? '▶ Actual' : isNext ? '→ Siguiente' : unl ? '○ Disponible' : '🔒 Bloqueada';
       const avgS = soundAvg(l.id);
-      html += `<div class="node-wrap" style="transform:translateX(${off}px)">${isCur ? '<div class="start-tip">¡EMPEZAR!</div>' : ''}
-        <button class="node ${dn ? 'done' : unl ? '' : 'locked'} ${isCur ? 'current' : ''}" style="--uc:${u.color}" data-lesson="${l.id}" aria-label="${esc(l.title)}">${dn ? '⭐' : unl ? l.icon : '🔒'}</button>
-        <div class="node-label">${esc(l.title)}${avgS !== null ? `<br><span class="pill ${avgS >= 80 ? 'ok' : ''}">${avgS}%</span>` : ''}</div>${isCur ? `<div class="tuki-guide"><div class="tuki-guide-mascot" title="¡Toca a Tuki!">${MASCOT}</div><div class="tuki-guide-bubble">${esc(TUKI_QUOTES_ES[0])}</div></div>` : ''}</div>`;
+      const sub = l.type === 'dialog' ? '💬 Diálogo' : l.type === 'vocab' ? '📚 Vocabulario' : `/${esc(l.sound)}/`;
+      html += `<button class="m1-lesson-row ${state} ${isCur ? 'current' : ''}" style="--uc:${u.color}" data-lesson="${l.id}" aria-label="${esc(l.title)} · ${stateLabel}">${isCur ? '<span class="m1-start-tip">¡EMPEZAR!</span>' : ''}<span class="m1-lr-ic">${dn ? '⭐' : unl || isNext ? l.icon : '🔒'}</span><span class="m1-lr-tx"><b>${esc(l.title)}</b><span>${sub}${avgS !== null ? ` · <span class="pill ${avgS >= 80 ? 'ok' : ''}">${avgS}%</span>` : ''}</span></span><span class="m1-lr-st">${stateLabel}</span></button>`;
     });
-    html += `<div class="node-wrap"><button class="unit-milestone ${unitDone ? 'reached' : ''}" style="--uc:${u.color}" data-guide="${u.id}" aria-label="Hito de la unidad ${ui + 1}: ${esc(u.title)}${unitDone ? ' (conquistado)' : ''}">🏆</button><div class="node-label">Hito · Unidad ${ui + 1}</div></div></div></section>`;
+    if (isCurUnit) html += `<div class="tuki-guide"><div class="tuki-guide-mascot" title="¡Toca a Tuki!">${MASCOT}</div><div class="tuki-guide-bubble">${esc(TUKI_QUOTES_ES[0])}</div></div>`;
+    html += `<button class="m1-milestone ${unitDone ? 'reached' : ''}" style="--uc:${u.color}" data-guide="${u.id}" aria-label="Hito de la unidad ${ui + 1}: ${esc(u.title)}${unitDone ? ' (conquistado)' : ''}"><span>🏆</span><span class="m1-lr-tx"><b>Hito · Unidad ${ui + 1}</b><span>${unitDone ? 'Unidad conquistada' : 'Completa las lecciones para conquistar la unidad'}</span></span></button></div></section>`;
   });
+  html += `</div>`;
+  html += `<section class="card m05-practice" id="modesMirror">
+    <h3 style="margin:0 0 2px">🎭 Modos de práctica <button class="mini-btn" type="button" id="modesToggle" aria-expanded="false" style="float:right">Expandir ▼</button></h3>
+    <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 12 modos</div>
+    <div id="modesBody" class="hidden">${m05ModesMirrorHTML()}</div>
+    <div id="modesExtra"></div>
+    <p class="muted small" id="modesHint">11 filas del espejo + la tarjeta Traduce y completa. Toca «Expandir» para verlas.</p>
+  </section>`;
   html += `<p class="muted small" style="text-align:center">¿Quieres saltar a otra lección? Activa el "modo libre" en ⚙️ Ajustes.</p>`;
+  html += `<div class="row" style="margin:14px 0 4px;justify-content:center"><button class="btn ghost sm" id="learnWordsBtn">🃏 Palabras</button></div>`;
   v.innerHTML = html;
 
-  $$('#levelSeg .level-seg-btn', v).forEach(btn => {
-    btn.onclick = () => {
-      const lvl = btn.dataset.lvl;
-      S.settings.learnerLevel = lvl;
-      if (lvl === 'novice') {
-        S.settings.rate = 0.8;
-        S.settings.chatLevel = 'A2';
-      } else if (lvl === 'intermediate') {
-        S.settings.rate = 0.9;
-        S.settings.chatLevel = 'B1';
-      } else {
-        S.settings.rate = 1.0;
-        S.settings.chatLevel = 'C1';
-      }
-      save();
-      toast(`Nivel cambiado a: ${lvl === 'novice' ? '🌱 Novato (Desde cero)' : lvl === 'intermediate' ? '⚡ Intermedio' : '🚀 Avanzado'}`);
-      render();
-    };
-  });
-
   const db = $('#dueBtn'); if (db) db.onclick = () => startReview();
+  const lw = $('#learnWordsBtn'); if (lw) lw.onclick = () => go('words');
   $$('[data-lesson]', v).forEach(b => b.onclick = () => lessonSheet(LESSON[b.dataset.lesson]));
   $$('[data-guide]', v).forEach(b => b.onclick = () => guideSheet(COURSE.find(u => u.id === b.dataset.guide)));
+  $$('[data-collapse]', v).forEach(b => b.onclick = () => {
+    const n = $('#nodes-' + b.dataset.collapse);
+    if (!n) return;
+    const hidden = n.classList.toggle('hidden');
+    b.textContent = hidden ? '▼' : '▲';
+    b.setAttribute('aria-expanded', String(!hidden));
+  });
+  // (TUKI-IMPL-M1-001: tocar el título del mundo también expande/colapsa
+  // su tarjeta; el botón ▲/▼ sigue siendo el control principal.)
+  $$('.m1-world .world-div .ut', v).forEach(t => t.onclick = () => {
+    const b = t.closest('.world-div').querySelector('[data-collapse]');
+    if (b) b.click();
+  });
+  m05ModesMirrorBind(v);
+  const mt = $('#modesToggle'); if (mt) mt.onclick = () => {
+    const body = $('#modesBody'), hint = $('#modesHint');
+    const open = body.classList.toggle('hidden') === false;
+    mt.textContent = open ? 'Plegar ▲' : 'Expandir ▼';
+    mt.setAttribute('aria-expanded', String(open));
+    if (hint) hint.textContent = open ? 'Las 11 filas del espejo + Traduce y completa: los mismos modos que en Práctica.' : '11 filas del espejo + la tarjeta Traduce y completa. Toca «Expandir» para verlas.';
+  };
   // (fase premium, etapa 5: Tuki guía en el nodo actual; tocarlo es lo mismo
   // que tocar a Tuki en la marca o en el banner del tutor: celebra y habla
   // con una frase existente de TUKI_QUOTES_ES. Al renderizar saluda con la
@@ -1113,17 +1480,17 @@ VIEWS.progress = v => {
   const maxXp = Math.max(10, ...days.map(d => d.xp));
   const chart = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Historial 14 días">
     ${[0, 50, 100].map(s => `<line x1="14" x2="${W - 6}" y1="${py(s)}" y2="${py(s)}" stroke="#eef1f3"/><text x="0" y="${py(s) + 4}" font-size="9" fill="#9aa6b0">${s}</text>`).join('')}
-    ${days.map((d, i) => `<rect x="${px(i) - 6}" y="${H - 20 - d.xp / maxXp * 40}" width="12" height="${d.xp / maxXp * 40}" rx="3" fill="#ffe1b3"/><text x="${px(i)}" y="${H - 6}" font-size="9" text-anchor="middle" fill="#9aa6b0">${d.lab}</text>`).join('')}
-    ${pts.length > 1 ? `<polyline fill="none" stroke="#1fa463" stroke-width="3" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>` : ''}
-    ${pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="4" fill="#1fa463"/>`).join('')}</svg>`;
+    ${days.map((d, i) => `<rect class="ch-bar" x="${px(i) - 6}" y="${H - 20 - d.xp / maxXp * 40}" width="12" height="${d.xp / maxXp * 40}" rx="3"/><text x="${px(i)}" y="${H - 6}" font-size="9" text-anchor="middle" fill="#9aa6b0">${d.lab}</text>`).join('')}
+    ${pts.length > 1 ? `<polyline fill="none" class="ch-line" stroke-width="3" stroke-linejoin="round" points="${pts.map(p => p.join(',')).join(' ')}"/>` : ''}
+    ${pts.map(p => `<circle class="ch-dot" cx="${p[0]}" cy="${p[1]}" r="4"/>`).join('')}</svg>`;
   const cur = currentLesson();
   let rec = '';
   if (!withData.length) rec = cur ? `Empieza con <b>${esc(cur.title)}</b> para obtener tu primer puntaje.` : '¡Completaste todo! Usa shadowing y la IA.';
   else if (weakest.length) rec = `Tu sonido más débil es <b>${esc(weakest[0].l.title)}</b> (${weakest[0].a}%). Practícalo 5 minutos hoy${cur ? ` y luego sigue con <b>${esc(cur.title)}</b>` : ''}.`;
   else rec = `¡Excelentes puntajes! ${cur ? `Continúa con <b>${esc(cur.title)}</b>.` : 'Prueba el shadowing o la conversación con IA.'}`;
   v.innerHTML = `<h2>Tu progreso 📈</h2>
-    <div class="kpis"><div class="kpi"><span>Pronunciación</span><b style="color:var(--g-d)">${overall === null ? '—' : overall + '%'}</b><span>últimos 30 intentos</span></div>
-    <div class="kpi"><span>Oído (pares/quiz)</span><b style="color:var(--b-d)">${earPct === null ? '—' : earPct + '%'}</b><span>${earT.r + earT.w} respuestas</span></div>
+    <div class="kpis"><div class="kpi"><span>Pronunciación</span><b class="kpi-v-plum">${overall === null ? '—' : overall + '%'}</b><span>últimos 30 intentos</span></div>
+    <div class="kpi"><span>Oído (pares/quiz)</span><b class="kpi-v-cyan">${earPct === null ? '—' : earPct + '%'}</b><span>${earT.r + earT.w} respuestas</span></div>
     <div class="kpi"><span>Intentos de voz</span><b>${S.spoken}</b><span>${S.sessions} sesiones completadas</span></div>
     <div class="kpi"><span>Racha / XP</span><b>🔥 ${streakNow()} · 💎 ${S.xp}</b><span>mejor racha ${S.bestStreak}</span></div></div>
     
@@ -1162,7 +1529,7 @@ VIEWS.progress = v => {
       <div id="soundsChips"></div>
       ${weakest.length ? `<div class="small muted" style="margin:6px 0 2px">Sonidos más débiles</div>${weakest.map(r => `<div class="row between" style="padding:6px 0"><span>${r.l.icon} <b>${esc(r.l.title)}</b> <span class="pill">${r.a}%</span></span><button class="btn ghost sm" data-drill="${r.l.id}">Practicar</button></div>`).join('')}` : ''}
       <details style="margin-top:10px"><summary><b>Puntaje por sonido</b> <span class="small muted">· promedio de tus últimos 10 intentos de voz por lección</span></summary><div class="bars" style="margin-top:8px">
-      ${soundUnits.map(u => `<div class="small" style="margin:10px 0 4px"><b>Unidad ${u.ui + 1} · ${esc(u.title)}</b></div>${u.rows.map(r => `<div class="bar"><span title="${esc(r.l.title)}">${r.l.icon} ${esc(r.l.type ? r.l.title.split(' ').slice(-2).join(' ') : '/' + r.l.sound + '/')}</span><div class="tr"><i style="width:${r.a || 0}%;background:${r.a === null ? '#eef1f3' : r.a >= 80 ? 'var(--g)' : r.a >= 60 ? 'var(--o)' : 'var(--r)'}"></i></div><span>${r.a === null ? '—' : r.a + '%'}</span></div>`).join('')}`).join('')}</div></details></div>
+      ${soundUnits.map(u => `<div class="small" style="margin:10px 0 4px"><b>Unidad ${u.ui + 1} · ${esc(u.title)}</b></div>${u.rows.map(r => `<div class="bar"><span title="${esc(r.l.title)}">${r.l.icon} ${esc(r.l.type ? r.l.title : '/' + r.l.sound + '/')}</span><div class="tr"><i style="width:${r.a || 0}%;background:${r.a === null ? '#eef1f3' : r.a >= 80 ? 'var(--g)' : r.a >= 60 ? 'var(--o)' : 'var(--r)'}"></i></div><span>${r.a === null ? '—' : r.a + '%'}</span></div>`).join('')}`).join('')}</div></details></div>
     <div class="card"><h3>Palabras para repetir</h3>${wwords.length ? `<div class="chips">${wwords.map(w => `<span class="wd ${colorOf(w.a / 100)}" data-say="${esc(w.disp)}">${esc(w.disp)} · ${w.a}%</span>`).join('')}</div><button class="btn blue sm" id="ww">🔁 Practicar estas palabras</button>` : '<div class="muted small">Aún no hay datos. Haz ejercicios de voz.</div>'}</div>
     <p class="muted small">ℹ️ ${azureReady() ? 'Con Azure activo, los ejercicios usan evaluación fonema por fonema (precisión, fluidez, integridad y prosodia). Sin Azure, ' : ''}el puntaje compara, palabra por palabra, lo que el reconocedor de voz del navegador entendió con la frase objetivo (usando su confianza y alternativas). No es un análisis fonético por sonido como el de apps de pago; úsalo como guía y complementa con "Grabar y comparar".</p>`;
   $$('[data-drill]', v).forEach(b => b.onclick = () => { const l = LESSON[b.dataset.drill]; startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); });
@@ -1196,7 +1563,7 @@ function startReview() {
   $('#full').classList.remove('hidden'); document.body.style.overflow = 'hidden';
   nextCard();
 }
-function closeReview() { $$('.confetti').forEach(c => c.remove()); R = null; stopRecognize(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; render(); }
+function closeReview() { $$('.confetti').forEach(c => c.remove()); R = null; stopRecognize(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; document.body.classList.remove('band-open'); render(); }
 function nextCard() {
   if (!R) return;
   if (!R.q.length) {
@@ -1268,7 +1635,7 @@ function planCardHTML() {
   const done = S.plans && S.plans[dayKey()], due = dueCards().length, cur = currentLesson();
   return `<div class="card plan-card"><div class="row between"><div><h3 style="margin:0">📅 Plan de hoy · ~10 min</h3><div class="muted small">${done ? '✅ ¡Completado hoy! Puedes repetirlo.' : 'Sesión automática hecha para ti.'}</div></div><div style="font-size:34px">${done ? '🏆' : '🎯'}</div></div>
     <div class="plan-steps"><span class="plan-step">🎯 Sonidos débiles</span><span class="plan-step">🃏 ${Math.min(4, due)} tarjetas</span><span class="plan-step">👂 Pares mínimos</span>${cur ? `<span class="plan-step">⭐ ${esc(cur.title)}</span>` : ''}</div>
-    <button class="btn orange block" id="planBtn">${done ? 'Repetir plan' : 'Empezar plan de hoy'}</button></div>`;
+    <button class="btn lime block" id="planBtn">${done ? 'Repetir plan' : 'Empezar plan de hoy'}</button></div>`;
 }
 const _finishLesson = finishLesson;
 finishLesson = function () {
@@ -1326,14 +1693,32 @@ function applyPrefs() {
   const dark = s.theme === 'dark' || (s.theme === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
   root.dataset.theme = dark ? 'dark' : 'light'; root.dataset.contrast = s.contrast ? 'high' : 'normal'; root.dataset.motion = s.reduceMotion ? 'reduce' : 'normal';
   document.body.style.zoom = s.fontScale && s.fontScale !== 1 ? s.fontScale : '';
-  const m = $('meta[name=theme-color]'); if (m) m.content = dark ? '#0f1720' : '#1fa463';
+  const m = $('meta[name=theme-color]'); if (m) m.content = dark ? '#2b1741' : '#4b2868';
 }
 if (window.matchMedia) try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyPrefs); } catch (e) {}
 const _confetti = confetti; confetti = function () { if (!S.settings.reduceMotion && !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) _confetti(); };
 
 
+/* (Top-5 H-01 — cola de avisos: si el tip de saludo de Inicio está
+   visible, el toast espera a que se cierre en vez de taparlo (el saludo
+   solo se muestra 1 vez por sesión) y de tapar el contenido que está
+   debajo (XP, toggles, tarjetas, diagrama de boca). El tip dura 4,2 s
+   y se cierra solo; si el usuario navega, el elemento desaparece y el
+   aviso pendiente se muestra igual gracias al temporizador de
+   seguridad. Solo se guarda el último aviso en espera.) */
+let toastPending = null;
+function toastFlushQueue() {
+  if (!toastPending) return;
+  const tip = document.querySelector('#homeTip');
+  if (tip && !tip.hidden) return; // el tip sigue visible: esperar
+  const p = toastPending; toastPending = null;
+  toast(p.msg, p.ms);
+}
 /* Un solo aviso a la vez; en la pestaña IA se muestra arriba para no tapar el botón de voz */
-toast = function (msg, ms = 2600) { $$('.toast').forEach(x => x.remove()); const t = document.createElement('div'); t.className = 'toast' + (TAB === 'chat' ? ' top' : ''); t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms); };
+toast = function (msg, ms = 2600) {
+  const tip = document.querySelector('#homeTip');
+  if (tip && !tip.hidden) { toastPending = { msg, ms }; setTimeout(toastFlushQueue, 5000); return; }
+  $$('.toast').forEach(x => x.remove()); const t = document.createElement('div'); t.className = 'toast' + (TAB === 'chat' ? ' top' : ''); t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms); };
 /* =================== DICCIONARIO / FRASES =================== */
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 2001-2024)
 const _words = VIEWS.words;
@@ -1343,10 +1728,15 @@ VIEWS.words = v => { if (WORDS_MODE === 'dict') return renderDict(v); _words(v);
 const _learn = VIEWS.learn;
 VIEWS.learn = v => {
   _learn(v);
-  const g = $('.card.goal', v);
+  // (M05-R1: el Plan de hoy vive dentro del héroe — la tarjeta del plan se
+  // inserta tras el anillo de la meta — y la Prueba de nivel es una fila
+  // discreta bajo el héroe, como en el mockup.)
+  const g = $('#learnGoal', v);
+  if (g) g.insertAdjacentHTML('afterend', planCardHTML());
   const cta = S.placement == null || S.placement === 'skipped' && !Object.keys(S.done).length ? `<div class="card row between"><div><b>🧭 Prueba de nivel</b><div class="small muted">3 minutos para empezar en la unidad correcta.</div></div><button class="btn blue sm" id="plBtn">Hacer</button></div>` : '';
-  g.insertAdjacentHTML('afterend', planCardHTML() + cta);
-  $('#planBtn').onclick = () => { const q = buildPlan(); q.length ? startLesson(null, 'plan', q, 'Plan de hoy') : toast('Completa una lección primero.'); };
+  const hero = $('#learnHero', v);
+  if (hero && cta) hero.insertAdjacentHTML('afterend', cta);
+  const planBtn = $('#planBtn'); if (planBtn) planBtn.onclick = () => { const q = buildPlan(); q.length ? startLesson(null, 'plan', q, 'Plan de hoy') : toast('Completa una lección primero.'); };
   const pb = $('#plBtn'); if (pb) pb.onclick = placementIntro;
 };
 
@@ -1377,7 +1767,9 @@ VIEWS.progress = v => {
 };
 
 /* =================== RACHA: modal con protectores =================== */
-$('#stStreak').onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p>
+// (M05-R1: guardado — la píldora de racha ya no está en la cabecera.)
+const stStreakBtn2 = $('#stStreak');
+if (stStreakBtn2) stStreakBtn2.onclick = () => modal(`<h2>🔥 Racha: ${streakNow()} días</h2><p class="muted">Gana XP cada día para mantener tu racha. Mejor racha: ${S.bestStreak} días. Hoy: ${todayRec().xp}/${S.settings.goal} XP.</p>
   <div class="tipbox">🧊 <b>Protectores de racha: ${S.freezes || 0}/2</b><br><span class="small">Si un día no practicas, un protector mantiene tu racha. Ganas uno cada 7 días seguidos, o puedes canjear uno por 100 XP.</span></div>
   <div class="row"><button class="btn ghost block" data-buy ${(S.freezes || 0) >= 2 || S.xp < 100 ? 'disabled' : ''}>Canjear (100 XP)</button><button class="btn primary block" data-x>¡Vamos!</button></div>`,
   (el, c) => { $('[data-x]', el).onclick = c; $('[data-buy]', el).onclick = () => { S.xp -= 100; S.freezes = (S.freezes || 0) + 1; save(); c(); render(); toast('🧊 ¡Protector de racha listo!'); }; });
@@ -1389,16 +1781,16 @@ document.addEventListener('click', e => { const p = $('#wordPop'); if (p && !p.c
 VIEWS.chat = v => {
   const s = S.settings, hasG = !!s.geminiKey || gemShared(), hasO = !!s.openaiKey, prov = currentProvider();
   if (!prov) {
-    v.innerHTML = `<h2>Conversación con IA 💬</h2>
-      <div class="card" style="text-align:center;padding:24px 16px">
-        <div style="font-size:38px;margin-bottom:8px">🦜💬</div>
-        <h3 style="margin:0 0 6px">Práctica de conversación con IA</h3>
-        <p class="small muted" style="margin:0 auto 16px;max-width:320px">
-          Habla en inglés con Tuki por voz en vivo (Gemini Live) o chat de texto. Inicia sesión para activar la IA gratis con el cupo diario de Tuki.
-        </p>
+    v.innerHTML = `<div class="tutor-gate">
+      <div class="tutor-gate-copy">
+        <div class="tutor-gate-kicker">Tutor IA · Conversación</div>
+        <h2>Práctica de conversación con IA</h2>
+        <p class="small">Habla en inglés con Tuki por voz en vivo (Gemini Live) o chat de texto. Inicia sesión para activar la IA gratis con el cupo diario de Tuki.</p>
         <button class="btn gbtn block" id="chatGoogle" style="margin-bottom:8px"><span class="g">G</span> Continuar con Google</button>
         <button class="btn ghost block sm" id="toSet">Opciones de inicio de sesión y claves</button>
       </div>
+      <img class="tutor-gate-mascot" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés">
+    </div>
       <div class="card"><h3>Mientras tanto…</h3><p class="muted small">Prueba las <b>Conversaciones reales</b> guiadas (unidades 6, 7 y 12): dices tu parte del diálogo y recibes puntaje sin necesidad de IA.</p></div>`;
     const bg = $('#chatGoogle', v);
     if (bg) bg.onclick = async () => {
@@ -1412,6 +1804,7 @@ VIEWS.chat = v => {
   if (CHAT.scen && String(CHAT.scen).startsWith('custom:') && !SCENARIOS[CHAT.scen]) CHAT.scen = 'free';
   const lv = chatLevel();
   v.innerHTML = `<div class="chatscreen" id="chatscreen">
+    <div class="chat-tutor-head"><img class="tuki-img" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés"><div><strong>Tuki · Tutor IA</strong><span class="small muted">Practica hablando; te corrijo con cariño.</span></div></div>
     <div class="chattop">
       <div class="provider"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
       <div class="chatsel"><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).filter(k => k !== 'interview' && k !== 'shopping').map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${esc(SCEN_ES[k])}</option>`).join('')}<option value="__new__">✏️ Crear escenario…</option></select><select class="field sp" id="tspeed" aria-label="Velocidad de Tuki" title="Velocidad de Tuki">${Object.keys(TUTOR_SPEEDS).map(k => `<option value="${k}" ${k === tutorSpeed() ? 'selected' : ''}>${TUTOR_SPEEDS[k].label}</option>`).join('')}</select><button class="btn ghost sm" id="newc" title="Nueva conversación">Nueva</button></div>
@@ -1479,14 +1872,18 @@ VIEWS.settings = v => {
   const azStatus = azureReady() ? ' (activo)' : (fbSignedIn() ? ' (falta clave)' : ' (inicia sesión)');
   v.innerHTML = `<h2>Ajustes ⚙️</h2>
   <div class="card"><h3>🔊 Voz y audio</h3>
-    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine" style="max-width:200px">${opt([['auto', 'Automática' + (azureReady() ? ' (Azure neural)' : ' (Dispositivo)')], ['azure', 'Azure neural' + azStatus], ['device', 'Dispositivo (sin internet)'], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine || 'auto')}</select></div>
-    <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent" style="max-width:200px">${opt([['en-US', 'Estadounidense (en-US)'], ['en-GB', 'Británico (en-GB)']], s.accent)}</select></div>
-    <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice" style="max-width:200px"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
-    <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice" style="max-width:200px">${opt(AZ_VOICES, s.azureVoice)}</select></div>
-    <div class="set-row"><div><label for="openaiVoice">Voz OpenAI</label><div class="desc">También se usa en la voz en vivo de OpenAI</div></div><select class="field" id="openaiVoice" style="max-width:200px">${opt(OA_VOICES, s.openaiVoice)}</select></div>
     <div class="set-row"><div><label for="rate">Velocidad</label><div class="desc" id="rateV">${(+s.rate).toFixed(2)}×</div></div><div class="row"><input type="range" id="rate" min="0.5" max="1.3" step="0.05" value="${s.rate}"><button class="spk" id="tRate" aria-label="Probar voz">🔊</button></div></div>
-    ${sw('autoplay', s.autoplay, 'Reproducir audio automáticamente')}${sw('sound', s.sound, 'Sonidos de efectos')}${sw('haptics', s.haptics, 'Vibración (móvil)', 'Vibra al acertar o fallar')}
+    ${sw('autoplay', s.autoplay, 'Reproducir audio automáticamente')}${sw('sound', s.sound, 'Sonidos de efectos')}
     ${sw('recordVoice', s.recordVoice, 'Grabar mi voz en ejercicios', 'Para escucharte y ver tu onda. En algunos Android puede interferir con el reconocimiento de Chrome.')}
+    <!-- (TUKI-IMPL-56-NUEVA-INTERFAZ-001: divulgación progresiva de #56 en la nueva interfaz: las filas de proveedor/motor de voz viven plegadas; en Básico nace cerrado.) -->
+    <details id="voiceMore"><summary>Más opciones de voz</summary>
+    <div class="set-row"><div><label for="ttsEngine">Voz del modelo</label><div class="desc">Las voces en la nube suenan más naturales (Azure gratis con tu cuenta).</div></div><select class="field" id="ttsEngine">${opt([['auto', 'Automática' + (azureReady() ? ' (Azure neural)' : '')], ['azure', 'Azure neural' + azStatus], ['device', 'Dispositivo (sin internet)'], ['openai', 'OpenAI TTS' + (s.openaiKey ? ' (activo)' : ' (falta clave)')]], s.ttsEngine || 'auto')}</select></div>
+    <div class="set-row"><div><label for="accent">Acento preferido</label></div><select class="field" id="accent">${opt([['en-US', 'Estadounidense'], ['en-GB', 'Británico']], s.accent)}</select></div>
+    <div class="set-row"><div><label for="voice">Voz del dispositivo</label><div class="desc">Automática elige la más natural disponible</div></div><select class="field" id="voice"><option value="">Automática${pickVoice() ? ' (' + esc(pickVoice().name) + ')' : ''}</option>${VOICES.map(x => `<option ${x.name === s.voice ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+    <div class="set-row"><div><label for="azureVoice">Voz Azure</label></div><select class="field" id="azureVoice">${opt(AZ_VOICES, s.azureVoice)}</select></div>
+    <div class="set-row"><div><label for="openaiVoice">Voz OpenAI</label><div class="desc">También se usa en la voz en vivo de OpenAI</div></div><select class="field" id="openaiVoice">${opt(OA_VOICES, s.openaiVoice)}</select></div>
+    ${sw('haptics', s.haptics, 'Vibración (móvil)', 'Vibra al acertar o fallar')}
+    </details>
   </div>
   <div class="card"><h3>🔬 Evaluación avanzada con Azure <span class="pill">${azShared() ? 'Activo con tu cuenta' : (azOwn() ? 'Con tu clave' : 'Opcional')}</span></h3>
     <p class="small muted">Puntaje <b>fonema por fonema</b> con Azure AI Speech.</p>
@@ -1507,10 +1904,10 @@ VIEWS.settings = v => {
       <div class="small muted" style="margin-bottom:8px">Inicia sesión con Google para tener acceso a Gemini y Gemini Live gratis con el cupo diario de Tuki.</div>
       <button class="linkbtn" id="aiGoAcct">Usar la IA gratis →</button>
     </div>` : ''}
-    <div class="set-row"><div><label for="chatProvider">Proveedor</label></div><select class="field" id="chatProvider" style="max-width:200px">${opt([['gemini', 'Gemini (gratis)'], ['openai', 'OpenAI (pago)']], s.chatProvider)}</select></div>
-    <div class="set-row"><div><label for="chatLevel">Nivel de la conversación</label><div class="desc">Ajusta vocabulario, velocidad y correcciones del tutor</div></div><select class="field" id="chatLevel" style="max-width:200px">${opt(LEVEL_KEYS.map(k => [k, LEVELS[k].label]), chatLevel())}</select></div>
-    <div class="set-row"><div><label for="tutorSpeed">Velocidad de Tuki</label><div class="desc">Frases más cortas, pausas y voz más lenta</div></div><select class="field" id="tutorSpeed" style="max-width:200px">${opt(Object.keys(TUTOR_SPEEDS).map(k => [k, TUTOR_SPEEDS[k].label]), tutorSpeed())}</select></div>
-    <div class="set-row"><div><label for="tutorLang">Idioma del tutor</label><div class="desc">Bilingüe: conversa en inglés y te explica las correcciones en español</div></div><select class="field" id="tutorLang" style="max-width:200px">${opt(Object.keys(TUTOR_LANGS).map(k => [k, TUTOR_LANGS[k].label]), tutorLang())}</select></div>
+    <div class="set-row"><div><label for="chatProvider">Proveedor</label></div><select class="field" id="chatProvider">${opt([['gemini', 'Gemini (gratis)'], ['openai', 'OpenAI (pago)']], s.chatProvider)}</select></div>
+    <div class="set-row"><div><label for="chatLevel">Nivel de la conversación</label><div class="desc">Ajusta vocabulario, velocidad y correcciones del tutor</div></div><select class="field" id="chatLevel">${opt(LEVEL_KEYS.map(k => [k, LEVELS[k].label]), chatLevel())}</select></div>
+    <div class="set-row"><div><label for="tutorSpeed">Velocidad de Tuki</label><div class="desc">Frases más cortas, pausas y voz más lenta</div></div><select class="field" id="tutorSpeed">${opt(Object.keys(TUTOR_SPEEDS).map(k => [k, TUTOR_SPEEDS[k].label]), tutorSpeed())}</select></div>
+    <div class="set-row"><div><label for="tutorLang">Idioma del tutor</label><div class="desc">Bilingüe: conversa en inglés y te explica las correcciones en español</div></div><select class="field" id="tutorLang">${opt(Object.keys(TUTOR_LANGS).map(k => [k, TUTOR_LANGS[k].label]), tutorLang())}</select></div>
     <h3 style="margin-top:10px;font-size:16px">✨ Google Gemini (gratis con límites)</h3>
     <p class="small muted">Clave gratuita en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Se usa para el chat y para la <b>voz en vivo (Gemini Live)</b>.</p>
     <input class="field" id="gkey" type="password" placeholder="AIza…" value="${esc(s.geminiKey)}" autocomplete="off" aria-label="Clave de Gemini">
@@ -1526,12 +1923,15 @@ VIEWS.settings = v => {
     ${S.chatProfile ? `<div class="set-row"><div><label>Nota de perfil del chat</label><div class="desc">Tuki recuerda tus errores frecuentes de conversaciones largas.</div></div><button class="btn ghost sm" id="chatProfileDel">Borrar nota</button></div>` : ''}
   </div>
   <div class="card"><h3>🎯 Aprendizaje</h3>
-    <div class="set-row"><div><label for="learnerLevel">Nivel de aprendizaje</label><div class="desc">Ajusta guía fonética, frases y velocidad</div></div><select class="field" id="learnerLevel" style="max-width:200px">${opt([['novice', '🌱 Novato (Desde cero)'], ['intermediate', '⚡ Intermedio'], ['advanced', '🚀 Avanzado']], s.learnerLevel || 'novice')}</select></div>
-    <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal" style="max-width:200px">${opt([[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']], s.goal)}</select></div>
-    <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold" style="max-width:200px">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
-    ${sw('freeMode', s.freeMode, 'Modo libre (desbloquear todo)', 'Desactiva el orden secuencial tipo Duolingo y desbloquea todas las lecciones y prácticas')}
+    <div class="set-row"><div><label for="learnerLevel">Nivel de aprendizaje</label><div class="desc">Ajusta guía fonética, frases y velocidad</div></div><select class="field" id="learnerLevel">${opt([['novice', '🌱 Novato'], ['intermediate', '⚡ Intermedio'], ['advanced', '🚀 Avanzado']], s.learnerLevel || 'novice')}</select></div>
+    <div class="set-row"><div><label for="goal">Meta diaria</label></div><select class="field" id="goal">${opt([[10, 'Relajada · 10 XP'], [20, 'Normal · 20 XP'], [30, 'Seria · 30 XP'], [50, 'Intensa · 50 XP']], s.goal)}</select></div>
     <div class="set-row"><div><label>Prueba de nivel</label><div class="desc">${S.placement && typeof S.placement === 'object' ? 'Última: ' + S.placement.date + ' · ' + S.placement.score : 'Aún no la has hecho'}</div></div><button class="btn ghost sm" id="replace">Hacer ahora</button></div>
     <div class="set-row"><div><label>Reconocimiento de voz</label><div class="desc">${azureReady() ? 'Azure (fonemas) ✅' : HAS_SR ? 'Navegador (por palabras) ✅' : 'No disponible ❌ — usa Chrome/Edge o configura Azure'}</div></div><button class="btn ghost sm" id="testMic" ${canSpeak() ? '' : 'disabled'}>Probar 🎤</button></div>
+    <!-- (TUKI-IMPL-56-NUEVA-INTERFAZ-001: divulgación progresiva de #56 en la nueva interfaz: Exigencia y Modo libre viven plegados; en Básico nace cerrado.) -->
+    <details id="learnMore"><summary>Más opciones de aprendizaje</summary>
+    <div class="set-row"><div><label for="threshold">Exigencia de pronunciación</label><div class="desc">Puntaje mínimo para aprobar un ejercicio de voz</div></div><select class="field" id="threshold">${opt([[60, 'Suave · 60%'], [75, 'Normal · 75%'], [85, 'Estricta · 85%']], s.threshold)}</select></div>
+    ${sw('freeMode', s.freeMode, 'Modo libre (desbloquear todo)', 'Desactiva el orden secuencial tipo Duolingo y desbloquea todas las lecciones y prácticas')}
+    </details>
   </div>
   <div class="card"><h3>⏰ Recordatorio diario</h3>
     ${sw('remindOn', s.remindOn, 'Notificación local y push', 'Aviso diario interactivo para no perder tu racha')}
@@ -1542,9 +1942,19 @@ VIEWS.settings = v => {
     </div>
   </div>
   <div class="card"><h3>🎨 Apariencia y accesibilidad</h3>
-    <div class="set-row"><div><label for="theme">Tema</label></div><select class="field" id="theme" style="max-width:200px">${opt([['auto', 'Automático'], ['light', 'Claro'], ['dark', 'Oscuro']], s.theme)}</select></div>
-    <div class="set-row"><div><label for="fontScale">Tamaño de letra</label></div><select class="field" id="fontScale" style="max-width:200px">${opt([[0.9, 'Pequeño'], [1, 'Normal'], [1.15, 'Grande'], [1.3, 'Muy grande']], s.fontScale)}</select></div>
+    <div class="set-row" style="display:block"><div><label>Tema</label><div class="desc">Se aplica a toda la app.</div></div>
+    <div class="pset-choices" style="margin-top:10px" role="group" aria-label="Tema visual">
+      <button class="pset-choice${s.theme === 'light' ? ' selected' : ''}" data-theme-choice="light"><span class="pset-symbol">☀️</span>Claro</button>
+      <button class="pset-choice${s.theme === 'dark' ? ' selected' : ''}" data-theme-choice="dark"><span class="pset-symbol">🌙</span>Oscuro</button>
+      <button class="pset-choice${s.theme === 'auto' ? ' selected' : ''}" data-theme-choice="system"><span class="pset-symbol">◐</span>Sistema</button>
+    </div></div>
+    <div class="set-row"><div><label for="fontScale">Tamaño de letra</label></div><select class="field" id="fontScale">${opt([[0.9, 'Pequeño'], [1, 'Normal'], [1.15, 'Grande'], [1.3, 'Muy grande']], s.fontScale)}</select></div>
     ${sw('contrast', s.contrast, 'Alto contraste')}${sw('reduceMotion', s.reduceMotion, 'Reducir animaciones')}
+  </div>
+  <div class="card"><h3>🧸 Experiencia</h3>
+    <div class="pset-line"><span>Mostrar compañero Tuki</span><button class="pset-toggle${s.tukiVisible ? '' : ' off'}" data-pset-toggle="tukiVisible" aria-label="Mostrar u ocultar Tuki" aria-pressed="${s.tukiVisible}"><i></i></button></div>
+    <div class="pset-line" style="margin-top:12px"><span>Saludo al entrar</span><button class="pset-toggle${s.tukiGreeting ? '' : ' off'}" data-pset-toggle="tukiGreeting" aria-label="Activar o desactivar saludo" aria-pressed="${s.tukiGreeting}"><i></i></button></div>
+    <p class="small muted" style="margin:10px 0 0">Burbuja de Tuki en Inicio: tócala para ver un consejo. Tuki te saluda una vez por sesión al entrar en Inicio.</p>
   </div>
   <div class="card"><h3>💾 Datos</h3>
     <div class="row wrap"><button class="btn ghost sm" id="exp">⬇️ Exportar progreso</button><label class="btn ghost sm" style="margin:0">⬆️ Importar<input type="file" id="imp" accept="application/json" hidden></label></div>
@@ -1554,8 +1964,12 @@ VIEWS.settings = v => {
   <p class="muted small" style="text-align:center">Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.</p>`;
   const set = (k, val) => { S.settings[k] = val; save(); };
   const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { if (k === 'ttsEngine') S.settings.__ttsDeviceExplicit = (ev.target.value === 'device'); set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
-  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['learnerLevel', 'learnerLevel'], ['theme', 'theme'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
+  [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['learnerLevel', 'learnerLevel'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
   ['autoplay', 'sound', 'haptics', 'recordVoice', 'freeMode', 'contrast', 'reduceMotion', 'livePronOptIn'].forEach(k => $('#' + k).onchange = e => { set(k, e.target.checked); applyPrefs(); });
+  // (Fase 2: tema y toggles de compañero con el lenguaje del modal
+  // "Perfil y ajustes"; escriben las mismas claves que el <select> y
+  // los switches que sustituyen, sin eliminar opciones.)
+  bindPsetGroups(v);
   $('#rate').oninput = e => { set('rate', +e.target.value); $('#rateV').textContent = (+e.target.value).toFixed(2) + '×'; };
   $('#tRate').onclick = () => speak('Hello! This is how fast I speak. Think, three, very, ship, sheep.');
   $('#replace').onclick = placementIntro;
@@ -1575,9 +1989,8 @@ VIEWS.settings = v => {
   // Ajustes vive en la tarjeta 👤 Cuenta; aquí solo un enlace que
   // desplaza hasta ella.)
   const aiG = $('#aiGoAcct', v);
-  // (PR1, regla R-3: el enlace interno cambia primero el filtro al nivel
-  // de la tarjeta destino — Cuenta es Básico — y luego desplaza.)
-  if (aiG) aiG.onclick = () => { const lv = $('#settingsLevel [data-slevel="basic"]', v); if (lv) lv.click(); const c = $('#acctCard', v); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+  // (M05-R1: Cuenta vive en Perfil — el enlace lleva al destino Perfil.)
+  if (aiG) aiG.onclick = () => go('profile');
   const gmsg = $('#gmsg');
   $('#gsave').onclick = () => { set('geminiKey', $('#gkey').value.trim()); set('model', $('#gmodel').value.trim() || 'gemini-2.5-flash'); set('liveModel', $('#lmodel').value.trim() || GEMINI_LIVE_MODELS[0]); CHAT.hist = []; gmsg.textContent = S.settings.geminiKey ? '✅ Guardado. Ve a la pestaña IA.' : 'Clave vacía: Gemini queda desactivado.'; };
   $('#gdel').onclick = () => { set('geminiKey', ''); $('#gkey').value = ''; gmsg.textContent = 'Clave borrada.'; };
@@ -1676,6 +2089,22 @@ VIEWS.practice = v => {
   // startPracticeErrors (buildTopErrorsPractice) y la acción con IA llama
   // a startPracticeErrors tal cual, solo visible con datos y proveedor.)
   const peData = practiceErrorsHasData(), peAI = practiceErrorsAIAvailable();
+  // (C-01 TUKI-CONTENIDO-NUEVO-001: «¿Por qué me equivoqué?» en
+  // «Práctica de errores», con los 3 errores más frecuentes medidos
+  // (getTop5Errors). Mismo límite de 3/día y mismo aviso que en el fin.)
+  const exStE = explainErrorStatus();
+  const top5e = getTop5Errors().slice(0, 3);
+  const top5eCtx = top5e.map(e => ({ kind: 'voice', type: 'word', typeLabel: 'palabra con puntaje bajo', target: e.word, heard: 'pronunciación con ' + e.score + '% de puntaje', pct: e.score, weak: [], tips: [e.tip], sound: (e.sound || '').replace(/\//g, '') }));
+  let errorsExplainHTML = '';
+  if (top5e.length) {
+    if (exStE.ok) {
+      errorsExplainHTML = `<div id="errorsExplain" style="margin-top:10px"><h3 style="margin:0 0 4px">💡 ¿Por qué me equivoqué?</h3><p class="muted small">Tuki explica tus errores más frecuentes. Quedan ${exStE.left} de ${EXPLAIN_DAY_MAX} explicaciones hoy.</p>${top5e.map((e, i) => `<div data-exp-item="${i}" style="border-top:1px solid var(--line);padding-top:8px;margin-top:8px"><div class="small"><b>${esc(e.word)}</b>${e.sound ? ` <span class="ipa">${esc(e.sound)}</span>` : ''} · ${e.score}%</div>${errorTutorHTML(top5eCtx[i])}</div>`).join('')}</div>`;
+    } else if (exStE.why === 'quota') {
+      errorsExplainHTML = `<div style="margin-top:10px"><h3 style="margin:0 0 4px">💡 ¿Por qué me equivoqué?</h3><p class="muted small">Llegaste a las ${EXPLAIN_DAY_MAX} explicaciones de hoy. Vuelven mañana.</p></div>`;
+    } else {
+      errorsExplainHTML = `<div style="margin-top:10px"><h3 style="margin:0 0 4px">💡 ¿Por qué me equivoqué?</h3><p class="muted small">Para que Tuki te explique tus errores necesitas Gemini: inicia sesión o pon tu clave propia en Ajustes.</p></div>`;
+    }
+  }
   const h2 = $('h2', v).nextElementSibling;
   h2.insertAdjacentHTML('afterend', `<div class="card" id="errorsCard">
     <h3 style="margin:0">🎯 Tus errores${hw.length ? ` (${hw.length})` : ''}</h3>
@@ -1687,8 +2116,11 @@ VIEWS.practice = v => {
       ${peData && peAI ? '<button class="btn orange" id="errorsAIBtn">✨ Practicar con IA</button>' : ''}
     </div>
     ${peData && !peAI ? '<div class="muted small" style="margin-top:6px">Ejercicios nuevos con tus errores (la IA no está disponible ahora).</div>' : ''}
+    ${errorsExplainHTML}
   </div>`);
   $('#errorsReviewBtn').onclick = () => { const q = buildTopErrorsPractice(); if (q.length) startLesson(null, 'practice', q, '🎯 Refuerzo: Top 5 Errores'); else toast('No hay errores críticos registrados.'); };
+  // (C-01: enlaza cada «¿Por qué me equivoqué?» de «Tus errores».)
+  $$('#errorsExplain [data-exp-item]').forEach(el => { const c = top5eCtx[+el.dataset.expItem]; if (c) bindErrorTutor(el, c); });
   const ab = $('#errorsAIBtn'); if (ab) ab.onclick = () => startPracticeErrors();
   const cb = $('#errorsConvoBtn'); if (cb) cb.onclick = () => startLesson(null, 'practice', convoPracticeItems(8), 'De tus conversaciones');
   $$('[data-unhard]', v).forEach(b => b.onclick = () => { const k = b.dataset.unhard; if (S.wd[k]) S.wd[k].last = 100; Object.keys(S.hard).forEach(w => { if (normText(w).join(' ') === k) delete S.hard[w]; }); save(); VIEWS.practice(v); });
@@ -1727,18 +2159,12 @@ VIEWS.chat = v => {
   fitChat();
 };
 
-/* Aprender: tarjeta de la entrevista (densidad PR C, v2.32.0, ítem 7:
-   la tarjeta "Reto diario" del dúo se quita — el reto ya está en
-   "Retos de Hoy" (bloque 2) — y queda solo la entrevista.) */
-const _learn24 = VIEWS.learn;
-VIEWS.learn = v => {
-  _learn24(v);
-  const html = `<div class="duo2">
-    <button class="card mcard iv" id="ivCard"><div class="mc-ic">🧑‍💼</div><div><b>Entrevista de trabajo</b><div class="small muted">Simulador con informe</div><div class="small">${S.interviews.length ? 'Última: ' + S.interviews[0].data.overall + '/100' : '5, 8 o 12 preguntas'}</div></div></button></div>`;
-  const anchor = $('.plan-card', v) || $('.card.goal', v);
-  if (anchor) anchor.insertAdjacentHTML('afterend', html); else v.insertAdjacentHTML('afterbegin', html);
-  $('#ivCard', v).onclick = interviewSetup;
-};
+/* (NAV-04, opción b: la tarjeta «Entrevista de trabajo» (#ivCard) era un
+   duplicado de la fila «Simulador de Entrevista Laboral» del espejo — la
+   misma práctica — así que ya no se inyecta en #modesExtra. Quedan 12
+   entradas: las 11 filas del espejo + Traduce y completa. La entrevista
+   con IA sigue accesible desde Tutor IA (escenario __iv); su flujo sin
+   clave lo cubre NAV-06 en interviewSetup.) */
 /* Progreso: historial */
 function historyHTML() {
   const items = [...S.summaries.map(s => ({ ts: s.ts, k: 's', id: s.id, ic: s.mode === 'challenge' ? '⏱️' : '📝', t: s.title, sc: Math.round((s.data.scores.fluency + s.data.scores.grammar + s.data.scores.vocabulary) / 3), d: s.date })), ...S.interviews.map(r => ({ ts: r.ts, k: 'i', id: r.id, ic: '🧑‍💼', t: 'Entrevista: ' + r.role, sc: r.data.overall, d: r.date }))].sort((a, b) => b.ts - a.ts);
@@ -1920,6 +2346,10 @@ finishLesson = function () { if (L && L.mode === 'tc') return tcFinish(); return
 const _learn25 = VIEWS.learn;
 VIEWS.learn = v => {
   _learn25(v);
+  // (M05-R1, brief §5.1.2: Traduce y completa vive como fila dentro de la
+  // sección de práctica, junto al espejo de modos.)
+  const extra = $('#modesExtra', v);
+  if (extra) { extra.insertAdjacentHTML('beforeend', tcEntryHTML('tcEntry')); $('#tcEntry', v).onclick = tcSetup; return; }
   const anchor = $('.duo2', v) || $('.plan-card', v);
   if (anchor) { anchor.insertAdjacentHTML('afterend', tcEntryHTML('tcEntry')); $('#tcEntry', v).onclick = tcSetup; }
 };
@@ -2021,7 +2451,9 @@ const _finish27 = finishLesson; finishLesson = function () { if (L && L.mode ===
 const _learn27 = VIEWS.learn;
 VIEWS.learn = v => {
   _learn27(v);
-  const g = $('.card.goal', v);
+  // (M05-R1: la Práctica diaria vive dentro del héroe como acción
+  // secundaria — botón «🌅 Diaria» del mockup — tras la tarjeta del plan.)
+  const g = $('.plan-card', v) || $('#learnGoal', v);
   if (g) g.insertAdjacentHTML('afterend', pdCardHTML()); else v.insertAdjacentHTML('afterbegin', pdCardHTML());
   $('#pdGo', v).onclick = startPD;
 };
@@ -2056,11 +2488,13 @@ export function fbOnUser(u) {
   if (u) { lsSet(FB_HINT, { uid: u.uid, email: FB.user.email }); if (prev !== u.uid) { FB.first = false; FB.remoteKeys = undefined; setTimeout(() => cloudFirstSync().catch(fbFail), 0); } }
   else { lsSet(FB_HINT, null); FB.remoteKeys = undefined; clearTimeout(FB.timer); FB.timer = null; }
   fbRefreshUI();
-  if (TAB === 'settings' || TAB === 'chat') render();
+  if (TAB === 'settings' || TAB === 'chat' || TAB === 'profile') render();
 }
 export function fbRefreshUI() {
   if (TAB === 'chat' && !LIVE.on && !CHAT.busy && !$('#log') !== !currentProvider()) render(); // el chat cambia al iniciar/cerrar sesión
-  if (TAB !== 'settings') return;
+  // (M05-R1: Cuenta vive en Perfil, así que el refresco de la tarjeta de
+  // cuenta también corre en el destino Perfil, no solo en Ajustes.)
+  if (TAB !== 'settings' && TAB !== 'profile') return;
   const am = $('#aiMode'); if (am) am.textContent = aiModeText();
   const aq = $('#aiQuota'); if (aq) aq.textContent = aiQuotaText();
   const a = $('#acctCard'); if (a) { a.outerHTML = acctHTML(); bindAcct(document); }
@@ -2072,10 +2506,12 @@ export function fbRefreshUI() {
 const _settings28 = VIEWS.settings;
 VIEWS.settings = v => {
   _settings28(v);
-  const h2 = $('h2', v); (h2 || v).insertAdjacentHTML(h2 ? 'afterend' : 'afterbegin', acctHTML());
+  // (M05-R1, D-M05-01 b: la tarjeta 👤 Cuenta YA NO vive en Ajustes —
+  // vive solo en Perfil (VIEWS.profile). Aquí solo queda la Frase de
+  // seguridad, que en el hub va a Opciones avanzadas.)
   const cards = $$(':scope > .card', v), az = cards.find(x => /Azure/.test(($('h3', x) || {}).textContent || '')) || cards[1];
   az.insertAdjacentHTML('beforebegin', keysHTML());
-  bindAcct(v); bindKeys(v);
+  bindKeys(v);
   if (LOCKED && !KS.key) { $$('#azKey, #gkey, #okey', v).forEach(i => { i.placeholder = '🔒 Bloqueada: desbloquea con tu frase'; }); }
   const imp = $('#imp', v); if (imp) imp.onchange = e => { const f = e.target.files[0]; if (!f) return; f.text().then(t => { let d; try { d = JSON.parse(t); } catch (er) { throw new Error('El archivo no es JSON válido.'); } if (!d || !(d.v === 1 || d.v === 2) || !d.settings) throw new Error('Archivo no válido'); importPrompt(d, 'Archivo'); }).catch(err => toast('Error: ' + err.message)); e.target.value = ''; };
 };
@@ -2114,7 +2550,10 @@ const _fbRefresh211 = fbRefreshUI; fbRefreshUI = function () { _fbRefresh211(); 
 const _settings211 = VIEWS.settings;
 VIEWS.settings = v => {
   _settings211(v);
-  const ac = $('#acctCard', v); if (ac) ac.insertAdjacentHTML('afterend', adminHTML());
+  // (M05-R1: Cuenta ya no está en Ajustes; el panel de administrador se
+  // inserta antes del pie de versión — el hub lo mueve a Avanzadas.)
+  const footA = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
+  if (footA) footA.insertAdjacentHTML('beforebegin', adminHTML()); else v.insertAdjacentHTML('beforeend', adminHTML());
   // (densidad PR B, v2.31.0, ítem 4: "Enviar comentarios" deja de ser la
   // 2ª tarjeta y pasa al pie, junto al pie de versión.)
   const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
@@ -2190,8 +2629,8 @@ VIEWS.practice = function (v) {
   const unlSh = isFeatureUnlocked('shadow'), unlMo = isFeatureUnlocked('mouth'), unlPh = isFeatureUnlocked('photo');
   const unlTr = isFeatureUnlocked('travel'), unlInt = isFeatureUnlocked('interview');
 
-  // (densidad R10, v2.39.0: los 9 modos dejan de ser 9 tarjetas y pasan a
-  // ser 9 filas dentro de UNA tarjeta "🎭 Modos de práctica". Mismos
+  // (densidad R10, v2.39.0: los 8 modos dejan de ser 8 tarjetas y pasan a
+  // ser 8 filas dentro de UNA tarjeta "🎭 Modos de práctica". Mismos
   // destinos, mismos candados y mismos textos; solo cambia la
   // presentación. Práctica pasa de 16 a 8 tarjetas visibles (techo 12).)
   const modes = [
@@ -2203,11 +2642,16 @@ VIEWS.practice = function (v) {
     { id: 'photoCard', unl: unlPh, icon: '📷', bg: '#fdf2f8', title: 'Describe la Foto / Objeto', pill: unlPh ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Práctica multimodal con tu cámara o fotos para ganar vocabulario' },
     { id: 'travelCard', unl: unlTr, icon: '✈️', bg: '#e0f2fe', title: 'Guía de Viaje y Supervivencia', pill: unlTr ? '<span class="novice-badge">🌱 Novato & Viajes</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol' },
     { id: 'interviewCard', unl: unlInt, icon: '💼', bg: '#fef3c7', title: 'Simulador de Entrevista Laboral', pill: unlInt ? '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática' },
-    { id: 'shopCard', unl: true, icon: '🛍️', bg: '#dcfce7', title: 'Tienda y Armario de Tuki', pill: `<span class="novice-badge" style="background:#fef3c7;color:#b45309">🪙 ${S.coins || 0} monedas</span>`, extra: '', desc: 'Viste a Tuki con birrete, corona, gafas, corbatín, bufanda o capa usando tus monedas ganadas' },
+    // (C-02/C-04/C-05 TUKI-CONTENIDO-NUEVO-001: 3 filas nuevas DENTRO de la
+    // tarjeta «🎭 Modos de práctica» (no tarjetas nuevas). 8 → 11 filas;
+    // el techo de densidad es 12. Práctica sigue en 8 tarjetas visibles.)
+    { id: 'storiesCard', unl: true, icon: '📖', bg: '#fef3c7', title: 'Historias con Tuki', pill: `<span class="srs-pill mat">📖 ${Object.keys(S.stories || {}).length}/12 leídas</span>`, extra: '', desc: 'Cuentos cortos con audio por línea, traducción al tocar y preguntas. +10 XP por historia.' },
+    { id: 'radioCard', unl: true, icon: '📻', bg: '#e0f2fe', title: 'Radio Tuki', pill: `<span class="srs-pill mat">📻 ${Object.keys(S.radio || {}).length}/8 escuchados</span>`, extra: '', desc: 'Audio corto con transcripción por líneas, diccionario al tocar y preguntas.' },
+    { id: 'idiomsCard', unl: true, icon: '💬', bg: '#fdf2f8', title: 'Idioms y slang', pill: '', extra: '', desc: `Un idiom al día + banco con búsqueda (${IDIOMS.length} expresiones) y audio del ejemplo.` },
   ];
   const modesHtml = `<div class="card" id="modesCard" style="margin-top:10px">
     <h3 style="margin:0 0 2px">🎭 Modos de práctica</h3>
-    <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 9 modos</div>
+    <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 11 modos</div>
     ${modes.map(m => `<button class="mode-row ${!m.unl ? 'locked-card' : ''}" id="${m.id}">
       <div class="em" style="background:${m.bg}">${m.unl ? m.icon : '🔒'}</div>
       <div style="flex:1;min-width:0">
@@ -2230,7 +2674,9 @@ VIEWS.practice = function (v) {
   const bPh = $('#photoCard', v); if (bPh) bPh.onclick = () => { if (!isFeatureUnlocked('photo')) return showLockedFeatureModal('photo'); openPhotoPractice(); };
   const bTr = $('#travelCard', v); if (bTr) bTr.onclick = () => { if (!isFeatureUnlocked('travel')) return showLockedFeatureModal('travel'); openTravelGuideModal(); };
   const bInt = $('#interviewCard', v); if (bInt) bInt.onclick = () => { if (!isFeatureUnlocked('interview')) return showLockedFeatureModal('interview'); openInterviewSimulatorModal(); };
-  const bShop = $('#shopCard', v); if (bShop) bShop.onclick = openTukiShopModal;
+  const bSt = $('#storiesCard', v); if (bSt) bSt.onclick = () => openStoriesModal();
+  const bRa = $('#radioCard', v); if (bRa) bRa.onclick = () => openRadioModal();
+  const bId = $('#idiomsCard', v); if (bId) bId.onclick = () => openIdiomBank();
 };
 
 const _chatView211 = VIEWS.chat;
@@ -2342,6 +2788,13 @@ VIEWS.learn = function (v) {
       render();
     };
   });
+  // (M05-R1: al entrar en Aprender, scroll al nodo actual. render() hace
+  // window.scrollTo(0,0) DESPUÉS de renderizar la vista, así que el scroll
+  // va en un timeout posterior; solo cuando go('learn') puso la bandera.)
+  if (learnScrollPending) {
+    learnScrollPending = false;
+    setTimeout(() => { const cur = document.querySelector('#view .m1-lesson-row.current'); if (cur) cur.scrollIntoView({ block: 'center' }); }, 60);
+  }
 };
 
 // 8. BOTÓN Y VERIFICACIÓN MANUAL DE ACTUALIZACIONES
@@ -2414,67 +2867,29 @@ VIEWS.settings = function (v) {
 };
 
 /* =================== v2.42.0 FILTRO DE AJUSTES POR NIVEL (PR1 rediseño UX) =================== */
-// (PR1, propuesta §2: Ajustes muestra un selector de visibilidad
-// "Ver: Básico · Personalización · Avanzado" y reordena las tarjetas en el
-// orden de la propuesta. El filtro NO es navegación ni pestañas: solo
-// muestra/oculta tarjetas con hidden, en la misma vista y sin cambiar la
-// URL ni la posición de scroll. La selección vive solo en memoria (sin
-// localStorage). Es el ÚLTIMO wrapper de VIEWS.settings, así que corre
-// después de todas las inserciones de tarjetas de versiones anteriores.)
-let settingsLevel = 'basic';
-// (PR1: el filtro es acumulativo — cada nivel muestra las tarjetas de su
-// nivel Y las de los niveles anteriores; Avanzado muestra las 12.)
-const LEVEL_RANK = { basic: 0, personal: 1, advanced: 2 };
-// Nivel de cada tarjeta, por identidad (id cuando existe; si no, h3).
-// Orden de la propuesta §2.3: Cuenta, Aprendizaje, Voz y audio, Apariencia,
-// Recordatorio, Resúmenes (Básico); Voz de Tuki (Personalización); Frase de
-// seguridad, Evaluación avanzada con Azure, Conversación con IA, Datos y
-// mantenimiento (Avanzado); Enviar comentarios siempre visible (pie).
-function settingsCardLevel(card) {
-  const id = card.id || '';
-  if (id === 'acctCard') return 'basic';
-  if (id === 'adminCard') return 'advanced';
-  if (id === 'keysCard') return 'advanced';
-  if (id === 'tvCard') return 'personal';
-  if (id === 'maintCard') return 'advanced';
-  if (id === 'fbkCard') return 'always';
-  const h = (card.querySelector('h3') || {}).textContent || '';
-  if (/Aprendizaje/.test(h)) return 'basic';
-  if (/Voz y audio/.test(h)) return 'basic';
-  if (/Apariencia/.test(h)) return 'basic';
-  if (/Recordatorio/.test(h)) return 'basic';
-  if (/Resúmenes/.test(h)) return 'basic';
-  if (/Frase de seguridad/.test(h)) return 'advanced';
-  if (/Evaluación avanzada/.test(h)) return 'advanced';
-  if (/Conversación con IA/.test(h)) return 'advanced';
-  return null;
-}
+// (PR1, propuesta §2: Ajustes reordena las tarjetas en el orden de la
+// propuesta. El selector de visibilidad «Ver: Básico · Personalización ·
+// Avanzado» lo ELIMINA M05-R1: el hub lo sustituye y el filtro ya no
+// existe como filtro. applySettingsLevel queda como no-op que muestra
+// todas las tarjetas, porque fbRefreshUI la sigue llamando al cambiar la
+// sesión; sin ella, una tarjeta repuesta por fbRefreshUI podría quedar
+// oculta por el filtro viejo. El reordenado se conserva: mueve los nodos
+// sin recrearlos, así los handlers ya ligados se conservan.)
 function applySettingsLevel(v) {
   const view = v || $('#view');
   if (!view) return;
-  const cards = [...view.querySelectorAll(':scope > .card')];
-  for (const card of cards) {
-    const lv = settingsCardLevel(card);
-    if (lv) card.dataset.level = lv;
-    card.hidden = !!(lv && lv !== 'always' && LEVEL_RANK[lv] > LEVEL_RANK[settingsLevel]);
-  }
-  const seg = $('#settingsLevel', view);
-  if (seg) [...seg.querySelectorAll('button')].forEach(b => {
-    b.classList.toggle('active', b.dataset.slevel === settingsLevel);
-    b.setAttribute('aria-pressed', String(b.dataset.slevel === settingsLevel));
-  });
+  [...view.querySelectorAll(':scope > .card')].forEach(card => { card.hidden = false; });
 }
 const _settings213 = VIEWS.settings;
 VIEWS.settings = function (v) {
   _settings213(v);
   // (PR1: reordenar las tarjetas según la propuesta §2.3, moviendo los
-  // nodos — no se recrean, así los handlers ya ligados se conservan. La
-  // tarjeta de administrador se mantiene después de Cuenta.)
+  // nodos — no se recrean, así los handlers ya ligados se conservan.)
   const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
   const byId = id => document.getElementById(id);
   const byH3 = re => [...v.querySelectorAll(':scope > .card')].find(c => re.test((c.querySelector('h3') || {}).textContent || ''));
   const order = [
-    byId('acctCard'), byId('adminCard'), byH3(/Aprendizaje/), byH3(/Voz y audio/),
+    byId('adminCard'), byH3(/Aprendizaje/), byH3(/Voz y audio/),
     byH3(/Apariencia/), byH3(/Recordatorio/), byH3(/Resúmenes/), byId('tvCard'),
     byH3(/Frase de seguridad/), byH3(/Evaluación avanzada/), byH3(/Conversación con IA/),
     byId('maintCard'), byId('fbkCard'),
@@ -2484,20 +2899,122 @@ VIEWS.settings = function (v) {
     if (foot) foot.insertAdjacentElement('beforebegin', card);
     else v.appendChild(card);
   }
-  // (PR1: filtro de visibilidad; se inserta tras el <h2>, encima de la
-  // primera tarjeta. Reutiliza el patrón .seg existente.)
+  applySettingsLevel(v);
+};
+
+/* =================== M05-R1: AJUSTES COMO HUB =================== */
+// (BRIEF §5.2, mockup M05-R1: la vista de Ajustes pasa a ser un hub con
+// héroe de Tuki + 7 filas navegables, cada una a su subpantalla con los
+// controles y valores reales de hoy (mismas claves, mismos valores por
+// defecto). El filtro de 3 «pestañas» desaparece. Sin bandeja, sin
+// campana. La Cuenta NO está aquí: vive en Perfil (D-M05-01 b).
+// Este wrapper es el ÚLTIMO de VIEWS.settings, así que todas las tarjetas
+// ya existen con sus handlers ligados. Solo MUEVE los nodos a su
+// subpantalla — no recrea ningún control ni cambia ninguna clave o valor.
+// La subpantalla abierta vive en settingsSub (memoria); al salir de
+// Ajustes se vuelve al hub. Los audífonos del héroe son un SVG aparte
+// sobre la imagen raster de Tuki: accesorio separable, sin tocar su
+// anatomía.)
+function m05FmtTime(t) {
+  const [h, m] = String(t || '19:00').split(':');
+  const hh = +h, ap = hh >= 12 ? 'p.m.' : 'a.m.';
+  return (hh % 12 || 12) + ':' + (m || '00') + ' ' + ap;
+}
+function m05StatusLine() {
+  const s = S.settings;
+  const lvlName = { novice: 'Novato', intermediate: 'Intermedio', advanced: 'Avanzado' }[s.learnerLevel || 'novice'];
+  return `Nivel ${lvlName} · Meta ${s.goal} XP · Recordatorio ${m05FmtTime(s.remindTime)}`;
+}
+function m05ShowSub(id) {
+  settingsSub = id;
+  const hub = $('#m05SettingsHub'), subs = $('#m05SettingsSubs');
+  if (!hub || !subs) return;
+  hub.classList.toggle('hidden', !!id);
+  subs.classList.toggle('hidden', !id);
+  $$('#m05SettingsSubs .m05-sub').forEach(sec => sec.classList.toggle('hidden', sec.dataset.m05sub !== id));
+  window.scrollTo(0, 0);
+}
+const _settingsM05 = VIEWS.settings;
+VIEWS.settings = v => {
+  _settingsM05(v);
+  const cards = [...v.querySelectorAll(':scope > .card')];
+  const byId = id => cards.find(c => c.id === id) || null;
+  const byH3 = re => cards.find(c => re.test((c.querySelector('h3') || {}).textContent || '')) || null;
+  const groups = [
+    { id: 'experiencia', ic: '🦜', t: 'Experiencia Tuki', s: 'Compañero, saludos y personalización.', adv: false, cards: [byH3(/Experiencia/), byId('tvCard')] },
+    { id: 'aprendizaje', ic: '🎓', t: 'Aprendizaje', s: 'Nivel, metas, dificultad y pronunciación.', adv: false, cards: [byH3(/Aprendizaje/)] },
+    { id: 'voz', ic: '🎤', t: 'Voz y audio', s: 'Voces, acentos, velocidad y reproducción.', adv: false, cards: [byH3(/Voz y audio/)] },
+    { id: 'apariencia', ic: '🎨', t: 'Apariencia y accesibilidad', s: 'Tema, tipografía y opciones de accesibilidad.', adv: false, cards: [byH3(/Apariencia/)] },
+    { id: 'notificaciones', ic: '🔔', t: 'Notificaciones', s: 'Recordatorios, horarios y avisos de progreso.', adv: false, cards: [byH3(/Recordatorio/)] },
+    { id: 'resumenes', ic: '💬', t: 'Resúmenes de conversación', s: 'Preferencias de resumen del Tutor IA.', adv: false, cards: [byH3(/Resúmenes/), byId('fbkCard')] },
+    { id: 'avanzadas', ic: '⚙️', t: 'Opciones avanzadas', s: 'Configuración adicional y opciones técnicas.', adv: true, cards: [byId('keysCard'), byH3(/Evaluación avanzada/), byH3(/Conversación con IA/), byId('maintCard'), byId('adminCard')] },
+  ];
+  groups.forEach(g => { g.cards = g.cards.filter(Boolean); });
   const h2 = v.querySelector('h2');
-  if (h2 && !$('#settingsLevel', v)) {
-    h2.insertAdjacentHTML('afterend', `<div class="seg" id="settingsLevel" role="group" aria-label="Ver ajustes por nivel">
-      <button type="button" data-slevel="basic" aria-pressed="true">Básico</button>
-      <button type="button" data-slevel="personal" aria-pressed="false">Personalización</button>
-      <button type="button" data-slevel="advanced" aria-pressed="false">Avanzado</button>
-    </div>`);
-    $('#settingsLevel', v).querySelectorAll('button').forEach(b => {
-      b.onclick = () => { settingsLevel = b.dataset.slevel; applySettingsLevel(v); };
+  const foot = [...v.children].find(el => el.tagName === 'P' && /Tuki Speak v/.test(el.textContent || ''));
+  const hub = document.createElement('div');
+  hub.id = 'm05SettingsHub';
+  hub.innerHTML = `<section class="m05-set-hero" aria-label="Ajustes">
+    <div class="m05-set-hero-copy">
+      <h2>⚙️ Ajustes</h2>
+      <p>Todo a tu manera. Personaliza tu experiencia.</p>
+      <span class="m05-status-line">${esc(m05StatusLine())}</span>
+    </div>
+    <div class="m05-tuki-hero" aria-label="Tuki, tu compañero de inglés">
+      <div class="m05-tuki-img"><img src="./tuki/tuki-friendly.webp" alt="Tuki, tu compañero de inglés"></div>
+    </div>
+  </section>
+  <div class="m05-hub">
+    ${groups.filter(g => g.cards.length).map(g => `<button class="m05-hub-row" type="button" data-m05sub-open="${g.id}"><span class="m05-hub-ic">${g.ic}</span><span class="m05-hub-tx"><b>${g.t}</b><span>${g.s}</span></span>${g.adv ? '<span class="m05-badge-av">Avanzado</span>' : ''}<span class="m05-chev">›</span></button>`).join('')}
+  </div>`;
+  v.insertBefore(hub, v.firstChild);
+  if (h2) h2.remove();
+  if (foot) { foot.classList.add('m05-ver-foot'); hub.appendChild(foot); }
+  const subs = document.createElement('div');
+  subs.id = 'm05SettingsSubs';
+  subs.classList.add('hidden');
+  groups.forEach(g => {
+    if (!g.cards.length) return;
+    const sec = document.createElement('section');
+    sec.className = 'm05-sub hidden';
+    sec.dataset.m05sub = g.id;
+    sec.innerHTML = `<div class="m05-sub-head"><button type="button" data-m05back>← Ajustes</button><h2>${g.ic} ${g.t}</h2></div>`;
+    g.cards.forEach(card => {
+      if (g.id === 'avanzadas') {
+        // (Mockup: los bloques de Avanzadas van colapsables, solo el
+        // primero abierto. El título del <summary> es el h3 de la tarjeta
+        // sin su píldora; el h3 propio se oculta por CSS.)
+        const det = document.createElement('details');
+        det.className = 'm05-adv';
+        if (g.cards.indexOf(card) === 0) det.open = true;
+        const sum = document.createElement('summary');
+        const h3 = card.querySelector('h3');
+        sum.textContent = (h3 && h3.childNodes[0] && h3.childNodes[0].nodeType === 3) ? h3.childNodes[0].textContent.trim() : (h3 ? h3.textContent.trim() : g.t);
+        det.appendChild(sum);
+        det.appendChild(card);
+        sec.appendChild(det);
+      } else {
+        sec.appendChild(card);
+      }
+    });
+    subs.appendChild(sec);
+  });
+  v.appendChild(subs);
+  $$('[data-m05sub-open]', v).forEach(b => b.onclick = () => m05ShowSub(b.dataset.m05subOpen));
+  $$('[data-m05back]', v).forEach(b => b.onclick = () => m05ShowSub(null));
+  // (La línea de estado del héroe se actualiza al cambiar Nivel, Meta o
+  // Hora sin esperar a un render: listener delegado, una sola vez.)
+  if (!v.__m05StatusListener) {
+    v.__m05StatusListener = true;
+    v.addEventListener('change', e => {
+      const id = e.target && e.target.id;
+      if (['goal', 'learnerLevel', 'remindTime'].includes(id)) {
+        const line = $('.m05-status-line', v);
+        if (line) line.textContent = m05StatusLine();
+      }
     });
   }
-  applySettingsLevel(v);
+  m05ShowSub(settingsSub);
 };
 
 
@@ -2559,4 +3076,4 @@ buildPlan = function () {
 const _planCard30 = planCardHTML;
 planCardHTML = function () { const base = _planCard30(); if (!practiceErrorsHasData()) return base; return base.replace('</div>\n    <button class="btn orange', '<span class="plan-step">🎯 Tus errores</span></div>\n    <button class="btn orange'); };
 
-window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, finishLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), liveAppend, liveTurnDone, endConversation, summarizeConvo, summaryHTML, openSummarySheet, interviewHTML, openInterviewSheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, pdGenSpeak, pdGenData, pdGenHasData, pdGenAvailable, pdGenValidate, pdGenCacheGet, pdGenCacheSet, PD_GEN_CACHE_KEY, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, errorTutorAvailable, explainError, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, runPendingSummary, sumPendingAdd, startTC, tcEval, tcEx, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, azureReady, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, countUpAll, phonemeHintHTML, renderTukiSVG, openTukiShopModal, interactWithTuki, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, initTukiSleepWatch, initTukiAnimPause, makeMascotClickable, tukiSleepBusy, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, TUKI_SHOP_ITEMS, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, TukiDB, updateOfflineCardStats, runOfflinePreload, customScenarios, addCustomScenario, removeCustomScenario, sanitizeScenario, registerCustomScenarios, ensure29, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, tcHardWords, tcWordsInItems, tcExtraHint, tcFailsTotal, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, buildPlacement, placementFinish, setL, photoSharedAvailable, photoAnalyzeShared, resizePhoto, quotaSummary, quotaAlert, QUOTA_ALERT, adminBody, adminHTML, AD, LIVE_REC, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, get tcLastPersonalized() { return TC_LAST_PERSONALIZED; }, hideSplash, version: APP_VERSION };
+window.TUKI = { get S() { return S; }, TV, TV_AZ, TV_SAMPLE, tvRows, tvPlay, tvStop, tvSelect, tvDeviceVoices, ttsEngineFor, azVoiceFor, cloudTTSBlob, cloudSettings, get L() { return L; }, get R() { return R; }, get LIVE() { return LIVE; }, get CHAT() { return CHAT; }, LESSONS, COURSE, STORIES, IDIOMS, RADIO_EPISODES, idiomOfDay, openStoriesModal, openStory, openRadioModal, openRadioEpisode, openIdiomBank, idiomCardHTML, explainErrorStatus, explainDayLeft, explainDayUsed, explainDayRecord, EXPLAIN_DAY_MAX, errorTutorKey, cacheGet, cacheSet, scoreSpeech, scorePair, typedMatch, normText, onSpeechResult, go, startLesson, finishLesson, buildPractice, buildPlan, azureToResult, azureAssess, errES, pitchTrack, contourDir, startLive, stopLive, chatSend, Player, LEVELS, chatLevel, tutorLang, TUTOR_LANGS, tutorSpeed, TUTOR_SPEEDS, speedRules, openWordPop, dictLookup, parseTutor: t => parseTutor(t), tutorSpeechParts, pickEsVoice, liveSystem: () => liveSystem(), chatSystem: () => chatSystem(), liveAppend, liveTurnDone, endConversation, summarizeConvo, summaryHTML, openSummarySheet, interviewHTML, openInterviewSheet, hardWords, startHardDrill, interviewSetup, challengeSetup, todayTopic, TOPICS, decodeState, mergeStates, aiJSON, chStreak, TC_BANK, TC_CTX, TC_VOICE: V, PD_LISTEN, PD_SPEAK, PD_MIXED, FB, FB_CFG, fbLoad, cloudSync, cloudFirstSync, cloudPush, fbSignOut, sanitizeState, sanitizeSettings, kdf, newKS, sealKeys, openKeys, ksFromPhrase, unlockKeys, createPhrase, changePhrase, forgetPhrase, setLocalLock, phraseStrength, KS, get LOCKED() { return LOCKED; }, KDF_ITER, packProgress, exportState, authErr, pdPick, pdItems, startPD, pdStreak, pdKeywordEval, pdEvaluate, pdGenSpeak, pdGenData, pdGenHasData, pdGenAvailable, pdGenValidate, pdGenCacheGet, pdGenCacheSet, PD_GEN_CACHE_KEY, ensure27, pdCardHTML, dayKey, tcExtract, tcExtractAll, tcCanVoice, tcVoiceResult: (a, az) => tcVoiceResult(L.cur, a, az), decodeEnt, decodeDeep, tapWords, quoteTap, aiQuick, AIQ, errorTutorAvailable, explainError, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, runPendingSummary, sumPendingAdd, startTC, tcEval, tcEx, tcPick, tcGenerate, tcValidate, tcSetup, tcMasteredCount, tcById, ensure25, gemShared, azShared, azureReady, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, AZT, tukiApi, azAuth, TUKI_API, srsStats, openShadowingModal, openMouthSelector, openPhotoPractice, openHandsFreeModal, openMissionsModal, HANDS_FREE_BANK, canvasConfetti, MISSION_SCENARIOS, SHADOW_BANK, checkForAppUpdates, countUpAll, phonemeHintHTML, renderTukiSVG, interactWithTuki, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, initTukiSleepWatch, initTukiAnimPause, makeMascotClickable, tukiSleepBusy, spawnTukiParticles, speakTukiEs, tukiChirp, tukiFanfare, tukiTrophyFanfare, victoryConfetti, speakSnail, openTravelGuideModal, openInterviewSimulatorModal, addCoins, getTop5Errors, buildTopErrorsPractice, sendTukiNotification, TukiDB, updateOfflineCardStats, runOfflinePreload, customScenarios, addCustomScenario, removeCustomScenario, sanitizeScenario, registerCustomScenarios, ensure29, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, tcHardWords, tcWordsInItems, tcExtraHint, tcFailsTotal, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, buildPlacement, placementFinish, setL, photoSharedAvailable, photoAnalyzeShared, resizePhoto, quotaSummary, quotaAlert, QUOTA_ALERT, adminBody, adminHTML, AD, LIVE_REC, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, get tcLastPersonalized() { return TC_LAST_PERSONALIZED; }, hideSplash, version: APP_VERSION };

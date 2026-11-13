@@ -207,7 +207,7 @@ export const GEMINI_LIVE_MODELS = ['gemini-3.1-flash-live-preview', 'gemini-2.5-
 export function currentProvider() { const s = S.settings; if (s.chatProvider === 'openai' && s.openaiKey) return 'openai'; if (s.geminiKey) return 'gemini'; if (s.openaiKey) return 'openai'; return gemShared() ? 'gemini' : null; }
 /* ---- Nivel de inglés para la conversación ---- */
 export const LEVELS = {
-  A0: { label: 'Novato (Desde cero absoluto)', short: 'Novato',
+  A0: { label: 'Novato (Desde cero)', short: 'Novato',
     vocab: 'Use ONLY the most fundamental words (greetings, numbers, yes/no, please, thank you). Always accompany words with Spanish translation when introducing new phrases.',
     length: 'Extremely short: 1 short phrase or question (maximum 6 words).',
     speed: 'Speak VERY SLOWLY, clearly articulating each syllable, with comfortable pauses.',
@@ -650,11 +650,44 @@ export async function toggleTranslate(i) {
    el prompt prohíbe inventar errores fuera de esos datos. */
 export const ERR_TUTOR_SYS = `You are "Tuki", a patient English pronunciation tutor for a Spanish-speaking learner from Colombia. The learner just made a mistake in an exercise. You are given MEASURED data about that mistake (what was expected, what the learner said or chose, scores per word, and any phoneme tip measured by an automatic evaluator).
 Explain in Latin American Spanish (use "tú"), in 1-2 short sentences: what was heard vs. what it should have been, which phoneme or word failed, and the corrected sentence to repeat.
-Rules: only use the data given. Never invent mistakes that are not in the data. If the data does not show a clear error, say so in one sentence. Do not add greetings, markdown or extra sections. Output only the explanation.`;
+Rules: only use the data given. Never invent mistakes that are not in the data. If the data does not show a clear error, say so in one sentence. Do not add greetings, markdown or extra sections. In total, maximum 150 words. Output only the explanation.`;
 export function errorTutorAvailable() {
   if (!currentProvider()) return false;
   if (gemShared()) { const q = aiQuotaToday(); if (q && (q.limit - q.used) <= 0) return false; }
+  if (explainDayLeft() <= 0) return false;
   return true;
+}
+/* ---- C-01 (TUKI-CONTENIDO-NUEVO-001): límite duro de 3 explicaciones
+   de error por día. El conteo vive en localStorage (día + nº de llamadas
+   REALES a la IA, no lecturas de caché): una explicación guardada se puede
+   releer sin gastar cuota. Solo con sesión (clave compartida) o clave
+   propia: eso ya lo garantiza currentProvider()/gemShared(). Sin Gemini
+   no funciona: el botón lo dice (explainErrorStatus), no falla en
+   silencio. */
+export const EXPLAIN_DAY_MAX = 3;
+export const EXPLAIN_DAY_KEY = 'tukiSpeak.explainDay.v1';
+export function explainDayRec() {
+  try {
+    const v = JSON.parse(localStorage.getItem(EXPLAIN_DAY_KEY) || 'null');
+    if (v && v.day === dayKey() && Number.isFinite(v.n)) return v;
+  } catch (e) {}
+  return { day: dayKey(), n: 0 };
+}
+export function explainDayUsed() { return explainDayRec().n; }
+export function explainDayLeft() { return Math.max(0, EXPLAIN_DAY_MAX - explainDayUsed()); }
+export function explainDayRecord() {
+  const r = explainDayRec(); r.n = Math.min(EXPLAIN_DAY_MAX, r.n + 1);
+  try { localStorage.setItem(EXPLAIN_DAY_KEY, JSON.stringify(r)); } catch (e) {}
+  return r.n;
+}
+/* Estado para la UI: ok (con restantes), no-provider (sin Gemini) o quota
+   (se acabaron las 3 de hoy). La hoja de resultados y «Tus errores» lo
+   muestran tal cual; el botón en el ejercicio simplemente no aparece
+   cuando no está disponible (comportamiento previo). */
+export function explainErrorStatus() {
+  if (!currentProvider()) return { ok: false, why: 'no-provider', left: explainDayLeft() };
+  if (explainDayLeft() <= 0) return { ok: false, why: 'quota', left: 0 };
+  return { ok: true, why: 'ok', left: explainDayLeft() };
 }
 export function errorTutorKey(c) {
   return hashStr(JSON.stringify([c.kind, c.type || '', c.target || '', c.heard || '', c.pct == null ? '' : Math.round(c.pct), (c.weak || []).map(w => w.t + ':' + Math.round(w.s * 100)).join(',')]));
@@ -677,12 +710,13 @@ export async function explainError(c) {
   if (cached) return cached;
   const text = String(await aiQuick(ERR_TUTOR_SYS, errorTutorPrompt(c), { max: 300 }) || '').trim();
   if (!text) throw new Error('La IA no devolvió una explicación.');
+  explainDayRecord(); // solo la llamada real cuenta; la caché no gasta cuota
   cacheSet('e', id, text);
   return text;
 }
 export function errorTutorHTML(c) {
   if (!c || !errorTutorAvailable()) return '';
-  return `<div class="err-tutor"><button class="btn ghost block err-tutor-btn" data-err-tutor type="button">💡 ¿Por qué me equivoqué?</button><div class="err-tutor-box" data-err-tutor-box hidden></div></div>`;
+  return `<div class="err-tutor"><button class="btn ghost block err-tutor-btn" data-err-tutor type="button">💡 ¿Por qué me equivoqué?</button><div class="small muted" style="text-align:center">Quedan ${explainDayLeft()} de ${EXPLAIN_DAY_MAX} explicaciones hoy</div><div class="err-tutor-box" data-err-tutor-box hidden></div></div>`;
 }
 export function bindErrorTutor(root, c) {
   const btn = root && root.querySelector ? root.querySelector('[data-err-tutor]') : null;
@@ -1428,7 +1462,28 @@ export function enterMode(scen, voice) {
 }
 export function leaveMode() { clearInterval(CHAT.timer); CHAT.timer = null; CHAT.scen = 'free'; CHAT.iv = null; CHAT.ch = null; resetChat(); if (TAB === 'chat') render(); }
 export function interviewSetup() {
-  if (!currentProvider()) { toast('El simulador necesita una clave de Gemini (gratis) u OpenAI en Ajustes.', 3500); return go('settings'); }
+  // (NAV-06: como «Traduce y completa» — modal «Práctica bloqueada» con el
+  // requisito y botón a Ajustes, en vez de saltar a Ajustes con un toast.
+  // El requisito no cambia: clave de Gemini u OpenAI, o sesión con Google
+  // para usar la cuenta de Tuki gratis.)
+  if (!currentProvider()) {
+    modal(`<div style="text-align:center"><div style="font-size:54px">🔒</div>
+    <h2>Práctica bloqueada</h2>
+    <p class="muted">Para usar el <b>Simulador de entrevista</b>, Tuki necesita una clave de <b>Gemini (gratis)</b> u <b>OpenAI</b> para conversar como reclutador.</p>
+    <div class="tipbox" style="margin:12px 0;text-align:left">
+      <div><b>Requisito:</b> Una clave de Gemini (gratis) u OpenAI en Ajustes.</div>
+      <div class="small muted" style="margin-top:4px">Si inicias sesión con Google, funciona gratis con la cuenta de Tuki, sin clave propia.</div>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn ghost block" data-x>Entendido</button>
+      <button class="btn primary block" data-go-settings>Ir a Ajustes ⚙️</button>
+    </div></div>`,
+      (el, close) => {
+        $('[data-x]', el).onclick = close;
+        $('[data-go-settings]', el).onclick = () => { close(); go('settings'); };
+      });
+    return;
+  }
   const last = S.settings.ivLast || {}, lv = chatLevel();
   modal(`<h2>🧑‍💼 Simulador de entrevista</h2><p class="small muted">Tuki hará de reclutador y al final recibirás un informe en español con puntaje y mejores respuestas.</p>
     <label class="small"><b>Cargo o industria</b></label><input class="field" id="ivRole" maxlength="80" placeholder="Ej.: desarrollador frontend, enfermera, ventas…" value="${esc(last.role || '')}">

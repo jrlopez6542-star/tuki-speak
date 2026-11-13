@@ -5,10 +5,11 @@
 import { $, $$, avg, colorOf, dayKey, decodeDeep, decodeEnt, esc, hashStr, lev, normText, pick, scoreSpeech, shuffle, sleep } from './utils.js';
 import { DAY, MAX_HEARTS, S, addToDeck, isDone, recordSpeech, refreshHearts, soundAvg, todayRec } from './state.js';
 import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
-import { L, RENDER, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
+import { L, RENDER, buildLesson, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
 import { AZT, CHAT, LEVELS, LEVEL_KEYS, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tukiApi, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
 import { TukiDB } from './tuki-db.js';
+import { STORIES, storyById, IDIOMS, idiomEntry, idiomOfDay, RADIO_EPISODES, radioById, CONTENT_REVIEW_NOTE } from './content-new.js';
 import { APP_VERSION, COURSE, LESSON, LESSONS, TAB, TC_LAST_PERSONALIZED, TUKI_OFFLINE_TC, VIEWS, addXP, beep, checkBadges, closeLesson, confetti, decodeAudio, go, isUnlocked, render, save, streakNow, tcGenerate, toast, tukiChirp, tukiFanfare } from './main.js';
 
 export function renderTukiSVG(skin, opts = {}) {
@@ -213,9 +214,18 @@ export function renderTukiSVG(skin, opts = {}) {
 
   return `<svg ${size}viewBox="0 0 100 100" class="tuki-svg" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${defs}${colors.aura}<!-- Sombra de suelo --><ellipse cx="44" cy="96" rx="28" ry="4" fill="url(#tuki-ground-shadow)"/>${capeBehind}<g class="tuki-body-group"><!-- Cuerpo 3D esférico --><ellipse cx="46" cy="58" rx="30" ry="34" fill="url(#tuki-body-grad-${pl})"/><!-- Brillo de contorno superior (Rim Light) --><path d="M22 40 C28 29 48 30 64 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.18"/><!-- Sombra de oclusión en base del torso --><path d="M26 78 C34 88 56 88 66 78 C58 84 34 84 26 78 Z" fill="${colors.bodyDark}" opacity="0.45"/><!-- Pecho 3D convexo con volumen y brillo --><ellipse cx="45" cy="69" rx="17.5" ry="19" fill="${colors.bodyDark}" opacity="0.25"/><ellipse cx="44" cy="66" rx="17" ry="20" fill="url(#tuki-chest-grad-${pl})"/><ellipse cx="40" cy="58" rx="8" ry="10" fill="#ffffff" opacity="0.28"/><path d="M32 68 Q38 73 44 73 Q50 73 56 68 Q50 76 44 77 Q38 76 32 68 Z" fill="${colors.chestDark}" opacity="0.35"/><path d="M35 74 Q44 78 53 74 Q44 81 35 74 Z" fill="${colors.chestDark}" opacity="0.3"/><!-- Ala 3D con sombreado y plumas escalonadas --><path d="M19 61 C8 72 12 87 25 88" stroke="#000000" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.25"/><path class="tuki-wing" d="M20 60 C10 70 14 84 24 86 C21 79 20 73 22 66 Z" fill="url(#tuki-wing-grad-${pl})"/><path d="M21 62 C15 69 16 77 22 81" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none" opacity="0.3"/><path class="tuki-wing-inner" d="M17 68 C13 74 15 81 21 84" stroke="${colors.wingDark}" stroke-width="1.3" fill="none" opacity="0.5"/><!-- Patas 3D con volumen cilíndrico y garras --><g class="tuki-feet"><ellipse cx="28" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="42" cy="98" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><ellipse cx="56" cy="97" rx="5" ry="1.8" fill="url(#tuki-ground-shadow)"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="url(#tuki-foot-grad)" stroke-width="4.5" stroke-linecap="round"/><path d="M30 89 L26 97 M42 91 L42 98 M54 89 L58 97" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" opacity="0.4"/><circle cx="25.5" cy="97" r="1.4" fill="#78350f"/><circle cx="42" cy="98" r="1.4" fill="#78350f"/><circle cx="58.5" cy="97" r="1.4" fill="#78350f"/></g>${outfitLayer}${handLayer}</g><g class="tuki-head-group"><!-- Antifaz orbital toucan 3D --><ellipse cx="40" cy="40" rx="13.2" ry="12.8" fill="${colors.eyePatch}" opacity="0.22"/><ellipse cx="40" cy="40" rx="12.2" ry="11.8" fill="${colors.bodyDark}" opacity="0.35"/><!-- Ojo esférico 3D con lente gloss y reflejos múltiples --><g class="tuki-eye"><circle cx="40" cy="40" r="11" fill="url(#tuki-eye-sphere)"/><path d="M30 36 C34 32 46 32 50 36 C45 34 35 34 30 36 Z" fill="#94a3b8" opacity="0.4"/><circle cx="42" cy="40" r="5.8" fill="url(#tuki-iris-grad)"/><circle cx="42" cy="40" r="5.8" fill="none" stroke="#60a5fa" stroke-width="0.8" opacity="0.5"/><ellipse cx="44.2" cy="37.8" rx="2.2" ry="1.8" transform="rotate(-20 44.2 37.8)" fill="#ffffff"/><circle cx="40.2" cy="42.6" r="1.1" fill="#ffffff" opacity="0.9"/><circle cx="45" cy="41" r="0.6" fill="#ffffff" opacity="0.75"/></g><!-- Pico 3D esculpido con cresta de brillo y oclusión --><g class="tuki-beak"><path d="M50 33 C47 38 47 46 51 51" stroke="#0f172a" stroke-width="2.8" stroke-linecap="round" fill="none" opacity="0.6"/><path class="tuki-beak-top" d="M50 34 C70 26 94 32 97 44 C92 52 72 54 52 50 Z" fill="url(#tuki-bt-${pl})"/><path d="M54 35.5 C70 30 88 34 94 42" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" fill="none" opacity="0.55"/><path d="M58 35 C72 31 84 34 90 39" stroke="#ffffff" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.8"/><path class="tuki-beak-bot" d="M52 46 C70 48 88 48 97 44 C92 54 70 58 52 50 Z" fill="url(#tuki-bb-${pl})"/><path d="M56 50 C70 55 86 52 93 47" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.25"/><path d="M51 48 C70 50.5 88 49.5 96 43.5" stroke="#3b0707" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.5"/><path d="M88 39 C93 38 97 43 97 44 C94 49 90 49 88 46 Z" fill="#090d16"/><circle cx="93.5" cy="41.5" r="1.6" fill="#ffffff" opacity="0.7"/><circle cx="94" cy="43.5" r="2.8" fill="#1f2a33" opacity="0.6"/></g>${hatLayer}</g></svg>`;
 }
-export let MASCOT = renderTukiSVG();
+/* (Fase 2: MASCOT ya NO es el SVG antiguo: es la imagen raster del
+   prototipo (pose base 'friendly'). renderTukiSVG() queda solo como
+   export heredado (la tienda se eliminó 2026-11-12): no hay equivalente
+   raster para sombreros, ropa, objetos ni plumajes. MASCOT se inicializa
+   tras TUKI_POSES, más abajo, porque tukiPoseFor depende de ese mapa.) */
+export let MASCOT = '';
 export function updateMascot() {
-  MASCOT = renderTukiSVG();
+  // (Fase 2: la skin de la tienda ya no se refleja fuera de la tienda:
+  // las poses raster son imágenes fijas e indivisibles. Se mantiene la
+  // función para que render()/finishLesson()/state.js sigan llamándola
+  // sin cambios; solo repone la pose base.)
+  MASCOT = tukiImgHTML('friendly');
 }
 
 /* =================== ESTADO / PERSISTENCIA =================== */
@@ -408,9 +418,10 @@ export function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType
 
 /* ---- Coordinador de estado de Tuki (Fase premium, etapa 1) ----
    Una sola API para pedir estados de Tuki: tukiMood(estado, opts).
-   El estado vive en JS + clases CSS en el wrapper de la mascota, nunca
-   dentro del string SVG: MASCOT se re-renderiza al cambiar la skin y
-   perdería cualquier estado guardado dentro.
+   (Fase 2: el estado vive en JS + clases CSS en el wrapper de la
+   mascota y, sobre las imágenes raster, como cambio de src vía
+   tukiPoseFor — con vuelta a la pose base al terminar. La tienda es
+   la única que conserva el SVG antiguo y sus animaciones por partes.)
    Prioridad (un estado nuevo solo interrumpe al actual si su prioridad es
    mayor o igual; 'idle' siempre limpia): speaking 90 > celebration 80 >
    excited/proud 70 > happy/confused/sad 60 > thinking/listening 50 >
@@ -420,6 +431,37 @@ export function triggerTukiAnimation(el, animClass = 'tuki-wiggle', particleType
    igual (y las poses de estado, como los ojos cerrados de 'sleeping', se
    aplican como cambio instantáneo), pero sin partículas ni clases de salto. */
 export const TUKI_MOOD_PRIORITY = { idle: 0, sleeping: 10, thinking: 50, listening: 50, happy: 60, confused: 60, sad: 60, proud: 70, excited: 70, celebration: 80, speaking: 90 };
+/* Poses raster de Tuki (prototipo Temas Globales, ui/prototipo-temas-globales):
+   el tucán en 5 estados compactos + neutro/amable + GIF de la burbuja.
+   'thinks' reutiliza el archivo de 'neutral' (bytes idénticos en el prototipo).
+   Las rutas son relativas a la raíz servida (public/tuki/ -> dist/tuki/). */
+export const TUKI_POSES = {
+  neutral: './tuki/tuki-neutral.webp', explains: './tuki/tuki-explains.webp',
+  celebrates: './tuki/tuki-celebrates.webp', thinks: './tuki/tuki-neutral.webp',
+  motivates: './tuki/tuki-motivates.webp', waves: './tuki/tuki-waves.webp',
+  friendly: './tuki/tuki-friendly.webp', bubble: './tuki/tuki-bubble.gif',
+};
+/* Mapa compacto de los 5 estados del prototipo sobre los moods existentes
+   (sin pantallas ni secciones nuevas): saluda=waves, explica=explains,
+   celebra=celebrates, piensa=thinks, motiva=motivates. (Fase 2: el mapa
+   ya cubre la extensión pedida — speaking/listening→explains,
+   confused→thinks, sleeping→neutral, sad→motivates — porque 'thinks'
+   reutiliza el archivo de 'neutral' y no hay pose triste ni dormida en
+   las 7 imágenes; tukiMood aplica el cambio como cambio de src.) */
+export const TUKI_POSE_BY_MOOD = {
+  celebration: 'celebrates', excited: 'celebrates', happy: 'friendly', proud: 'motivates',
+  thinking: 'thinks', listening: 'explains', speaking: 'explains', confused: 'thinks',
+  sad: 'motivates', sleeping: 'neutral', idle: 'neutral',
+};
+export function tukiPoseFor(mood) { return TUKI_POSES[TUKI_POSE_BY_MOOD[mood] || 'neutral']; }
+/* (Fase 2: punto único de inserción del avatar raster. data-tuki-base
+   guarda la pose base de cada sitio para que tukiMood pueda volver a
+   ella cuando el estado transitorio termina.) */
+export function tukiImgHTML(mood = 'friendly', attrs = '') {
+  const src = tukiPoseFor(mood);
+  return `<img class="tuki-img" src="${src}" data-tuki-base="${src}" alt="Tuki" draggable="false" ${attrs}>`;
+}
+MASCOT = tukiImgHTML('friendly');
 const TUKI_MOOD_MS = { happy: 900, excited: 1000, confused: 1200, sad: 900, proud: 1200, celebration: 1200 };
 const TUKI_MOOD_CLASSES = ['tuki-mood-thinking', 'tuki-mood-listening', 'tuki-mood-confused', 'tuki-mood-sleeping', 'tuki-mood-proud'];
 const TUKI_MOOD_ANIM = ['tuki-wiggle', 'tuki-celebrate', 'tuki-comfort'];
@@ -437,11 +479,40 @@ export function tukiMoodReduced() {
 export function getTukiMood() { return tukiMoodCurrent; }
 
 function tukiMoodResolve(el) {
+  // (Fase 2: la guía de Aprender y el modal Compañero también resuelven
+  // aquí; el selector incluye la propia <img> por si el objetivo ya es
+  // la imagen raster.)
+  const SEL = '.brand-mascot-wrap,.mascot,.tuki-tutor-mascot,.tc-mascot,.tuki-guide-mascot,#companionMascot,.tuki-img';
   if (el) {
-    const m = (el.matches && el.matches('.brand-mascot-wrap,.mascot,.tuki-tutor-mascot,.tc-mascot')) ? el : ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || $('.tc-mascot', el) || el);
+    const m = (el.matches && el.matches(SEL)) ? el : ($('.brand-mascot-wrap', el) || $('.mascot', el) || $('.tuki-tutor-mascot', el) || $('.tc-mascot', el) || $('.tuki-guide-mascot', el) || el);
     return m ? [m] : [];
   }
-  return $$('.brand-mascot-wrap, .mascot, .tuki-tutor-mascot, .tc-mascot, #companionMascot');
+  return $$('.brand-mascot-wrap, .mascot, .tuki-tutor-mascot, .tc-mascot, .tuki-guide-mascot, #companionMascot');
+}
+/* (Fase 2: sobre <img> raster no hay pico/ojo/ala que animar por CSS:
+   cada mood es un cambio de src (tukiPoseFor) y, al terminar el estado
+   transitorio, se vuelve a la pose base guardada en data-tuki-base.
+   Sobre el SVG de la tienda (sin <img>) no se toca nada: las clases
+   antiguas siguen animando sus partes.) */
+function tukiMoodImg(m) {
+  if (!m) return null;
+  if (m.tagName === 'IMG' && m.classList.contains('tuki-img')) return m;
+  return m.querySelector ? m.querySelector('img.tuki-img') : null;
+}
+function tukiMoodSetPose(targets, state) {
+  targets.forEach(m => {
+    const img = tukiMoodImg(m);
+    if (!img) return;
+    if (!img.dataset.tukiBase) img.dataset.tukiBase = img.getAttribute('src');
+    img.src = tukiPoseFor(state);
+  });
+}
+function tukiMoodRestorePose(targets) {
+  targets.forEach(m => {
+    const img = tukiMoodImg(m);
+    if (!img) return;
+    if (img.dataset.tukiBase) img.src = img.dataset.tukiBase;
+  });
 }
 function tukiMoodClearClasses(els) {
   els.forEach(m => m.classList.remove('tuki-talking', ...TUKI_MOOD_ANIM, ...TUKI_MOOD_CLASSES));
@@ -458,7 +529,10 @@ export function tukiMood(state, opts = {}) {
   tukiMoodClearClasses([...new Set([...tukiMoodTargets, ...targets])]);
   tukiMoodTargets = targets;
   tukiMoodCurrent = state;
-  if (state === 'idle') return 'idle';
+  if (state === 'idle') { tukiMoodRestorePose(targets); return 'idle'; }
+  // (Fase 2: el mood cambia la pose raster; las clases de animación del
+  // wrapper (wiggle/celebrate/comfort) siguen funcionando sobre el <img>.)
+  tukiMoodSetPose(targets, state);
   const reduced = tukiMoodReduced();
   const chirp = opts.chirp === undefined ? ({ happy: 'chirp', excited: 'celebrate', celebration: 'celebrate', sad: 'comfort', proud: 'celebrate', confused: 'chirp' })[state] || null : opts.chirp;
   if (chirp) { try { tukiChirp(chirp); } catch (e) {} }
@@ -484,7 +558,7 @@ export function tukiMood(state, opts = {}) {
   if (ms > 0) {
     tukiMoodTimer = setTimeout(() => {
       tukiMoodTimer = null;
-      if (tukiMoodCurrent === state) { tukiMoodClearClasses(tukiMoodTargets); tukiMoodCurrent = 'idle'; }
+      if (tukiMoodCurrent === state) { tukiMoodClearClasses(tukiMoodTargets); tukiMoodRestorePose(tukiMoodTargets); tukiMoodCurrent = 'idle'; }
     }, ms);
   }
   return state;
@@ -609,7 +683,10 @@ export const TUKI_QUOTES_ES = [
   "¡No pares ahora! Mantener la racha diaria es el secreto del éxito.",
   "¡Paso a paso, parcero! Si practicas 5 minutos hoy, tu futuro te lo agradecerá.",
   "¡Excelente vibra! Recuerda tomar agüita y vocalizar bien clarito.",
-  "¡Gana monedas y pásate por mi armario a ver qué más me estrenas!"
+  "¡Gana monedas y pásate por mi armario a ver qué más me estrenas!",
+  "¡Lección perfecta! ¡Ni un solo error, qué berraquera!",
+  "¿Perdiste un corazón? ¡No pasa nada! Tuki te anima a seguir.",
+  "¡Tu racha está que arde! ¡No la dejes enfriar, parcero!"
 ];
 
 export function speakTukiEs(text, targetEl) {
@@ -662,7 +739,7 @@ export function openTukiCompanionModal(phrase) {
       <div style="width:115px;height:115px;margin:0 auto 10px;cursor:pointer" id="companionMascot" title="¡Toca a Tuki!">
         ${MASCOT}
       </div>
-      <h2 style="margin:0 0 4px">¡Hola, soy Tuki! 🦜✨</h2>
+      <h2 style="margin:0 0 4px">¡Hola, soy Tuki! ✨</h2>
       <div class="tuki-speech" style="margin:8px auto 14px;max-width:320px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 14px;font-size:13px;font-weight:700">
         «${esc(phrase)}»
       </div>
@@ -676,7 +753,6 @@ export function openTukiCompanionModal(phrase) {
     ${notifBlock}
 
     <div class="row wrap" style="gap:8px;margin-top:14px">
-      <button class="btn blue block" id="btnCompanionShop">🛍️ Vestir a Tuki (Armario)</button>
       <button class="btn ghost block" data-x>¡Entendido!</button>
     </div>
   `;
@@ -692,12 +768,6 @@ export function openTukiCompanionModal(phrase) {
       };
       makeMascotClickable(cm, '¡Toca a Tuki!');
     }
-
-    const bShop = $('#btnCompanionShop', el);
-    if (bShop) bShop.onclick = () => {
-      close();
-      openTukiShopModal();
-    };
 
     const bNotif = $('#btnCompanionNotif', el);
     if (bNotif) bNotif.onclick = async () => {
@@ -748,7 +818,7 @@ export function interactWithTuki(el) {
   const phrase = pick(TUKI_QUOTES_ES);
   if (L) {
     speakTukiEs(phrase, m);
-    toast(`🦜 Tuki: "${phrase}"`, 3500);
+    toast(`Tuki: "${phrase}"`, 3500);
     return;
   }
   speakTukiEs(phrase, m);
@@ -778,7 +848,7 @@ export function makeMascotClickable(el, label) {
 }
 
 export function tukiTutorBannerHTML(opts = {}) {
-  const title = opts.title || 'Profe Tuki 🦜';
+  const title = opts.title || 'Profe Tuki';
   const msg = opts.msg || '';
   const sub = opts.sub || '';
   const speakText = opts.speakText || msg;
@@ -810,12 +880,16 @@ export function bindTukiTutorBanner(body) {
 // (Fase 3, modulo 4: movido a src/lessons.js, lineas 1173-1558)
 
 export function lessonSheet(l) {
+  refreshHearts();
   const unl = isUnlocked(l), d = S.done[l.id], cur = currentLesson();
   if (!unl) {
-    modal(`<div style="text-align:center"><div style="font-size:54px">🔒</div>
+    modal(`<div style="display:flex;justify-content:flex-end"><button class="xbtn" type="button" data-x aria-label="Cerrar">✕</button></div>
+      <div style="text-align:center"><div style="font-size:54px">🔒</div>
       <h2>Lección bloqueada</h2>
       <p class="muted">Sigue el orden de la ruta (estilo Duolingo) para avanzar paso a paso y dominar tu pronunciación.</p>
       ${cur ? `<div class="tipbox" style="margin:12px 0;text-align:left"><b>Lección actual:</b> ${cur.icon} ${esc(cur.title)} <span class="small muted">(${esc(cur.unit.title)})</span></div>` : ''}
+      <div class="m1-hero-pills" style="justify-content:center"><span class="m1-pill solid">❤️ ${S.hearts}/5 vidas</span><span class="m1-pill solid">1 vida cada 30 min</span></div>
+      <p class="small muted">La voz nunca quita vidas. En oído, un error cuesta 1 ❤️.</p>
       <div class="row" style="margin-top:16px">
         <button class="btn ghost block" data-x>Cerrar</button>
         ${cur ? `<button class="btn primary block" data-cur>Ir a la lección actual 🚀</button>` : ''}
@@ -827,14 +901,63 @@ export function lessonSheet(l) {
       });
     return;
   }
-  modal(`<div class="row"><div style="font-size:40px">${l.icon}</div><div><div class="muted small">${esc(l.unit.title)} · Lección ${l.li + 1}</div><h2 style="margin:0">${esc(l.title)}</h2>${!l.type ? `<div class="ipa">/${esc(l.sound)}/</div>` : ''}</div></div>
-    <div class="tipbox small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</div>${mouthPanelHTML(l.id, true)}
-    ${d && d.placed && !d.times ? '<p class="small muted">✅ Aprobada en la prueba de nivel</p>' : d ? `<p class="small muted">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : ''}
-    <button class="btn primary block" data-go>${d ? 'Repetir lección' : 'Empezar lección'} (+10 XP)</button>${d ? '<button class="btn ghost block" style="margin-top:10px" data-drill>🎯 Práctica de este sonido</button>' : ''}`,
-    (el, close) => { const g = $('[data-go]', el); if (g) g.onclick = () => { close(); startLesson(l); }; const dr = $('[data-drill]', el); if (dr) dr.onclick = () => { close(); startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); }; });
+  // (TUKI-IMPL-M1-001: tarjeta de lección D3 en lenguaje G. Héroe tintado
+  // con el color real de la unidad; sonido/IPA/explicación/consejo de boca
+  // reales de COURSE; píldoras con datos reales (vidas del estado, nº real
+  // de ejercicios de buildLesson, XP honesto +10, hasta +20); cola resumida
+  // por tipo con conteos reales; práctica solo con destino real
+  // (buildPractice('sound') existe para cualquier lección). Sin manos
+  // libres (M1 no la lleva).)
+  const q = buildLesson(l, 'lesson');
+  const nEx = q.length;
+  const queueKinds = [
+    ['learn', '🎓', 'Aprender el sonido'],
+    ['ear', '🎧', 'Oído'],
+    ['speak-word', '🎙️', 'Habla · palabra'],
+    ['speak-sentence', '🎙️', 'Habla · frase'],
+    ['saypair', '🎙️', 'Habla · par mínimo'],
+    ['order', '🔀', 'Ordenar'],
+    ['shadow', '👥', 'Shadowing'],
+    ['dialog', '💬', 'Diálogo'],
+    ['ltype', '✍️', 'Dictado']
+  ];
+  const kindOf = e => e.kind === 'pick' || e.kind === 'quiz' ? 'ear'
+    : e.kind === 'speak' ? (e.variant === 'sentence' ? 'speak-sentence' : 'speak-word') : e.kind;
+  const counts = {};
+  q.forEach(e => { const k = kindOf(e); counts[k] = (counts[k] || 0) + 1; });
+  const queueRows = queueKinds.filter(([k]) => counts[k]).map(([k, ic, label]) =>
+    `<div class="m1-qrow"><span class="m1-qi">${ic}</span>${label}<span class="m1-qn">×${counts[k]}</span></div>`).join('');
+  const unitNo = String(l.ui + 1).padStart(2, '0'), lesNo = String(l.li + 1).padStart(2, '0'), lesTotal = String(l.unit.lessons.length).padStart(2, '0');
+  modal(`<div style="display:flex;justify-content:flex-end"><button class="xbtn" type="button" data-x aria-label="Cerrar">✕</button></div>
+    <div class="m1-ctxbar"><span class="m1-uchip" style="--uc:${l.unit.color}">${l.unit.icon} U${l.ui + 1}</span><span>Unidad ${l.ui + 1} · ${esc(l.unit.title)} — Lección ${l.li + 1} de ${l.unit.lessons.length}</span></div>
+    <div class="m1-eyebrow">Unidad ${unitNo} · Lección ${lesNo} de ${lesTotal}</div>
+    <h2 class="m1-card-title">Prepara tu oído.</h2>
+    <p class="muted small" style="margin:0 0 12px">Una práctica corta para dominar un sonido nuevo.</p>
+    ${d && d.placed && !d.times ? `<p class="small muted" style="margin:0 0 12px">✅ Aprobada en la prueba de nivel</p>` : d ? `<p class="small muted" style="margin:0 0 12px">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : ''}
+    <div class="m1-hero" style="--uc:${l.unit.color}">
+      <div class="m1-hero-eyebrow">SONIDO DE HOY</div>
+      <div class="m1-hero-title">${l.icon} ${esc(l.title)}</div>
+      ${!l.type && l.sound ? `<div class="m1-hero-ipa">/${esc(l.sound)}/</div>` : l.type === 'dialog' ? `<div class="m1-hero-ipa">💬 Diálogo</div>` : `<div class="m1-hero-ipa">📚 Vocabulario</div>`}
+      <p class="m1-hero-expl">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>
+      ${l.mouth ? `<p class="m1-hero-mouth">👄 ${esc(l.mouth)}</p>` : ''}
+      <div class="m1-hero-pills"><span class="m1-pill">❤️ ${S.hearts}/5 vidas</span><span class="m1-pill">🎧 ${nEx} ejercicios</span><span class="m1-pill">⭐ Hasta +20 XP</span></div>
+      <button class="btn primary block" data-go>${d ? 'Repetir lección' : 'Comenzar la lección'} · +10 XP, hasta +20 XP</button>
+      <p class="m1-hero-bonus">+5 si es perfecta en oído · +5 si pronuncias ≥85% · +25 XP extra si completas la unidad</p>
+    </div>
+    ${mouthPanelHTML(l.id, true)}
+    <p class="xp-line">Gana XP por escuchar con atención y pronunciar con claridad.</p>
+    <div class="m1-queue"><h3>La lección en ${nEx} pasos</h3>${queueRows}</div>
+    ${l.unit.guide ? `<div class="tipbox" style="margin-top:10px"><b>📘 Guía de la unidad:</b> ${esc(l.unit.guide.t)}<div class="small muted">${esc(l.unit.guide.b.split('.')[0])}.</div><button class="btn ghost sm" data-guide-foot style="margin-top:6px">Ver la guía completa</button></div>` : ''}
+    <button class="btn ghost block" data-drill>🎯 Practicar este sonido · +5–10 XP</button>
+    <p class="small muted" style="text-align:center">+1 ❤️ al terminar si no estás al máximo.</p>`,
+    (el, close) => { const x = $('[data-x]', el); if (x) x.onclick = close; const g = $('[data-go]', el); if (g) g.onclick = () => { close(); startLesson(l); }; const dr = $('[data-drill]', el); if (dr) dr.onclick = () => { close(); startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); }; const gf = $('[data-guide-foot]', el); if (gf) gf.onclick = () => { close(); guideSheet(l.unit); }; });
 }
 export function guideSheet(u) {
-  modal(`<h2>📘 ${esc(u.title)}</h2>${u.lessons.map(l => `<div class="tipbox"><b>${l.icon} ${esc(l.title)}</b> ${!l.type ? `<span class="ipa">/${esc(l.sound)}/</span>` : ''}<p class="small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>${l.mouth ? `<p class="small"><b>👄</b> ${esc(l.mouth)}</p>` : ''}</div>`).join('')}<button class="btn primary block" data-x>Cerrar</button>`, (el, c) => $('[data-x]', el).onclick = c);
+  // (C-03 TUKI-CONTENIDO-NUEVO-001: la nota de gramática de la unidad
+  // (u.guide, en COURSE junto a cada unidad) abre la hoja, encima de las
+  // lecciones. Cero IA, solo presentación.)
+  const g = u.guide;
+  modal(`<h2>📘 ${esc(u.title)}</h2>${g ? `<div class="tipbox" style="border-color:var(--b-d)"><b>📘 Guía de gramática · Unidad</b><p style="margin:6px 0"><b>${esc(g.t)}</b></p><p class="small" style="margin:0">${esc(g.b)}</p>${(g.ex || []).map(e => `<div class="witem" style="margin-top:8px"><button class="spk" data-say-n="${esc(e[0])}">🔊</button><div style="min-width:0"><div class="en">${esc(e[0])}</div><div class="es small">${esc(e[1])}</div></div></div>`).join('')}<p class="small muted" style="margin:8px 0 0">⚠️ Contenido pendiente de revisión de Jonathan.</p></div>` : ''}${u.lessons.map(l => `<div class="tipbox"><b>${l.icon} ${esc(l.title)}</b> ${!l.type ? `<span class="ipa">/${esc(l.sound)}/</span>` : ''}<p class="small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>${l.mouth ? `<p class="small"><b>👄</b> ${esc(l.mouth)}</p>` : ''}</div>`).join('')}<button class="btn primary block" data-x>Cerrar</button>`, (el, c) => { $('[data-x]', el).onclick = c; $$('[data-say-n]', el).forEach(b => b.onclick = () => speak(b.dataset.sayN)); });
 }
 
 /* ---- Reglas de desbloqueo progresivo de práctica (estilo Duolingo) ---- */
@@ -844,7 +967,6 @@ export const UNLOCK_RULES = {
   weak: { reqLessons: 0, title: 'Repaso de sonidos débiles', unit: 'Básico' },
   studio: { reqLessons: 0, title: 'Estudio: grabar y comparar', unit: 'Básico' },
   travel: { reqLessons: 0, title: 'Guía de Viaje y Emergencia', unit: 'Básico' },
-  shop: { reqLessons: 0, title: 'Tienda y Armario de Tuki', unit: 'Básico' },
   words: { reqLessons: 1, title: 'Palabras para repetir', unit: 'Unidad 1' },
   // Desbloqueos por unidad
   tc: { reqLessons: 3, title: 'Traduce y completa', unit: 'Unidad 1' },
@@ -855,7 +977,12 @@ export const UNLOCK_RULES = {
   missions: { reqLessons: 9, title: 'Misiones de Conversación Real', unit: 'Unidad 3' },
   handsfree: { reqLessons: 9, title: 'Modo Manos Libres', unit: 'Unidad 3' },
   photo: { reqLessons: 13, title: 'Describe la Foto / Objeto', unit: 'Unidad 4' },
-  chat: { reqLessons: 13, title: 'Conversación con IA', unit: 'Unidad 4' }
+  chat: { reqLessons: 13, title: 'Conversación con IA', unit: 'Unidad 4' },
+  // (C-02/C-04/C-05 TUKI-CONTENIDO-NUEVO-001: contenido nuevo, abierto
+  // desde el inicio: son lectura/escucha, no lecciones con prerrequisito.)
+  stories: { reqLessons: 0, title: 'Historias con Tuki', unit: 'Básico' },
+  radio: { reqLessons: 0, title: 'Radio Tuki', unit: 'Básico' },
+  idioms: { reqLessons: 0, title: 'Idioms y slang', unit: 'Básico' }
 };
 
 export function isFeatureUnlocked(id) {
@@ -1062,10 +1189,12 @@ export function mouthSVG(c) {
   <rect x="30" y="49" width="7" height="11" rx="2" fill="#fff" stroke="#9aa6b0"/><rect x="30" y="${63 + jaw}" width="7" height="10" rx="2" fill="#fff" stroke="#9aa6b0"/>
   <ellipse cx="${ul.cx}" cy="${ul.cy}" rx="${ul.rx}" ry="${ul.ry}" fill="#e57373"/><ellipse cx="${ll.cx}" cy="${ll.cy}" rx="${ll.rx}" ry="${ll.ry}" fill="#e57373"/>
   ${c.air ? `<path d="M118 76 Q70 ${c.t === 'dental' ? 62 : 70} 6 ${c.t === 'dental' ? 60 : 62}" fill="none" stroke="#1cb0f6" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#ah)"/><defs><marker id="ah" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="#1cb0f6"/></marker></defs>` : ''}
-  // (fix qa-text-data: "sin vibrar" empezaba en x=112 y con font-size 9 se
-  // salía del viewBox de 150 y se recortaba a "sin vibra". Ambas etiquetas
-  // ahora terminan en x=148 con text-anchor="end", dentro del viewBox.)
-  ${c.v ? `<path d="M132 98 l7 3 l-7 3 l7 3 l-7 3 l7 3" fill="none" stroke="#ff9f1c" stroke-width="2.5"/><text x="148" y="128" font-size="9" fill="#d9800a" font-weight="700" text-anchor="end">vibra</text>` : `<text x="148" y="128" font-size="9" fill="#9aa6b0" font-weight="700" text-anchor="end">sin vibrar</text>`}
+  // (NAV-02: las etiquetas estaban abajo a la derecha (y=128), donde la
+  // lengua rosa llega hasta (110,126) y se comía el inicio de «sin vibrar».
+  // Ahora van en la esquina superior derecha (y=14), zona libre en todos
+  // los diagramas: la curva del paladar no sube de y≈32 y la lengua no
+  // pasa de y≈45. El zigzag de vibración acompaña al texto arriba.)
+  ${c.v ? `<path d="M106 4 l6 3 l-6 3 l6 3 l-6 3" fill="none" stroke="#ff9f1c" stroke-width="2.5"/><text x="148" y="14" font-size="9" fill="#d9800a" font-weight="700" text-anchor="end">vibra</text>` : `<text x="148" y="14" font-size="9" fill="#9aa6b0" font-weight="700" text-anchor="end">sin vibrar</text>`}
   </svg><div>${esc(c.cap || '')}</div>`;
 }
 export const MOUTHS = {
@@ -1268,7 +1397,7 @@ export function buildPlacement() {
 }
 export function placementIntro() {
   $('#full').classList.remove('hidden'); document.body.style.overflow = 'hidden';
-  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div><h1 style="color:var(--g-d)">¡Hola! Soy Tuki 🦜</h1>
+  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div><h1>¡Hola! Soy Tuki</h1>
     <p style="max-width:420px">Haz una <b>prueba de nivel corta</b> (10 preguntas, unos 3 minutos) con ejercicios de oído${canSpeak() ? ' y de pronunciación' : ''}. Así empiezas en la unidad adecuada.</p>
     <button class="btn primary" id="plGo" style="min-width:240px">Empezar prueba</button><button class="btn ghost" id="plSkip" style="min-width:240px;margin-top:6px">Saltar, empiezo desde cero</button></div>`;
   $('#plGo').onclick = () => startLesson(null, 'placement', buildPlacement(), 'Prueba de nivel');
@@ -2600,14 +2729,12 @@ export function tvRenderBody() {
     ${devSec}`;
   $$('input[name=tvSel]', box).forEach(inp => inp.onchange = () => { const r = TV.rows[+inp.value]; if (r) tvSelect(r.id, tl); });
   $$('.tvplay', box).forEach(b => b.onclick = () => tvPlay(+b.dataset.play));
-  const go = $('#tvGoAz', box); if (go) go.onclick = () => { const lv = $('#settingsLevel [data-slevel="advanced"]'); if (lv) lv.click(); const k = $('#azKey'); if (k) { k.scrollIntoView({ block: 'center', behavior: 'smooth' }); k.focus({ preventScroll: true }); } };
-  // (densidad PR B, v2.31.0, ítem 3: el único "Continuar con Google" de
-  // Ajustes vive en la tarjeta 👤 Cuenta; aquí solo un enlace que
-  // desplaza hasta ella.)
+  // (M05-R1: la clave de Azure vive en Ajustes → Opciones avanzadas; el
+  // enlace abre esa subpantalla y desplaza hasta la clave. Cuenta vive
+  // en Perfil, no en Ajustes.)
+  const goAz = $('#tvGoAz', box); if (goAz) goAz.onclick = () => { const row = document.querySelector('[data-m05sub-open="avanzadas"]'); if (row) row.click(); setTimeout(() => { const k = $('#azKey'); if (k) { k.scrollIntoView({ block: 'center', behavior: 'smooth' }); k.focus({ preventScroll: true }); } }, 60); };
   const bG = $('#tvGoAcct', box);
-  // (PR1, regla R-3: el enlace interno cambia primero el filtro al nivel
-  // de la tarjeta destino — Cuenta es Básico — y luego desplaza.)
-  if (bG) bG.onclick = () => { const lv = $('#settingsLevel [data-slevel="basic"]'); if (lv) lv.click(); const c = $('#acctCard'); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+  if (bG) bG.onclick = () => go('profile');
   tvBtns();
   if (ready) tvLoadLive();
 }
@@ -2797,17 +2924,18 @@ export function bindAdmin(root) {
 export function adminRefresh() {
   const a = $('#adminCard'), h = adminHTML();
   if (!h) { if (a) a.remove(); AD.data = null; return; }
-  // (PR1: el reemplazo por outerHTML pierde hidden/data-level; conservar
-  // el estado del filtro de nivel.)
+  // (M05-R1: sin filtro de nivel — la tarjeta conserva su visibilidad
+  // anterior; si aún no existe, va a Opciones avanzadas del hub.)
   const wasHidden = !!a?.hidden;
-  if (a) a.outerHTML = h; else { const ac = $('#acctCard'); if (!ac) return; ac.insertAdjacentHTML('afterend', h); }
+  if (a) a.outerHTML = h;
+  else {
+    const adv = document.querySelector('[data-m05sub="avanzadas"]');
+    if (adv) adv.insertAdjacentHTML('beforeend', h);
+    else { const ac = $('#acctCard'); if (!ac) return; ac.insertAdjacentHTML('afterend', h); }
+  }
   bindAdmin(document);
   const na = $('#adminCard');
-  if (na) {
-    const active = $('#settingsLevel button.active');
-    na.hidden = active ? active.dataset.slevel !== 'advanced' : wasHidden;
-    na.dataset.level = 'advanced';
-  }
+  if (na) na.hidden = wasHidden;
 }
 export const fbkCardHTML = () => `<div class="card" id="fbkCard"><button class="btn ghost block" id="fbkOpen">💬 Enviar comentarios</button></div>`;
 
@@ -3078,6 +3206,192 @@ export function openShadowingModal() {
         }
       }, item.en);
     };
+  });
+}
+
+/* =================== CONTENIDO NUEVO (TUKI-CONTENIDO-NUEVO-001) ===================
+   C-02 Historias, C-04 Idioms/slang, C-05 Radio Tuki. Todo estático, sin
+   destinos nuevos en la tabbar, sin tocar lecciones/SRS/XP/monedas/vidas/
+   rachas (la XP se otorga con addXP, sin cambiarla). Audio por línea con
+   speak() — que ya usa el TTS en la nube con caché (cloudTTSBlob/TukiDB)
+   cuando está disponible y la voz del dispositivo si no. El contenido
+   está PENDIENTE DE REVISIÓN DE JONATHAN (ver src/content-new.js). */
+function cnLinesHTML(lines, useWords) {
+  return lines.map((ln, i) => `<div class="cn-line" data-cnline="${i}">
+    <div class="cn-line-head"><span class="cn-spk">${esc(ln[0])}</span><button class="spk" data-cnspk="${i}" title="Escuchar esta línea">🔊</button></div>
+    <div class="cn-en">${useWords ? wordsHTML(ln[1]) : esc(ln[1])}</div>
+    <div class="cn-es" data-cnes="${i}" hidden>${esc(ln[2])}</div>
+    <button class="mini cn-tr" data-cntr="${i}">🇪🇸 Ver traducción</button></div>`).join('');
+}
+function bindCnLines(root, lines, useWords) {
+  $$('[data-cnspk]', root).forEach(b => b.onclick = () => speak(lines[+b.dataset.cnspk][1]));
+  $$('[data-cntr]', root).forEach(b => b.onclick = () => {
+    const es = root.querySelector('[data-cnes="' + b.dataset.cntr + '"]');
+    if (!es) return;
+    es.hidden = !es.hidden;
+    b.textContent = es.hidden ? '🇪🇸 Ver traducción' : '🇪🇸 Ocultar traducción';
+  });
+  // (C-05: tap en una palabra de la transcripción abre el diccionario
+  // existente (dictLookup/openWordPop), como en las lecciones.)
+  if (useWords) $$('.wd', root).forEach(w => w.onclick = e => { e.stopPropagation(); openWordPop(w.dataset.say || w.textContent.trim(), w.closest('.cn-line') ? w.closest('.cn-line').innerText : '', w); });
+}
+function cnPlayAll(lines) {
+  let i = 0;
+  const next = () => { if (i >= lines.length) return; speak(lines[i][1], false, () => { i++; next(); }); };
+  next();
+}
+function cnQuizHTML(qs) {
+  return qs.map((q, qi) => `<div class="cn-quiz" data-cnq="${qi}">
+    <div class="cn-q"><b>${qi + 1}. ${esc(q.q)}</b><div class="muted small">${esc(q.qes)}</div></div>
+    ${q.opts.map((o, oi) => `<button class="opt cn-opt" data-cnq="${qi}" data-o="${oi}"><span class="k">${oi + 1}</span><span>${esc(o)}</span></button>`).join('')}
+    <div class="cn-qfb small" data-cnf="${qi}"></div></div>`).join('');
+}
+function bindCnQuiz(root, qs, onDone) {
+  const ans = {};
+  $$('.cn-opt', root).forEach(b => b.onclick = () => {
+    const qi = +b.dataset.cnq;
+    if (ans[qi] !== undefined) return;
+    const oi = +b.dataset.o, ok = oi === qs[qi].a;
+    ans[qi] = ok;
+    $$('.cn-opt[data-cnq="' + qi + '"]', root).forEach(x => { x.disabled = true; if (+x.dataset.o === qs[qi].a) x.classList.add('cn-ok'); });
+    b.classList.add(ok ? 'cn-ok' : 'cn-bad');
+    const fb = root.querySelector('[data-cnf="' + qi + '"]');
+    if (fb) fb.textContent = ok ? '✅ ¡Correcto!' : '❌ La correcta era: ' + qs[qi].opts[qs[qi].a];
+    if (Object.keys(ans).length === qs.length) onDone(Object.values(ans).filter(Boolean).length, qs.length);
+  });
+}
+
+/* ---- C-02 · Historias interactivas con Tuki ---- */
+export function openStoriesModal() {
+  const levels = ['A1', 'A2', 'B1', 'B2'];
+  modal(`<h2>📖 Historias con Tuki</h2>
+  <p class="muted small">Cuentos cortos con audio por línea: toca 🔊 para escuchar y «Ver traducción» para ver el español. Responde las preguntas al final. +10 XP por historia, solo la primera vez.</p>
+  <p class="muted small">⚠️ ${esc(CONTENT_REVIEW_NOTE)}</p>
+  ${levels.map(lv => `<h3 style="margin:12px 0 4px">Nivel ${lv}</h3>${STORIES.filter(s => s.level === lv).map(s => {
+    const p = (S.stories || {})[s.id];
+    return `<button class="mode-row" data-story="${s.id}"><div class="em" style="background:#fef3c7">${s.icon}</div><div style="flex:1;min-width:0"><div class="row between"><h3 style="margin:0 0 2px">${esc(s.title)}</h3>${p ? `<span class="srs-pill mat">✓ ${p.correct}/${p.total}</span>` : ''}</div><div class="muted small">${esc(s.desc)} · ${s.lines.length} líneas · ${s.qs.length} preguntas</div></div></button>`;
+  }).join('')}`).join('')}
+  <button class="btn primary block" data-x>Cerrar</button>`, (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $$('[data-story]', el).forEach(b => b.onclick = () => { close(); openStory(b.dataset.story); });
+  });
+}
+export function openStory(id) {
+  const st = storyById(id);
+  if (!st) return toast('Historia no encontrada.');
+  const prev = (S.stories || {})[id];
+  modal(`<div style="display:flex;justify-content:flex-end"><button class="xbtn" type="button" data-x aria-label="Cerrar">✕</button></div>
+  <h2>${st.icon} ${esc(st.title)}</h2>
+  <p class="muted small">Nivel ${st.level} · ${st.lines.length} líneas · ${st.qs.length} preguntas · +10 XP la primera vez</p>
+  ${prev ? `<p class="small muted">✓ Ya la leíste: ${prev.correct}/${prev.total} respuestas correctas.</p>` : ''}
+  <div class="row" style="margin:8px 0"><button class="btn blue sm" id="cnPlayAll">▶️ Escuchar toda la historia</button></div>
+  <div class="cn-lines">${cnLinesHTML(st.lines, false)}</div>
+  <h3 style="margin-top:14px">❓ Comprensión</h3>
+  ${cnQuizHTML(st.qs)}
+  <div id="cnFinish" style="margin-top:12px"></div>
+  <div class="row" style="margin-top:10px"><button class="btn ghost block" data-x2>← Volver a las historias</button></div>`,
+  (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $('[data-x2]', el).onclick = () => { close(); openStoriesModal(); };
+    $('#cnPlayAll', el).onclick = () => cnPlayAll(st.lines);
+    bindCnLines(el, st.lines, false);
+    bindCnQuiz(el, st.qs, (correct, total) => {
+      const fin = $('#cnFinish', el);
+      fin.innerHTML = `<div class="tipbox"><b>¡Historia terminada! ${correct}/${total} correctas.</b><div class="small">${correct === total ? '🌟 ¡Perfecto! Comprendiste toda la historia.' : 'Bien hecho: relee las líneas que te costaron y vuelve a intentarlo.'}</div><button class="btn primary block" id="cnDoneBtn" style="margin-top:8px">Terminar · ${prev ? 'sin XP (ya la completaste antes)' : '+10 XP'}</button></div>`;
+      $('#cnDoneBtn', fin).onclick = () => {
+        if (fin.dataset.done) return; fin.dataset.done = '1';
+        S.stories = S.stories || {};
+        const first = !S.stories[st.id];
+        S.stories[st.id] = { done: 1, correct, total, t: Date.now() };
+        if (first) { addXP(10); beep('done'); }
+        save();
+        toast(first ? '¡Historia completada! +10 XP 🎉' : 'Progreso actualizado.');
+        close(); openStoriesModal();
+      };
+    });
+  });
+}
+
+/* ---- C-05 · «Radio Tuki» ---- */
+export function openRadioModal() {
+  modal(`<h2>📻 Radio Tuki</h2>
+  <p class="muted small">Audio corto con transcripción por líneas: toca 🔊 para escuchar cada línea, toca una palabra para ver su significado y responde las preguntas. El audio lo genera el TTS con caché; la voz no es un actor, es escucha guiada.</p>
+  <p class="muted small">⚠️ ${esc(CONTENT_REVIEW_NOTE)}</p>
+  ${RADIO_EPISODES.map(r => {
+    const p = (S.radio || {})[r.id];
+    return `<button class="mode-row" data-radio="${r.id}"><div class="em" style="background:#e0f2fe">${r.icon}</div><div style="flex:1;min-width:0"><div class="row between"><h3 style="margin:0 0 2px">${esc(r.title)}</h3>${p ? `<span class="srs-pill mat">✓ ${p.correct}/${p.total}</span>` : ''}</div><div class="muted small">${esc(r.desc)} · ~${r.mins} min · ${r.lines.length} líneas · ${r.qs.length} preguntas</div></div></button>`;
+  }).join('')}
+  <button class="btn primary block" data-x>Cerrar</button>`, (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $$('[data-radio]', el).forEach(b => b.onclick = () => { close(); openRadioEpisode(b.dataset.radio); });
+  });
+}
+export function openRadioEpisode(id) {
+  const ep = radioById(id);
+  if (!ep) return toast('Episodio no encontrado.');
+  const prev = (S.radio || {})[id];
+  modal(`<div style="display:flex;justify-content:flex-end"><button class="xbtn" type="button" data-x aria-label="Cerrar">✕</button></div>
+  <h2>${ep.icon} ${esc(ep.title)}</h2>
+  <p class="muted small">Radio Tuki · ~${ep.mins} min · ${ep.lines.length} líneas · ${ep.qs.length} preguntas</p>
+  ${prev ? `<p class="small muted">✓ Ya lo escuchaste: ${prev.correct}/${prev.total} respuestas correctas.</p>` : ''}
+  <div class="row" style="margin:8px 0"><button class="btn blue sm" id="cnPlayAll">▶️ Escuchar todo el episodio</button></div>
+  <div class="cn-lines">${cnLinesHTML(ep.lines, true)}</div>
+  <h3 style="margin-top:14px">❓ Comprensión</h3>
+  ${cnQuizHTML(ep.qs)}
+  <div id="cnFinish" style="margin-top:12px"></div>
+  <div class="row" style="margin-top:10px"><button class="btn ghost block" data-x2>← Volver a Radio Tuki</button></div>`,
+  (el, close) => {
+    $('[data-x]', el).onclick = close;
+    $('[data-x2]', el).onclick = () => { close(); openRadioModal(); };
+    $('#cnPlayAll', el).onclick = () => cnPlayAll(ep.lines);
+    bindCnLines(el, ep.lines, true);
+    bindCnQuiz(el, ep.qs, (correct, total) => {
+      const fin = $('#cnFinish', el);
+      fin.innerHTML = `<div class="tipbox"><b>¡Episodio terminado! ${correct}/${total} correctas.</b><div class="small">${correct === total ? '🌟 ¡Perfecto! Entendiste todo el episodio.' : 'Bien hecho: vuelve a escuchar las líneas que te costaron.'}</div><button class="btn primary block" id="cnDoneBtn" style="margin-top:8px">Guardar mi progreso</button></div>`;
+      $('#cnDoneBtn', fin).onclick = () => {
+        if (fin.dataset.done) return; fin.dataset.done = '1';
+        S.radio = S.radio || {};
+        S.radio[ep.id] = { done: 1, correct, total, t: Date.now() };
+        save();
+        toast('Progreso de Radio Tuki guardado.');
+        close(); openRadioModal();
+      };
+    });
+  });
+}
+
+/* ---- C-04 · Idiom/slang del día + banco ---- */
+export function idiomCardHTML() {
+  const it = idiomEntry(idiomOfDay().entry);
+  return `<details class="card home-idiom" id="idiomCard" open>
+    <summary><b>💬 ${it.reg === 'slang' ? 'Slang' : 'Idiom'} del día</b> <span class="muted small">· toca para plegar</span></summary>
+    <div style="margin-top:8px"><div style="font-size:17px;font-weight:800">«${esc(it.en)}»</div>
+    <div class="es">${esc(it.es)}</div>
+    <div class="small" style="margin-top:6px">💬 ${esc(it.ex)}</div>
+    <div class="es small">${esc(it.exEs)}</div>
+    <div class="row" style="margin-top:8px"><button class="btn ghost sm" id="idiomSay">🔊 Escuchar ejemplo</button><button class="btn ghost sm" id="idiomBankBtn">📚 Ver banco (${IDIOMS.length})</button></div>
+    <div class="muted small" style="margin-top:6px">⚠️ Contenido pendiente de revisión de Jonathan.</div></div>
+  </details>`;
+}
+export function openIdiomBank() {
+  modal(`<h2>💬 Idioms y slang</h2>
+  <p class="muted small">${IDIOMS.length} expresiones con explicación en español, ejemplo y audio. Toca 🔊 para escuchar el ejemplo.</p>
+  <p class="muted small">⚠️ ${esc(CONTENT_REVIEW_NOTE)}</p>
+  <input class="field" id="idiomSearch" type="search" placeholder="🔍 Buscar (ej. ice, suerte, slang)…" autocomplete="off" aria-label="Buscar en el banco de idioms">
+  <div class="muted small" id="idiomCount" style="margin:6px 0"></div>
+  <div id="idiomList"></div>
+  <button class="btn primary block" data-x style="margin-top:10px">Cerrar</button>`, (el, close) => {
+    $('[data-x]', el).onclick = close;
+    const list = $('#idiomList', el), count = $('#idiomCount', el), input = $('#idiomSearch', el);
+    const draw = q => {
+      const query = (q || '').trim().toLowerCase();
+      const rows = IDIOMS.map((e, i) => ({ e: idiomEntry(e), i })).filter(({ e }) => !query || e.en.toLowerCase().includes(query) || e.es.toLowerCase().includes(query) || e.ex.toLowerCase().includes(query) || e.reg.includes(query));
+      count.textContent = rows.length + ' de ' + IDIOMS.length + ' expresiones';
+      list.innerHTML = rows.map(({ e }) => `<div class="witem" style="align-items:flex-start"><button class="spk" data-idiom-say="${esc(e.ex)}" title="Escuchar ejemplo">🔊</button><div style="min-width:0"><div class="en">«${esc(e.en)}» <span class="srs-pill ${e.reg === 'slang' ? 'mat' : 'due'}">${e.reg === 'slang' ? 'slang' : 'idiom'}</span></div><div class="es small">${esc(e.es)}</div><div class="small" style="margin-top:2px">💬 ${esc(e.ex)}</div><div class="es small">${esc(e.exEs)}</div></div></div>`).join('') || '<div class="empty">Sin resultados para esa búsqueda.</div>';
+      $$('[data-idiom-say]', list).forEach(b => b.onclick = () => speak(b.dataset.idiomSay));
+    };
+    input.oninput = () => draw(input.value);
+    draw('');
   });
 }
 
@@ -3716,182 +4030,6 @@ export function openPhotoPractice() {
   });
 }
 
-// 7. INTEGRACIÓN DE COMPONENTES EN LAS VISTAS
-
-export const TUKI_SHOP_ITEMS = [
-  // --- 🧢 Sombreros y Cabeza (14 ítems) ---
-  { id: 'hat:none', type: 'hat', key: 'none', name: 'Plumas naturales', icon: '🪶', price: 0, desc: 'Look clásico y ligero.' },
-  { id: 'hat:vueltiao', type: 'hat', key: 'vueltiao', name: 'Sombrero Vueltiao', icon: '🇨🇴', price: 50, desc: 'Orgullo colombiano tejido en caña flecha.' },
-  { id: 'hat:cap', type: 'hat', key: 'cap', name: 'Gorra deportiva', icon: '🧢', price: 40, desc: 'Estilo urbano para salir a practicar.' },
-  { id: 'hat:headphones', type: 'hat', key: 'headphones', name: 'Audífonos DJ / Gamer', icon: '🎧', price: 65, desc: 'Para escuchar la mejor pronunciación.' },
-  { id: 'hat:glasses', type: 'hat', key: 'glasses', name: 'Gafas oscuras', icon: '🕶️', price: 60, desc: 'Toda la onda para pronunciar con estilo.' },
-  { id: 'hat:chef', type: 'hat', key: 'chef', name: 'Gorro de chef', icon: '👨‍🍳', price: 70, desc: 'Cocinando la mejor fluidez paso a paso.' },
-  { id: 'hat:beret', type: 'hat', key: 'beret', name: 'Boina de artista', icon: '🎨', price: 60, desc: 'Para amantes del arte y los idiomas.' },
-  { id: 'hat:grad', type: 'hat', key: 'grad', name: 'Birrete de graduación', icon: '🎓', price: 75, desc: 'Para cuando apruebas lecciones con honores.' },
-  { id: 'hat:cowboy', type: 'hat', key: 'cowboy', name: 'Sombrero vaquero', icon: '🤠', price: 80, desc: 'Estilo western para aventureros.' },
-  { id: 'hat:flower', type: 'hat', key: 'flower', name: 'Corona de flores', icon: '🌸', price: 85, desc: 'Vibra primaveral fresca y colorida.' },
-  { id: 'hat:vr', type: 'hat', key: 'vr', name: 'Visor VR Cyberpunk', icon: '🥽', price: 95, desc: 'Inmersión futurista en alta tecnología.' },
-  { id: 'hat:party', type: 'hat', key: 'party', name: 'Gorro fiestero', icon: '🥳', price: 50, desc: '¡Celebra cada logro y racha!' },
-  { id: 'hat:wizard', type: 'hat', key: 'wizard', name: 'Sombrero de mago', icon: '🧙', price: 90, desc: 'Hechizos de fluidez y magia fonética.' },
-  { id: 'hat:crown', type: 'hat', key: 'crown', name: 'Corona real dorada', icon: '👑', price: 120, desc: 'El rey absoluto de la pronunciación.' },
-
-  // --- 👔 Ropa y Atuendos (12 ítems) ---
-  { id: 'outfit:none', type: 'outfit', key: 'none', name: 'Sin ropa', icon: '🦜', price: 0, desc: 'Al natural, listo para volar.' },
-  { id: 'outfit:ruana', type: 'outfit', key: 'ruana', name: 'Ruana tradicional', icon: '🇨🇴', price: 55, desc: 'Calientita de Boyacá para el frío.' },
-  { id: 'outfit:jersey', type: 'outfit', key: 'jersey', name: 'Camiseta tricolor', icon: '⚽', price: 65, desc: '¡Con toda la pasión por aprender!' },
-  { id: 'outfit:bowtie', type: 'outfit', key: 'bowtie', name: 'Corbatín elegante', icon: '👔', price: 45, desc: 'Para entrevistas y reuniones de trabajo.' },
-  { id: 'outfit:jacket', type: 'outfit', key: 'jacket', name: 'Chaqueta de cuero', icon: '🎸', price: 80, desc: 'Vibra rockstar rebelde y segura.' },
-  { id: 'outfit:astronaut', type: 'outfit', key: 'astronaut', name: 'Traje de astronauta', icon: '🚀', price: 130, desc: '¡Lleva tu inglés hasta las estrellas!' },
-  { id: 'outfit:lab', type: 'outfit', key: 'lab', name: 'Bata de laboratorio', icon: '🧪', price: 85, desc: 'Ciencia exacta aplicada a los fonemas.' },
-  { id: 'outfit:vest', type: 'outfit', key: 'vest', name: 'Chaleco de safari', icon: '🦺', price: 75, desc: 'Explorando nuevos acentos por el mundo.' },
-  { id: 'outfit:scarf', type: 'outfit', key: 'scarf', name: 'Bufanda abrigada', icon: '🧣', price: 55, desc: 'Para cuidar la voz al vocalizar.' },
-  { id: 'outfit:hawaiian', type: 'outfit', key: 'hawaiian', name: 'Collar hawaiano', icon: '🌺', price: 70, desc: 'Vibra tropical relajada.' },
-  { id: 'outfit:cape', type: 'outfit', key: 'cape', name: 'Capa de héroe', icon: '🦸', price: 95, desc: 'Habla inglés sin miedo a nada.' },
-  { id: 'outfit:medal', type: 'outfit', key: 'medal', name: 'Medalla de oro', icon: '🥇', price: 110, desc: 'Premio al esfuerzo y perseverancia.' },
-
-  // --- 🪄 Accesorios en Mano (7 ítems) ---
-  { id: 'hand:none', type: 'hand', key: 'none', name: 'Alas libres', icon: '🪶', price: 0, desc: 'Alas despejadas para volar.' },
-  { id: 'hand:mic', type: 'hand', key: 'mic', name: 'Micrófono dorado', icon: '🎤', price: 60, desc: 'Para que tu voz se escuche brillante.' },
-  { id: 'hand:coffee', type: 'hand', key: 'coffee', name: 'Tinto colombiano', icon: '☕', price: 45, desc: 'El mejor café para activar las neuronas.' },
-  { id: 'hand:book', type: 'hand', key: 'book', name: 'Diccionario EN', icon: '📖', price: 50, desc: 'Sabiduría y vocabulario infinito.' },
-  { id: 'hand:flag', type: 'hand', key: 'flag', name: 'Bandera tricolor', icon: '🇨🇴', price: 40, desc: 'Llevando la bandera a todos los países.' },
-  { id: 'hand:wand', type: 'hand', key: 'wand', name: 'Varita mágica', icon: '✨', price: 90, desc: 'Fluidez instantánea con un toque de magia.' },
-  { id: 'hand:trophy', type: 'hand', key: 'trophy', name: 'Trofeo de campeón', icon: '🏆', price: 120, desc: '¡El máximo galardón al esfuerzo diario!' },
-
-  // --- 🎨 Plumaje y Colores (5 ítems) ---
-  { id: 'plumage:classic', type: 'plumage', key: 'classic', name: 'Plumaje Clásico', icon: '🦜', price: 0, desc: 'El tucán tradicional verde y negro.' },
-  { id: 'plumage:gold', type: 'plumage', key: 'gold', name: 'Dorado Mítico', icon: '🌟', price: 150, desc: 'Aura radiante con plumaje de oro puro.' },
-  { id: 'plumage:neon', type: 'plumage', key: 'neon', name: 'Cyberpunk Neón', icon: '🌌', price: 140, desc: 'Colores eléctricos futuristas y aura cyan.' },
-  { id: 'plumage:fire', type: 'plumage', key: 'fire', name: 'Fénix de Fuego', icon: '🔥', price: 160, desc: 'Energía ardiente y plumaje carmesí.' },
-  { id: 'plumage:ice', type: 'plumage', key: 'ice', name: 'Ártico Glacial', icon: '❄️', price: 140, desc: 'Plumas celestes cristalinas como el hielo.' }
-];
-
-export let shopActiveTab = 'hat';
-
-export function openTukiShopModal() {
-  const skin = S.tukiSkin || (S.tukiSkin = { hat: 'none', outfit: 'none', hand: 'none', plumage: 'classic', owned: ['hat:none', 'outfit:none', 'hand:none', 'plumage:classic'] });
-  let previewSkin = { ...skin };
-
-  const buildModalContent = () => {
-    const items = TUKI_SHOP_ITEMS.filter(it => it.type === shopActiveTab);
-    return `<h2>🛍️ Tienda y Armario de Tuki</h2>
-      <p class="muted small">Gana monedas completando lecciones, retos y metas diarias para vestir a tu tucán.</p>
-      
-      <div class="tuki-shop-preview">
-        <div class="mascot-wrap" id="shopPreviewMascot" title="¡Toca para interactuar!">${renderTukiSVG(previewSkin)}</div>
-        <div class="tuki-speech" id="shopSpeech">¡Prueba atuendos, sombreros y colores! Tienes 🪙 <b>${S.coins || 0}</b> monedas.</div>
-      </div>
-
-      <div class="shop-tabs">
-        <button class="shop-tab ${shopActiveTab === 'hat' ? 'active' : ''}" data-stab="hat">🧢 Cabeza (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hat').length})</button>
-        <button class="shop-tab ${shopActiveTab === 'outfit' ? 'active' : ''}" data-stab="outfit">👔 Ropa (${TUKI_SHOP_ITEMS.filter(i=>i.type==='outfit').length})</button>
-        <button class="shop-tab ${shopActiveTab === 'hand' ? 'active' : ''}" data-stab="hand">🪄 En Mano (${TUKI_SHOP_ITEMS.filter(i=>i.type==='hand').length})</button>
-        <button class="shop-tab ${shopActiveTab === 'plumage' ? 'active' : ''}" data-stab="plumage">🎨 Plumaje (${TUKI_SHOP_ITEMS.filter(i=>i.type==='plumage').length})</button>
-      </div>
-
-      <div class="shop-grid">
-        ${items.map(it => {
-          const isOwned = skin.owned.includes(it.id) || it.price === 0;
-          const isEquipped = skin[it.type] === it.key;
-          return `<div class="shop-card ${isEquipped ? 'equipped' : ''}" data-preview="${it.id}">
-            <div class="icon">${it.icon}</div>
-            <div class="name">${esc(it.name)}</div>
-            <div class="price">${isOwned ? 'En tu armario' : `🪙 ${it.price} monedas`}</div>
-            <div class="small muted" style="font-size:11px">${esc(it.desc)}</div>
-            <button class="btn sm shop-btn ${isEquipped ? 'ghost' : isOwned ? 'blue' : 'primary'}" data-act="${it.id}" ${!isOwned && (S.coins || 0) < it.price ? 'disabled' : ''}>
-              ${isEquipped ? 'Equipado ✓' : isOwned ? '⚡ Equipar' : `Comprar 🪙 ${it.price}`}
-            </button>
-          </div>`;
-        }).join('')}
-      </div>
-
-      <div class="row" style="margin-top:14px">
-        <button class="btn ghost block" data-x>Cerrar</button>
-      </div>`;
-  };
-
-  modal(buildModalContent(), (el, close) => {
-    $('[data-x]', el).onclick = close;
-    
-    $$('[data-stab]', el).forEach(tab => {
-      tab.onclick = () => {
-        shopActiveTab = tab.dataset.stab;
-        close();
-        openTukiShopModal();
-      };
-    });
-
-    const pm = $('#shopPreviewMascot', el);
-    if (pm) { pm.onclick = () => interactWithTuki(pm); makeMascotClickable(pm, '¡Toca para interactuar con Tuki!'); }
-
-    $$('[data-preview]', el).forEach(card => {
-      card.onclick = e => {
-        if (e.target.closest('[data-act]')) return;
-        const itId = card.dataset.preview;
-        const it = TUKI_SHOP_ITEMS.find(x => x.id === itId);
-        if (!it) return;
-        previewSkin[it.type] = it.key;
-        const pm = $('#shopPreviewMascot', el);
-        if (pm) {
-          pm.innerHTML = renderTukiSVG(previewSkin);
-          tukiMood('happy', { el: pm, particles: 'sparkle' });
-        }
-        const sp = $('#shopSpeech', el);
-        if (sp) sp.textContent = `Probando: ${it.name} ${it.icon}`;
-        beep('tap');
-      };
-    });
-
-    $$('[data-act]', el).forEach(btn => {
-      btn.onclick = () => {
-        const itId = btn.dataset.act;
-        const it = TUKI_SHOP_ITEMS.find(x => x.id === itId);
-        if (!it) return;
-        const isOwned = skin.owned.includes(it.id) || it.price === 0;
-
-        if (!isOwned) {
-          if ((S.coins || 0) < it.price) return toast('No tienes suficientes monedas 🪙');
-          S.coins -= it.price;
-          skin.owned.push(it.id);
-        }
-
-        skin[it.type] = it.key;
-        previewSkin = { ...skin };
-        save();
-        updateMascot();
-        render();
-
-        const pm = $('#shopPreviewMascot', el);
-        if (pm) {
-          pm.innerHTML = renderTukiSVG(previewSkin);
-          tukiMood('excited', { el: pm, particles: 'sparkle' });
-        } else tukiChirp('celebrate');
-        confetti();
-
-        const sp = $('#shopSpeech', el);
-        const celebrateQuotes = [
-          `¡Uff, qué pinta! Me queda genial ${it.name} ${it.icon}✨`,
-          `¡Poder tucán activado! Estrenando ${it.name} 🦜🔥`,
-          `¡Gracias por este look! Con ${it.name} aprendemos con estilo 💎`
-        ];
-        if (sp) sp.innerHTML = pick(celebrateQuotes);
-
-        if (!isOwned) {
-          beep('done');
-          toast(`🎉 ¡Compraste y equipaste ${it.name}!`, 3000);
-        } else {
-          beep('ok');
-          toast(`⚡ Equipaste ${it.name}`);
-        }
-
-        setTimeout(() => {
-          close();
-          openTukiShopModal();
-        }, 550);
-      };
-    });
-  });
-}
 
 // =================== MODO CARACOL 🐌 Y SÍLABAS ===================
 export const SYLLABLE_DICT = {
@@ -4267,8 +4405,8 @@ export function renderDailyChestsAndQuests() {
   return `<div class="chest-card" id="dailyChestCard">
     <div class="row between">
       <div>
-        <h3 style="margin:0;color:#92400e">🎁 Cofre Diario de Recompensas</h3>
-        <div class="small" style="color:#b45309">
+        <h3 style="margin:0;color:#fff">🎁 Cofre Diario de Recompensas</h3>
+        <div class="small" style="color:#e7d7f8">
           ${isChestClaimed ? '✅ ¡Cofre de hoy reclamado! Vuelve mañana.' : isGoalMet ? '✨ ¡Meta cumplida! Abre tu cofre ahora.' : `Meta de hoy: ${Math.min(today.xp, goal)}/${goal} XP para abrir.`}
         </div>
       </div>
@@ -4286,7 +4424,7 @@ export function renderDailyChestsAndQuests() {
 
     <div class="quest-item">
       <div style="flex:1">
-        <div class="row between"><span style="font-weight:700;font-size:13px">🗣️ Pronuncia 3 frases</span><span class="small" style="font-weight:800;color:#d97706">+20 🪙</span></div>
+        <div class="row between"><span style="font-weight:700;font-size:13px">🗣️ Pronuncia 3 frases</span><span class="small quest-reward">+20 🪙</span></div>
         <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round(((today.n || 0) / 3) * 100))}%"></div></div>
       </div>
       <button class="btn sm ${q1Claimed ? 'ghost' : questVozDone ? 'primary' : 'ghost'}" data-claim-q="q1" ${q1Claimed || !questVozDone ? 'disabled' : ''}>
@@ -4296,7 +4434,7 @@ export function renderDailyChestsAndQuests() {
 
     <div class="quest-item">
       <div style="flex:1">
-        <div class="row between"><span style="font-weight:700;font-size:13px">🎯 Cumple tu meta diaria de XP</span><span class="small" style="font-weight:800;color:#d97706">+30 🪙</span></div>
+        <div class="row between"><span style="font-weight:700;font-size:13px">🎯 Cumple tu meta diaria de XP</span><span class="small quest-reward">+30 🪙</span></div>
         <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round((today.xp / goal) * 100))}%"></div></div>
       </div>
       <button class="btn sm ${q2Claimed ? 'ghost' : questGoalDone ? 'primary' : 'ghost'}" data-claim-q="q2" ${q2Claimed || !questGoalDone ? 'disabled' : ''}>
@@ -4306,7 +4444,7 @@ export function renderDailyChestsAndQuests() {
 
     <div class="quest-item">
       <div style="flex:1">
-        <div class="row between"><span style="font-weight:700;font-size:13px">⏱️ Practica al menos 1 minuto</span><span class="small" style="font-weight:800;color:#d97706">+20 🪙</span></div>
+        <div class="row between"><span style="font-weight:700;font-size:13px">⏱️ Practica al menos 1 minuto</span><span class="small quest-reward">+20 🪙</span></div>
         <div class="quest-bar"><div class="quest-bar-fill" style="width:${Math.min(100, Math.round((Math.min(60, today.sec || 0) / 60) * 100))}%"></div></div>
       </div>
       <button class="btn sm ${q3Claimed ? 'ghost' : questPracDone ? 'primary' : 'ghost'}" data-claim-q="q3" ${q3Claimed || !questPracDone ? 'disabled' : ''}>
