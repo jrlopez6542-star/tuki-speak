@@ -1433,3 +1433,30 @@ html[data-theme="dark"] .m1-eyebrow{color:var(--lav)}
 .home-idiom{margin:10px 0}
 .home-idiom summary{cursor:pointer;list-style:none}
 .home-idiom summary::-webkit-details-marker{display:none}
+
+/* =================== TUKI-IMPL-R2D-001: BIENVENIDA PRUEBA DE NIVEL «PROTAGONISTA» ===================
+   Solo la bienvenida de la prueba de nivel (placementIntro): mascota 150 px
+   (inline en ui.js), botones con el estilo G completo y aurora visible. La
+   clase .placement-intro vive solo mientras se muestra esa pantalla (se quita
+   en #plGo y #plSkip); las lecciones y el resto de #full no cambian.
+   Aurora: NO es un fondo sólido — son los mismos degradados del body (G),
+   pintados en el overlay. Un #full literalmente transparente dejaría ver la
+   vista de Inicio detrás (topbar, héroe, tabbar) y el texto se solaparía
+   (verificado en el harness, exp-transparente-*); por eso la aurora va en el
+   overlay, con los valores exactos del body. En oscuro usa la aurora oscura
+   del body, NO el #1c1030 del mockup (OBS-2 de la verificación R2). */
+.full.placement-intro{background:
+  radial-gradient(120% 34% at 8% 0%,rgba(183,140,255,.55),transparent 60%),
+  radial-gradient(90% 30% at 96% 12%,rgba(55,210,220,.4),transparent 60%),
+  radial-gradient(110% 30% at 50% 108%,rgba(215,243,106,.45),transparent 60%),
+  var(--paper)}
+html[data-theme="dark"] .full.placement-intro{background:
+  radial-gradient(120% 34% at 8% 0%,rgba(96,53,132,.65),transparent 60%),
+  radial-gradient(90% 30% at 96% 12%,rgba(55,210,220,.28),transparent 60%),
+  radial-gradient(110% 30% at 50% 108%,rgba(215,243,106,.18),transparent 60%),
+  var(--paper)}
+/* Botones G completos, solo en la bienvenida (sombra 3D conservada; el
+   anillo lima usa el --lime de la app, #d7f36a, no el #b8e62e del mockup). */
+.full.placement-intro .btn.primary{background:linear-gradient(135deg,var(--plum),var(--plum2));border:1px solid rgba(255,255,255,.25);box-shadow:0 4px 0 #2b1741,0 0 0 3px rgba(215,243,106,.35)}
+.full.placement-intro .btn.primary:active{box-shadow:0 1px 0 #2b1741,0 0 0 3px rgba(215,243,106,.35)}
+.full.placement-intro .btn.ghost{background:var(--glass);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 3px 0 var(--line),0 6px 16px rgba(75,40,104,.14)}

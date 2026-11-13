@@ -1396,12 +1396,12 @@ export function buildPlacement() {
   return q;
 }
 export function placementIntro() {
-  $('#full').classList.remove('hidden'); document.body.style.overflow = 'hidden';
-  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:120px;height:120px">${MASCOT}</div><h1>¡Hola! Soy Tuki</h1>
+  $('#full').classList.remove('hidden'); $('#full').classList.add('placement-intro'); document.body.style.overflow = 'hidden';
+  $('#fullInner').innerHTML = `<div class="complete"><div class="mascot" style="width:150px;height:150px">${MASCOT}</div><h1>¡Hola! Soy Tuki</h1>
     <p style="max-width:420px">Haz una <b>prueba de nivel corta</b> (10 preguntas, unos 3 minutos) con ejercicios de oído${canSpeak() ? ' y de pronunciación' : ''}. Así empiezas en la unidad adecuada.</p>
     <button class="btn primary" id="plGo" style="min-width:240px">Empezar prueba</button><button class="btn ghost" id="plSkip" style="min-width:240px;margin-top:6px">Saltar, empiezo desde cero</button></div>`;
-  $('#plGo').onclick = () => startLesson(null, 'placement', buildPlacement(), 'Prueba de nivel');
-  $('#plSkip').onclick = () => { S.placement = 'skipped'; save(); $('#full').classList.add('hidden'); document.body.style.overflow = ''; render(); };
+  $('#plGo').onclick = () => { $('#full').classList.remove('placement-intro'); startLesson(null, 'placement', buildPlacement(), 'Prueba de nivel'); };
+  $('#plSkip').onclick = () => { S.placement = 'skipped'; save(); $('#full').classList.add('hidden'); $('#full').classList.remove('placement-intro'); document.body.style.overflow = ''; render(); };
 }
 export function placementFinish() {
   const res = L.place || [], byU = {}; res.forEach(x => { (byU[x.u] = byU[x.u] || []).push(x.ok); });
