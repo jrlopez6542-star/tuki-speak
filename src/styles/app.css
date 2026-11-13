@@ -354,6 +354,24 @@ a{color:var(--b-d)}
 .mode-row:first-of-type{border-top:0}
 .mode-row .em{font-size:28px;width:46px;height:46px;border-radius:var(--r-md);display:grid;place-items:center;flex:none}
 .mode-row h3{font-size:15px}
+/* (TUKI-IMPL-MEZCLA-MODOS-001: mezcla P2+P1+P4 de «Modos de práctica».
+   P2: cabeceras de grupo + notas. P1: candadito gris en la baldosa de la
+   fila bloqueada (::after) + requisito en gris (.soft-lock); la fila
+   sigue con opacidad .72 y borde discontinuo (.locked-card). P4: franja
+   «3 modos nuevos», sello NUEVO y borde lima en las 3 filas nuevas.
+   Regla del sello: hasta la próxima minor o 1 mes, lo que llegue antes;
+   sin expiración automática. Sin P3: nada de barras aquí.) */
+.group-head{font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#4b2868;margin:10px 2px 2px}
+.group-note{font-size:11px;color:var(--mute);line-height:1.45;margin:0 2px 8px}
+.mode-row .em{position:relative}
+.mode-row.locked-card .em::after{content:"🔒";position:absolute;right:-5px;bottom:-5px;font-size:11px;line-height:1;background:var(--card);border:1px solid var(--line);border-radius:50%;width:20px;height:20px;display:grid;place-items:center}
+.soft-lock{display:inline-flex;align-items:center;gap:4px;color:var(--mute);font-size:11px;font-weight:700;padding:3px 2px;white-space:nowrap}
+.mode-pills{display:flex;gap:6px;align-items:center;flex:none}
+.new-banner{margin-top:12px;background:linear-gradient(120deg,#603584,#43215f);color:#fff;border-radius:14px;padding:11px 13px;font-size:12px;font-weight:800}
+.new-banner-note{margin:8px 2px 0}
+.pill.new-badge{background:#d7f36a;color:#28163a;border-color:transparent}
+.mode-row.is-new{border:2px solid #d7f36a}
+[data-theme=dark] .group-head{color:#d7f36a}
 .maint-sec{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}
 .maint-sec:first-of-type{border-top:0;margin-top:10px;padding-top:0}
 /* ===== v2: accesibilidad, tema oscuro, nuevas vistas ===== */

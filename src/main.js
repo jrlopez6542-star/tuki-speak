@@ -6,7 +6,7 @@ import { VOICES, loadVoices, pickVoice, speak, SR, HAS_SR, curRec, setCurRec, re
 import { L, setL, tokensOf, earEx, sayPairEx, buildLesson, unlockedLessons, buildPractice, startLesson, lessonShell, nextEx, setFoot, footCheck, enableCheck, PRAISE, ENCOURAGE, feedback, earResult, checkEar, RENDER, optionsHTML, bindOptions, SPEAK_TITLES, speakTarget, createMicMeter, doMic, recOnlyActive, recOnlyToggle, compareHTML, bindCompare, onSpeechResult, victoryConfetti, noHeartsModal } from './lessons.js';
 import { SCENARIOS, SCEN_ES, chatChipsFor, CHAT, chatSystem, geminiCall, gemini, parseTutor, TUKI_API, SHARED_TEXT_MODELS, keysLocked, fbSignedIn, fbCanShare, gemShared, azOwn, azShared, noAIMsg, sharedModel, tukiApi, AZT, azAuth, aiModeText, aiQuotaText, recordAiQuota, aiQuotaToday, aiQuotaLow, azFetch, azureReady, LIVE, LIVE_LABEL, GEMINI_LIVE_MODELS, currentProvider, LEVELS, LEVEL_KEYS, defaultLevel, chatLevel, levelRules, TUTOR_LANGS, tutorLang, langRules, TUTOR_SPEEDS, tutorSpeed, chatMul, speedRules, HELP_COMMANDS, isPerfect, tutorSpeechParts, liveSystem, liveSet, liveUI, liveAppend, liveTurnDone, LIVE_REC, LIVE_REC_MAX_SAMPLES, LIVE_REC_MIN_WORDS, LIVE_REC_MIN_SEC, LIVE_REC_MAX_TURNS, liveRecReset, liveRecStart, liveRecPush, liveRecTurnStart, liveRecTurnEnd, liveRecTrim, liveRecPickTurns, livePronWeak, livePronWeakWords, livePronEvaluate, livePronMaybeEvaluate, livePronSheetUpdate, Player, WORKLET_SRC, startMicStream, liveErrES, connectGemini, onGeminiMsg, startGeminiLive, listLiveModels, startOpenAIRealtime, onOAIEvent, startLive, stopLive, openaiChat, resetChat, tapWords, quoteTap, msgActs, trHTML, msgText, chatDraw, CACHE_KEYS, MEM_WCACHE, MEM_TCACHE, cacheGet, cacheSet, AIQ, GEM_QUICK_MODELS, aiTransient, aiStatus, aiBusyErr, gemQuickCall, aiQuick, toggleTranslate, errorTutorAvailable, errorTutorHTML, bindErrorTutor, explainError, explainErrorStatus, explainDayLeft, explainDayUsed, explainDayRecord, EXPLAIN_DAY_MAX, errorTutorKey, chatSend, chatMic, fitChat, uid, clamp100, parseJSONLoose, aiJSON, sayBtns, bindSayTap, scoreBarH, convoTranscript, addLearnItems, flagHard, SUM_SYS, ensureSP, sumPendingAdd, summarizeConvo, runPendingSummary, summaryHTML, aiFriendly, openSummarySheet, endConversation, convoPracticeItems, hardWords, hardDrillItems, startHardDrill, numHash, SENIORITY, IV_END, modeRules, TOPICS, todayTopic, chSecs, enterMode, leaveMode, interviewSetup, ivQuestion, reportInterview, interviewHTML, openInterviewSheet, finishInterview, challengeSetup, chLeft, startChTimer, finishChallenge, chStreak, practiceErrorsData, practiceErrorsHasData, practiceErrorsAIAvailable, generatePracticeErrors, validatePracticeErrors, practiceErrorsToQueue, startPracticeErrors, PRACTICE_ERRORS_CACHE_KEY, weekKey, weeklyReviewData, weeklyReviewEligible, weeklyReviewAvailable, weeklyReviewValidate, weeklyReviewCacheGet, weeklyReviewCacheSet, generateWeeklyReview, WEEKLY_REVIEW_CACHE_KEY, chatProfileText, clearChatProfile, chatCompactAvailable, compactChatHistory, maybeCompactChat, CHAT_COMPACT_AT, CHAT_COMPACT_KEEP, CHAT_COMPACT_TAKE, levelSuggestion, levelSuggestionRaw, applyLevelSuggestion, levelSuggestHTML, bindLevelSuggest, markLevelSuggestShown, customScenarios, addCustomScenario, removeCustomScenario, registerCustomScenarios, sanitizeScenario } from './chat.js';
 import { b64u, unb64u, clampNum, deepClean, sanitizeSettings, sanitizeState, KDF_ITER, LOCK_FIELDS, KEYS_LOCAL, KS, LOCKED, setLocked, kdf, newKS, sealKeys, validBlob, openKeys, ksFromPhrase, keysObj, keysSig, hasAnyKey, phraseStrength, lockApply, lockRelease, getLockSig, setLockSig, applyKeys, setLocalLock, FB_VER, FB_BASE, FB_CFG, FB_HINT, FB_OWNER, CLOUD_META, CLOUD_SCHEMA, SYNC_MIN_MS, SYNC_DEBOUNCE_MS, CLOUD_MAX, syncMin, syncDebounce, FB, AUTH_ERR, authErr, devName, fbLoad, fbFail, localHasData, cloudMeta, setCloudMeta, uref, readMeta, readData, cloudSettings, packProgress, keysForCloud, cloudPush, adoptMerged, cloudFirstSync, askOtherOwner, cloudSync, fbSchedule, fbMarkDirty, fbGoogle, fbEmail, fbReset, fbVerify, fbReload, fbSignOut, unlockPrompt, unlockKeys, createPhrase, changePhrase, forgetPhrase, acMsg, acctHTML, keysHTML, bindAcct, bindKeys } from './account.js';
-import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, AD, adminBody, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildPlacement, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, initTukiAnimPause, interactWithTuki, initTukiSleepWatch, makeMascotClickable, tukiSleepBusy, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openWordPop, openStoriesModal, openStory, openRadioModal, openRadioEpisode, openIdiomBank, idiomCardHTML, pdCardHTML, pdEvaluate, pdFinish, pdGenAvailable, pdGenCacheGet, pdGenCacheSet, pdGenData, pdGenHasData, pdGenSpeak, pdGenValidate, PD_GEN_CACHE_KEY, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, photoSharedAvailable, photoAnalyzeShared, resizePhoto, placementFinish, placementIntro, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, profileTouch, quotaAlert, quotaSummary, QUOTA_ALERT, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEntryHTML, tcEval, tcEx, tcExtract, tcExtractAll, tcExtraHint, tcFailsTotal, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, TUKI_POSES, tukiPoseFor, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
+import { HANDS_FREE_BANK, LAST_REC, MASCOT, MISSION_SCENARIOS, PD_LISTEN, PD_MIXED, PD_SPEAK, SHADOW_BANK, STUDIO_PRESET, TC_BANK, TC_CTX, TC_LV, TC_SESSION, TUKI_QUOTES_ES, TV, TV_AZ, TV_SAMPLE, V, WORDS_MODE, addCoins, AD, adminBody, adminHTML, adminRefresh, bindAdmin, bindExtra, bindMissionGoals, bindWordsToggle, buildPlacement, buildTopErrorsPractice, canvasConfetti, checkForAppUpdates, checkReminder, clearOfflineAudio, closeWordPop, confirmBox, countUpAll, currentLesson, dictLookup, downloadICS, ensure25, ensure251, ensure26, ensure27, errES, extraResultHTML, fbkCardHTML, getTop5Errors, guideSheet, httpErr, initServiceWorker, initTukiAnimPause, interactWithTuki, initTukiSleepWatch, makeMascotClickable, tukiSleepBusy, UNLOCK_RULES, isFeatureUnlocked, lessonItems, lessonSheet, lsGet, lsSet, missionGoalsHTML, modal, netBanner, openFeedback, openHandsFreeModal, openInterviewSimulatorModal, openMissionsModal, openMouthSelector, openPhotoPractice, openShadowingModal, openTravelGuideModal, openWordPop, openStoriesModal, openStory, openRadioModal, openRadioEpisode, openIdiomBank, idiomCardHTML, pdCardHTML, pdEvaluate, pdFinish, pdGenAvailable, pdGenCacheGet, pdGenCacheSet, pdGenData, pdGenHasData, pdGenSpeak, pdGenValidate, PD_GEN_CACHE_KEY, pdItems, pdKeywordEval, pdPick, pdStreak, phonemeHintHTML, photoSharedAvailable, photoAnalyzeShared, resizePhoto, placementFinish, placementIntro, placementFreeAvailable, placementFreeValidate, placementFreeAnalyze, placementFreeFinish, placementFreeSave, placementFreeWeak, placementFreeHTML, bindPlacementFree, profileTouch, quotaAlert, quotaSummary, QUOTA_ALERT, renderDailyChestsAndQuests, renderDict, renderTukiSVG, runOfflinePreload, sendTukiNotification, showLockedFeatureModal, spawnTukiParticles, speakSnail, speakTukiEs, srsStats, startPD, startTC, syncHardWordsToDeck, tcAll, tcById, tcCanVoice, tcEval, tcEx, tcExtract, tcExtractAll, tcExtraHint, tcFailsTotal, tcFinish, tcLevel, tcListen, tcMasteredCount, tcPick, tcSetup, tcVState, tcValidate, tcVoiceOn, tcVoiceResult, tcVoiceStart, tcVoiceStop, tcVoiceUI, triggerTukiAnimation, tukiMood, getTukiMood, tukiMoodReduced, TUKI_POSES, tukiPoseFor, tvCardHTML, tvDeviceVoices, tvMsg, tvPlay, tvRenderBody, tvRows, tvSelect, tvStop, updateMascot, updateOfflineCardStats, wordsHTML, wordsToggleHTML } from './ui.js';
 import { STORIES, IDIOMS, RADIO_EPISODES, idiomOfDay } from './content-new.js';
 export { updateMascot, modal, confirmBox, wordsHTML, triggerTukiAnimation, tukiMood, tukiTutorBannerHTML, bindTukiTutorBanner, mouthPanelHTML, phonemeHintHTML, buildVocabLesson, renderVocabLearn, bindExtra, extraResultHTML, errES, httpErr, openWordPop, closeWordPop, azureMic, lsGet, lsSet, buildTopErrorsPractice } from './ui.js';
 export { azFetch, azureReady, errorTutorAvailable, errorTutorHTML, bindErrorTutor, explainError } from './chat.js';
@@ -1202,36 +1202,95 @@ function m05RingSVG(done, total, color) {
   const p = total ? done / total : 0, circ = 2 * Math.PI * 15, off = circ * (1 - p);
   return `<svg class="m05-uring" viewBox="0 0 36 36" role="img" aria-label="${done} de ${total} lecciones"><circle class="bg" cx="18" cy="18" r="15" fill="none" stroke-width="4"/><circle class="fg" cx="18" cy="18" r="15" fill="none" stroke-width="4" stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 18 18)" stroke="${color}"/><text x="18" y="21.5" text-anchor="middle">${done}/${total}</text></svg>`;
 }
+/* ---- Mezcla P2+P1+P4 de «Modos de práctica» (TUKI-IMPL-MEZCLA-MODOS-001,
+   adoptada por Jonathan 2026-11-13; mockup en
+   ~/workspace/tuki-modos-mezcla-p2p1p4/MOCKUP-M1.html) ----
+   P2 — 4 grupos de PRESENTACIÓN sobre el orden real existente: el orden
+   DENTRO de cada grupo es el orden real de la lista; solo cambia el orden
+   global. No se reordenan los modos ni se cambian sus desbloqueos: la
+   agrupación filtra el array de modos que ya existe en cada sitio (en
+   Práctica el grupo Repaso muestra solo SRS y Viaje porque Traduce es una
+   tarjeta separada; en el espejo muestra los 3). Radio Tuki va en «Nuevo
+   contenido» (prima su novedad; es audio, así que también podría ir en
+   Escucha — decisión pendiente de Jonathan, BRIEF §2).
+   P1 — la fila bloqueada conserva su icono original + candadito gris
+   (::after en la baldosa) + requisito en gris («🔒 N lecciones», N =
+   UNLOCK_RULES, dato real). El COMPORTAMIENTO no cambia: la fila sigue
+   con opacidad .72 y borde discontinuo (.locked-card) y al tocarla abre
+   el mismo modal «Práctica bloqueada». 0 píldoras rojas en las filas.
+   P4 — franja «✨ 3 modos nuevos para explorar» + sello NUEVO y borde lima
+   en Historias, Radio Tuki e Idioms y slang.
+   Regla del sello NUEVO (propuesta en COMPARACION-MEZCLA.md §4, pendiente
+   de decisión de Jonathan): hasta la próxima versión minor o 1 mes desde
+   su alta, lo que llegue antes; entonces se retiran franja y sellos
+   juntos. NO hay expiración automática: la retirada la hace una persona.
+   P3 NO va en esta mezcla: 0 barras/contadores de progreso.
+   La tarjeta separada «Traduce y completa» de Práctica NO toma la señal
+   suave (D3 de la misión de mockups): conserva el bloqueo real (🔒 +
+   píldora roja) porque es una tarjeta, no una fila de la lista. */
+const MODE_GROUPS = [
+  { name: 'Escucha', note: 'Modos cuyo input principal es escuchar (bucle de audio y shadowing).', keys: ['handsfree', 'shadow'] },
+  { name: 'Habla', note: 'Modos cuyo output principal es hablar (conversar, imitar, responder, describir).', keys: ['missions', 'mouth', 'interview', 'photo'] },
+  { name: 'Repaso', note: 'Modos de consolidación: SRS, traducción y frases de supervivencia para consultar.', keys: ['srs', 'tc', 'travel'] },
+  { name: 'Nuevo contenido', note: 'Los 3 modos nuevos: historias, radio e idioms, abiertos desde el inicio.', keys: ['stories', 'radio', 'idioms'] },
+];
+const MODE_IS_NEW = new Set(['stories', 'radio', 'idioms']);
+const NEW_MODES_BANNER_HTML = `<div class="new-banner">✨ 3 modos nuevos para explorar</div>
+  <p class="muted small new-banner-note">Historias con Tuki, Radio Tuki e Idioms y slang llegan abiertos, sin lecciones previas.</p>`;
+function modeRowHTML(m, attrs) {
+  const req = (UNLOCK_RULES[m.key] || {}).reqLessons || 0;
+  const pill = m.unl ? m.pill : `<span class="soft-lock">🔒 ${req} lecciones</span>`;
+  const badge = MODE_IS_NEW.has(m.key) ? '<span class="pill new-badge">NUEVO</span>' : '';
+  return `<button class="mode-row ${!m.unl ? 'locked-card' : ''}${MODE_IS_NEW.has(m.key) ? ' is-new' : ''}" ${attrs}>
+      <div class="em" style="background:${m.bg}">${m.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div class="row between"><h3 style="margin:0 0 2px">${m.title}</h3><span class="mode-pills">${pill}${badge}</span></div>
+        ${m.extra}
+        <div class="muted small">${m.desc}</div>
+      </div>
+    </button>`;
+}
+function modesGroupedHTML(modes, attrsFor) {
+  const byKey = new Map(modes.map(m => [m.key, m]));
+  return MODE_GROUPS.map(g => {
+    const rows = g.keys.map(k => byKey.get(k)).filter(Boolean);
+    if (!rows.length) return '';
+    return `<div class="group-head">${g.name}</div><div class="group-note">${g.note}</div>${rows.map(m => modeRowHTML(m, attrsFor(m))).join('')}`;
+  }).join('');
+}
 /* Espejo de la tarjeta «🎭 Modos de práctica» de Práctica (_practice211):
-   mismos 11 modos, mismos iconos, descripciones, píldoras y candados
+   mismos 12 modos, mismos iconos, descripciones, píldoras y candados
    (isFeatureUnlocked + srsStats leen el mismo estado en vivo; no hay
-   estado duplicado), mismas acciones al tocar. */
+   estado duplicado), mismas acciones al tocar. Traduce y completa es una
+   fila del grupo Repaso (TUKI-IMPL-MEZCLA-MODOS-001): su descripción es
+   el subtítulo de tcEntryHTML («Frases reales, falsos amigos y phrasal
+   verbs · Básico»), NO la plantilla de la tarjeta separada de Práctica.
+   La píldora de dominadas es la misma de tcEntryHTML (N/N dominadas). */
 function m05ModesMirrorHTML() {
   const st = srsStats();
   const modes = [
-    { key: 'srs', unl: isFeatureUnlocked('srs'), icon: '🧠', bg: '#fff3d6', title: 'Repaso Inteligente (SRS)', pill: isFeatureUnlocked('srs') ? `<span class="srs-pill due">${st.due} hoy</span>` : '<span class="lock-pill">🔒 Bloqueado</span>', extra: isFeatureUnlocked('srs') ? `<div class="srs-stats"><span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span><span class="srs-pill mat">🏆 ${st.mature} dominadas</span></div>` : '', desc: 'Algoritmo SM-2 · repasa en el momento exacto antes de olvidar' },
-    { key: 'handsfree', unl: isFeatureUnlocked('handsfree'), icon: '🎧', bg: '#e0f2fe', title: 'Modo Manos Libres', pill: isFeatureUnlocked('handsfree') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla' },
-    { key: 'missions', unl: isFeatureUnlocked('missions'), icon: '🎯', bg: '#fef3c7', title: 'Misiones de Conversación Real', pill: isFeatureUnlocked('missions') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: '8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)' },
-    { key: 'shadow', unl: isFeatureUnlocked('shadow'), icon: '🎙️', bg: '#e8f4fd', title: 'Modo Shadowing', pill: isFeatureUnlocked('shadow') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha e imita frases con entonación nativa y habla conectada' },
-    { key: 'mouth', unl: isFeatureUnlocked('mouth'), icon: '👄', bg: '#f3fbf7', title: 'Guía Fonética y Bocas', pill: isFeatureUnlocked('mouth') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)' },
-    { key: 'photo', unl: isFeatureUnlocked('photo'), icon: '📷', bg: '#fdf2f8', title: 'Describe la Foto / Objeto', pill: isFeatureUnlocked('photo') ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Práctica multimodal con tu cámara o fotos para ganar vocabulario' },
-    { key: 'travel', unl: isFeatureUnlocked('travel'), icon: '✈️', bg: '#e0f2fe', title: 'Guía de Viaje y Supervivencia', pill: isFeatureUnlocked('travel') ? '<span class="novice-badge">🌱 Novato & Viajes</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol' },
-    { key: 'interview', unl: isFeatureUnlocked('interview'), icon: '💼', bg: '#fef3c7', title: 'Simulador de Entrevista Laboral', pill: isFeatureUnlocked('interview') ? '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática' },
+    { key: 'srs', unl: isFeatureUnlocked('srs'), icon: '🧠', bg: '#fff3d6', title: 'Repaso Inteligente (SRS)', pill: isFeatureUnlocked('srs') ? `<span class="srs-pill due">${st.due} hoy</span>` : '', extra: isFeatureUnlocked('srs') ? `<div class="srs-stats"><span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span><span class="srs-pill mat">🏆 ${st.mature} dominadas</span></div>` : '', desc: 'Algoritmo SM-2 · repasa en el momento exacto antes de olvidar' },
+    { key: 'handsfree', unl: isFeatureUnlocked('handsfree'), icon: '🎧', bg: '#e0f2fe', title: 'Modo Manos Libres', pill: '', extra: '', desc: 'Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla' },
+    { key: 'missions', unl: isFeatureUnlocked('missions'), icon: '🎯', bg: '#fef3c7', title: 'Misiones de Conversación Real', pill: '', extra: '', desc: '8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)' },
+    { key: 'shadow', unl: isFeatureUnlocked('shadow'), icon: '🎙️', bg: '#e8f4fd', title: 'Modo Shadowing', pill: '', extra: '', desc: 'Escucha e imita frases con entonación nativa y habla conectada' },
+    { key: 'mouth', unl: isFeatureUnlocked('mouth'), icon: '👄', bg: '#f3fbf7', title: 'Guía Fonética y Bocas', pill: '', extra: '', desc: 'Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)' },
+    { key: 'photo', unl: isFeatureUnlocked('photo'), icon: '📷', bg: '#fdf2f8', title: 'Describe la Foto / Objeto', pill: '', extra: '', desc: 'Práctica multimodal con tu cámara o fotos para ganar vocabulario' },
+    { key: 'travel', unl: isFeatureUnlocked('travel'), icon: '✈️', bg: '#e0f2fe', title: 'Guía de Viaje y Supervivencia', pill: isFeatureUnlocked('travel') ? '<span class="novice-badge">🌱 Novato & Viajes</span>' : '', extra: '', desc: 'Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol' },
+    { key: 'interview', unl: isFeatureUnlocked('interview'), icon: '💼', bg: '#fef3c7', title: 'Simulador de Entrevista Laboral', pill: isFeatureUnlocked('interview') ? '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>' : '', extra: '', desc: 'Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática' },
     // (C-02/C-04/C-05 TUKI-CONTENIDO-NUEVO-001: 3 filas nuevas en el espejo,
     // mismas que en la tarjeta de Práctica. 8 → 11 filas; el techo de
     // densidad es 12. El banco de idioms también vive aquí.)
     { key: 'stories', unl: isFeatureUnlocked('stories'), icon: '📖', bg: '#fef3c7', title: 'Historias con Tuki', pill: `<span class="srs-pill mat">📖 ${Object.keys(S.stories || {}).length}/12 leídas</span>`, extra: '', desc: 'Cuentos cortos con audio por línea, traducción al tocar y preguntas. +10 XP por historia.' },
     { key: 'radio', unl: isFeatureUnlocked('radio'), icon: '📻', bg: '#e0f2fe', title: 'Radio Tuki', pill: `<span class="srs-pill mat">📻 ${Object.keys(S.radio || {}).length}/8 escuchados</span>`, extra: '', desc: 'Audio corto con transcripción por líneas, diccionario al tocar y preguntas.' },
     { key: 'idioms', unl: isFeatureUnlocked('idioms'), icon: '💬', bg: '#fdf2f8', title: 'Idioms y slang', pill: '', extra: '', desc: `Un idiom al día + banco con búsqueda (${IDIOMS.length} expresiones) y audio del ejemplo.` },
+    // (TUKI-IMPL-MEZCLA-MODOS-001: Traduce y completa como fila del grupo
+    // Repaso. Sustituye a la tarjeta tcEntryHTML separada que vivía en
+    // #modesExtra: mismo destino (tcSetup), mismo candado ('tc', 3
+    // lecciones), misma píldora de dominadas. Su descripción es el
+    // subtítulo de tcEntryHTML, NO la plantilla de Práctica.)
+    { key: 'tc', unl: isFeatureUnlocked('tc'), icon: '✍️', bg: '#dcf1ff', title: 'Traduce y completa', pill: isFeatureUnlocked('tc') ? `<span class="srs-pill mat">${tcMasteredCount()}/${tcAll().length} dominadas</span>` : '', extra: '', desc: 'Frases reales, falsos amigos y phrasal verbs · Básico' },
   ];
-  return modes.map(m => `<button class="mode-row ${!m.unl ? 'locked-card' : ''}" data-m05mode="${m.key}">
-      <div class="em" style="background:${m.bg}">${m.unl ? m.icon : '🔒'}</div>
-      <div style="flex:1;min-width:0">
-        <div class="row between"><h3 style="margin:0 0 2px">${m.title}</h3>${m.pill}</div>
-        ${m.extra}
-        <div class="muted small">${m.desc}</div>
-      </div>
-    </button>`).join('');
+  return modesGroupedHTML(modes, m => `data-m05mode="${m.key}"`);
 }
 function m05ModesMirrorBind(v) {
   const act = {
@@ -1246,6 +1305,7 @@ function m05ModesMirrorBind(v) {
     stories: () => openStoriesModal(),
     radio: () => openRadioModal(),
     idioms: () => openIdiomBank(),
+    tc: () => tcSetup(),
   };
   $$('[data-m05mode]', v).forEach(b => b.onclick = () => {
     const k = b.dataset.m05mode;
@@ -1313,9 +1373,9 @@ VIEWS.learn = v => {
   html += `<section class="card m05-practice" id="modesMirror">
     <h3 style="margin:0 0 2px">🎭 Modos de práctica <button class="mini-btn" type="button" id="modesToggle" aria-expanded="false" style="float:right">Expandir ▼</button></h3>
     <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 12 modos</div>
+    ${NEW_MODES_BANNER_HTML}
     <div id="modesBody" class="hidden">${m05ModesMirrorHTML()}</div>
-    <div id="modesExtra"></div>
-    <p class="muted small" id="modesHint">11 filas del espejo + la tarjeta Traduce y completa. Toca «Expandir» para verlas.</p>
+    <p class="muted small" id="modesHint">12 filas del espejo: los mismos modos que en Práctica. Toca «Expandir» para verlas.</p>
   </section>`;
   html += `<p class="muted small" style="text-align:center">¿Quieres saltar a otra lección? Activa el "modo libre" en ⚙️ Ajustes.</p>`;
   html += `<div class="row" style="margin:14px 0 4px;justify-content:center"><button class="btn ghost sm" id="learnWordsBtn">🃏 Palabras</button></div>`;
@@ -1344,7 +1404,7 @@ VIEWS.learn = v => {
     const open = body.classList.toggle('hidden') === false;
     mt.textContent = open ? 'Plegar ▲' : 'Expandir ▼';
     mt.setAttribute('aria-expanded', String(open));
-    if (hint) hint.textContent = open ? 'Las 11 filas del espejo + Traduce y completa: los mismos modos que en Práctica.' : '11 filas del espejo + la tarjeta Traduce y completa. Toca «Expandir» para verlas.';
+    if (hint) hint.textContent = open ? 'Las 12 filas del espejo: los mismos modos que en Práctica.' : '12 filas del espejo: los mismos modos que en Práctica. Toca «Expandir» para verlas.';
   };
   // (fase premium, etapa 5: Tuki guía en el nodo actual; tocarlo es lo mismo
   // que tocar a Tuki en la marca o en el banner del tutor: celebra y habla
@@ -2343,16 +2403,12 @@ finishLesson = function () { if (L && L.mode === 'tc') return tcFinish(); return
 
 /* ---- Entrada, Aprender, Práctica, Plan, Progreso, Insignias ---- */
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 2949-2967)
-const _learn25 = VIEWS.learn;
-VIEWS.learn = v => {
-  _learn25(v);
-  // (M05-R1, brief §5.1.2: Traduce y completa vive como fila dentro de la
-  // sección de práctica, junto al espejo de modos.)
-  const extra = $('#modesExtra', v);
-  if (extra) { extra.insertAdjacentHTML('beforeend', tcEntryHTML('tcEntry')); $('#tcEntry', v).onclick = tcSetup; return; }
-  const anchor = $('.duo2', v) || $('.plan-card', v);
-  if (anchor) { anchor.insertAdjacentHTML('afterend', tcEntryHTML('tcEntry')); $('#tcEntry', v).onclick = tcSetup; }
-};
+// (TUKI-IMPL-MEZCLA-MODOS-001: la tarjeta tcEntryHTML separada de Aprender
+// ya no se inserta: Traduce y completa vive como fila del grupo Repaso
+// dentro del espejo (m05ModesMirrorHTML), con el mismo destino (tcSetup),
+// el mismo candado y la misma píldora de dominadas. El wrapper _learn25
+// que la insertaba en #modesExtra se eliminó. tcEntryHTML sigue exportada
+// en src/ui.js por si otro consumidor la usa; aquí ya no se llama.)
 const _practice25 = VIEWS.practice;
 VIEWS.practice = v => {
   _practice25(v);
@@ -2634,32 +2690,26 @@ VIEWS.practice = function (v) {
   // destinos, mismos candados y mismos textos; solo cambia la
   // presentación. Práctica pasa de 16 a 8 tarjetas visibles (techo 12).)
   const modes = [
-    { id: 'srsCard', unl: unlSrs, icon: '🧠', bg: '#fff3d6', title: 'Repaso Inteligente (SRS)', pill: unlSrs ? `<span class="srs-pill due">${st.due} hoy</span>` : '<span class="lock-pill">🔒 Bloqueado</span>', extra: unlSrs ? `<div class="srs-stats"><span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span><span class="srs-pill mat">🏆 ${st.mature} dominadas</span></div>` : '', desc: 'Algoritmo SM-2 · repasa en el momento exacto antes de olvidar' },
-    { id: 'handsFreeCard', unl: unlHf, icon: '🎧', bg: '#e0f2fe', title: 'Modo Manos Libres', pill: unlHf ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla' },
-    { id: 'missionsCard', unl: unlMi, icon: '🎯', bg: '#fef3c7', title: 'Misiones de Conversación Real', pill: unlMi ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: '8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)' },
-    { id: 'shadowCard', unl: unlSh, icon: '🎙️', bg: '#e8f4fd', title: 'Modo Shadowing', pill: unlSh ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Escucha e imita frases con entonación nativa y habla conectada' },
-    { id: 'mouthCard', unl: unlMo, icon: '👄', bg: '#f3fbf7', title: 'Guía Fonética y Bocas', pill: unlMo ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)' },
-    { id: 'photoCard', unl: unlPh, icon: '📷', bg: '#fdf2f8', title: 'Describe la Foto / Objeto', pill: unlPh ? '' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Práctica multimodal con tu cámara o fotos para ganar vocabulario' },
-    { id: 'travelCard', unl: unlTr, icon: '✈️', bg: '#e0f2fe', title: 'Guía de Viaje y Supervivencia', pill: unlTr ? '<span class="novice-badge">🌱 Novato & Viajes</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol' },
-    { id: 'interviewCard', unl: unlInt, icon: '💼', bg: '#fef3c7', title: 'Simulador de Entrevista Laboral', pill: unlInt ? '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>' : '<span class="lock-pill">🔒 Bloqueado</span>', extra: '', desc: 'Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática' },
+    { id: 'srsCard', key: 'srs', unl: unlSrs, icon: '🧠', bg: '#fff3d6', title: 'Repaso Inteligente (SRS)', pill: unlSrs ? `<span class="srs-pill due">${st.due} hoy</span>` : '', extra: unlSrs ? `<div class="srs-stats"><span class="srs-pill learn">🌱 ${st.learn} aprendiendo</span><span class="srs-pill mat">🏆 ${st.mature} dominadas</span></div>` : '', desc: 'Algoritmo SM-2 · repasa en el momento exacto antes de olvidar' },
+    { id: 'handsFreeCard', key: 'handsfree', unl: unlHf, icon: '🎧', bg: '#e0f2fe', title: 'Modo Manos Libres', pill: '', extra: '', desc: 'Escucha y repite en bucle continuo con pausas inteligentes sin tocar la pantalla' },
+    { id: 'missionsCard', key: 'missions', unl: unlMi, icon: '🎯', bg: '#fef3c7', title: 'Misiones de Conversación Real', pill: '', extra: '', desc: '8 situaciones cotidianas guiadas con objetivos e IA (Médico, Trabajo, Supermercado, Taxi…)' },
+    { id: 'shadowCard', key: 'shadow', unl: unlSh, icon: '🎙️', bg: '#e8f4fd', title: 'Modo Shadowing', pill: '', extra: '', desc: 'Escucha e imita frases con entonación nativa y habla conectada' },
+    { id: 'mouthCard', key: 'mouth', unl: unlMo, icon: '👄', bg: '#f3fbf7', title: 'Guía Fonética y Bocas', pill: '', extra: '', desc: 'Diagramas anatómicos SVG de colocación de lengua y labios (/θ/, /v/, /ɹ/)' },
+    { id: 'photoCard', key: 'photo', unl: unlPh, icon: '📷', bg: '#fdf2f8', title: 'Describe la Foto / Objeto', pill: '', extra: '', desc: 'Práctica multimodal con tu cámara o fotos para ganar vocabulario' },
+    { id: 'travelCard', key: 'travel', unl: unlTr, icon: '✈️', bg: '#e0f2fe', title: 'Guía de Viaje y Supervivencia', pill: unlTr ? '<span class="novice-badge">🌱 Novato & Viajes</span>' : '', extra: '', desc: 'Frases clave para aeropuerto, hotel, comida y emergencias con pronunciación fonética y modo caracol' },
+    { id: 'interviewCard', key: 'interview', unl: unlInt, icon: '💼', bg: '#fef3c7', title: 'Simulador de Entrevista Laboral', pill: unlInt ? '<span class="novice-badge" style="background:#fef3c7;color:#b45309">🚀 Rúbrica 1-10</span>' : '', extra: '', desc: 'Preguntas reales (Dev, Customer Service, General) con calificación 1 al 10 en fluidez, vocabulario y gramática' },
     // (C-02/C-04/C-05 TUKI-CONTENIDO-NUEVO-001: 3 filas nuevas DENTRO de la
     // tarjeta «🎭 Modos de práctica» (no tarjetas nuevas). 8 → 11 filas;
     // el techo de densidad es 12. Práctica sigue en 8 tarjetas visibles.)
-    { id: 'storiesCard', unl: true, icon: '📖', bg: '#fef3c7', title: 'Historias con Tuki', pill: `<span class="srs-pill mat">📖 ${Object.keys(S.stories || {}).length}/12 leídas</span>`, extra: '', desc: 'Cuentos cortos con audio por línea, traducción al tocar y preguntas. +10 XP por historia.' },
-    { id: 'radioCard', unl: true, icon: '📻', bg: '#e0f2fe', title: 'Radio Tuki', pill: `<span class="srs-pill mat">📻 ${Object.keys(S.radio || {}).length}/8 escuchados</span>`, extra: '', desc: 'Audio corto con transcripción por líneas, diccionario al tocar y preguntas.' },
-    { id: 'idiomsCard', unl: true, icon: '💬', bg: '#fdf2f8', title: 'Idioms y slang', pill: '', extra: '', desc: `Un idiom al día + banco con búsqueda (${IDIOMS.length} expresiones) y audio del ejemplo.` },
+    { id: 'storiesCard', key: 'stories', unl: true, icon: '📖', bg: '#fef3c7', title: 'Historias con Tuki', pill: `<span class="srs-pill mat">📖 ${Object.keys(S.stories || {}).length}/12 leídas</span>`, extra: '', desc: 'Cuentos cortos con audio por línea, traducción al tocar y preguntas. +10 XP por historia.' },
+    { id: 'radioCard', key: 'radio', unl: true, icon: '📻', bg: '#e0f2fe', title: 'Radio Tuki', pill: `<span class="srs-pill mat">📻 ${Object.keys(S.radio || {}).length}/8 escuchados</span>`, extra: '', desc: 'Audio corto con transcripción por líneas, diccionario al tocar y preguntas.' },
+    { id: 'idiomsCard', key: 'idioms', unl: true, icon: '💬', bg: '#fdf2f8', title: 'Idioms y slang', pill: '', extra: '', desc: `Un idiom al día + banco con búsqueda (${IDIOMS.length} expresiones) y audio del ejemplo.` },
   ];
   const modesHtml = `<div class="card" id="modesCard" style="margin-top:10px">
     <h3 style="margin:0 0 2px">🎭 Modos de práctica</h3>
     <div class="muted small" style="margin-bottom:4px">Escucha, habla y repasa con guía · 11 modos</div>
-    ${modes.map(m => `<button class="mode-row ${!m.unl ? 'locked-card' : ''}" id="${m.id}">
-      <div class="em" style="background:${m.bg}">${m.unl ? m.icon : '🔒'}</div>
-      <div style="flex:1;min-width:0">
-        <div class="row between"><h3 style="margin:0 0 2px">${m.title}</h3>${m.pill}</div>
-        ${m.extra}
-        <div class="muted small">${m.desc}</div>
-      </div>
-    </button>`).join('')}
+    ${NEW_MODES_BANNER_HTML}
+    ${modesGroupedHTML(modes, m => `id="${m.id}"`)}
   </div>`;
 
   const tc = $('#tcPractice', v);
