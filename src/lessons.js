@@ -89,7 +89,17 @@ export function startLesson(l, mode = 'lesson', queue = null, title = '') {
 }
 export function lessonShell() {
   const pct = Math.round(L.done / L.total * 100);
+  // (TUKI-IMPL-M1-001: chip de mundo + «X de 10» (U1) en la cabecera del
+  // ejercicio. La posición es la del ejercicio en curso (total − cola),
+  // no el contador de aciertos. En práctica sin lección o en la prueba de
+  // nivel no hay mundo: solo el contador. La banda de feedback de A sigue
+  // siendo el único patrón (setFoot ok/bad); no se añade feedback en línea.)
+  const pos = L.total - L.queue.length;
+  const ctx = L.l && L.l.unit
+    ? `<div class="m1-ctx"><span class="m1-uchip" style="--uc:${L.l.unit.color}">${L.l.unit.icon} U${L.l.ui + 1}</span><span class="m1-ctx-tx">${esc(L.l.unit.title)} · Ejercicio ${pos} de ${L.total}</span><span class="m1-count">${pos} / ${L.total}</span></div>`
+    : `<div class="m1-ctx"><span class="m1-ctx-tx">${L.mode === 'placement' ? 'Prueba de nivel' : 'Práctica'} · Ejercicio ${pos} de ${L.total}</span><span class="m1-count">${pos} / ${L.total}</span></div>`;
   return `<div class="lhead"><button class="xbtn" id="xLesson" aria-label="Salir">✕</button><div class="pbar"><i style="width:${pct}%"></i></div>${L.mode === 'lesson' ? `<div class="lhearts">❤️ ${S.hearts}</div>` : `<div class="lhearts" style="color:var(--b-d)">🎯</div>`}</div>
+  ${ctx}
   <div class="lbody" id="lbody"></div><div class="lfoot" id="lfoot" aria-live="polite"></div>`;
 }
 // =================== INTERACTIVIDAD Y ANIMACIONES DE TUKI (TIPO DUOLINGO) ===================

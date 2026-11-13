@@ -734,7 +734,7 @@ export function finishLesson() {
   const up = addXP(xp);
   const earnedCoins = L.mode === 'lesson' ? (15 + (isPerfect ? 10 : 0)) : 10;
   addCoins(earnedCoins);
-  const goal = S.settings.goal, today = todayRec().xp;
+  const goal = S.settings.goal;
   updateMascot();
 
   let unitCompleted = false;
@@ -795,9 +795,18 @@ export function finishLesson() {
     '¡Orgulloso de tu avance hoy! Mañana seguimos con toda la energía.'
   ]);
 
+  // (TUKI-IMPL-M1-001: las tarjetas muestran el TOTAL REAL otorgado
+  // (lección + trofeo de unidad cuando la completa), no solo la parte de
+  // la lección. Antes: +10/+15 en las tarjetas y +25/+50 solo en el
+  // resumen; el usuario ganaba 35/65 pero el titular decía 10/15. Los
+  // addXP/addCoins no cambian — solo lo que se muestra; la franja de
+  // abajo sigue desglosando el trofeo. Así el fin perfecto muestra
+  // +40/+75 con la voz saltada y +45/+75 con pron ≥85, como en M1.)
+  const displayXp = xp + (unitCompleted ? 25 : 0);
+  const displayCoins = earnedCoins + (unitCompleted ? 50 : 0);
   const cardsHtml = [
-    { t: 'XP', v: `+${xp}`, n: xp, pre: '+', c: 'var(--o-d)', bg: 'var(--o-d)' },
-    { t: 'Monedas', v: `+${earnedCoins} 🪙`, n: earnedCoins, pre: '+', suf: ' 🪙', c: '#d97706', bg: '#b45309' },
+    { t: 'XP', v: `+${displayXp}`, n: displayXp, pre: '+', c: 'var(--o-d)', bg: 'var(--o-d)' },
+    { t: 'Monedas', v: `+${displayCoins} 🪙`, n: displayCoins, pre: '+', suf: ' 🪙', c: '#d97706', bg: '#b45309' },
     { t: 'Pronunciación', v: pron === null ? '—' : pron + '%', c: '#15814c', bg: 'var(--g-d)' },
     { t: 'Oído', v: ear === null ? '—' : ear + '%', c: '#1591cc', bg: 'var(--b-d)' },
     { t: 'Tiempo', v: `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}`, c: '#8b5cf6', bg: '#7c3aed' }
@@ -806,6 +815,11 @@ export function finishLesson() {
       <div class="t" style="background:${card.bg}">${card.t}</div>
       <div class="v" style="color:${card.c}"${card.n === undefined ? '' : ` data-countup="${card.n}" data-countup-prefix="${card.pre || ''}" data-countup-suffix="${card.suf || ''}"`}>${card.v}</div>
     </div>`).join('');
+
+  // (TUKI-IMPL-M1-001: siguiente lección REAL según COURSE — la que sigue
+  // a la terminada — para el mini-camino y el botón de fin (a) tarjeta.
+  // Solo en modo lección; en práctica no hay «siguiente».)
+  const nextLesson = L.mode === 'lesson' && L.l ? (LESSONS[L.l.idx + 1] || null) : null;
 
   // (fase premium, etapa 5: el fin de unidad se distingue del fin de lección
   // normal con la clase unit-complete y el color propio de la unidad (--uc):
@@ -820,20 +834,23 @@ export function finishLesson() {
         <span class="victory-podium-star">🏆</span>
       </div>
     </div>
-    <h1>${unitCompleted ? '🏆 ¡Unidad Conquistada!' : isPerfect ? '¡Lección Perfecta!' : L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
+    <h1>${isPerfect ? '¡Perfecta en oído!' : unitCompleted ? '🏆 ¡Unidad Conquistada!' : L.mode === 'lesson' ? '¡Lección completada!' : '¡Práctica completada!'}</h1>
+    ${isPerfect ? `<div class="muted">🎧 ${esc(L.title)} · Unidad ${L.l.ui + 1} · sin un solo error de oído</div>` : ''}
     ${badges.length ? `<div class="victory-badges">${badges.join('')}</div>` : ''}
-    ${unitCompleted ? `<div class="unit-summary">Resumen de la unidad: <b>${L.l.unit.lessons.length} lecciones</b> · Trofeo <b>+50 🪙</b> · <b>+25 XP</b> de unidad</div>` : ''}
+    ${unitCompleted ? `<div class="m1-finish-strip" style="--uc:${L.l.unit.color}"><span class="m1-fs-ic">🏆</span><span><b>Unidad ${unitIdx} conquistada</b><span>${esc(unitTitle)} · +25 XP · +50 🪙 de trofeo</span></span></div>` : ''}
+    ${nextLesson ? `<div class="m1-minipath"><span class="m1-mp-dots">● ● 🏆 →</span><span>▶ <b>${esc(nextLesson.title)}</b> · U${nextLesson.ui + 1} · ${nextLesson.li + 1} de ${nextLesson.unit.lessons.length}</span></div>` : ''}
     <div class="tuki-speech" style="margin:6px auto 12px;max-width:340px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:13px;font-weight:700">
       <b>Profe Tuki:</b> «${finishQuote}»
     </div>
     <div class="muted">${esc(L.title)}</div>
     <div class="scards">${cardsHtml}</div>
     ${up ? `<p>🔥 ¡Racha de <b>${S.streak}</b> ${S.streak === 1 ? 'día' : 'días'}!</p>` : ''}
-    <p>Meta diaria: <b>${Math.min(today, goal)}/${goal} XP</b> ${today >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}
+    <p>Meta diaria: <b>${Math.min(todayRec().xp, goal)}/${goal} XP</b> ${todayRec().xp >= goal ? '🎉 ¡Cumplida!' : ''}</p>${extra}
     <div class="row" style="margin-top:10px;gap:8px">
       <button class="celebrate-btn" id="reCelebrateBtn">🎉 ¡Celebrar!</button>
-      <button class="btn primary" id="primaryBtn" style="min-width:180px">Continuar</button>
+      ${nextLesson ? `<button class="btn primary" id="primaryBtn" style="min-width:180px">Ver la tarjeta de ${esc(nextLesson.title)} →</button>` : `<button class="btn primary" id="primaryBtn" style="min-width:180px">Continuar</button>`}
     </div>
+    ${nextLesson ? `<div class="row" style="margin-top:8px;justify-content:center"><button class="btn ghost sm" id="finishBackBtn">Volver al recorrido</button></div>` : ''}
   </div>`;
 
   const fm = $('#finishMascot');
@@ -854,7 +871,11 @@ export function finishLesson() {
   const rcb = $('#reCelebrateBtn');
   if (rcb) rcb.onclick = doCelebration;
 
-  $('#primaryBtn').onclick = closeLesson;
+  // (TUKI-IMPL-M1-001: botón de fin (a) tarjeta — D-CLASES-01 (a): el fin
+  // abre la TARJETA D3 de la siguiente lección real, NO entra directo al
+  // ejercicio. «Volver al recorrido» solo cierra el fin.)
+  const fbb = $('#finishBackBtn'); if (fbb) fbb.onclick = closeLesson;
+  $('#primaryBtn').onclick = nextLesson ? () => { closeLesson(); setTimeout(() => lessonSheet(nextLesson), 150); } : closeLesson;
 
   // Tuki habla felicitando al usuario y moviendo el pico
   setTimeout(() => {
@@ -1205,6 +1226,14 @@ VIEWS.learn = v => {
      icono de lección en vez del candado. Las demás bloqueadas siguen
      con 🔒.) */
   const nextUnitFirst = cur && COURSE[cur.ui + 1] ? COURSE[cur.ui + 1].lessons[0].id : null;
+  // (TUKI-IMPL-M1-001: Aprender «Mundos» (U1). Cada unidad es una tarjeta
+  // con su color/icono/título reales de COURSE; la actual va expandida y
+  // las demás colapsadas (clic en la cabecera para expandir). Dentro, las
+  // lecciones son filas con su estado real (✓ hecha / ▶ actual /
+  // → siguiente sin 🔒 / 🔒 bloqueada); los nodos conservan su
+  // comportamiento (abrir la tarjeta de lección). Sin tocar desbloqueo,
+  // progreso, XP, vidas ni racha.)
+  const nextLessonId = cur && LESSONS[cur.idx + 1] ? LESSONS[cur.idx + 1].id : null;
   COURSE.forEach((u, ui) => {
     const done = u.lessons.filter(l => isDone(l.id)).length;
     const unitDone = done === u.lessons.length;
@@ -1213,16 +1242,19 @@ VIEWS.learn = v => {
       const pos = [[6, 8], [78, 26], [12, 64], [82, 78]][i % 4];
       return `<span style="left:${pos[0]}%;top:${pos[1]}%">${m}</span>`;
     }).join('');
-    html += `<section class="world" id="world-${ui + 1}" style="--uc:${u.color}"><div class="motifs" aria-hidden="true">${motifs}</div><div class="world-div"><span class="udot" style="background:${u.color}"></span><span class="ut"><b>${u.icon} Unidad ${ui + 1} · ${esc(u.title)}</b><span>Unidad ${ui + 1} de 17 · ${done}/${u.lessons.length} lecciones</span></span>${m05RingSVG(done, u.lessons.length, u.color)}<button class="mini-btn" type="button" data-guide="${u.id}">📘 Guía</button><button class="mini-btn" type="button" data-collapse="${u.id}" aria-expanded="true">▲</button></div><div class="nodes${isCurUnit ? ' has-current' : ''}" id="nodes-${u.id}">`;
+    const pctU = Math.round(done / u.lessons.length * 100);
+    html += `<section class="world m1-world" id="world-${ui + 1}" style="--uc:${u.color}"><div class="motifs" aria-hidden="true">${motifs}</div><div class="world-div"><span class="udot" style="background:${u.color}"></span><span class="ut"><b>${u.icon} Unidad ${ui + 1} · ${esc(u.title)}</b><span>Unidad ${ui + 1} de 17 · ${done}/${u.lessons.length} lecciones</span></span>${m05RingSVG(done, u.lessons.length, u.color)}<button class="mini-btn" type="button" data-guide="${u.id}">📘 Guía</button><button class="mini-btn" type="button" data-collapse="${u.id}" aria-expanded="${isCurUnit}">${isCurUnit ? '▲' : '▼'}</button></div><div class="m1-world-prog" aria-hidden="true"><div class="m1-pbar"><i style="width:${pctU}%"></i></div></div><div class="nodes m1-rows${isCurUnit ? ' has-current' : ''}${isCurUnit ? '' : ' hidden'}" id="nodes-${u.id}">`;
     u.lessons.forEach((l, li) => {
       const unl = isUnlocked(l), dn = isDone(l.id), isCur = cur && cur.id === l.id;
-      const off = [0, 48, 64, 48, 0, -48, -64, -48][(l.idx) % 8];
+      const isNext = l.id === nextLessonId;
+      const state = dn ? 'done' : isCur ? 'current' : isNext ? 'next' : unl ? 'open' : 'locked';
+      const stateLabel = dn ? '✓ Hecha' : isCur ? '▶ Actual' : isNext ? '→ Siguiente' : unl ? '○ Disponible' : '🔒 Bloqueada';
       const avgS = soundAvg(l.id);
-      html += `<div class="node-wrap" style="transform:translateX(${off}px)">${isCur ? '<div class="start-tip">¡EMPEZAR!</div>' : ''}
-        <button class="node ${dn ? 'done' : unl ? '' : 'locked'} ${isCur ? 'current' : ''}" style="--uc:${u.color}" data-lesson="${l.id}" aria-label="${esc(l.title)}">${dn ? '⭐' : unl ? l.icon : (l.id === nextUnitFirst ? l.icon : '🔒')}</button>
-        ${isCurUnit ? `<div class="node-label">${esc(l.title)}${avgS !== null ? `<br><span class="pill ${avgS >= 80 ? 'ok' : ''}">${avgS}%</span>` : ''}</div>` : ''}${isCur ? `<div class="tuki-guide"><div class="tuki-guide-mascot" title="¡Toca a Tuki!">${MASCOT}</div><div class="tuki-guide-bubble">${esc(TUKI_QUOTES_ES[0])}</div></div>` : ''}</div>`;
+      const sub = l.type === 'dialog' ? '💬 Diálogo' : l.type === 'vocab' ? '📚 Vocabulario' : `/${esc(l.sound)}/`;
+      html += `<button class="m1-lesson-row ${state} ${isCur ? 'current' : ''}" style="--uc:${u.color}" data-lesson="${l.id}" aria-label="${esc(l.title)} · ${stateLabel}">${isCur ? '<span class="m1-start-tip">¡EMPEZAR!</span>' : ''}<span class="m1-lr-ic">${dn ? '⭐' : unl || isNext ? l.icon : '🔒'}</span><span class="m1-lr-tx"><b>${esc(l.title)}</b><span>${sub}${avgS !== null ? ` · <span class="pill ${avgS >= 80 ? 'ok' : ''}">${avgS}%</span>` : ''}</span></span><span class="m1-lr-st">${stateLabel}</span></button>`;
     });
-    html += `<div class="node-wrap"><button class="unit-milestone ${unitDone ? 'reached' : ''}" style="--uc:${u.color}" data-guide="${u.id}" aria-label="Hito de la unidad ${ui + 1}: ${esc(u.title)}${unitDone ? ' (conquistado)' : ''}">🏆</button><div class="node-label">Hito · Unidad ${ui + 1}</div></div></div></section>`;
+    if (isCurUnit) html += `<div class="tuki-guide"><div class="tuki-guide-mascot" title="¡Toca a Tuki!">${MASCOT}</div><div class="tuki-guide-bubble">${esc(TUKI_QUOTES_ES[0])}</div></div>`;
+    html += `<button class="m1-milestone ${unitDone ? 'reached' : ''}" style="--uc:${u.color}" data-guide="${u.id}" aria-label="Hito de la unidad ${ui + 1}: ${esc(u.title)}${unitDone ? ' (conquistado)' : ''}"><span>🏆</span><span class="m1-lr-tx"><b>Hito · Unidad ${ui + 1}</b><span>${unitDone ? 'Unidad conquistada' : 'Completa las lecciones para conquistar la unidad'}</span></span></button></div></section>`;
   });
   html += `</div>`;
   html += `<section class="card m05-practice" id="modesMirror">
@@ -1246,6 +1278,12 @@ VIEWS.learn = v => {
     const hidden = n.classList.toggle('hidden');
     b.textContent = hidden ? '▼' : '▲';
     b.setAttribute('aria-expanded', String(!hidden));
+  });
+  // (TUKI-IMPL-M1-001: tocar el título del mundo también expande/colapsa
+  // su tarjeta; el botón ▲/▼ sigue siendo el control principal.)
+  $$('.m1-world .world-div .ut', v).forEach(t => t.onclick = () => {
+    const b = t.closest('.world-div').querySelector('[data-collapse]');
+    if (b) b.click();
   });
   m05ModesMirrorBind(v);
   const mt = $('#modesToggle'); if (mt) mt.onclick = () => {
@@ -2667,7 +2705,7 @@ VIEWS.learn = function (v) {
   // va en un timeout posterior; solo cuando go('learn') puso la bandera.)
   if (learnScrollPending) {
     learnScrollPending = false;
-    setTimeout(() => { const cur = document.querySelector('#view .node.current'); if (cur) cur.scrollIntoView({ block: 'center' }); }, 60);
+    setTimeout(() => { const cur = document.querySelector('#view .m1-lesson-row.current'); if (cur) cur.scrollIntoView({ block: 'center' }); }, 60);
   }
 };
 

@@ -5,7 +5,7 @@
 import { $, $$, avg, colorOf, dayKey, decodeDeep, decodeEnt, esc, hashStr, lev, normText, pick, scoreSpeech, shuffle, sleep } from './utils.js';
 import { DAY, MAX_HEARTS, S, addToDeck, isDone, recordSpeech, refreshHearts, soundAvg, todayRec } from './state.js';
 import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
-import { L, RENDER, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
+import { L, RENDER, buildLesson, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
 import { AZT, CHAT, LEVELS, LEVEL_KEYS, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tukiApi, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
 import { TukiDB } from './tuki-db.js';
@@ -879,12 +879,16 @@ export function bindTukiTutorBanner(body) {
 // (Fase 3, modulo 4: movido a src/lessons.js, lineas 1173-1558)
 
 export function lessonSheet(l) {
+  refreshHearts();
   const unl = isUnlocked(l), d = S.done[l.id], cur = currentLesson();
   if (!unl) {
-    modal(`<div style="text-align:center"><div style="font-size:54px">🔒</div>
+    modal(`<div style="display:flex;justify-content:flex-end"><button class="xbtn" type="button" data-x aria-label="Cerrar">✕</button></div>
+      <div style="text-align:center"><div style="font-size:54px">🔒</div>
       <h2>Lección bloqueada</h2>
       <p class="muted">Sigue el orden de la ruta (estilo Duolingo) para avanzar paso a paso y dominar tu pronunciación.</p>
       ${cur ? `<div class="tipbox" style="margin:12px 0;text-align:left"><b>Lección actual:</b> ${cur.icon} ${esc(cur.title)} <span class="small muted">(${esc(cur.unit.title)})</span></div>` : ''}
+      <div class="m1-hero-pills" style="justify-content:center"><span class="m1-pill solid">❤️ ${S.hearts}/5 vidas</span><span class="m1-pill solid">1 vida cada 30 min</span></div>
+      <p class="small muted">La voz nunca quita vidas. En oído, un error cuesta 1 ❤️.</p>
       <div class="row" style="margin-top:16px">
         <button class="btn ghost block" data-x>Cerrar</button>
         ${cur ? `<button class="btn primary block" data-cur>Ir a la lección actual 🚀</button>` : ''}
@@ -896,10 +900,54 @@ export function lessonSheet(l) {
       });
     return;
   }
-  modal(`<div style="display:flex;justify-content:flex-end"><button class="xbtn" type="button" data-x aria-label="Cerrar">✕</button></div><div class="row"><div style="font-size:40px">${l.icon}</div><div><div class="muted small">${esc(l.unit.title)} · Lección ${l.li + 1}</div><h2 style="margin:0">${esc(l.title)}</h2>${!l.type ? `<div class="ipa">/${esc(l.sound)}/</div>` : ''}</div></div>
-    <div class="tipbox small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</div>${mouthPanelHTML(l.id, true)}
-    ${d && d.placed && !d.times ? '<p class="small muted">✅ Aprobada en la prueba de nivel</p>' : d ? `<p class="small muted">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : ''}
-    <button class="btn primary block" data-go>${d ? 'Repetir lección' : 'Empezar lección'} (+10 XP)</button>${d ? '<button class="btn ghost block" style="margin-top:10px" data-drill>🎯 Práctica de este sonido</button>' : ''}`,
+  // (TUKI-IMPL-M1-001: tarjeta de lección D3 en lenguaje G. Héroe tintado
+  // con el color real de la unidad; sonido/IPA/explicación/consejo de boca
+  // reales de COURSE; píldoras con datos reales (vidas del estado, nº real
+  // de ejercicios de buildLesson, XP honesto +10, hasta +20); cola resumida
+  // por tipo con conteos reales; práctica solo con destino real
+  // (buildPractice('sound') existe para cualquier lección). Sin manos
+  // libres (M1 no la lleva).)
+  const q = buildLesson(l, 'lesson');
+  const nEx = q.length;
+  const queueKinds = [
+    ['learn', '🎓', 'Aprender el sonido'],
+    ['ear', '🎧', 'Oído'],
+    ['speak-word', '🎙️', 'Habla · palabra'],
+    ['speak-sentence', '🎙️', 'Habla · frase'],
+    ['saypair', '🎙️', 'Habla · par mínimo'],
+    ['order', '🔀', 'Ordenar'],
+    ['shadow', '👥', 'Shadowing'],
+    ['dialog', '💬', 'Diálogo'],
+    ['ltype', '✍️', 'Dictado']
+  ];
+  const kindOf = e => e.kind === 'pick' || e.kind === 'quiz' ? 'ear'
+    : e.kind === 'speak' ? (e.variant === 'sentence' ? 'speak-sentence' : 'speak-word') : e.kind;
+  const counts = {};
+  q.forEach(e => { const k = kindOf(e); counts[k] = (counts[k] || 0) + 1; });
+  const queueRows = queueKinds.filter(([k]) => counts[k]).map(([k, ic, label]) =>
+    `<div class="m1-qrow"><span class="m1-qi">${ic}</span>${label}<span class="m1-qn">×${counts[k]}</span></div>`).join('');
+  const unitNo = String(l.ui + 1).padStart(2, '0'), lesNo = String(l.li + 1).padStart(2, '0'), lesTotal = String(l.unit.lessons.length).padStart(2, '0');
+  modal(`<div style="display:flex;justify-content:flex-end"><button class="xbtn" type="button" data-x aria-label="Cerrar">✕</button></div>
+    <div class="m1-ctxbar"><span class="m1-uchip" style="--uc:${l.unit.color}">${l.unit.icon} U${l.ui + 1}</span><span>Unidad ${l.ui + 1} · ${esc(l.unit.title)} — Lección ${l.li + 1} de ${l.unit.lessons.length}</span></div>
+    <div class="m1-eyebrow">Unidad ${unitNo} · Lección ${lesNo} de ${lesTotal}</div>
+    <h2 class="m1-card-title">Prepara tu oído.</h2>
+    <p class="muted small" style="margin:0 0 12px">Una práctica corta para dominar un sonido nuevo.</p>
+    ${d && d.placed && !d.times ? `<p class="small muted" style="margin:0 0 12px">✅ Aprobada en la prueba de nivel</p>` : d ? `<p class="small muted" style="margin:0 0 12px">Completada ${d.times} ${d.times === 1 ? 'vez' : 'veces'} · mejor pronunciación ${d.best || '—'}%</p>` : ''}
+    <div class="m1-hero" style="--uc:${l.unit.color}">
+      <div class="m1-hero-eyebrow">SONIDO DE HOY</div>
+      <div class="m1-hero-title">${l.icon} ${esc(l.title)}</div>
+      ${!l.type && l.sound ? `<div class="m1-hero-ipa">/${esc(l.sound)}/</div>` : l.type === 'dialog' ? `<div class="m1-hero-ipa">💬 Diálogo</div>` : `<div class="m1-hero-ipa">📚 Vocabulario</div>`}
+      <p class="m1-hero-expl">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>
+      ${l.mouth ? `<p class="m1-hero-mouth">👄 ${esc(l.mouth)}</p>` : ''}
+      <div class="m1-hero-pills"><span class="m1-pill">❤️ ${S.hearts}/5 vidas</span><span class="m1-pill">🎧 ${nEx} ejercicios</span><span class="m1-pill">⭐ Hasta +20 XP</span></div>
+      <button class="btn primary block" data-go>${d ? 'Repetir lección' : 'Comenzar la lección'} · +10 XP, hasta +20 XP</button>
+      <p class="m1-hero-bonus">+5 si es perfecta en oído · +5 si pronuncias ≥85% · +25 XP extra si completas la unidad</p>
+    </div>
+    ${mouthPanelHTML(l.id, true)}
+    <p class="xp-line">Gana XP por escuchar con atención y pronunciar con claridad.</p>
+    <div class="m1-queue"><h3>La lección en ${nEx} pasos</h3>${queueRows}</div>
+    <button class="btn ghost block" data-drill>🎯 Practicar este sonido · +5–10 XP</button>
+    <p class="small muted" style="text-align:center">+1 ❤️ al terminar si no estás al máximo.</p>`,
     (el, close) => { const x = $('[data-x]', el); if (x) x.onclick = close; const g = $('[data-go]', el); if (g) g.onclick = () => { close(); startLesson(l); }; const dr = $('[data-drill]', el); if (dr) dr.onclick = () => { close(); startLesson(l, 'practice', buildPractice('sound', l.id), 'Práctica: ' + l.title); }; });
 }
 export function guideSheet(u) {
