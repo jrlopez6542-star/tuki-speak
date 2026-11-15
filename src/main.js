@@ -2940,105 +2940,16 @@ VIEWS.settings = function (v) {
 /* =================== v2.42.0 FILTRO DE AJUSTES POR NIVEL (PR1 rediseño UX) =================== */
 // (PR1, propuesta §2: Ajustes reordena las tarjetas en el orden de la
 // propuesta. El selector de visibilidad «Ver: Básico · Personalización ·
-// Avanzado» lo ELIMINA M05-R1: el hub lo sustituye y el filtro de tarjetas
-// ya no existe como filtro. P0 lo re-targetiza (ver abajo): el nivel ya no
-// oculta tarjetas, solo abre/cierra los <details> «Más opciones» y alimenta
-// el contador. El reordenado se conserva: mueve los nodos sin recrearlos,
-// así los handlers ya ligados se conservan. fbRefreshUI sigue llamando a
-// applySettingsLevel al cambiar la sesión, para re-derivar el contador y
-// el estado de los <details> tras reemplazar una tarjeta.)
-// (P0 re-targetizado al hub M05-R1 — TUKI-UNIFICACION-001: el filtro de
-// tarjetas ya no existe (el hub mueve las tarjetas a subpantallas, así que
-// :scope > .card ya no las ve y ocultarlas rompería las subpantallas). El
-// nivel solo gobierna los <details> «Más opciones» (#voiceMore,
-// #learnMore): cerrados en Básico, abiertos en Personalización y Avanzado.
-// El contador conserva el formato P0, pero cuenta el alcance del nivel
-// (tarjetas clasificadas con nivel ≤ actual / total), no la visibilidad
-// del DOM: ninguna tarjeta se oculta, el hub manda. Desviación D-P0-1.)
-let settingsLevel = 'basic';
-// (PR1: el filtro es acumulativo — cada nivel muestra las tarjetas de su
-// nivel Y las de los niveles anteriores; Avanzado muestra las 12.)
-const LEVEL_RANK = { basic: 0, personal: 1, advanced: 2 };
-// (P0: nombres de nivel para el contador.)
-const LEVEL_NAME = { basic: 'Básico', personal: 'Personalización', advanced: 'Avanzado' };
-// (P0: temporizadores del resaltado transitorio de tarjetas reveladas.)
-let settingsRevealTimers = [];
-// Nivel de cada tarjeta, por identidad (id cuando existe; si no, h3).
-// Orden de la propuesta §2.3: Cuenta, Aprendizaje, Voz y audio, Apariencia,
-// Recordatorio, Resúmenes (Básico); Voz de Tuki (Personalización); Frase de
-// seguridad, Evaluación avanzada con Azure, Conversación con IA, Datos y
-// mantenimiento (Avanzado); Enviar comentarios siempre visible (pie).
-function settingsCardLevel(card) {
-  const id = card.id || '';
-  if (id === 'acctCard') return 'basic';
-  if (id === 'keysCard') return 'advanced';
-  if (id === 'tvCard') return 'personal';
-  if (id === 'maintCard') return 'advanced';
-  if (id === 'fbkCard') return 'always';
-  const h = (card.querySelector('h3') || {}).textContent || '';
-  if (/Aprendizaje/.test(h)) return 'basic';
-  if (/Voz y audio/.test(h)) return 'basic';
-  if (/Apariencia/.test(h)) return 'basic';
-  if (/Recordatorio/.test(h)) return 'basic';
-  if (/Resúmenes/.test(h)) return 'basic';
-  if (/Frase de seguridad/.test(h)) return 'advanced';
-  if (/Evaluación avanzada/.test(h)) return 'advanced';
-  if (/Conversación con IA/.test(h)) return 'advanced';
-  return null;
-}
+// Avanzado» lo ELIMINA M05-R1: el hub lo sustituye y el filtro ya no
+// existe como filtro. applySettingsLevel queda como no-op que muestra
+// todas las tarjetas, porque fbRefreshUI la sigue llamando al cambiar la
+// sesión; sin ella, una tarjeta repuesta por fbRefreshUI podría quedar
+// oculta por el filtro viejo. El reordenado se conserva: mueve los nodos
+// sin recrearlos, así los handlers ya ligados se conservan.)
 function applySettingsLevel(v) {
   const view = v || $('#view');
   if (!view) return;
-  // (P0 re-target: las tarjetas viven en el hub; se enumeran en todo el
-  // árbol de la vista — :scope > .card ya no las ve tras el hub.)
-  const cards = [...view.querySelectorAll('.card')];
-  // (P0: foto del estado de los <details> antes de aplicar el nivel; los
-  // que pasan de cerrados a abiertos son los «recién revelados» y se usan
-  // para el desplazamiento y el resaltado transitorio.)
-  const details = [...view.querySelectorAll('#voiceMore, #learnMore')];
-  const wasOpen = new Map(details.map(d => [d, d.open]));
-  // (P0 re-target: NO se oculta ninguna tarjeta — el hub es el dueño del
-  // layout. Solo se clasifica (dataset.level) para el contador.)
-  for (const card of cards) {
-    const lv = settingsCardLevel(card);
-    if (lv) card.dataset.level = lv;
-  }
-  const seg = $('#settingsLevel', view);
-  if (seg) [...seg.querySelectorAll('button')].forEach(b => {
-    b.classList.toggle('active', b.dataset.slevel === settingsLevel);
-    b.setAttribute('aria-pressed', String(b.dataset.slevel === settingsLevel));
-  });
-  // (PR2: los <details> "Más opciones" nacen cerrados en Básico y abiertos
-  // en Personalización y Avanzado; el filtro los abre/cierra con el nivel.)
-  const openMore = LEVEL_RANK[settingsLevel] >= 1;
-  for (const d of details) d.open = openMore;
-  // (P0: contador con el nombre del nivel; se actualiza aquí para que
-  // fbRefreshUI() lo re-derive al re-aplicar el filtro. En el hub el
-  // adminCard SÍ es una .card (en PR1 vivía dentro de Cuenta), así que
-  // suma como una tarjeta más.)
-  const countEl = $('#settingsLevelCount', view);
-  if (countEl) {
-    const visible = cards.filter(c => { const lv = c.dataset.level; return !lv || lv === 'always' || LEVEL_RANK[lv] <= LEVEL_RANK[settingsLevel]; }).length;
-    countEl.textContent = `${LEVEL_NAME[settingsLevel]} · ${visible} de ${cards.length} opciones`;
-  }
-  // (P0 re-target: resaltado transitorio y desplazamiento hasta la primera
-  // tarjeta cuyos <details> acaban de abrirse; solo cuando el cambio de
-  // nivel abre alguno. Al volver a Básico no hay desplazamiento: nada
-  // nuevo que mostrar. Si la tarjeta está en una subpantalla cerrada no
-  // hay desplazamiento visible: scrollIntoView sobre un nodo oculto no
-  // hace nada.)
-  const newlyOpen = details.filter(d => !wasOpen.get(d) && d.open);
-  const newly = [...new Set(newlyOpen.map(d => d.closest('.card')).filter(Boolean))];
-  if (newly.length) {
-    for (const t of settingsRevealTimers) clearTimeout(t);
-    settingsRevealTimers = [];
-    for (const c of cards) c.classList.remove('revealed');
-    for (const c of newly) c.classList.add('revealed');
-    settingsRevealTimers.push(setTimeout(() => { for (const c of newly) c.classList.remove('revealed'); }, 1500));
-    const first = newly[0];
-    const reduced = S.settings.reduceMotion || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-    if (first && first.offsetParent && first.scrollIntoView) first.scrollIntoView({ block: 'start', behavior: reduced ? 'auto' : 'smooth' });
-  }
+  [...view.querySelectorAll(':scope > .card')].forEach(card => { card.hidden = false; });
 }
 const _settings213 = VIEWS.settings;
 VIEWS.settings = function (v) {
@@ -3058,20 +2969,6 @@ VIEWS.settings = function (v) {
     if (!card) continue;
     if (foot) foot.insertAdjacentElement('beforebegin', card);
     else v.appendChild(card);
-  }
-  // (P0: barra de nivel con selector + contador, tras el <h2>. El wrapper
-  // del hub (M05-R1) elimina el <h2> pero conserva la barra como hermana
-  // del hub: queda visible sobre el hub y sobre las subpantallas.)
-  const h2 = v.querySelector('h2');
-  if (h2 && !$('#settingsLevel', v)) {
-    h2.insertAdjacentHTML('afterend', `<div class="settings-level-bar"><div class="seg" id="settingsLevel" role="group" aria-label="Ver ajustes por nivel">
-      <button type="button" data-slevel="basic" aria-pressed="true">Básico</button>
-      <button type="button" data-slevel="personal" aria-pressed="false">Personalización</button>
-      <button type="button" data-slevel="advanced" aria-pressed="false">Avanzado</button>
-    </div><div class="settings-level-count" id="settingsLevelCount" aria-live="polite"></div></div>`);
-    $('#settingsLevel', v).querySelectorAll('button').forEach(b => {
-      b.onclick = () => { settingsLevel = b.dataset.slevel; applySettingsLevel(v); };
-    });
   }
   applySettingsLevel(v);
 };

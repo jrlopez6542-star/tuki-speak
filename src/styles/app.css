@@ -498,7 +498,7 @@ a{color:var(--b-d)}
 [data-contrast=high] .btn,[data-contrast=high] .opt,[data-contrast=high] .tile{border-width:3px}
 [data-contrast=high] a{text-decoration:underline}
 [data-motion=reduce] *,[data-motion=reduce] *::before,[data-motion=reduce] *::after{animation:none!important;transition:none!important}
-@media (prefers-reduced-motion: reduce){.node.current,.start-tip,.chatbar #cmic.rec,.card.revealed{animation:none}.chatbar #cin,.chatbar #csend,.chat-chips .chip{transition:none}}
+@media (prefers-reduced-motion: reduce){.node.current,.start-tip,.chatbar #cmic.rec{animation:none}.chatbar #cin,.chatbar #csend,.chat-chips .chip{transition:none}}
 .banner{position:fixed;left:50%;transform:translateX(-50%);z-index:95;max-width:540px;width:calc(100% - 20px);border-radius:var(--r-md);padding:10px 14px;font-weight:800;font-size:14px;display:flex;align-items:center;gap:10px;justify-content:space-between;box-shadow:0 6px 20px rgba(0,0,0,.18)}
 .banner.net{top:calc(64px + env(safe-area-inset-top));background:#33290f;color:#fff}
 .banner.upd{bottom:calc(84px + env(safe-area-inset-bottom));background:#1f2a33;color:#fff}
@@ -771,32 +771,9 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 .ac-or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px;margin:12px 0}
 .ac-or::before,.ac-or::after{content:'';flex:1;height:2px;background:var(--line)}
 .seg{display:flex;border:2px solid var(--line);border-radius:var(--r-md);overflow:hidden;margin-bottom:8px}
-.seg button{flex:1;border:0;background:transparent;padding:10px;min-height:44px;font-weight:800;color:var(--mute);font-size:15px;transition:background-color .18s var(--ease-out),color .18s var(--ease-out)}
+.seg button{flex:1;border:0;background:transparent;padding:10px;font-weight:800;color:var(--mute);font-size:15px}
 .seg button.active{background:#4b2868;color:#fff}
 /* v2.42.0 Filtro de Ajustes por nivel: 3 etiquetas caben en 360 px */
-#settingsLevel button{font-size:14px;padding:10px 4px;min-width:0}
-/* P0: estado activo inequívoco del filtro de Ajustes (OBS-1) */
-.settings-level-bar{position:sticky;top:calc(56px + env(safe-area-inset-top));z-index:10;background:var(--bg);padding-bottom:4px}
-/* P0: margen de desplazamiento de las tarjetas de Ajustes. Con la barra
-   fija, scrollIntoView({block:'start'}) dejaría el título de la tarjeta
-   revelada (~130 px de cromo fijo: topbar ~56 px + barra ~74 px) cubierto
-   por la cabecera y la barra; 140 px lo aterriza visible con un poco de
-   aire. En el hub las tarjetas ya no son hermanas de la barra, así que la
-   segunda regla cubre las subpantallas. */
-.settings-level-bar ~ .card{scroll-margin-top:140px}
-.m05-sub .card{scroll-margin-top:140px}
-.settings-level-count{padding:6px 2px 0;font-size:var(--fs-small);color:var(--mute);font-weight:700}
-#settingsLevel button{position:relative}
-#settingsLevel button.active{font-weight:900;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55)}
-#settingsLevel button.active::after{content:"✓";position:absolute;top:2px;right:6px;font-size:11px;font-weight:900;color:#fff}
-/* P0: resaltado transitorio de tarjetas recién reveladas (~1,5 s, P-5).
-   Keyframes (no transición): la clase aparece con el acento y se atenúa
-   hasta el estilo normal de la tarjeta; al retirarse la clase tras el
-   temporizador no hay salto, porque la animación ya terminó en el estado
-   normal. Una transición en la clase haría lo contrario (fundido lento
-   de entrada y salto al retirarla). */
-@keyframes cardReveal{from{border-color:var(--b-d);box-shadow:0 0 0 3px rgba(11,111,163,.22)}to{border-color:var(--line);box-shadow:var(--sh-1)}}
-.card.revealed{animation:cardReveal 1.5s var(--ease-out)}
 #acctCard .field,#keysCard .field{margin-bottom:8px;font-size:16px;min-height:46px}
 .linkbtn{background:none;border:0;color:var(--b-d);font-weight:800;padding:8px 2px;text-decoration:underline;font-size:14px}
 .ac-user{display:flex;align-items:center;gap:12px;margin:6px 0 10px}
@@ -1039,7 +1016,7 @@ main.chatmode{padding-top:8px;padding-bottom:0}
 /* Movimiento reducido: sin animaciones nuevas ni transiciones de press */
 @media (prefers-reduced-motion: reduce){
   #view.view-enter,.full:not(.hidden),.opt.right,.opt.wrong,.tc-slot.bad .tc-in,.lfoot.ok,.lfoot.bad,.pd-fb,.toast,.sheet,.overlay,.overlay.closing,.overlay.closing .sheet,.complete,.ex-enter,.scard-celebrate,.tuki-svg,.tuki-eye,.tuki-head-group,.tuki-wing,.tuki-beak-bot,.tuki-talking .tuki-beak-bot,.tuki-aura-spin,.tuki-aura-pulse,.tuki-wiggle,.tuki-celebrate,.tuki-comfort,.tuki-particle,.tc-mascot,.tuki-mood-thinking .tuki-head-group,.tuki-mood-listening .tuki-head-group,.tuki-mood-confused,.tuki-mood-confused::after,.tuki-mood-sleeping::after,.tuki-mood-proud{animation:none!important}
-  .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.locked-card,.stat,.tuki-guide-mascot,.unit-milestone,.seg button{transition:none!important}
+  .btn,.opt,.tile,.chip,.tab,.node,.spk,.iconbtn,.locked-card,.stat,.tuki-guide-mascot,.unit-milestone{transition:none!important}
 }
 /* (fase premium, etapa 7: la lista explícita de arriba es frágil — cada
    clase nueva había que añadirla a mano o seguía animando. Esta regla
