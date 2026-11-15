@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.45.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.45.1
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.45.1
+- 🐢 **Botón «Lenta» en Radio Tuki e Historias:** junto a «Escuchar todo», activa la velocidad lenta (65%) para las líneas sueltas y para «Escuchar todo». Funciona con la voz de Azure y con la del dispositivo; cada modal tiene su propio estado.
 
 ## Novedades v2.45.0
 - **Radio Tuki con dos voces de nube (Azure)**: cada línea de Radio suena ahora con la voz de su hablante — A con la voz elegida de Tuki (por defecto Jenny) y B con la contraparte masculina (Guy en inglés americano, Ryan en británico) — cuando la voz de nube está lista (sesión con la ruta compartida o clave propia de Azure). Sin nube, sigue la voz del dispositivo como antes. La caché de audio distingue la voz, así que A y B nunca comparten el mismo audio.

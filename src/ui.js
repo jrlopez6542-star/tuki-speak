@@ -3234,8 +3234,24 @@ function cnLinesHTML(lines, useWords) {
     <div class="cn-es" data-cnes="${i}" hidden>${esc(ln[2])}</div>
     <button class="mini cn-tr" data-cntr="${i}">🇪🇸 Ver traducción</button></div>`).join('');
 }
+/* ---- 🐢 Lenta en Radio e Historias: velocidad lenta (65%) por modal.
+   El estado vive en el dataset de la hoja del modal, así cada modal
+   tiene el suyo y no contamina al siguiente. speak() con slow=true
+   baja la velocidad en nube (SSML) y en dispositivo; la caché de la
+   nube distingue la velocidad en su clave, así no choca con la normal. */
+function bindCnSlowBtn(root) {
+  const b = $('#cnSlowBtn', root);
+  if (!b) return;
+  b.onclick = () => {
+    const slow = root.dataset.cnSlow !== '1';
+    root.dataset.cnSlow = slow ? '1' : '0';
+    b.textContent = slow ? '🐢 Lenta ✓' : '🐢 Lenta';
+    b.setAttribute('aria-pressed', slow ? 'true' : 'false');
+  };
+}
+const cnIsSlow = root => !!(root && root.dataset.cnSlow === '1');
 function bindCnLines(root, lines, useWords) {
-  $$('[data-cnspk]', root).forEach(b => b.onclick = () => { const ln = lines[+b.dataset.cnspk]; speak(ln[1], false, null, undefined, 1, radioAzVoice(ln[0])); });
+  $$('[data-cnspk]', root).forEach(b => b.onclick = () => { const ln = lines[+b.dataset.cnspk]; speak(ln[1], cnIsSlow(root), null, undefined, 1, radioAzVoice(ln[0])); });
   $$('[data-cntr]', root).forEach(b => b.onclick = () => {
     const es = root.querySelector('[data-cnes="' + b.dataset.cntr + '"]');
     if (!es) return;
@@ -3251,7 +3267,7 @@ function cnPlayAll(lines, root) {
   /* La cadena se detiene si el modal ya no está en el documento: sin
      esta guarda, el onend de la línea en curso (que speechSynthesis
      dispara al cancelarla) reanudaría la siguiente línea tras el cierre. */
-  const next = () => { if (i >= lines.length) return; if (root && !root.isConnected) return; speak(lines[i][1], false, () => { i++; next(); }, undefined, 1, radioAzVoice(lines[i][0])); };
+  const next = () => { if (i >= lines.length) return; if (root && !root.isConnected) return; speak(lines[i][1], cnIsSlow(root), () => { i++; next(); }, undefined, 1, radioAzVoice(lines[i][0])); };
   next();
 }
 /* C-02/C-05: parar todo el audio que suena desde un modal de contenido
@@ -3301,7 +3317,7 @@ export function openStory(id) {
   <h2>${st.icon} ${esc(st.title)}</h2>
   <p class="muted small">Nivel ${st.level} · ${st.lines.length} líneas · ${st.qs.length} preguntas · +10 XP la primera vez</p>
   ${prev ? `<p class="small muted">✓ Ya la leíste: ${prev.correct}/${prev.total} respuestas correctas.</p>` : ''}
-  <div class="row" style="margin:8px 0"><button class="btn blue sm" id="cnPlayAll">▶️ Escuchar toda la historia</button></div>
+  <div class="row" style="margin:8px 0"><button class="btn blue sm" id="cnPlayAll">▶️ Escuchar toda la historia</button><button class="btn sm" id="cnSlowBtn" aria-pressed="false">🐢 Lenta</button></div>
   <div class="cn-lines">${cnLinesHTML(st.lines, false)}</div>
   <h3 style="margin-top:14px">❓ Comprensión</h3>
   ${cnQuizHTML(st.qs)}
@@ -3311,6 +3327,7 @@ export function openStory(id) {
     $('[data-x]', el).onclick = close;
     $('[data-x2]', el).onclick = () => { close(); openStoriesModal(); };
     $('#cnPlayAll', el).onclick = () => cnPlayAll(st.lines, el);
+    bindCnSlowBtn(el);
     bindCnLines(el, st.lines, false);
     bindCnQuiz(el, st.qs, (correct, total) => {
       const fin = $('#cnFinish', el);
@@ -3350,7 +3367,7 @@ export function openRadioEpisode(id) {
   <h2>${ep.icon} ${esc(ep.title)}</h2>
   <p class="muted small">Radio Tuki · ~${ep.mins} min · ${ep.lines.length} líneas · ${ep.qs.length} preguntas</p>
   ${prev ? `<p class="small muted">✓ Ya lo escuchaste: ${prev.correct}/${prev.total} respuestas correctas.</p>` : ''}
-  <div class="row" style="margin:8px 0"><button class="btn blue sm" id="cnPlayAll">▶️ Escuchar todo el episodio</button></div>
+  <div class="row" style="margin:8px 0"><button class="btn blue sm" id="cnPlayAll">▶️ Escuchar todo el episodio</button><button class="btn sm" id="cnSlowBtn" aria-pressed="false">🐢 Lenta</button></div>
   <div class="cn-lines">${cnLinesHTML(ep.lines, true)}</div>
   <h3 style="margin-top:14px">❓ Comprensión</h3>
   ${cnQuizHTML(ep.qs)}
@@ -3360,6 +3377,7 @@ export function openRadioEpisode(id) {
     $('[data-x]', el).onclick = close;
     $('[data-x2]', el).onclick = () => { close(); openRadioModal(); };
     $('#cnPlayAll', el).onclick = () => cnPlayAll(ep.lines, el);
+    bindCnSlowBtn(el);
     bindCnLines(el, ep.lines, true);
     bindCnQuiz(el, ep.qs, (correct, total) => {
       const fin = $('#cnFinish', el);
