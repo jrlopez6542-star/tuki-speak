@@ -8,6 +8,7 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 ## Novedades v2.45.0
 - **Radio Tuki con dos voces de nube (Azure)**: cada línea de Radio suena ahora con la voz de su hablante — A con la voz elegida de Tuki (por defecto Jenny) y B con la contraparte masculina (Guy en inglés americano, Ryan en británico) — cuando la voz de nube está lista (sesión con la ruta compartida o clave propia de Azure). Sin nube, sigue la voz del dispositivo como antes. La caché de audio distingue la voz, así que A y B nunca comparten el mismo audio.
 - **Corrección**: la función `speak()` ya usaba la nube cuando Azure estaba listo (el comentario de C-05 lo decía); lo que faltaba era solo la voz por hablante, no el cableado a la nube.
+- **Cerrar el modal de Radio o de Historias para el audio**: «Escuchar todo» seguía sonando con el modal ya cerrado. Ahora, al cerrar el modal se para el audio (nube y dispositivo) y la cadena de líneas no continúa.
 
 ## Novedades v2.44.3
 - **Traduce muestra el nivel «Desde cero» (RV-03)**: la fila de «Traduce y completa» mostraba «10 frases · · 0 dominadas» con el nivel vacío porque el nivel A0 no existía en la tabla de niveles. Ahora A0 existe («Desde cero») y se muestra en la fila, en la tarjeta, en la pantalla de ronda y en el selector de nivel. Las frases de A0 usan las de A2 (las más fáciles) porque no hay frases propias de A0.
