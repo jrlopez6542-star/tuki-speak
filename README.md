@@ -7,7 +7,8 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 
 ## Novedades v2.44.2
 - **Tutor IA sin banner «Profe Tuki»**: se eliminó el banner del Tutor IA; la cabecera, los ajustes, el log y el botón quedan igual. «Profe Tuki» sigue en los títulos de las lecciones y en los consejos de la mascota (otras funciones, sin tocar).
-- **Botón «Hablar en vivo» siempre visible**: en pantallas cortas el botón quedaba 100% tapado por la barra inferior (medido a 740 px de alto; a 844 px se veía bien). Ahora la pantalla de chat se desplaza por dentro y el botón queda fijo abajo, así que siempre está a la vista. La caché del service worker sube a v29 para que la PWA instalada detecte la actualización.
+- **Botón «Hablar en vivo» siempre visible**: en pantallas cortas el botón quedaba 100% tapado por la barra inferior (medido a 740 px de alto; a 844 px se veía bien). Ahora la pantalla de chat se desplaza por dentro y el botón queda fijo abajo, así que siempre está a la vista.
+- **Pantalla de lanzamiento morada**: la pantalla verde que pone Chrome al abrir la PWA usaba el color viejo del manifiesto (#1fa463); ahora usa el morado de la pantalla de inicio (#2b1741). La caché del service worker sube a v30 para que la PWA instalada detecte la actualización.
 
 ## Novedades v2.44.1
 - **Rediseño unificado**: nueva interfaz (lenguaje Liquid Glass, mundos por unidad, mapa por unidad), Tutor IA con conversación primero (burbuja azul, ajustes plegables), modos de práctica agrupados con sello NUEVO, prueba de nivel rediseñada, lección sh-ch, temas claro y oscuro y contenido nuevo (Explica mi error, guías de gramática, 12 historias, 101 idioms, 8 episodios de Radio Tuki). La barra de niveles de Ajustes se retiró; las opciones avanzadas quedan en «Más opciones», cerradas por defecto. La caché del service worker sube a v28 para que la PWA instalada detecte la actualización.
