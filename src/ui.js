@@ -4,7 +4,7 @@
 // no se puede reasignar. ui.js importa esos nombres desde './main.js' y solo los usa dentro de funciones.
 import { $, $$, avg, colorOf, dayKey, decodeDeep, decodeEnt, esc, hashStr, lev, normText, pick, scoreSpeech, shuffle, sleep } from './utils.js';
 import { DAY, MAX_HEARTS, S, addToDeck, isDone, recordSpeech, refreshHearts, soundAvg, todayRec } from './state.js';
-import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, isMicPermErr, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
+import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, isMicPermErr, pickEsVoice, pickVoice, pitchTrack, radioAzVoice, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
 import { L, RENDER, buildLesson, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
 import { AZT, CHAT, LEVELS, LEVEL_KEYS, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tukiApi, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
@@ -311,7 +311,7 @@ function modalFocusable(sheet) {
   });
 }
 
-export function modal(html, onMount) {
+export function modal(html, onMount, onClose) {
   const root = $('#modalRoot'); const ov = document.createElement('div'); ov.className = 'overlay';
   ov.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" tabindex="-1">${html}</div>`;
   ov.addEventListener('click', e => { if (e.target === ov) close(); });
@@ -343,6 +343,7 @@ export function modal(html, onMount) {
   // se elimina de inmediato, sin esperar la animación)
   function close() {
     if (ov.dataset.closing) return;
+    try { onClose && onClose(); } catch (e) {}
     if (tukiMoodReduced()) { ov.remove(); restoreFocus(); return; }
     ov.dataset.closing = '1'; ov.classList.add('closing');
     setTimeout(() => { ov.remove(); restoreFocus(); }, 200);
@@ -3234,7 +3235,7 @@ function cnLinesHTML(lines, useWords) {
     <button class="mini cn-tr" data-cntr="${i}">🇪🇸 Ver traducción</button></div>`).join('');
 }
 function bindCnLines(root, lines, useWords) {
-  $$('[data-cnspk]', root).forEach(b => b.onclick = () => speak(lines[+b.dataset.cnspk][1]));
+  $$('[data-cnspk]', root).forEach(b => b.onclick = () => { const ln = lines[+b.dataset.cnspk]; speak(ln[1], false, null, undefined, 1, radioAzVoice(ln[0])); });
   $$('[data-cntr]', root).forEach(b => b.onclick = () => {
     const es = root.querySelector('[data-cnes="' + b.dataset.cntr + '"]');
     if (!es) return;
@@ -3245,11 +3246,18 @@ function bindCnLines(root, lines, useWords) {
   // existente (dictLookup/openWordPop), como en las lecciones.)
   if (useWords) $$('.wd', root).forEach(w => w.onclick = e => { e.stopPropagation(); openWordPop(w.dataset.say || w.textContent.trim(), w.closest('.cn-line') ? w.closest('.cn-line').innerText : '', w); });
 }
-function cnPlayAll(lines) {
+function cnPlayAll(lines, root) {
   let i = 0;
-  const next = () => { if (i >= lines.length) return; speak(lines[i][1], false, () => { i++; next(); }); };
+  /* La cadena se detiene si el modal ya no está en el documento: sin
+     esta guarda, el onend de la línea en curso (que speechSynthesis
+     dispara al cancelarla) reanudaría la siguiente línea tras el cierre. */
+  const next = () => { if (i >= lines.length) return; if (root && !root.isConnected) return; speak(lines[i][1], false, () => { i++; next(); }, undefined, 1, radioAzVoice(lines[i][0])); };
   next();
 }
+/* C-02/C-05: parar todo el audio que suena desde un modal de contenido
+   (nube y dispositivo) al cerrarlo; si no, «Escuchar todo» seguiría
+   sonando con el modal ya cerrado. */
+function cnStopAudio() { try { stopAudio(); } catch (e) {} try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) {} }
 function cnQuizHTML(qs) {
   return qs.map((q, qi) => `<div class="cn-quiz" data-cnq="${qi}">
     <div class="cn-q"><b>${qi + 1}. ${esc(q.q)}</b><div class="muted small">${esc(q.qes)}</div></div>
@@ -3302,7 +3310,7 @@ export function openStory(id) {
   (el, close) => {
     $('[data-x]', el).onclick = close;
     $('[data-x2]', el).onclick = () => { close(); openStoriesModal(); };
-    $('#cnPlayAll', el).onclick = () => cnPlayAll(st.lines);
+    $('#cnPlayAll', el).onclick = () => cnPlayAll(st.lines, el);
     bindCnLines(el, st.lines, false);
     bindCnQuiz(el, st.qs, (correct, total) => {
       const fin = $('#cnFinish', el);
@@ -3318,7 +3326,7 @@ export function openStory(id) {
         close(); openStoriesModal();
       };
     });
-  });
+  }, cnStopAudio);
 }
 
 /* ---- C-05 · «Radio Tuki» ---- */
@@ -3351,7 +3359,7 @@ export function openRadioEpisode(id) {
   (el, close) => {
     $('[data-x]', el).onclick = close;
     $('[data-x2]', el).onclick = () => { close(); openRadioModal(); };
-    $('#cnPlayAll', el).onclick = () => cnPlayAll(ep.lines);
+    $('#cnPlayAll', el).onclick = () => cnPlayAll(ep.lines, el);
     bindCnLines(el, ep.lines, true);
     bindCnQuiz(el, ep.qs, (correct, total) => {
       const fin = $('#cnFinish', el);
@@ -3365,7 +3373,7 @@ export function openRadioEpisode(id) {
         close(); openRadioModal();
       };
     });
-  });
+  }, cnStopAudio);
 }
 
 /* ---- C-04 · Idiom/slang del día + banco ---- */

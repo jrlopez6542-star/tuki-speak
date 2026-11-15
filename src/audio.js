@@ -119,6 +119,14 @@ export function azVoiceFor(tl) {
   if (p.startsWith('az:') && AZ_NAME_RE.test(p.slice(3))) return p.slice(3);
   const d = tl === 'es' ? s.azureVoiceEs : s.azureVoice; return AZ_NAME_RE.test(d || '') ? d : (tl === 'es' ? 'es-CO-SalomeNeural' : 'en-US-JennyNeural');
 }
+/* Radio Tuki (C-05): voz por hablante. A = la voz elegida de Tuki
+   (azVoiceFor, por defecto Jenny); B = la contraparte masculina según el
+   acento (Guy en-US, Ryan en-GB). Solo aplica al motor Azure; OpenAI usa
+   una sola voz por petición. */
+export function radioAzVoice(spk) {
+  if (spk === 'B') return (S.settings.accent || 'en-US').startsWith('en-GB') ? 'en-GB-RyanNeural' : 'en-US-GuyNeural';
+  return azVoiceFor('en');
+}
 pickVoice = function () {
   { const p = tvPref('en'); if (p.startsWith('dev:')) { const v = VOICES.find(v => v.name === p.slice(4)); if (v) return v; } }
   if (S.settings.voice) { const v = VOICES.find(v => v.name === S.settings.voice); if (v) return v; }
@@ -149,9 +157,12 @@ export async function openaiTTS(text, rate, tl) {
   return await res.blob();
 }
 export const ttsRate = (slow, tl, mul = 1) => { const s = S.settings, base = tl === 'es' ? 1 : s.rate; return Math.max(0.5, Math.min(1.5, (slow ? Math.max(0.5, base * 0.65) : base) * mul)); };
-export async function cloudTTSBlob(text, slow, tl, mul = 1) {
+export async function cloudTTSBlob(text, slow, tl, mul = 1, voiceName) {
   const s = S.settings, rate = ttsRate(slow, tl, mul), eng = ttsEngineFor(tl);
-  const k = [eng, tl === 'es' ? 'es' : '', eng === 'azure' ? azVoiceFor(tl) : s.openaiVoice + (s.accent || ''), rate.toFixed(2), text].join('|');
+  /* La voz efectiva entra en la clave de caché: sin ella, A y B con el
+     mismo texto compartirían el audio (la voz de A sonaría en B). */
+  const voice = eng === 'azure' ? (voiceName && AZ_NAME_RE.test(voiceName) ? voiceName : azVoiceFor(tl)) : (s.openaiVoice + (s.accent || ''));
+  const k = [eng, tl === 'es' ? 'es' : '', voice, rate.toFixed(2), text].join('|');
   if (TTS.cache.has(k)) return TTS.cache.get(k);
   let blob = null;
   try {
@@ -163,7 +174,7 @@ export async function cloudTTSBlob(text, slow, tl, mul = 1) {
     try { const c = await caches.open('tuki-tts-v1'); const m = await c.match(url); if (m) blob = await m.blob(); } catch (e) {}
   }
   if (!blob) {
-    blob = eng === 'azure' ? await azureTTS(text, rate, tl) : await openaiTTS(text, rate, tl);
+    blob = eng === 'azure' ? await azureTTS(text, rate, tl, voice) : await openaiTTS(text, rate, tl);
     const url = location.origin + '/__tts/' + hashStr(k);
     try { const c = await caches.open('tuki-tts-v1'); await c.put(url, new Response(blob, { headers: { 'Content-Type': blob.type || 'audio/mpeg' } })); } catch (e) {}
     try { await TukiDB.set('audio', k, blob); } catch (e) {}
@@ -205,13 +216,13 @@ export function deviceSpeakEs(text, onend, rate = 1) {
   speechSynthesis.speak(u);
 }
 export function speakSeq(parts, i = 0, mul = 1) { const p = parts[i]; if (!p) return; speak(p.t, false, () => speakSeq(parts, i + 1, mul), p.lang, mul); }
-speak = function (text, slow = false, onend, tl, mul = 1) {
+speak = function (text, slow = false, onend, tl, mul = 1, voiceName) {
   stopAudio();
   if (tl === 'es' || mul !== 1) {
     const dev = () => tl === 'es' ? deviceSpeakEs(text, onend, ttsRate(slow, 'es', mul)) : deviceSpeakEn(text, ttsRate(slow, undefined, mul), onend);
     if (cloudTTSReady(tl)) {
       const my = TTS.seq; if ('speechSynthesis' in window) speechSynthesis.cancel();
-      cloudTTSBlob(text, slow, tl, mul).then(blob => { if (my !== TTS.seq) return; const a = new Audio(URL.createObjectURL(blob)); TTS.audio = a; a.onended = () => { onend && onend(); }; a.play().catch(dev); })
+      cloudTTSBlob(text, slow, tl, mul, voiceName).then(blob => { if (my !== TTS.seq) return; const a = new Audio(URL.createObjectURL(blob)); TTS.audio = a; a.onended = () => { onend && onend(); }; a.play().catch(dev); })
         .catch(() => { if (my === TTS.seq) dev(); });
       return;
     }
@@ -219,7 +230,7 @@ speak = function (text, slow = false, onend, tl, mul = 1) {
   }
   if (cloudTTSReady('en')) {
     const my = TTS.seq; if ('speechSynthesis' in window) speechSynthesis.cancel();
-    cloudTTSBlob(text, slow).then(blob => {
+    cloudTTSBlob(text, slow, undefined, 1, voiceName).then(blob => {
       if (my !== TTS.seq) return;
       const a = new Audio(URL.createObjectURL(blob)); TTS.audio = a; a.onended = () => { onend && onend(); };
       a.play().catch(() => _deviceSpeak(text, slow, onend));
