@@ -1,6 +1,6 @@
 // Service worker: funciona offline. Red primero para navegación e index.html (para recibir actualizaciones de inmediato).
-// Versión: v32 (actualización automática y claims instantáneo)
-const CACHE = 'tuki-speak-v32';
+// Versión: v33 (actualización automática y claims instantáneo)
+const CACHE = 'tuki-speak-v33';
 const KEEP = [CACHE, 'tuki-tts-v1']; // tuki-tts-v1: audio de voces en la nube guardado por la app
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 

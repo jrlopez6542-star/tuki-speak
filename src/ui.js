@@ -4,7 +4,7 @@
 // no se puede reasignar. ui.js importa esos nombres desde './main.js' y solo los usa dentro de funciones.
 import { $, $$, avg, colorOf, dayKey, decodeDeep, decodeEnt, esc, hashStr, lev, normText, pick, scoreSpeech, shuffle, sleep } from './utils.js';
 import { DAY, MAX_HEARTS, S, addToDeck, isDone, recordSpeech, refreshHearts, soundAvg, todayRec } from './state.js';
-import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, isMicPermErr, pickEsVoice, pickVoice, pitchTrack, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
+import { HAS_SR, MicCap, PH_TIPS, Rec, SR, SR_ERR, TTS, azureAssess, azureSTT, azureTTS, canSpeak, cloudTTSBlob, cloudTTSReady, contourDir, curRec, drawTrack, expectRise, isMicPermErr, pickEsVoice, pickVoice, pitchTrack, radioAzVoice, recognize, setCurRec, speak, stopAudio, stopRecognize, ttsRate, tvPref, vibrate } from './audio.js';
 import { L, RENDER, buildLesson, buildPractice, createMicMeter, doMic, feedback, nextEx, sayPairEx, setFoot, startLesson } from './lessons.js';
 import { AZT, CHAT, LEVELS, LEVEL_KEYS, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tukiApi, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
@@ -3234,7 +3234,7 @@ function cnLinesHTML(lines, useWords) {
     <button class="mini cn-tr" data-cntr="${i}">🇪🇸 Ver traducción</button></div>`).join('');
 }
 function bindCnLines(root, lines, useWords) {
-  $$('[data-cnspk]', root).forEach(b => b.onclick = () => speak(lines[+b.dataset.cnspk][1]));
+  $$('[data-cnspk]', root).forEach(b => b.onclick = () => { const ln = lines[+b.dataset.cnspk]; speak(ln[1], false, null, undefined, 1, radioAzVoice(ln[0])); });
   $$('[data-cntr]', root).forEach(b => b.onclick = () => {
     const es = root.querySelector('[data-cnes="' + b.dataset.cntr + '"]');
     if (!es) return;
@@ -3247,7 +3247,7 @@ function bindCnLines(root, lines, useWords) {
 }
 function cnPlayAll(lines) {
   let i = 0;
-  const next = () => { if (i >= lines.length) return; speak(lines[i][1], false, () => { i++; next(); }); };
+  const next = () => { if (i >= lines.length) return; speak(lines[i][1], false, () => { i++; next(); }, undefined, 1, radioAzVoice(lines[i][0])); };
   next();
 }
 function cnQuizHTML(qs) {

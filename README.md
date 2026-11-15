@@ -1,9 +1,13 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.44.3
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.45.0
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.45.0
+- **Radio Tuki con dos voces de nube (Azure)**: cada línea de Radio suena ahora con la voz de su hablante — A con la voz elegida de Tuki (por defecto Jenny) y B con la contraparte masculina (Guy en inglés americano, Ryan en británico) — cuando la voz de nube está lista (sesión con la ruta compartida o clave propia de Azure). Sin nube, sigue la voz del dispositivo como antes. La caché de audio distingue la voz, así que A y B nunca comparten el mismo audio.
+- **Corrección**: la función `speak()` ya usaba la nube cuando Azure estaba listo (el comentario de C-05 lo decía); lo que faltaba era solo la voz por hablante, no el cableado a la nube.
 
 ## Novedades v2.44.3
 - **Traduce muestra el nivel «Desde cero» (RV-03)**: la fila de «Traduce y completa» mostraba «10 frases · · 0 dominadas» con el nivel vacío porque el nivel A0 no existía en la tabla de niveles. Ahora A0 existe («Desde cero») y se muestra en la fila, en la tarjeta, en la pantalla de ronda y en el selector de nivel. Las frases de A0 usan las de A2 (las más fáciles) porque no hay frases propias de A0.
