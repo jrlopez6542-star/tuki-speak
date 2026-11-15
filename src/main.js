@@ -1657,7 +1657,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.44.1';
+export const APP_VERSION = '2.44.2';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -1867,13 +1867,13 @@ VIEWS.chat = v => {
   }
   if (CHAT.scen && String(CHAT.scen).startsWith('custom:') && !SCENARIOS[CHAT.scen]) CHAT.scen = 'free';
   const lv = chatLevel();
-  // (TUKI-IMPL-T3A-001: estructura T3 «Conversación primero»: banner
-  // «Profe Tuki» descartable (solo en memoria, CHAT.bannerHide), ajustes
+  // (TUKI-IMPL-T3A-001: estructura T3 «Conversación primero»: ajustes
   // colapsados en <details>, log protagonista, etiquetas de sección.
-  // Los controles y handlers son los mismos de antes, solo reordenados.)
+  // El banner «Profe Tuki» se eliminó 2026-11-14 por orden de Jonathan
+  // (TUKI-FIX-LIVEBTN-001); los controles y handlers son los mismos de
+  // antes, solo reordenados.)
   v.innerHTML = `<div class="chatscreen" id="chatscreen">
     <div class="chat-tutor-head"><img class="tuki-img" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés"><div><strong>Tuki · Tutor IA</strong><span class="small muted">Practica hablando; te corrijo con cariño.</span></div></div>
-    ${CHAT.bannerHide ? '' : `<div class="chat-banner" id="profeBanner"><img class="tuki-img" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés"><div><b>Profe Tuki</b><span class="small muted">Tu tutor de inglés · toca 🔊 para escucharme</span></div><button type="button" class="x" id="bannerX" aria-label="Descartar banner">×</button></div>`}
     <div class="chattop"><div class="chattop-row"><details class="more" id="chatMore"><summary>⚙️ Ajustes del chat</summary><div class="inner">
       <label class="kicker">Proveedor</label>
       <div class="provider seg"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
@@ -1893,10 +1893,6 @@ VIEWS.chat = v => {
     </div>
   </div>`;
   $$('[data-prov]', v).forEach(b => b.onclick = () => { if (b.disabled) return; if (LIVE.on) stopLive(); S.settings.chatProvider = b.dataset.prov; save(); resetChat(); VIEWS.chat(v); });
-  // (TUKI-IMPL-T3A-001: la × descarta el banner solo mientras la vista
-  // vive; CHAT.bannerHide es memoria, sin tocar el estado persistido.)
-  const bx = $('#bannerX', v);
-  if (bx) bx.onclick = () => { CHAT.bannerHide = true; const b = $('#profeBanner', v); if (b) b.remove(); };
   const startText = () => { resetChat(); chatDraw(); chatSend('(Start the roleplay now with a short friendly greeting and a first question.)', true); };
   const restart = msg => { toast(msg, 2600); if (LIVE.on) { stopLive(true); resetChat(); chatDraw(); startLive(); } else if (CHAT.hist.length) startText(); else chatDraw(); };
   // P4 (v2.21.0): crear/borrar escenarios propios dentro del selector
