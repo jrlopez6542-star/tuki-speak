@@ -1575,6 +1575,15 @@ html[data-theme="dark"] .full.placement-intro{background:
    Escribir o dictar, Voz en vivo). */
 /* Cromo compacto para que el log quepa en la chatscreen de fitChat */
 .chatscreen{gap:6px}
+/* TUKI-FIX-LIVEBTN-001 (2026-11-14): en viewports < ~844 px el cromo
+   fijo (666 px con banner; 587 px sin él) supera la altura que fitChat
+   da a #chatscreen y el dock quedaba bajo la tabbar fija (medido:
+   botón 100% tapado a 740 px, 95% a 700 px; 0% a 844 px). El chatscreen
+   se desplaza por dentro y el dock queda fijo abajo: el botón siempre
+   está a la vista, sin importar la altura; a 844 px nada cambia
+   (sin desborde, sin scroll). */
+.chatscreen{overflow-y:auto}
+.chatscreen .livedock{position:sticky;bottom:0;z-index:5}
 .chatscreen .chat-tutor-head{padding:6px 12px}
 .chatscreen .chat-tutor-head .tuki-img{width:40px;height:40px}
 .chatscreen .livedock{padding:6px 10px}
@@ -1582,12 +1591,6 @@ html[data-theme="dark"] .full.placement-intro{background:
 /* Etiquetas de sección (mockup T3a: .sec-label) */
 .chatscreen .sec-label{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#603584;margin:0 2px;line-height:1.2}
 [data-theme=dark] .chatscreen .sec-label{color:#b98cff}
-/* Banner «Profe Tuki» descartable (mockup T3a: .banner) */
-.chatscreen .chat-banner{display:flex;gap:10px;align-items:center;background:var(--card);border:2px solid var(--line);border-radius:var(--r-lg);padding:6px 12px}
-.chatscreen .chat-banner .tuki-img{width:40px;height:40px;flex:none;object-fit:contain}
-.chatscreen .chat-banner b{display:block;font-size:14px}
-.chatscreen .chat-banner .small{display:block}
-.chatscreen .chat-banner .x{margin-left:auto;border:0;background:transparent;font-size:18px;color:var(--mute);padding:6px;flex:none}
 /* Ajustes colapsados (mockup T3a: details.more, cerrado por defecto) */
 .chatscreen .chattop details.more{border:2px solid var(--line);border-radius:var(--r-lg);background:var(--card);padding:8px 12px}
 .chatscreen details.more summary{cursor:pointer;font-weight:800;font-size:14px;list-style:none}

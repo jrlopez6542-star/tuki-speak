@@ -71,7 +71,7 @@ export function removeCustomScenario(i) {
   return true;
 }
 registerCustomScenarios();
-export let CHAT = { scen: 'free', hist: [], busy: false, bannerHide: false };
+export let CHAT = { scen: 'free', hist: [], busy: false };
 export function chatSystem() {
   return `You are "Tuki", a patient, friendly English pronunciation and conversation tutor for a Spanish-speaking learner from Colombia (beginner/intermediate level). Roleplay: you are ${SCENARIOS[CHAT.scen]}.
 The learner's messages usually come from browser speech-to-text, so odd words may be mis-recognized pronunciation (e.g. "sheep" for "ship", "tree" for "three", "berry" for "very").

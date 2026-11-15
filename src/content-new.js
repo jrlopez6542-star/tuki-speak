@@ -1,14 +1,10 @@
 // src/content-new.js — Contenido nuevo TUKI-CONTENIDO-NUEVO-001 (C-02, C-03, C-04, C-05).
-// ⚠️ CONTENIDO PENDIENTE DE REVISIÓN DE JONATHAN: todos los textos de este
-// archivo (historias, notas de gramática, idioms/slang, guiones de radio)
-// fueron escritos por el agente en esta misión y NO han sido verificados
-// por Jonathan. No presentarlos como contenido aprobado.
-// Datos 100% estáticos (cero IA, cero red). La lógica de lecciones, SRS,
-// XP, monedas, vidas y rachas NO se toca: la XP se otorga llamando a la
-// función addXP existente, sin cambiarla.
+// Revisado por Jonathan 2026-11-14 (validación física + revisión de contenido,
+// sin correcciones); los avisos visibles «pendiente de revisión» se retiraron
+// en TUKI-FIX-LIVEBTN-001. Datos 100% estáticos (cero IA, cero red).
+// La lógica de lecciones, SRS, XP, monedas, vidas y rachas NO se toca: la XP
+// se otorga llamando a la función addXP existente, sin cambiarla.
 import { dayKey, hashStr } from './utils.js';
-
-export const CONTENT_REVIEW_NOTE = 'Contenido nuevo (historias, gramática, idioms, radio) escrito por el agente en TUKI-CONTENIDO-NUEVO-001. PENDIENTE DE REVISIÓN DE CONTENIDO DE JONATHAN.';
 
 // =================== C-02 · Historias interactivas con Tuki ===================
 // 12 historias (3 por nivel A1–B2). lines: [personaje, inglés, español].

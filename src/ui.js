@@ -9,7 +9,7 @@ import { L, RENDER, buildLesson, buildPractice, createMicMeter, doMic, feedback,
 import { AZT, CHAT, LEVELS, LEVEL_KEYS, LIVE, MEM_WCACHE, SCENARIOS, SCEN_ES, TUTOR_SPEEDS, aiJSON, aiQuick, aiQuotaToday, azFetch, azOwn, azShared, azureReady, cacheGet, cacheSet, chatLevel, chatMul, chatSend, currentProvider, ensureSP, enterMode, fbSignedIn, flagHard, gemShared, gemini, hardWords, numHash, tukiApi, tutorSpeed, uid } from './chat.js';
 import { FB, authErr, fbGoogle } from './account.js';
 import { TukiDB } from './tuki-db.js';
-import { STORIES, storyById, IDIOMS, idiomEntry, idiomOfDay, RADIO_EPISODES, radioById, CONTENT_REVIEW_NOTE } from './content-new.js';
+import { STORIES, storyById, IDIOMS, idiomEntry, idiomOfDay, RADIO_EPISODES, radioById } from './content-new.js';
 import { APP_VERSION, COURSE, LESSON, LESSONS, TAB, TC_LAST_PERSONALIZED, TUKI_OFFLINE_TC, VIEWS, addXP, beep, checkBadges, closeLesson, confetti, decodeAudio, go, isUnlocked, render, save, streakNow, tcGenerate, toast, tukiChirp, tukiFanfare } from './main.js';
 
 export function renderTukiSVG(skin, opts = {}) {
@@ -958,7 +958,7 @@ export function guideSheet(u) {
   // (u.guide, en COURSE junto a cada unidad) abre la hoja, encima de las
   // lecciones. Cero IA, solo presentación.)
   const g = u.guide;
-  modal(`<h2>📘 ${esc(u.title)}</h2>${g ? `<div class="tipbox" style="border-color:var(--b-d)"><b>📘 Guía de gramática · Unidad</b><p style="margin:6px 0"><b>${esc(g.t)}</b></p><p class="small" style="margin:0">${esc(g.b)}</p>${(g.ex || []).map(e => `<div class="witem" style="margin-top:8px"><button class="spk" data-say-n="${esc(e[0])}">🔊</button><div style="min-width:0"><div class="en">${esc(e[0])}</div><div class="es small">${esc(e[1])}</div></div></div>`).join('')}<p class="small muted" style="margin:8px 0 0">⚠️ Contenido pendiente de revisión de Jonathan.</p></div>` : ''}${u.lessons.map(l => `<div class="tipbox"><b>${l.icon} ${esc(l.title)}</b> ${!l.type ? `<span class="ipa">/${esc(l.sound)}/</span>` : ''}<p class="small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>${l.mouth ? `<p class="small"><b>👄</b> ${esc(l.mouth)}</p>` : ''}</div>`).join('')}<button class="btn primary block" data-x>Cerrar</button>`, (el, c) => { $('[data-x]', el).onclick = c; $$('[data-say-n]', el).forEach(b => b.onclick = () => speak(b.dataset.sayN)); });
+  modal(`<h2>📘 ${esc(u.title)}</h2>${g ? `<div class="tipbox" style="border-color:var(--b-d)"><b>📘 Guía de gramática · Unidad</b><p style="margin:6px 0"><b>${esc(g.t)}</b></p><p class="small" style="margin:0">${esc(g.b)}</p>${(g.ex || []).map(e => `<div class="witem" style="margin-top:8px"><button class="spk" data-say-n="${esc(e[0])}">🔊</button><div style="min-width:0"><div class="en">${esc(e[0])}</div><div class="es small">${esc(e[1])}</div></div></div>`).join('')}</div>` : ''}${u.lessons.map(l => `<div class="tipbox"><b>${l.icon} ${esc(l.title)}</b> ${!l.type ? `<span class="ipa">/${esc(l.sound)}/</span>` : ''}<p class="small">${esc(l.type === 'dialog' ? l.scene : l.expl)}</p>${l.mouth ? `<p class="small"><b>👄</b> ${esc(l.mouth)}</p>` : ''}</div>`).join('')}<button class="btn primary block" data-x>Cerrar</button>`, (el, c) => { $('[data-x]', el).onclick = c; $$('[data-say-n]', el).forEach(b => b.onclick = () => speak(b.dataset.sayN)); });
 }
 
 /* ---- Reglas de desbloqueo progresivo de práctica (estilo Duolingo) ---- */
@@ -3224,8 +3224,8 @@ export function openShadowingModal() {
    destinos nuevos en la tabbar, sin tocar lecciones/SRS/XP/monedas/vidas/
    rachas (la XP se otorga con addXP, sin cambiarla). Audio por línea con
    speak() — que ya usa el TTS en la nube con caché (cloudTTSBlob/TukiDB)
-   cuando está disponible y la voz del dispositivo si no. El contenido
-   está PENDIENTE DE REVISIÓN DE JONATHAN (ver src/content-new.js). */
+   cuando está disponible y la voz del dispositivo si no. Revisado por
+   Jonathan 2026-11-14, sin correcciones (ver src/content-new.js). */
 function cnLinesHTML(lines, useWords) {
   return lines.map((ln, i) => `<div class="cn-line" data-cnline="${i}">
     <div class="cn-line-head"><span class="cn-spk">${esc(ln[0])}</span><button class="spk" data-cnspk="${i}" title="Escuchar esta línea">🔊</button></div>
@@ -3276,7 +3276,6 @@ export function openStoriesModal() {
   const levels = ['A1', 'A2', 'B1', 'B2'];
   modal(`<h2>📖 Historias con Tuki</h2>
   <p class="muted small">Cuentos cortos con audio por línea: toca 🔊 para escuchar y «Ver traducción» para ver el español. Responde las preguntas al final. +10 XP por historia, solo la primera vez.</p>
-  <p class="muted small">⚠️ ${esc(CONTENT_REVIEW_NOTE)}</p>
   ${levels.map(lv => `<h3 style="margin:12px 0 4px">Nivel ${lv}</h3>${STORIES.filter(s => s.level === lv).map(s => {
     const p = (S.stories || {})[s.id];
     return `<button class="mode-row" data-story="${s.id}"><div class="em" style="background:#fef3c7">${s.icon}</div><div style="flex:1;min-width:0"><div class="row between"><h3 style="margin:0 0 2px">${esc(s.title)}</h3>${p ? `<span class="srs-pill mat">✓ ${p.correct}/${p.total}</span>` : ''}</div><div class="muted small">${esc(s.desc)} · ${s.lines.length} líneas · ${s.qs.length} preguntas</div></div></button>`;
@@ -3326,7 +3325,6 @@ export function openStory(id) {
 export function openRadioModal() {
   modal(`<h2>📻 Radio Tuki</h2>
   <p class="muted small">Audio corto con transcripción por líneas: toca 🔊 para escuchar cada línea, toca una palabra para ver su significado y responde las preguntas. El audio lo genera el TTS con caché; la voz no es un actor, es escucha guiada.</p>
-  <p class="muted small">⚠️ ${esc(CONTENT_REVIEW_NOTE)}</p>
   ${RADIO_EPISODES.map(r => {
     const p = (S.radio || {})[r.id];
     return `<button class="mode-row" data-radio="${r.id}"><div class="em" style="background:#e0f2fe">${r.icon}</div><div style="flex:1;min-width:0"><div class="row between"><h3 style="margin:0 0 2px">${esc(r.title)}</h3>${p ? `<span class="srs-pill mat">✓ ${p.correct}/${p.total}</span>` : ''}</div><div class="muted small">${esc(r.desc)} · ~${r.mins} min · ${r.lines.length} líneas · ${r.qs.length} preguntas</div></div></button>`;
@@ -3380,13 +3378,12 @@ export function idiomCardHTML() {
     <div class="small" style="margin-top:6px">💬 ${esc(it.ex)}</div>
     <div class="es small">${esc(it.exEs)}</div>
     <div class="row" style="margin-top:8px"><button class="btn ghost sm" id="idiomSay">🔊 Escuchar ejemplo</button><button class="btn ghost sm" id="idiomBankBtn">📚 Ver banco (${IDIOMS.length})</button></div>
-    <div class="muted small" style="margin-top:6px">⚠️ Contenido pendiente de revisión de Jonathan.</div></div>
+    </div>
   </details>`;
 }
 export function openIdiomBank() {
   modal(`<h2>💬 Idioms y slang</h2>
   <p class="muted small">${IDIOMS.length} expresiones con explicación en español, ejemplo y audio. Toca 🔊 para escuchar el ejemplo.</p>
-  <p class="muted small">⚠️ ${esc(CONTENT_REVIEW_NOTE)}</p>
   <input class="field" id="idiomSearch" type="search" placeholder="🔍 Buscar (ej. ice, suerte, slang)…" autocomplete="off" aria-label="Buscar en el banco de idioms">
   <div class="muted small" id="idiomCount" style="margin:6px 0"></div>
   <div id="idiomList"></div>

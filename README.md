@@ -1,9 +1,14 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.44.1
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.44.2
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.44.2
+- **Tutor IA sin banner «Profe Tuki»**: se eliminó el banner del Tutor IA; la cabecera, los ajustes, el log y el botón quedan igual. «Profe Tuki» sigue en los títulos de las lecciones y en los consejos de la mascota (otras funciones, sin tocar).
+- **Botón «Hablar en vivo» siempre visible**: en pantallas cortas el botón quedaba 100% tapado por la barra inferior (medido a 740 px de alto; a 844 px se veía bien). Ahora la pantalla de chat se desplaza por dentro y el botón queda fijo abajo, así que siempre está a la vista.
+- **Pantalla de lanzamiento morada**: la pantalla verde que pone Chrome al abrir la PWA usaba el color viejo del manifiesto (#1fa463); ahora usa el morado de la pantalla de inicio (#2b1741). La caché del service worker sube a v30 para que la PWA instalada detecte la actualización.
 
 ## Novedades v2.44.1
 - **Rediseño unificado**: nueva interfaz (lenguaje Liquid Glass, mundos por unidad, mapa por unidad), Tutor IA con conversación primero (burbuja azul, ajustes plegables), modos de práctica agrupados con sello NUEVO, prueba de nivel rediseñada, lección sh-ch, temas claro y oscuro y contenido nuevo (Explica mi error, guías de gramática, 12 historias, 101 idioms, 8 episodios de Radio Tuki). La barra de niveles de Ajustes se retiró; las opciones avanzadas quedan en «Más opciones», cerradas por defecto. La caché del service worker sube a v28 para que la PWA instalada detecte la actualización.
