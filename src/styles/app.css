@@ -389,7 +389,7 @@ input[type=range]{width:160px;accent-color:var(--g)}
 .pill{display:inline-block;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:900;background:#eef1f3;color:var(--mute)}
 .pill.ok{background:var(--g-l);color:var(--g-d)}
 .empty{text-align:center;padding:26px 10px;color:var(--mute)}
-.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#26323d;color:#fff;padding:10px 16px;border-radius:var(--r-md);font-weight:700;z-index:90;animation:toastIn .3s var(--spring) both;max-width:90%;text-align:center}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:#26323d;color:#fff;padding:10px 16px;border-radius:var(--r-md);font-weight:700;z-index:90;pointer-events:none;animation:toastIn .3s var(--spring) both;max-width:90%;text-align:center}
 a{color:var(--b-d)}
 .ipa{font-family:"Doulos SIL","Charis SIL","Gentium Plus","Segoe UI",sans-serif;color:#603584;font-weight:800}
 /* PR 1.4: .ipa no tenía par oscuro (#8b3fd9 sobre tarjeta = 2.95 en oscuro) */
@@ -1600,8 +1600,12 @@ html[data-theme="dark"] .full.placement-intro{background:
 .chatscreen .provider.seg .chip{flex:1;border:0;border-radius:0;background:transparent;color:var(--ink);padding:11px 6px;font-size:14px;min-height:44px;text-align:center}
 .chatscreen .provider.seg .chip.active{background:var(--lime,#d7f36a);color:#21152d;border-color:transparent}
 .chatscreen .provider.seg .chip:disabled{opacity:.45}
-/* «Nueva» a ancho completo, en mayúsculas como en el mockup (el literal sigue siendo «Nueva») */
+/* «Nueva» en mayúsculas como en el mockup (el literal sigue siendo «Nueva»; en la fila chattop va a ancho automático — ver RV-02) */
 .chatscreen .btn-nueva{width:100%;text-transform:uppercase}
+/* RV-02: «Nueva» visible fuera del <details> (antes vivía dentro de «Ajustes del chat», cerrado por defecto, y el estado vacío pedía «Toca Nueva» sin botón visible). La fila pone el botón junto a los ajustes; el modo entrevista/reto inserta su modebar antes de la fila, sin tocarla. */
+.chattop-row{display:flex;gap:8px;align-items:flex-start}
+.chattop-row details.more{flex:1;min-width:0}
+.chattop-row .btn-nueva{width:auto;flex:none}
 /* Log protagonista (mockup T3a: .chatlog.tall{min-height:340px}; ver la
    desviación documentada arriba: 260px en la app); la pista vacía no se
    recorta: sin max-height ni overflow propios */

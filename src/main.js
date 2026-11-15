@@ -1874,15 +1874,14 @@ VIEWS.chat = v => {
   v.innerHTML = `<div class="chatscreen" id="chatscreen">
     <div class="chat-tutor-head"><img class="tuki-img" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés"><div><strong>Tuki · Tutor IA</strong><span class="small muted">Practica hablando; te corrijo con cariño.</span></div></div>
     ${CHAT.bannerHide ? '' : `<div class="chat-banner" id="profeBanner"><img class="tuki-img" src="${TUKI_POSES.explains}" alt="Tuki, tu tutor de inglés"><div><b>Profe Tuki</b><span class="small muted">Tu tutor de inglés · toca 🔊 para escucharme</span></div><button type="button" class="x" id="bannerX" aria-label="Descartar banner">×</button></div>`}
-    <div class="chattop"><details class="more" id="chatMore"><summary>⚙️ Ajustes del chat</summary><div class="inner">
+    <div class="chattop"><div class="chattop-row"><details class="more" id="chatMore"><summary>⚙️ Ajustes del chat</summary><div class="inner">
       <label class="kicker">Proveedor</label>
       <div class="provider seg"><button class="chip ${prov === 'gemini' ? 'active' : ''}" data-prov="gemini" ${hasG ? '' : 'disabled title="Agrega una clave de Gemini en Ajustes"'}>✨ Gemini (gratis)</button><button class="chip ${prov === 'openai' ? 'active' : ''}" data-prov="openai" ${hasO ? '' : 'disabled title="Agrega una clave de OpenAI en Ajustes"'}>💳 OpenAI (pago)</button></div>
       <label class="kicker" for="scen">Escenario</label><select class="field" id="scen" aria-label="Escenario">${Object.keys(SCENARIOS).filter(k => k !== 'interview' && k !== 'shopping').map(k => `<option value="${k}" ${k === CHAT.scen ? 'selected' : ''}>${esc(SCEN_ES[k])}</option>`).join('')}<option value="__new__">✏️ Crear escenario…</option></select>
       <label class="kicker" for="tspeed">Velocidad de Tuki</label><select class="field" id="tspeed" aria-label="Velocidad de Tuki" title="Velocidad de Tuki">${Object.keys(TUTOR_SPEEDS).map(k => `<option value="${k}" ${k === tutorSpeed() ? 'selected' : ''}>${TUTOR_SPEEDS[k].label}</option>`).join('')}</select>
-      <button class="btn ghost sm btn-nueva" id="newc" title="Nueva conversación">Nueva</button>
       <label class="kicker" for="level">Nivel de inglés</label><select class="field" id="level" aria-label="Nivel de inglés" title="Nivel de inglés de la conversación">${LEVEL_KEYS.map(k => `<option value="${k}" ${k === lv ? 'selected' : ''}>${LEVELS[k].label}</option>`).join('')}</select>
       <label class="kicker" for="tlang">Idioma del tutor</label><select class="field" id="tlang" aria-label="Idioma del tutor" title="Idioma del tutor">${Object.keys(TUTOR_LANGS).map(k => `<option value="${k}" ${k === tutorLang() ? 'selected' : ''}>${TUTOR_LANGS[k].label}</option>`).join('')}</select>
-    </div></details></div>
+    </div></details><button class="btn ghost sm btn-nueva" id="newc" title="Nueva conversación">Nueva</button></div></div>
     <p class="sec-label">Conversación</p>
     <div class="chatlog tall" id="log" aria-live="polite"></div>
     <p class="sec-label">Escribir o dictar</p>
