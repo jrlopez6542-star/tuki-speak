@@ -1,9 +1,12 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.42.0
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.44.1
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.44.1
+- **Rediseño unificado**: nueva interfaz (lenguaje Liquid Glass, mundos por unidad, mapa por unidad), Tutor IA con conversación primero (burbuja azul, ajustes plegables), modos de práctica agrupados con sello NUEVO, prueba de nivel rediseñada, lección sh-ch, temas claro y oscuro y contenido nuevo (Explica mi error, guías de gramática, 12 historias, 101 idioms, 8 episodios de Radio Tuki). La barra de niveles de Ajustes se retiró; las opciones avanzadas quedan en «Más opciones», cerradas por defecto. La caché del service worker sube a v28 para que la PWA instalada detecte la actualización.
 
 ## Novedades v2.42.0
 - **⚙️ Ajustes con filtro por nivel**: Ajustes ahora se ordena para principiantes — primero Cuenta, Aprendizaje, Voz y audio, Apariencia, Recordatorio y Resúmenes; después Voz de Tuki; y al final Frase de seguridad, Evaluación avanzada con Azure, Conversación con IA y Datos y mantenimiento, con Enviar comentarios siempre al pie. Encima de las tarjetas hay un selector «Ver: Básico · Personalización · Avanzado» (Básico por defecto) que solo muestra u oculta tarjetas, sin pestañas ni pantallas nuevas; los enlaces internos («Usar la IA gratis →», «Ir a la clave») cambian primero el filtro al nivel de la tarjeta destino. Sin cambios en los controles, las claves, las cuotas ni el progreso.

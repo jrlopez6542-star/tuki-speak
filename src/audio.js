@@ -40,13 +40,13 @@ export function speak(text, slow = false, onend) {
 export const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 export const HAS_SR = !!SR;
 export let curRec = null;
-export function recognize() {
+export function recognize(onHeard) {
   return new Promise((resolve, reject) => {
     if (!HAS_SR) return reject('unsupported');
     let r; try { r = new SR(); } catch (e) { return reject('unsupported'); }
     r.lang = 'en-US'; r.interimResults = false; r.maxAlternatives = 5; r.continuous = false;
     let got = null, err = null;
-    r.onresult = e => { const res = e.results[0]; got = [...res].map(a => ({ t: (a.transcript || '').trim(), c: a.confidence || 0 })).filter(a => a.t); };
+    r.onresult = e => { const res = e.results[0]; got = [...res].map(a => ({ t: (a.transcript || '').trim(), c: a.confidence || 0 })).filter(a => a.t); if (got.length && onHeard) onHeard(); };
     r.onerror = e => { err = e.error; };
     r.onend = () => { curRec = null; if (got && got.length) resolve(got); else reject(err || 'no-speech'); };
     try { r.start(); curRec = r; } catch (e) { reject('busy'); }
@@ -58,6 +58,12 @@ export function stopRecognize() { try { curRec && curRec.stop(); } catch (e) {} 
 // de solo lectura, asi que esa asignacion va por este setter.
 export function setCurRec(r) { curRec = r; }
 export const SR_ERR = { 'not-allowed': 'Permiso de micrófono denegado. Actívalo en el candado de la barra de direcciones.', 'service-not-allowed': 'El reconocimiento de voz no está permitido aquí (usa Chrome con https o localhost).', 'no-speech': 'No te escuché. Toca el micrófono y habla claro, cerca del teléfono.', 'audio-capture': 'No se encontró micrófono.', 'network': 'El reconocimiento de voz de Chrome necesita internet.', 'unsupported': 'Tu navegador no soporta reconocimiento de voz.', 'aborted': 'Grabación cancelada.', 'busy': 'El micrófono está ocupado, intenta de nuevo.' };
+/* ---- M03 PR 6.2: ¿el error es un rechazo de permiso de micrófono? ----
+   Cubre el código de error de Web Speech API ('not-allowed', cadena que
+   rechaza recognize()) y la DOMException de getUserMedia/MicCap
+   (name 'NotAllowedError'). Se usa en doMic y en azureMic para derivar
+   a la misma rama degradada (D-M03-5). */
+export const isMicPermErr = e => e === 'not-allowed' || !!(e && (e.name === 'NotAllowedError' || e.code === 'not-allowed'));
 
 /* ---- grabación (MediaRecorder) para comparar ---- */
 export const Rec = {
