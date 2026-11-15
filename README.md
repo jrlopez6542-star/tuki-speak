@@ -8,7 +8,7 @@ Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-spea
 ## Novedades v2.44.3
 - **Traduce muestra el nivel «Desde cero» (RV-03)**: la fila de «Traduce y completa» mostraba «10 frases · · 0 dominadas» con el nivel vacío porque el nivel A0 no existía en la tabla de niveles. Ahora A0 existe («Desde cero») y se muestra en la fila, en la tarjeta, en la pantalla de ronda y en el selector de nivel. Las frases de A0 usan las de A2 (las más fáciles) porque no hay frases propias de A0.
 - **Pie de Ajustes honesto con sesión (RV-05)**: el pie decía «sin servidor» aunque tuvieras sesión iniciada. Ahora dice «con tu cuenta · tus datos también se guardan en tu cuenta» cuando hay sesión, y sigue diciendo «sin servidor» solo cuando no la hay.
-- **Ícono morado**: mismo tucán, fondo morado #2b1741 en vez de verde (icon.svg, icon-192.png e icon-512.png). La caché del service worker sube a v31 para que la PWA instalada detecte la actualización.
+- **Ícono nuevo (el Tuki 3D)**: el ícono ya no es el tucán plano: ahora es la nueva imagen de Tuki 3D (audífonos, sudadera lima, pulgar arriba) sobre fondo morado, en icon-192.png e icon-512.png. El favicon también usa el nuevo ícono (icon.svg queda fuera del manifiesto y del precache del SW). La caché del service worker sube a v32 para que la PWA instalada detecte el cambio.
 
 ## Novedades v2.44.2
 - **Tutor IA sin banner «Profe Tuki»**: se eliminó el banner del Tutor IA; la cabecera, los ajustes, el log y el botón quedan igual. «Profe Tuki» sigue en los títulos de las lecciones y en los consejos de la mascota (otras funciones, sin tocar).
