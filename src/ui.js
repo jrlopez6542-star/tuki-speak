@@ -1629,7 +1629,7 @@ export const TC_BANK = [{"lv":"A2","ctx":"amigos","cat":"error","es":"Yo [tengo]
 /* =================== v2.5: TRADUCE Y COMPLETA =================== */
 export const TC_CTX = { amigos: 'Contexto: conversación informal entre amigos', trabajo: 'Contexto: en el trabajo', casa: 'Contexto: en casa, con la familia', tienda: 'Contexto: de compras', rest: 'Contexto: en un restaurante', viaje: 'Contexto: de viaje o en el transporte', estudio: 'Contexto: en clase o estudiando', salud: 'Contexto: salud, en la farmacia o el médico', tel: 'Contexto: una llamada o un mensaje', calle: 'Contexto: en la calle, un día cualquiera', cita: 'Contexto: haciendo planes con alguien', reunion: 'Contexto: reunión de trabajo', entrevista: 'Contexto: entrevista de trabajo', tramite: 'Contexto: haciendo un trámite' };
 export const TC_CAT = { idiom: 'Expresión informal', phrasal: 'Phrasal verb', false: 'Falso amigo', prep: 'Preposición', error: 'Error típico', daily: 'Frase cotidiana', ai: 'Frase de la IA' };
-export const TC_LV = { A2: 'Básico', B1: 'Intermedio', B2: 'Intermedio alto', C1: 'Avanzado' };
+export const TC_LV = { A0: 'Desde cero', A2: 'Básico', B1: 'Intermedio', B2: 'Intermedio alto', C1: 'Avanzado' };
 export const TC_PRAISE = ['¡Muy bien!', '¡Así se hace!', '¡Excelente!', '¡Genial!', '¡Perfecto!'];
 export const TC_XP = 10, TC_XP_HINT = 5, TC_SESSION = 10;
 export function ensure25() {

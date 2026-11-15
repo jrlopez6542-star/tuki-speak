@@ -1,9 +1,14 @@
-# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.44.2
+# Tuki Speak – Pronunciación y conversación en inglés (gratis) · v2.44.3
 
 App web estática construida con Vite (`index.html`, `src/main.js`, `src/styles/app.css`, `public/`). El build usa rutas relativas para funcionar tanto en la raíz de Vercel como bajo `/tuki-speak/` en GitHub Pages.
 Sin backend propio salvo una API mínima en Vercel para las claves compartidas (v2.10); la cuenta opcional usa Firebase en el plan gratuito Spark. Todo funciona gratis y sin claves; los servicios de pago son **opcionales** y las claves se guardan **solo en tu navegador** (`localStorage`), nunca en la exportación de progreso.
 
 Publicada en: https://jrlopez6542-star.github.io/tuki-speak/ y https://tuki-speak.vercel.app (misma app estática, rutas relativas).
+
+## Novedades v2.44.3
+- **Traduce muestra el nivel «Desde cero» (RV-03)**: la fila de «Traduce y completa» mostraba «10 frases · · 0 dominadas» con el nivel vacío porque el nivel A0 no existía en la tabla de niveles. Ahora A0 existe («Desde cero») y se muestra en la fila, en la tarjeta, en la pantalla de ronda y en el selector de nivel. Las frases de A0 usan las de A2 (las más fáciles) porque no hay frases propias de A0.
+- **Pie de Ajustes honesto con sesión (RV-05)**: el pie decía «sin servidor» aunque tuvieras sesión iniciada. Ahora dice «con tu cuenta · tus datos también se guardan en tu cuenta» cuando hay sesión, y sigue diciendo «sin servidor» solo cuando no la hay.
+- **Ícono morado**: mismo tucán, fondo morado #2b1741 en vez de verde (icon.svg, icon-192.png e icon-512.png). La caché del service worker sube a v31 para que la PWA instalada detecte la actualización.
 
 ## Novedades v2.44.2
 - **Tutor IA sin banner «Profe Tuki»**: se eliminó el banner del Tutor IA; la cabecera, los ajustes, el log y el botón quedan igual. «Profe Tuki» sigue en los títulos de las lecciones y en los consejos de la mascota (otras funciones, sin tocar).

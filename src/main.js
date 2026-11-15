@@ -1657,7 +1657,7 @@ function nextCard() {
 
 /* ---- Conversación con IA (Gemini, opcional) ---- */
 /* =================== v2: AYUDAS GENERALES =================== */
-export const APP_VERSION = '2.44.2';
+export const APP_VERSION = '2.44.3';
 // (Fase 3, modulo 7: movido a src/ui.js, lineas 1712-1725)
 const _beep = beep; beep = function (t) { _beep(t); vibrate({ ok: 25, bad: [50, 40, 50], done: [30, 30, 80], tap: 8 }[t] || 0); };
 
@@ -2037,7 +2037,7 @@ VIEWS.settings = v => {
     <p class="small muted">Las claves nunca se incluyen en la exportación.</p>
     <button class="btn red block" id="reset" style="margin-top:8px">Borrar todo mi progreso</button>
   </div>
-  <p class="muted small" style="text-align:center">Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.</p>`;
+  <p class="muted small" style="text-align:center">${fbSignedIn() ? `Tuki Speak v${APP_VERSION} · con tu cuenta · tus datos también se guardan en tu cuenta.` : `Tuki Speak v${APP_VERSION} · sin servidor · tus datos quedan en este dispositivo.`}</p>`;
   const set = (k, val) => { S.settings[k] = val; save(); };
   const bindSel = (id, k, num) => { const e = $('#' + id); if (e) e.onchange = ev => { if (k === 'ttsEngine') S.settings.__ttsDeviceExplicit = (ev.target.value === 'device'); set(k, num ? +ev.target.value : ev.target.value); if (['theme', 'fontScale'].includes(k)) applyPrefs(); if (['ttsEngine', 'azureVoice', 'openaiVoice', 'accent', 'voice'].includes(k)) { TTS.warned = false; speak('Hello! Think, three, very, ship, sheep.'); } }; };
   [['ttsEngine', 'ttsEngine'], ['accent', 'accent'], ['voice', 'voice'], ['azureVoice', 'azureVoice'], ['openaiVoice', 'openaiVoice'], ['goal', 'goal', 1], ['threshold', 'threshold', 1], ['learnerLevel', 'learnerLevel'], ['fontScale', 'fontScale', 1], ['chatProvider', 'chatProvider'], ['lvoice', 'liveVoice'], ['chatLevel', 'chatLevel'], ['tutorLang', 'tutorLang'], ['tutorSpeed', 'tutorSpeed']].forEach(a => bindSel(...a));
