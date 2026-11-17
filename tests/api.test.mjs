@@ -52,12 +52,12 @@ deps.fetch = async (url, opt = {}) => {
 const ORIGIN = 'https://tuki-speak.vercel.app';
 const call = (handler, { token, body = {}, origin = ORIGIN, method = 'POST', headers = {} } = {}) =>
   run({ method, headers: { ...(origin ? { Origin: origin } : {}), ...(token ? { Authorization: 'Bearer ' + token } : {}), 'Content-Type': 'application/json', ...headers }, body }, handler);
-const gReq = (extra = {}) => ({ model: 'gemini-2.5-flash', request: { systemInstruction: { parts: [{ text: 'You are Tuki.' }] }, contents: [{ role: 'user', parts: [{ text: 'Hi' }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 800 } }, ...extra });
+const gReq = (extra = {}) => ({ model: 'gemini-3.5-flash-lite', request: { systemInstruction: { parts: [{ text: 'You are Tuki.' }] }, contents: [{ role: 'user', parts: [{ text: 'Hi' }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 800 } }, ...extra });
 
 // ---------- verificación del token ----------
 const good = await tok();
 let r = await call(geminiHandler, { token: good, body: gReq() });
-t('valid Google ID token → 200 with text', r.status === 200 && r.body.text === 'Hola desde gemini-2.5-flash', r);
+t('valid Google ID token → 200 with text', r.status === 200 && r.body.text === 'Hola desde gemini-3.5-flash-lite', r);
 r = await call(geminiHandler, { body: gReq() });
 t('no Authorization → 401 NO_AUTH with Spanish message', r.status === 401 && r.body.error.code === 'NO_AUTH' && /Inicia sesión/.test(r.body.error.message), r);
 r = await call(geminiHandler, { body: gReq(), headers: { Authorization: 'Basic abc' } });
@@ -128,18 +128,18 @@ t('unknown generationConfig field → 400', r.status === 400, r);
 t('upstream call uses GEMINI_API_KEY from env (server side only)', S.gem.every(g => g.key === GK));
 
 // ---------- respaldo de modelos ----------
-S.gem = []; S.gemPlan = { 'gemini-2.5-flash': 503 };
+S.gem = []; S.gemPlan = { 'gemini-3.5-flash-lite': 503 };
 r = await call(geminiHandler, { token: good, body: gReq() });
-t('fallback: gemini-2.5-flash 503 → next model answers', r.status === 200 && r.body.model === 'gemini-2.5-flash-lite' && S.gem.map(g => g.model).join() === 'gemini-2.5-flash,gemini-2.5-flash-lite', S.gem.map(g => g.model));
+t('fallback: gemini-3.5-flash-lite 503 → next model answers', r.status === 200 && r.body.model === 'gemini-2.5-flash-lite' && S.gem.map(g => g.model).join() === 'gemini-3.5-flash-lite,gemini-2.5-flash-lite', S.gem.map(g => g.model));
 S.gem = []; S.gemPlan = { 'gemini-2.5-flash-lite': 404 };
 r = await call(geminiHandler, { token: good, body: gReq({ model: 'gemini-2.5-flash-lite' }) });
-t('fallback: 404 on requested model → chain continues', r.status === 200 && r.body.model === 'gemini-2.5-flash', S.gem.map(g => g.model));
+t('fallback: 404 on requested model → chain continues', r.status === 200 && r.body.model === 'gemini-3.5-flash-lite', S.gem.map(g => g.model));
 const bobTok = await tok({ sub: 'uid_bob', email: 'bob@gmail.com' });
 const bobKey = () => Object.entries(S.counters).find(([k]) => k.includes('_uid_bob#gemini'));
-S.gem = []; S.gemPlan = Object.fromEntries(['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.0-flash-lite'].map(m => [m, 503]));
+S.gem = []; S.gemPlan = Object.fromEntries(['gemini-3.5-flash-lite', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite'].map(m => [m, 503]));
 r = await call(geminiHandler, { token: bobTok, body: gReq() });
 t('all models busy → 503 BUSY in Spanish, request refunded (counter back to 0)', r.status === 503 && r.body.error.code === 'BUSY' && /ocupado/.test(r.body.error.message) && bobKey()[1] === 0, [r, bobKey()]);
-S.gemPlan = { 'gemini-2.5-flash': 400 };
+S.gemPlan = { 'gemini-3.5-flash-lite': 400 };
 r = await call(geminiHandler, { token: bobTok, body: gReq() });
 t('upstream 400 → 400, refunded, no fallback', r.status === 400 && bobKey()[1] === 0, [r.status, bobKey()]);
 S.gemPlan = {};

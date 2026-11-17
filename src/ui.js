@@ -3887,7 +3887,7 @@ export const PHOTO_SCENARIOS = [
    si sigue por encima de 2 MB. El arreglo mínimo F1 (fallback
    etiquetado como ejemplo genérico) NO se toca. Sin proveedor, la
    práctica sigue igual con el ejemplo genérico. */
-export const PHOTO_SHARED_MODEL = 'gemini-2.5-flash';
+export const PHOTO_SHARED_MODEL = 'gemini-3.5-flash-lite';
 export const PHOTO_MAX_DIM = 1024;
 export const PHOTO_MAX_BYTES = 2_000_000;
 export const PHOTO_PROMPT = 'Analyze this image for an English learner from Colombia. Identify 5 clear vocabulary words visible in English with their Spanish translation, and ask 1 engaging question in English for the learner to answer. Format: 5 bullet lines "- word: translation", then "QUESTION: your question in English"';

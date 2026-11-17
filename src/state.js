@@ -13,7 +13,7 @@ import { save, freshState, updateMascot } from './main.js';
 export const DAY = 864e5, HEART_MS = 30 * 60e3, MAX_HEARTS = 5;
 export const BAD_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
 export const KEY = 'tukiSpeak.v1';
-export const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, learnerLevel: 'novice', geminiKey: '', model: 'gemini-2.5-flash',
+export const DEFAULT_SETTINGS = { rate: 0.9, goal: 20, sound: true, autoplay: true, threshold: 75, recordVoice: !/Android/i.test(navigator.userAgent), voice: '', freeMode: false, learnerLevel: 'novice', geminiKey: '', model: 'gemini-3.5-flash-lite',
   accent: 'en-US', ttsEngine: 'auto', azureKey: '', azureRegion: '', azureVoice: 'en-US-JennyNeural', openaiKey: '', openaiModel: 'gpt-4o-mini', openaiVoice: 'marin', openaiTtsModel: 'gpt-4o-mini-tts', realtimeModel: 'gpt-realtime', chatProvider: 'gemini', liveModel: 'gemini-3.1-flash-live-preview', liveVoice: 'Kore',
   tukiVoiceEs: '', tukiVoiceEn: '', theme: 'auto', fontScale: 1, contrast: false, reduceMotion: false, haptics: true, remindOn: false, remindTime: '19:00', customScenarios: [], livePronOptIn: false,
   tukiVisible: true, tukiGreeting: true };

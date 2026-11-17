@@ -92,7 +92,7 @@ export async function geminiCall(key, model, contents) {
   return text;
 }
 export async function gemini(userText) {
-  const pref = (S.settings.model || 'gemini-2.5-flash').trim();
+  const pref = (S.settings.model || 'gemini-3.5-flash-lite').trim();
   const contents = CHAT.hist.map(m => ({ role: m.role, parts: [{ text: m.text }] }));
   if (gemShared()) return (await tukiApi('gemini', { model: sharedModel(pref), request: { systemInstruction: { parts: [{ text: chatSystem() }] }, contents: contents.slice(-100), generationConfig: { temperature: 0.7, maxOutputTokens: 800 } } })).text;
   const key = S.settings.geminiKey.trim();
@@ -102,7 +102,7 @@ export async function gemini(userText) {
      CHAT_COMPACT_AT (60) mensajes: P10 compacta a partir de 60 y la
      nota de perfil en chatSystem() conserva el contexto anterior.) */
   const ownContents = contents.slice(-CHAT_COMPACT_AT);
-  const models = [pref, 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest'].filter((m, i, a) => m && a.indexOf(m) === i);
+  const models = [pref, 'gemini-3.5-flash-lite', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest'].filter((m, i, a) => m && a.indexOf(m) === i);
   let lastErr;
   for (const model of models) {
     try {
@@ -130,7 +130,7 @@ export function parseTutor(t) {
 
 
 export const TUKI_API = 'https://tuki-speak.vercel.app/api/';
-export const SHARED_TEXT_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.0-flash-lite'];
+export const SHARED_TEXT_MODELS = ['gemini-3.5-flash-lite', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite'];
 export const keysLocked = () => typeof LOCKED !== 'undefined' && LOCKED && !(typeof KS !== 'undefined' && KS.key);
 export const fbSignedIn = () => typeof FB !== 'undefined' && !!FB.user;
 export const fbCanShare = () => fbSignedIn() && (FB.user.provider === 'google.com' || FB.user.verified);
@@ -203,7 +203,7 @@ export function aiModeText() { // una línea en Ajustes: qué claves se están u
 /* =================== CONVERSACIÓN CON IA: texto + VOZ EN VIVO =================== */
 export const LIVE = { on: false, state: 'idle', level: 0, provider: null, ws: null, pc: null, mic: null, cur: {}, t0: 0, userTurns: 0, sendText: null };
 export const LIVE_LABEL = { idle: 'Listo para hablar', connecting: 'Conectando…', listening: 'Te escucho… habla cuando quieras', speaking: 'Tuki está hablando (puedes interrumpir)', error: 'No se pudo conectar' };
-export const GEMINI_LIVE_MODELS = ['gemini-3.1-flash-live-preview', 'gemini-2.5-flash-native-audio-preview-12-2025', 'gemini-2.5-flash-native-audio-preview-09-2025', 'gemini-live-2.5-flash-preview'];
+export const GEMINI_LIVE_MODELS = ['gemini-3.1-flash-live-preview', 'gemini-3.8-live', 'gemini-2.5-flash-native-audio-preview-12-2025'];
 export function currentProvider() { const s = S.settings; if (s.chatProvider === 'openai' && s.openaiKey) return 'openai'; if (s.geminiKey) return 'gemini'; if (s.openaiKey) return 'openai'; return gemShared() ? 'gemini' : null; }
 /* ---- Nivel de inglés para la conversación ---- */
 export const LEVELS = {
@@ -565,7 +565,7 @@ export function cacheSet(k, id, v) {
 }
 /* v2.5.1: llamadas únicas a la IA resistentes a saturación (503/429/500/UNAVAILABLE/high demand) */
 export const AIQ = { budget: 25000, base: 700, good: null };
-export const GEM_QUICK_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-2.0-flash-lite'];
+export const GEM_QUICK_MODELS = ['gemini-3.5-flash-lite', 'gemini-2.5-flash-lite', 'gemini-flash-latest', 'gemini-flash-lite-latest', 'gemini-3.1-flash-lite'];
 export function aiTransient(e) { if (!e) return false; const m = String(e.detail || e.message || ''); return [408, 429, 500, 502, 503, 504].includes(e.status) || /UNAVAILABLE|high demand|overloaded|RESOURCE_EXHAUSTED|try again later|temporarily/i.test(m); }
 export function aiStatus(msg) { try { document.dispatchEvent(new CustomEvent('tuki-ai-status', { detail: msg || '' })); } catch (e) {} }
 export function aiBusyErr(last, prov) { const e = new Error((last && last.message) || 'busy'); e.status = last && last.status; e.detail = (last && (last.detail || last.message)) || ''; e.busy = true; e.friendly = (prov || 'Gemini') + ' está muy ocupado en este momento (mucha demanda). Espera un minuto e intenta de nuevo.'; return e; }
@@ -599,7 +599,7 @@ export async function aiQuick(system, prompt, opts = {}) {
     }
     aiStatus(''); throw aiBusyErr(last, 'OpenAI');
   }
-  const models = [AIQ.good, S.settings.model || 'gemini-2.5-flash', ...GEM_QUICK_MODELS].filter((m, i, a) => m && a.indexOf(m) === i), N = models.length;
+  const models = [AIQ.good, S.settings.model || 'gemini-3.5-flash-lite', ...GEM_QUICK_MODELS].filter((m, i, a) => m && a.indexOf(m) === i), N = models.length;
   /* (F2, v2.37.1: con clave propia, UNA sola pasada por la cadena de
      modelos — antes eran hasta 4 pasadas × 5-6 modelos dentro de 25 s
      y cada intento fallido por saturación es una llamada que el usuario
